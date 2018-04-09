@@ -1,0 +1,84 @@
+input{
+	border-bottom-right-radius: 5px;
+	border-top-right-radius: 5px;
+	border: 0px;
+	height: 22px;
+}
+
+.stdFormInput{
+	border-radius: 5px;
+	margin: 5px;
+	padding:7px;
+	background-color: #234567;	
+}
+
+/*
+======Photo Upload Form Styles======
+*/
+:local(.formContentContainer) {
+	display: grid;
+	grid-template-columns: 18% 1fr;
+	grid-template-rows: 25px 1fr;
+	grid-gap: 1px;
+	grid-template-areas: 
+		". control"
+		". addOutfit";
+	height:100%;
+}
+
+:local(.stdFormBlk){
+	composes:stdBlock from './root.css';
+	display: inline;
+	border-radius: 2px;
+	height: 20px;
+	font-size: 70%;
+	color: white;
+}
+
+:local(.imageUploadPreview) {
+	composes: stdFormBlk;
+	grid-area: addOutfit;
+	background-color: black;
+	height: 100%;
+}
+
+:local(.outfitFormControl){
+	composes: stdFormBlk;
+	grid-area: control;
+}
+
+
+/*
+======Login Form Styles======
+*/
+:local(.loginForm){
+	left:auto;
+	right:auto;
+	width:300px;
+	background-color:rgba(0,0,0,0);
+	color:white;
+	padding-top:7px;
+}
+
+:local(.nameField){
+	composes:stdFormInput;
+	text-align:right;
+}
+
+:local(.passwordField){
+	composes:stdFormInput;
+	text-align:right;
+}
+
+:local(.submitButton){
+	composes:stdButton from './root.css';    
+	height: 40px;
+    background-color: #1c2023;
+    font-size: 80%;
+    width: auto;
+    text-align: center;
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 20pt;
+}
+

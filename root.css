@@ -1,0 +1,100 @@
+
+* {
+	box-sizing: border-box;
+}
+
+html{
+	height: 100%;
+}
+
+body{
+	background-color: #1f2124;
+	height: 100%;
+	margin: 2.5px 0px 2.5px 0px;
+	padding: 0px 0px 0px 0px;	
+}
+
+#root{;
+}
+
+#modalRoot{
+	position: relative;
+	z-index: 999;
+}
+
+.modal{	
+	background-color: rgba(0,0,0,0.4);
+	position: fixed;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.stdBlock{
+	border-radius: 5px;
+	background-color: rgb(118, 135, 147);
+	padding: 3px;
+	font-size: 150%;
+	color: #ddfdfd;
+}
+
+.stdButton{
+	composes: stdBlock;
+	height: 20px;
+	background-color: #1c2023;
+	font-size: 80%;	
+}
+
+.stdButton:hover{
+	background-color: #c27e1d;
+}
+
+.container{
+	display: grid;
+	grid-template-columns: auto auto auto 15%;
+	grid-template-rows: .03fr 1.7fr 1fr .03fr ;
+	grid-gap: 5px;
+	grid-template-areas: 
+		"nav nav nav nav"
+		"preview preview preview itemMenu"
+		"browse browse browse browse"
+		"admin admin admin admin";
+	height:100%;
+}
+
+:local(.headerBlock){
+	composes: stdBlock;
+	background-color: #c27e1d;
+	grid-area: nav;
+	font-size: 100%
+}
+
+:local(.previewBlock){
+	composes: stdBlock;
+	grid-area: preview;
+	background-color: rgba(28, 32, 35, 0);
+}
+
+:local(.itemMenuBlock){
+	composes: stdBlock;
+	grid-area: itemMenu;
+}
+
+:local(.outfitBlock){
+	composes: stdBlock;
+	grid-area: browse;
+}
+
+:local(.footerBlock){
+	composes: stdBlock;
+	grid-area: admin;
+	//height: 25px;
+	font-size: 100%
+}
+
+
+

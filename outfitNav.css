@@ -1,0 +1,45 @@
+:local(.outfitNavContainer) {
+	margin-bottom: 4px;
+	height: 25px;	
+	display: grid;
+    grid-template-columns:  150px 1fr;
+	grid-template-rows: 1fr;
+	grid-gap: 5px;
+	grid-template-areas: 
+		"control preview"
+}
+
+
+:local(.stdOutfitNavBlock){
+	composes:stdBlock from './root.css';
+	display: inline;
+	border-radius: 2px;
+	height:20px;
+	font-size: 70%;
+	color: white;
+}
+
+:local(.outfitCtrlContainer) {
+	composes: stdOutfitNavBlock;
+	grid-area: control;
+}
+
+:local(.previewContainer) {
+	composes: stdOutfitNavBlock;
+	grid-area: preview;
+}
+
+/*:local(.outfitCtrlButton){
+	composes:stdBlock from './root.css';
+	height: 20px;
+	background-color: #1c2023;
+	font-size: 80%;	
+}
+
+:local(.outfitCtrlButton):hover{
+	background-color: #c27e1d;
+}*/
+
+:local(.outfitCtrlButton){
+	composes:stdButton from './root.css';
+}

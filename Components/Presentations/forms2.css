@@ -1,0 +1,47 @@
+input{
+	border-bottom-right-radius: 5px;
+	border-top-right-radius: 5px;
+	border: 0px;
+	height: 22px;
+}
+
+.stdFormInput{
+	border-radius: 5px;
+	margin: 5px;
+	padding:7px;
+	background-color: #234567;	
+}
+
+/*
+======Login Form Styles======
+*/
+:local(.loginForm){
+	left:auto;
+	right:auto;
+	width:300px;
+	background-color:rgba(0,0,0,0);
+	color:white;
+	padding-top:7px;
+}
+
+:local(.nameField){
+	composes:stdFormInput;
+	text-align:right;
+}
+
+:local(.passwordField){
+	composes:stdFormInput;
+	text-align:right;
+}
+
+:local(.submitButton){
+	composes:stdButton from '../../root.css';    
+	height: 40px;
+    background-color: #1c2023;
+    font-size: 80%;
+    width: auto;
+    text-align: center;
+    margin-right: 5px;
+    margin-left: 5px;
+    font-size: 20pt;
+}

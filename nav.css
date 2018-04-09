@@ -1,0 +1,47 @@
+:local(.navContainer) {
+	height: 25px;	
+	display: grid;
+    //grid-template-columns: repeat(6, 1fr);
+    grid-template-columns:  50px 50px 50px 1fr 50px;
+	grid-template-rows: 1;
+	grid-gap: 5px;
+	grid-template-areas: 
+		"home profile settings search logout"
+}
+
+:local(.stdNavButtonBlock){
+	composes:stdBlock from './root.css';
+	border-radius: 2px;
+	border-right: 2px solid white;
+	height:20px;
+	font-size: 70%;
+	background-color: #1c2023;
+	color: white;
+}
+
+:local(.home) {
+	composes: stdNavButtonBlock;
+	grid-area: home;
+}
+
+:local(.profile) {
+	composes: stdNavButtonBlock;
+	grid-area: profile;
+}
+
+:local(.settings) {
+	composes: stdNavButtonBlock;
+	grid-area: login;
+}
+
+:local(.search) {
+	composes: stdNavButtonBlock;
+	grid-area: login;
+	text-align: center;
+}
+
+:local(.logout) {
+	composes: stdNavButtonBlock;
+	grid-area: login;
+	border-right: 0px solid white;
+}

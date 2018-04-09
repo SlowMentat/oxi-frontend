@@ -1,0 +1,33 @@
+:local(.itemContainer) {
+	height: 25px;	
+	display: grid;
+    grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: auto;
+	grid-gap: 5px;
+	grid-template-areas: 
+		"size type image image"
+}
+
+:local(.stdItemBlock){
+	composes:stdBlock from './root.css';
+	margin-bottom: 3px;
+	border-radius: 2px;
+	height:25px;
+	font-size: 80%;
+	background-color: #234567;
+}
+
+:local(.itemSizeBlock) {
+	composes: stdItemBlock;
+	grid-area: size;
+}
+
+:local(.itemTypeBlock) {
+	composes: stdItemBlock;
+	grid-area: type;
+}
+
+:local(.itemImageBlock) {
+	composes: stdItemBlock;
+	grid-area: image;
+}
