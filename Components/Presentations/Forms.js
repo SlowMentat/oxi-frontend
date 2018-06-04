@@ -19,11 +19,15 @@ function FormDeck(props){
 	switch(props.selection){
 		case "Login":
 			return (
-				<Login closeLogin={props.closeForm}/>
+				<LoginForm closeLogin={props.closeForm}/>
 			)
 		case "AddItem":
 			return (
-				<AddItem onClick={props.onClick}/>
+				<AddItemForm closeAddItem={props.closeForm} addItem={props.onSubmitForm}/>
+			)
+		case "UpdateItem":
+			return (
+				<UpdateItemForm closeUpdateItem={props.closeForm} updateItem={props.onSubmitForm}/>
 			)
 		default:
 			return null
@@ -32,25 +36,67 @@ function FormDeck(props){
 
 //=========Add Item Form
 
-export const AddItem = ({onClick}) => (	
-	<div className={Styles.modal}>
-		<form className={FormStyles.loginForm} action="" method="POST">
-			<InputTextField type="Size" name="size" />
-			<InputTextField type="#" name="tag" />
-			<InputTextField type="URL" name="url" />
-			<div className={FormStyles.submitButton} onClick={onClick}>
-				SUBMIT
+export class AddItemForm extends React.Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			'size':'',
+			'hashTag':'',
+			'url':''
+		};
+		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
+		this._handleOnSubmit = this._handleOnSubmit.bind(this);
+	}
+
+	_handleInputFieldChange(event){
+		//e.stopPropagation();
+		const target = event.target;
+
+		switch (target.name){
+			case 'size':
+				this.setState({size: event.target.value});
+				break;
+			case 'hashTag':
+				this.setState({hashTag: event.target.value});
+				break;
+			case 'url':
+				this.setState({url : event.target.value});
+				break;
+			default:
+				console.log("target names not found in Item input feilds")
+				break;
+		}
+	}
+
+	_handleOnSubmit(event){
+		this.props.addItem;
+	}
+
+	render(){
+		return(
+			<div className={Styles.modal}>
+				<form className={FormStyles.loginForm} action="" method="POST">
+					<InputTextField type="Size" name="size" onChange={() => {this._handleInputFieldChange(event)}}/>
+					<InputTextField type="Tag" name="hashTag" onChange={() => {this._handleInputFieldChange(event)}}/>
+					<InputTextField type="URL" name="url" onChange={() => {this._handleInputFieldChange(event)}}/>
+					<div className={FormStyles.submitButton} onClick={() => this.props.addItem(this.state.size, this.state.hashTag, this.state.url)}>
+						Add
+					</div>
+					<div className={FormStyles.submitButton} onClick={this.props.closeAddItem}>
+						Cancel
+					</div>
+				</form>
 			</div>
-		</form>
-	</div>
-)
+		);
+	}
+}
 
 /*AddItem.propTypes = {
 	onClick: propTypes.func.isRequried
 }*/
 
 //=========Login Form=========
-export class Login extends React.Component{
+export class LoginForm extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {

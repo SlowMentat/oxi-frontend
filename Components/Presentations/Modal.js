@@ -4,10 +4,10 @@ import ReactDOM from 'react-dom';
 import FormDeck from './Forms.js';
 
 
-const FilledModal = ({modalContent, closeModal}) => {
+const Modal = ({modalContent, closeModal, onSubmitForm}) => {
 	return (
 		<ModalContainer>
-			<FormDeck selection={modalContent} closeForm={closeModal}/>
+			<FormDeck selection={modalContent} closeForm={closeModal} onSubmitForm={onSubmitForm}/>
 		</ModalContainer>
 	)
 }
@@ -56,4 +56,4 @@ class ModalContainer extends React.Component{
 	}
 }
 
-export default FilledModal;
+export default Modal;

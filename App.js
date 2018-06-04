@@ -17,16 +17,30 @@ import FilledModal from './Components/Presentations/Modal.js';
 
 //Container Components
 import ModalContentSelection from './Components/Containers/SelectModalContent.js'
+import VisibleItemList from './Components/Containers/VisibleItemList.js'
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
 import {showModal, setFormVisibility, setXcsrfToken} from './Components/Actions/indexActions.js';
 
+//See instructions when adding enhancers and middlewares
+import { devToolsEnhancer } from 'redux-devtools-extension';
 
 
 //log initial store state
 //subscribe logging callback to store state change
-var store = createStore(_OxiApp);
+const store = createStore(_OxiApp,
+	{
+		toggleModal : {},
+		saveToken : {},
+		entitiesReducer : {
+			items :  {
+				byIds : {}, 
+				allIds : []
+			}
+		}
+	}, devToolsEnhancer(/*Specify name here, actionsBlacklist, actionsCreators and other options if needed*/)
+);
 console.log("Initialized Store")
 console.log(store.getState());
 const unsubscribeStore = store.subscribe(() => console.log(store.getState()));
@@ -204,6 +218,8 @@ class ImageUpload extends React.Component{
 		};
 		this._handleImageChange = this._handleImageChange.bind(this);
 		this._handleSubmit = this._handleSubmit.bind(this);
+		this._handleMouseOver = this._handleMouseOver.bind(this);
+		this._handleOnClick = this._handleOnClick.bind(this);
 	}
 
 	_handleSubmit(e) {
@@ -228,15 +244,27 @@ class ImageUpload extends React.Component{
 		reader.readAsDataURL(file)
 	}
 
+	_handleMouseOver(e) {
+
+	}
+
+	_handleOnClick(e) {
+		e.preventDefault();
+		console.log("image clicked!!");
+		//store clicked location
+		//call item form
+		store.dispatch(setFormVisibility("AddItem"));
+	}
+
 	render() {
 		let {imagePreviewUrl} = this.state;
 		let $imagePreview = null;
 		if (imagePreviewUrl) {
-			$imagePreview = (<img src={imagePreviewUrl} />);
+			$imagePreview = (<img style={{width:'auto',height:'95%',display:'block',margin:'auto','margin-top':'12px','border-radius':'4px'}} onmouseover={this._handleMouseOver} onClick={this._handleOnClick}	src={imagePreviewUrl} />);
 		}
 
 		return (
-			<div style={{margin:'auto'}}>
+			<div style={{margin:'auto',height:'500px'}}>
 				<form onSubmit={this._handleSubmit} style={{positon:'absolute','text-align':'center',display:'inline'}}>
 					<input type="file" onChange={this._handleImageChange} />
 					<button type="submit" onClick={this._handleSubmit}>Upload Image</button>
@@ -412,7 +440,7 @@ class Nav extends React.Component{
 		);
 	}
 }
-
+/*
 class Item extends React.Component {
 	constructor(props){
 		super(props);
@@ -441,9 +469,9 @@ class Item extends React.Component {
 			</div>
 		)
 	}
-}
+}*/
 
-class ItemMenu extends React.Component {
+/*class ItemMenu extends React.Component {
 	constructor(props){
 		super(props);
 	}
@@ -463,14 +491,10 @@ class ItemMenu extends React.Component {
 	    		<Item />
 	    		<Item />
 	    		<Item />
-	    		<Item />
-	    		<Item />
-	    		<Item />
-	    		<Item />
 	    	</div>
 		)
 	}
-}
+}*/
 
 class App extends React.Component {
 	constructor(props){
@@ -508,7 +532,7 @@ class App extends React.Component {
 	    	<div className={Styles.container}>
 	    		<SiteNav/>
 	    		<ContentNav showOutfitForm={this.state.showOutfitForm}/>
-	    		<ItemMenu/>
+	    		<VisibleItemList />
 	    		<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
 	    		<Admin/>
 	    		<ModalContentSelection/>		

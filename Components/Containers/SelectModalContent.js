@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import { setFormVisibility,  } from '../../Components/Actions/indexActions.js';
-import FilledModal from '../../Components/Presentations/Modal.js';
+import { setFormVisibility, createItem } from '../../Components/Actions/indexActions.js';
+import Modal from '../../Components/Presentations/Modal.js';
 
 /*const selectModalContent = (selectedForm) => {
 	console.log("entering switch statement if selectModalContent container")
@@ -24,8 +24,9 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-		closeModal: () => dispatch(setFormVisibility(null))
+		closeModal: () => dispatch(setFormVisibility(null)),
+		onSubmitForm: (size, hashTag, url) => {dispatch(createItem(size, hashTag, url))}
 })
 
-const ModalContentSelection = connect(mapStateToProps, mapDispatchToProps)(FilledModal);
+const ModalContentSelection = connect(mapStateToProps, mapDispatchToProps)(Modal);
 export default ModalContentSelection;

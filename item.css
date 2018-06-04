@@ -1,5 +1,5 @@
 :local(.itemContainer) {
-	height: 25px;	
+	height: 53px;	
 	display: grid;
     grid-template-columns: repeat(4, 1fr);
 	grid-template-rows: auto;
@@ -11,8 +11,9 @@
 :local(.stdItemBlock){
 	composes:stdBlock from './root.css';
 	margin-bottom: 3px;
+	margin-top: 3px;
 	border-radius: 2px;
-	height:25px;
+	height:50px;
 	font-size: 80%;
 	background-color: #234567;
 }
