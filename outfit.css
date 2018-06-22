@@ -1,0 +1,51 @@
+:local(.outfitContainer) {
+	height: 53px;	
+	display: grid;
+    grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: auto;
+	grid-gap: 5px;
+	grid-template-areas: 
+		"size type image image"
+}
+
+:local(.stdOutfitBlock){
+	composes:stdBlock from './root.css';
+	display:inline-block;
+	margin-bottom: 2px;
+	margin-top: 25px;
+	margin-right: 20px;
+	border-radius: 6px;
+    border-width: 2px;
+    border-color: #212121;
+	height:175px;
+	width:150px;
+	font-size: 80%;
+    border-style: solid;
+	background-color: #171717;
+}
+
+:local(.outfitMenuBlock){
+}
+
+:local(.addOutfitButton){
+	composes:stdOutfitBlock;
+	background-color: #EEEEEE;
+	width: 50px;
+	height: 50px;
+    vertical-align: top;
+}
+
+:local(.outfitSizeBlock) {
+	composes: stdOutfitBlock;
+	grid-area: size;
+}
+
+:local(.outfitTypeBlock) {
+	composes: stdOutfitBlock;
+	grid-area: type;
+}
+
+:local(.outfitImageBlock) {
+	composes: stdOutfitBlock;
+	grid-area: image;
+}
