@@ -15,19 +15,18 @@ const InputTextField = ({type, name, onChange}) => (
 //=========Form selection switch block//=========
 
 function FormDeck(props){
-	console.log("FormDeck selections: " + props.selection)
-	switch(props.selection){
+	switch(props.formType){
 		case "Login":
 			return (
-				<LoginForm closeLogin={props.closeForm}/>
+				<LoginForm cancelAction={props.cancelAction}/>
 			)
 		case "AddItem":
 			return (
-				<AddItemForm closeAddItem={props.closeForm} addItem={props.onSubmitForm}/>
+				<ItemForm cancelAction={props.cancelAction} submitAction={props.submitAction} submitContext="Add"/>
 			)
 		case "UpdateItem":
 			return (
-				<UpdateItemForm closeUpdateItem={props.closeForm} updateItem={props.onSubmitForm}/>
+				<ItemForm cancelAction={props.cancelAction} submitAction={props.submitAction} submitContext="Update"/>
 			)
 		default:
 			return null
@@ -36,10 +35,11 @@ function FormDeck(props){
 
 //=========Add Item Form
 
-export class AddItemForm extends React.Component{
+export class ItemForm extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
+			'type':'',
 			'size':'',
 			'hashTag':'',
 			'url':''
@@ -53,6 +53,9 @@ export class AddItemForm extends React.Component{
 		const target = event.target;
 
 		switch (target.name){
+			case 'ItemType':
+				this.setState({type: event.target.value});
+				break;
 			case 'size':
 				this.setState({size: event.target.value});
 				break;
@@ -69,20 +72,29 @@ export class AddItemForm extends React.Component{
 	}
 
 	_handleOnSubmit(event){
-		this.props.addItem;
+		this.props.submitAction(this.state.size, this.state.hashTag, this.state.url);
+		this.props.cancelAction();
 	}
 
 	render(){
 		return(
 			<div className={Styles.modal}>
 				<form className={FormStyles.loginForm} action="" method="POST">
+					<div className={FormStyles.nameField}>
+						<select name="ItemType" onChange={() => {this._handleInputFieldChange(event)}}>
+							<option value="pants">pants</option>
+							<option value="shirt">shirt</option>
+							<option value="shoes">shoes</option>
+							<option value="accessories">accessories</option>
+						</select>
+					</div>
 					<InputTextField type="Size" name="size" onChange={() => {this._handleInputFieldChange(event)}}/>
 					<InputTextField type="Tag" name="hashTag" onChange={() => {this._handleInputFieldChange(event)}}/>
 					<InputTextField type="URL" name="url" onChange={() => {this._handleInputFieldChange(event)}}/>
-					<div className={FormStyles.submitButton} onClick={() => this.props.addItem(this.state.size, this.state.hashTag, this.state.url)}>
-						Add
+					<div className={FormStyles.submitButton} onClick={() => {this._handleOnSubmit(event)}}>
+						{this.props.submitContext}
 					</div>
-					<div className={FormStyles.submitButton} onClick={this.props.closeAddItem}>
+					<div className={FormStyles.submitButton} onClick={this.props.cancelAction}>
 						Cancel
 					</div>
 				</form>
@@ -132,7 +144,7 @@ export class LoginForm extends React.Component{
 					formData,
 					'POST',
 					'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/login'/*OxiAppConstants.apiBaseUri + '/login'*/,
-					this.props.closeLogin()
+					this.props.cancelAction()
 		);
 		e.preventDefault();
 	}

@@ -18,6 +18,8 @@ import FilledModal from './Components/Presentations/Modal.js';
 //Container Components
 import ModalContentSelection from './Components/Containers/SelectModalContent.js'
 import VisibleItemList from './Components/Containers/VisibleItemList.js'
+import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js'
+import ContentContainer from './Components/Containers/ContentContainer.js'
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
@@ -262,7 +264,6 @@ class ImageUpload extends React.Component{
 		if (imagePreviewUrl) {
 			$imagePreview = (<img style={{width:'auto',height:'95%',display:'block',margin:'auto','margin-top':'12px','border-radius':'4px'}} onmouseover={this._handleMouseOver} onClick={this._handleOnClick}	src={imagePreviewUrl} />);
 		}
-
 		return (
 			<div style={{margin:'auto',height:'500px'}}>
 				<form onSubmit={this._handleSubmit} style={{positon:'absolute','text-align':'center',display:'inline'}}>
@@ -308,7 +309,7 @@ class OutfitNav extends React.Component{
 	    				<AddOutfitButton enabled={this.props.enableAddOutfitButton} handleUserClick={this.handleFormCreation} />
 	    			</div>
 	    			<div className={OutfitNavStyles.previewContainer}>
-	    				Outfit Privew container
+	    				<VisibleOutfitList />
 	    			</div>
     			</div>
     		</div>
@@ -411,9 +412,9 @@ class Nav extends React.Component{
 		this.state = {
 			blockList: []
 		};
-
+		let percentWidth = 100 / this.state.blockList.length;
 		this.state.blockList = blocks.map((block) =>
-			<div key={block.toString()} className={`${block.toString()}`} onClick={OxiAppConstants.navRequestMap[block.toString()]}>
+			<div key={block.toString()} className={NavStyles.stdNavButtonBlock} style={{width:'20%'}} onClick={OxiAppConstants.navRequestMap[block.toString()]}>
 				{block}
 			</div>
 		);
@@ -435,66 +436,13 @@ class Nav extends React.Component{
 		);*/
 		return(
 			<div className={NavStyles.navContainer}>
-				{this.state.blockList}
+				<div className={NavStyles.center}>
+					{this.state.blockList}
+				</div>
 			</div>			
 		);
 	}
 }
-/*
-class Item extends React.Component {
-	constructor(props){
-		super(props);
-	}
-
-	componentDidMount(){
-
-	}
-
-	componentWillUnmount(){
-
-	}
-
-	render(){
-		return(			
-		    <div className={ItemStyles.itemContainer}>
-				<div className={ItemStyles.itemSizeBlock}>
-					size
-				</div>
-				<div className={ItemStyles.itemTypeBlock}>	
-					type
-				</div>
-				<div className={ItemStyles.itemImageBlock}>
-					<img src=""/>
-				</div>
-			</div>
-		)
-	}
-}*/
-
-/*class ItemMenu extends React.Component {
-	constructor(props){
-		super(props);
-	}
-
-	componentDidMount(){
-
-	}
-
-	componentWillUnmount(){
-
-	}
-
-	render(){
-		return(
-	    	<div className={Styles.itemMenuBlock}>
-	    		<Item />
-	    		<Item />
-	    		<Item />
-	    		<Item />
-	    	</div>
-		)
-	}
-}*/
 
 class App extends React.Component {
 	constructor(props){
@@ -531,7 +479,7 @@ class App extends React.Component {
 	    return(
 	    	<div className={Styles.container}>
 	    		<SiteNav/>
-	    		<ContentNav showOutfitForm={this.state.showOutfitForm}/>
+	    		<ContentContainer />
 	    		<VisibleItemList />
 	    		<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
 	    		<Admin/>

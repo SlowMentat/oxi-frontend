@@ -25,7 +25,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
 		closeModal: () => dispatch(setFormVisibility(null)),
-		onSubmitForm: (size, hashTag, url) => {dispatch(createItem(size, hashTag, url))}
+		submitContext: (size, hashTag, url) => {dispatch(createItem(url, size, hashTag))}
 })
 
 const ModalContentSelection = connect(mapStateToProps, mapDispatchToProps)(Modal);

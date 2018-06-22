@@ -11,7 +11,7 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-	onClick : id => dispatch(setFormVisibility(id, "UpdateItem"))
+	onClick : () => {dispatch(setFormVisibility("UpdateItem"))}
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

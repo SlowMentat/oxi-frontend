@@ -18,7 +18,7 @@ input{
 :local(.formContentContainer) {
 	display: grid;
 	grid-template-columns: 18% 1fr;
-	grid-template-rows: 25px 1fr;
+	grid-template-rows: 0px 100%;
 	grid-gap: 1px;
 	grid-template-areas: 
 		". control"
@@ -38,7 +38,10 @@ input{
 :local(.imageUploadPreview) {
 	composes: stdFormBlk;
 	grid-area: addOutfit;
-	background-color: black;
+	border-radius: 0px;
+	border-left-style: solid;
+	border-left-width: 1px;
+	background-color: #212121;
 	height: 100%;
 }
 

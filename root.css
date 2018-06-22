@@ -8,7 +8,7 @@ html{
 }
 
 body{
-	background-color: #1f2124;
+	background-color: #212121;
 	height: 100%;
 	margin: 2.5px 0px 2.5px 0px;
 	padding: 0px 0px 0px 0px;	
@@ -36,10 +36,10 @@ body{
 
 .stdBlock{
 	border-radius: 5px;
-	background-color: rgb(118, 135, 147);
+	background-color: #171717;
 	padding: 3px;
 	font-size: 150%;
-	color: #ddfdfd;
+	color: #FFFFFF;
 }
 
 .stdButton{
@@ -56,7 +56,8 @@ body{
 .container{
 	display: grid;
 	grid-template-columns: auto auto auto 15%;
-	grid-template-rows: .03fr 1.7fr 1fr .03fr ;
+	/*grid-template-rows: .03fr 1.7fr 1fr .03fr */
+	grid-template-rows: 5% 55% 35% 5%;
 	grid-gap: 5px;
 	grid-template-areas: 
 		"nav nav nav nav"
@@ -68,7 +69,7 @@ body{
 
 :local(.headerBlock){
 	composes: stdBlock;
-	background-color: #c27e1d;
+	background-color: #00BCD4;
 	grid-area: nav;
 	font-size: 100%
 }

@@ -6,7 +6,7 @@ const ItemList = ({itemIds = [], items = {}, onClick}) => {
 	return (
 	    <div className={ItemStyles.itemMenuBlock}>
 	    	{itemIds.map((itemId) => 
-	    		<Item {...items[itemId]} onClick={() => onClick(items[itemId])}/>
+	    		<Item {...items[itemId]} onClick={onClick}/>
 	    	)}
 	    </div>
 	);

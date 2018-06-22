@@ -1,47 +1,56 @@
 :local(.navContainer) {
-	height: 25px;	
+	height: 35px;	
 	display: grid;
-    //grid-template-columns: repeat(6, 1fr);
-    grid-template-columns:  50px 50px 50px 1fr 50px;
+    /*grid-template-columns: repeat(6, 1fr);*/
+    grid-template-columns:  18% 1fr 18%;
 	grid-template-rows: 1;
-	grid-gap: 5px;
-	grid-template-areas: 
-		"home profile settings search logout"
+	grid-gap: 0px;
+	/*grid-template-areas: 
+		"home profile settings search logout"*/
+	grid-template-areas:
+		"left center right";
 }
 
 :local(.stdNavButtonBlock){
 	composes:stdBlock from './root.css';
-	border-radius: 2px;
-	border-right: 2px solid white;
-	height:20px;
-	font-size: 70%;
-	background-color: #1c2023;
+	display:inline-block;
+	border-radius: 0px;
+	height:100%;
+	font-size: 100%;
+	text-align: center;
+	background-color: #00BCD4;
 	color: white;
 }
 
 :local(.home) {
 	composes: stdNavButtonBlock;
-	grid-area: home;
+	grid-area: center;
 }
 
 :local(.profile) {
 	composes: stdNavButtonBlock;
-	grid-area: profile;
+	grid-area: center;
 }
 
 :local(.settings) {
 	composes: stdNavButtonBlock;
-	grid-area: login;
+	grid-area: center;
 }
 
 :local(.search) {
 	composes: stdNavButtonBlock;
-	grid-area: login;
+	grid-area: center;
 	text-align: center;
 }
 
 :local(.logout) {
 	composes: stdNavButtonBlock;
-	grid-area: login;
+	grid-area: center;
 	border-right: 0px solid white;
+}
+
+:local(.center){
+	/*composes: stdNavButtonBlock;*/
+	grid-area: center;
+	background-color: #00BCD4;
 }
