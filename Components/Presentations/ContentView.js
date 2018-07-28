@@ -46,7 +46,7 @@ const controlContainerStyle = {
 }
 
 
-const ShowContentView = ({context, onImgClick}) => {
+const ShowContentView = ({context, onImgClick, uploadImage}) => {
 	console.log("in showContentView");
 	switch(context){
 		case "edit":
@@ -54,7 +54,7 @@ const ShowContentView = ({context, onImgClick}) => {
 				<div className={FormStyles.formContentContainer}>
 					<div className={FormStyles.imageUploadPreview}>			
 						<VisibleContentList />	
-						<ImageUpload onClick={onImgClick}/>
+						<ImageUpload onClick={onImgClick} uploadImage={uploadImage}/>
 					</div>
 				</div>
 			);
@@ -87,7 +87,8 @@ class ImageUpload extends React.Component{
 
 	_handleSubmit(event) {
 		// TODO: do something with -> this.state.file
-		uploadImage(this.state.file);
+		//uploadImage(this.state.file);
+		this.props.uploadImage(this.state.file);
 		event.preventDefault();
 	}
 
@@ -151,11 +152,13 @@ class ImageUpload extends React.Component{
 						<div style={imgFormControlStyle} onClick={this._handleOpenFile}>File</div>
 					</label>
 					<div style={imgFormControlStyle}>Discard</div>
-					<div style={imgFormControlStyle}>Submit</div>
+					<label for="submitButton">
+						<div style={imgFormControlStyle} onClick={this._handleSubmit}>Submit</div>
+					</label>
 				</div>
 				<form onSubmit={this._handleSubmit} style={{positon:'absolute','text-align':'center',display:'inline'}}>
 					<input id="fileInput" type="file" onChange={this._handleImgChange} style={{display:'none'}} />
-					<button type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>
+					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>
 				</form>
 				<div style={{width:'auto',padding:'0px 10% 0px 10%','background-color':'#000000','max-height':'100%'}}>
 					{$imagePreview}
@@ -200,7 +203,7 @@ class ContentView extends React.Component{
 		}		
 		return(
     		<div className={Styles.previewBlock}>    			
-				<ShowContentView  context={viewContext} onImgClick={this.props.onImgClick}/>
+				<ShowContentView  context={viewContext} onImgClick={this.props.onImgClick} uploadImage={this.props.uploadImage}/>
     		</div>
 		);
 	}

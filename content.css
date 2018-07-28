@@ -6,6 +6,7 @@
 	width:50%;
 	font-size: 80%;
 	background-color: #212121;
+	vertical-align: top;
 }
 
 :local(.stdContentBlock){
@@ -27,5 +28,8 @@
 
 :local(.addContentButton){
 	composes:stdContentBlock;
-	
+	background-color: #00BCD4;
+	border-width: 0px;
+	height: 30px;
+	width: 50px;
 }

@@ -1,8 +1,12 @@
+import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import { createLogger } from 'redux-logger';
 import { Provider } from 'react-redux';
 import Cookies from 'universal-cookie';
+import fetch from 'cross-fetch';
 
 //CSS Components
 import Styles from './root.css';
@@ -23,12 +27,17 @@ import ContentContainer from './Components/Containers/ContentContainer.js'
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
-import {showModal, setFormVisibility, setXcsrfToken} from './Components/Actions/indexActions.js';
+import {showModal, setFormVisibility, setXcsrfToken, fetchEntities} from './Components/Actions/indexActions.js';
 
 //See instructions when adding enhancers and middlewares
 import { devToolsEnhancer } from 'redux-devtools-extension';
+import { composeWithDevTools } from 'redux-devtools-extension';
 
-
+const loggerMiddleware = createLogger();
+const middleware = [thunkMiddleware, loggerMiddleware];
+const composeEnhancers = composeWithDevTools({
+  // Specify name here, actionsBlacklist, actionsCreators and other options if needed
+});
 //log initial store state
 //subscribe logging callback to store state change
 const store = createStore(_OxiApp,
@@ -36,12 +45,9 @@ const store = createStore(_OxiApp,
 		toggleModal : {},
 		saveToken : {},
 		entitiesReducer : {
-			items :  {
-				byIds : {}, 
-				allIds : []
-			}
 		}
-	}, devToolsEnhancer(/*Specify name here, actionsBlacklist, actionsCreators and other options if needed*/)
+	}, composeEnhancers(applyMiddleware(...middleware), /*other store enhancers if any*/) 
+	//devToolsEnhancer(/*Specify name here, actionsBlacklist, actionsCreators and other options if needed*/)
 );
 console.log("Initialized Store")
 console.log(store.getState());
@@ -52,7 +58,8 @@ const cookies = new Cookies();
 export const OxiAppConstants = Object.freeze({	
 	debug : false,
 	HttpStatus : {
-		SUCCESS:201,
+		OK: 200,
+		CREATED:201,
 		REDIRECT:302,
 		UNAUTHORIZED:401,
 		NOT_FOUND:404,
@@ -104,6 +111,17 @@ function OutfitFormContent(props){
 	);
 }
 
+function uploadImage(imageFile){
+	let headers = {};
+	let imageFormData = new FormData();
+	imageFormData.append('imageFile', imageFile);
+	sendAsyncRequest(
+					headers, 
+					imageFormData, 
+					'POST', 
+					OxiAppConstants.apiBaseUrl+'/upload',
+					null);	
+}
 
 //constructs and sends a custom XMLHttpRequest
 //parameters:
@@ -112,7 +130,7 @@ function OutfitFormContent(props){
 //	reqMethod: 		string indicating the request type (ie: GET, POST, etc)
 //	url:			string indicating the url for the request 
 //	_handleOnLoad: 	function for handling additional user defined tasks after onload event
-export function sendAsyncRequest(	headers, 
+export function sendAsyncRequest(headers, 
 							data,
 							reqMethod, 
 							url, 
@@ -137,58 +155,43 @@ export function sendAsyncRequest(	headers,
 		
 		//set onload event handler if provided.
 
-		xhr.onload = function(_handleOnSuccess){
-			switch (this.status){
-				/*
-				Handle SUCCESS status with custom function 
-				*/
-				case OxiAppConstants.HttpStatus.SUCCESS:
-					//custom event handler on success
-					if(	_handleOnSuccess != NaN && _handleOnSuccess != null && _handleOnSuccess != ""){
-						_handleOnSuccess();
-					}
-					resolve(this.status);
-					break;
-				/*
-				*Handle REDIRECT response status.  
-				*/
-				case OxiAppConstants.HttpStatus.NOT_FOUND:
-					if(_handleOnSuccess != null){
-						_handleOnSuccess();
-					}
-					resolve(this.status);
-					break;
-				/*
-				*handle custom redirect here.  Custom redirect used to prevent browser from navigating
-				*to the redirect url in the same async request.  This allows for the client to do its necessary
-				*house work for establishing a token with the server.  
-				*/
-				case OxiAppConstants.HttpStatus.UNAUTHORIZED:
-					//Save X-CSRF-TOKEN returned by server to the application store
-					//store.dispatch(setXcsrfToken(xhr.getResponseHeader('X-CSRF-TOKEN')));
-					cookies.set('csrf_token', xhr.getResponseHeader('X-CSRF-TOKEN'));
-					//Present Login form
-					store.dispatch(setFormVisibility("Login"));
-					resolve(this.status);
-					break;
-				default:
-					reject(this.statusText);
+		xhr.onload = function(e, _handleOnSuccess){
+			/*
+			Handle SUCCESS status with custom function 
+			*/
+			if(this.status === OxiAppConstants.HttpStatus.OK ||
+				this.status === OxiAppConstants.HttpStatus.CREATED){
+				//custom event handler on success
+				if(	_handleOnSuccess != NaN && _handleOnSuccess != null && _handleOnSuccess != ""){
+					_handleOnSuccess();
+				}
+				resolve(this.responseText);
+			}
+			else if(this.status === OxiAppConstants.HttpStatus.NOT_FOUND){
+				if(_handleOnSuccess != null){
+					_handleOnSuccess();
+				}
+				resolve(this.status);
+			}				
+			/*
+			*handle custom redirect here.  Custom redirect used to prevent browser from navigating
+			*to the redirect url in the same async request.  This allows for the client to do its necessary
+			*house work for establishing a token with the server.  
+			*/
+			else if(this.status === OxiAppConstants.HttpStatus.UNAUTHORIZED){
+				//Save X-CSRF-TOKEN returned by server to the application store
+				//store.dispatch(setXcsrfToken(xhr.getResponseHeader('X-CSRF-TOKEN')));
+				cookies.set('csrf_token', xhr.getResponseHeader('X-CSRF-TOKEN'));
+				//Present Login form
+				store.dispatch(setFormVisibility("Login"));
+				resolve(this.status);
+			}
+			else{
+				reject(this.statusText);
 			}		
 		}
 		xhr.send(data);
 	});
-}
-
-function uploadImage(imageFile){
-	let headers = {};
-	let imageFormData = new FormData();
-	imageFormData.append('imageFile', imageFile);
-	sendAsyncRequest(
-					headers, 
-					imageFormData, 
-					'POST', 
-					OxiAppConstants.apiBaseUrl+'/upload',
-					null);	
 }
 
 //TESTING
@@ -341,6 +344,7 @@ class AddOutfitButton extends React.Component{
 	}
 
 	render(){
+		//return(null);
 		return(
 	    	<div className={OutfitNavStyles.outfitCtrlButton} onClick={this.handleClick}>
 	    		Add Outfit
@@ -463,12 +467,13 @@ class App extends React.Component {
 			showOutfitForm: !prevState.showOutfitForm
 		}));
 		console.log("GET " + OxiAppConstants.apiBaseUrl + '/outfits');
-		sendAsyncRequest(
+		/*sendAsyncRequest(
 					{}, 
 					{}, 
 					'GET', 
 					OxiAppConstants.apiBaseUrl+'/outfits',
-					null);	
+					null);	*/
+		store.dispatch(fetchEntities('outfit', 1));
 	}
 
 	_removeOutfitForm(){

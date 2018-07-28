@@ -6,7 +6,22 @@ import OutfitStyles from '../../outfit.css';
 export class Outfit extends React.Component{
 	constructor(props){
 		super(props);
+		this.state = {
+			thumbnail:null,
+			base64Image:null
+		};
+
 		this._handleOnClick = this._handleOnClick.bind(this);
+		this._handleImageReceived = this._handleImageReceived.bind(this);
+		//Dispatch ADD_CONTENT on creation
+		/*if(!this.props.isControl){
+			this.props.createContent(this.outfitId);
+		}*/
+	}
+
+	componentDidMount(){
+		//if thumbnail filename exists, call get request for content coverpic data
+		if(this.props.thumbnail != null) this.props.getCoverPic(this.props.thumbnail, this._handleImageReceived);
 	}
 
 	_handleOnClick(event){
@@ -18,6 +33,12 @@ export class Outfit extends React.Component{
 		this.props.onClick();
 		//event.stopPropagation();
 	}
+	
+	_handleImageReceived(event, data){
+		this.setState({
+			base64Image: 'data:image/jpeg;base64,' + data
+		});
+	}
 
 	//outfitClicked = () => {}
 	render(){
@@ -25,6 +46,7 @@ export class Outfit extends React.Component{
 		console.log(this.props.isControl)
 		return(		
 			<div className={this.props.isControl ? OutfitStyles.addOutfitButton : OutfitStyles.stdOutfitBlock} onClick={this._handleOnClick}>
+				<img src={this.state.base64Image}  style={{width:'100%', 'max-height':'inherit'}}/>
 			</div>		
 		);
 	}

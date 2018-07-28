@@ -15,13 +15,14 @@
 	margin-top: 25px;
 	margin-right: 20px;
 	border-radius: 6px;
-    border-width: 2px;
+    border-width: 10px;
     border-color: #212121;
 	height:175px;
 	width:150px;
 	font-size: 80%;
     border-style: solid;
 	background-color: #171717;
+	vertical-align: top;
 }
 
 :local(.outfitMenuBlock){
@@ -29,8 +30,9 @@
 
 :local(.addOutfitButton){
 	composes:stdOutfitBlock;
-	background-color: #EEEEEE;
-	width: 50px;
+	background-color: #00BCD4;
+	border-width: 0px;
+	width: 30px;
 	height: 50px;
     vertical-align: top;
 }

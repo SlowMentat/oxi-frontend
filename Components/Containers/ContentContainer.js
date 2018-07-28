@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, createItem } from '../../Components/Actions/indexActions.js';
+import { setFormVisibility, createItem, postImage } from '../../Components/Actions/indexActions.js';
 import ContentView from '../../Components/Presentations/ContentView.js';
 
 const mapStateToProps = state => {
@@ -11,6 +11,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
 		onImgClick: () => dispatch(setFormVisibility("AddItem")),
+		uploadImage : (imageData) => dispatch(postImage(imageData))
 })
 
 const ContentContainer = connect(mapStateToProps, mapDispatchToProps)(ContentView);

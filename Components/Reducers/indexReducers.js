@@ -2,12 +2,19 @@ import {combineReducers} from 'redux'
 import {SET_VISIBLE_FORM, 
 			SHOW_MODAL, 
 			SET_XCSRF_TOKEN,
-			CREATE_ITEM,
-			UPDATE_ITEM,
-			CREATE_CONTENT,
-			UPDATE_CONTENT,
 			EDIT_CONTENT_VIEW,
-			SHOW_CONTENT_VIEW
+			SHOW_CONTENT_VIEW,
+			SELECT_PAGE,
+			REQUEST_ENTITIES, 	
+			RECEIVE_ENTITIES,	
+			INVALIDATE_ENTITIES,
+			CREATE_ITEM,
+			CREATE_ITEMCONTENT,
+			CREATE_CONTENT,
+			CREATE_OUTFIT,
+			UPDATE_ITEM,
+			UPDATE_CONTENT,
+			SELECT_CONTENT
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -38,6 +45,13 @@ const iniItems = {
 	'link':''
 }
 
+const iniEntitiesState = {
+	isFetching: false, 
+	didInvalidate : false,
+	lastUpdated:0,
+	entites:[]
+}
+
 const toggleModal = (state = iniState, action) => {
 	switch(action.type){
 		case SET_VISIBLE_FORM:
@@ -58,46 +72,101 @@ const saveToken = (state = iniTokenState, action) => {
 	}
 }
 
-function itemsById(state = {}, action){
+const pageView = (state = {page: home}, action) => {
 	switch(action.type){
-		case `CREATE_${action.typeSpecifier}`:
-			return Object.assign({}, state, {[action.payload.id] : action.payload});
-		case `UPDATE_${action.typeSpecifier}`:
-			return Object.assign({}, state, {[action.payload.id] : action.payload});
+		case SELECT_PAGE:
+			return Object.assign({}, state, action.payload);
 		default:
 			return state;
 	}
 }
 
-function allItems(state = [], action){
+function outfit(state={}, action){
+	switch(action){
+		case CREATE_OUTFIT:
+			return Object.assign({}, state, );
+		default:
+			return state;
+	}
+}
+function byId(state = {}, action){
+	switch(action.type){
+		case `CREATE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {[action.payload.id] : action.payload});
+			//return outfit(state, action)
+		case `UPDATE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {[action.payload.id] : action.payload});
+		case `REPLACE_${action.typeSpecifier}`://Replace value of byId key with contents of action.payload
+			return Object.assign({}, state, action.payload.entities);
+		default:
+			return state;
+	}
+}
+
+function allIds(state = [], action){
 	switch(action.type){
 		case `CREATE_${action.typeSpecifier}`:
 			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
-		case `DELETE_CONTENT_${action.typeSpecifier}`:
-			return state.splice(action.ids)
+		case `DELETE_${action.typeSpecifier}`:
+			return state.splice(action.ids);
+		case `UPDATE_${action.typeSpecifier}`:
+			return Object.keys(action.payload);
+		case `REPLACE_${action.typeSpecifier}`://Replace value of allIds key with keys of action.payload
+			return Object.keys(action.payload.entities);
 		default:
 			return state;
 	}
 }
 
-const entities = (state = {byIds : {}, allIds : []}, action) => {
-	let resultString = `CREATE_${action.typeSpecifier}`;
-	console.log(resultString);
+const entities = maxCount => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : []}, action) => {
+	let byIdsRef = {};
+	let allIdsRef = [];
+	//Check if excedes max number of entities.  If so trim data to maxCount.
+	if(state.allIds.length > maxCount){
+		console.log("greater than max allowed entities")
+		console.log(state.allIds);
+		allIdsRef =  state.allIds.slice(0,maxCount);
+		let keys = Object.keys(state.byIds).slice(0, maxCount)
+		for(var i = 0, len = keys.length; i < len; i++){
+  			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
+		}
+	}else{
+		console.log("less than max allowed entities");
+		console.log(state.allIds);
+		byIdsRef = state.byIds;
+		allIdsRef = state.allIds;
+	}
+	//Handle action
 	switch(action.type){
 		case `CREATE_${action.typeSpecifier}`:
-			//Create new entity id 
-			const incId = state.allIds.reduce((maxId, currentId) => Math.max(maxId, currentId), 0) + 1;
-			//insert new id into action payload
-			let actionWithId = Object.assign({}, action, {payload : Object.assign({}, action.payload, {id : incId})})
-			return {
-				byIds : itemsById(state.byIds, actionWithId),
-				allIds : allItems(state.allIds, actionWithId)
-			};
-		case `UPDATE_${action.typeSpecifier}`:
-			return {
-				byIds : itemsById(state.byIds, action),
-				allIds : allItems(state.allIds, action)
-			};
+			let nextCount = state.count + 1;
+			console.log(maxCount);
+			console.log(nextCount);
+			if(nextCount > maxCount){
+				return state;
+			}else{
+				let scrubbedAction = {};
+				//Insert a new entity id into action payload if none exists
+				if(!action.payload.id){
+					scrubbedAction = Object.assign({}, action, {
+						payload : Object.assign({}, action.payload, {id : allIdsRef.reduce((maxId, currentId) => Math.max(maxId, currentId), 0) + 1})
+					});
+				}else{
+					scrubbedAction = Object.assign({}, action);
+				}
+				return Object.assign({}, state, {
+					byIds : byId(byIdsRef, scrubbedAction),
+					allIds : allIds(allIdsRef, scrubbedAction),
+					count : nextCount,
+					'controlDisabled' : true
+				});
+			}
+		case `UPDATE_${action.typeSpecifier}`: //fix this
+			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action), /*count :  state.count++*/});
+		case `REPLACE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action)})
+		case `SELECT_${action.typeSpecifier}`:
+			return Object.assign({}, state, {"selected": action.payload.id});
 		default:
 			console.log("no matching case in entities()")
 			return state;
@@ -107,7 +176,7 @@ const entities = (state = {byIds : {}, allIds : []}, action) => {
 //This reducer factory returns a wrapper function that invokes 'reducerFunction' 
 //only when the value of the action object's "targetEntity' key equals "reducerName"
 function entityReducerFactory(reducerFunction, reducerName){
-	return (state = {byIds : {}, allIds : []}, action) => {
+	return (state = {selected: false, controlDisabled :  false, count: 0, byIds : {}, allIds : []}, action) => {
 		const {typeSpecifier} =  action;
 		const isInitializationCall = state === undefined;
 		if(typeSpecifier !== reducerName && !isInitializationCall) return state;
@@ -144,12 +213,43 @@ function editableContentView(state = {'isEditingContent' : false}, action){
 	}
 }*/
 
+//maybe find better naming
+function entitiesModified(state = {isFetching:false, didInvalidate:false, entities:[]}, action){
+	switch(action.type){
+		case INVALIDATE_ENTITIES:
+			return Object.assign({}, state, {didInvalidate: true});
+		case REQUEST_ENTITIES:
+			return Object.assign({}, state, {isFetching:true ,didInvalidate: false})
+		case RECEIVE_ENTITIES:
+			return Object.assign({}, state, {isFetching:false ,didInvalidate: false, lastUpdated: action.recivedAt})
+		default:
+			return state;
+	}
+}
+
+function entitiesStateByType(state = {}, action){
+	switch(action.type){
+		case INVALIDATE_ENTITIES:
+		case RECEIVE_ENTITIES:
+		case REQUEST_ENTITIES:
+			return Object.assign({}, state, {[action.payload.entityType]: entitiesModified([action.payload], action)});
+		default:
+			return state;
+	}
+}
+
+export const maxContentCount = 5;
+export const maxItemCount = 9;
+export const maxOutfitCount = 100;
+export const maxProfileCount = 1;
+export const maxItemContentCount = maxContentCount * maxItemCount;
+
 const entitiesReducer = combineReducers({
-	profile : entityReducerFactory(entities, 'PROFILE'),
-	items : entityReducerFactory(entities, 'ITEM'),//itemsReducer,
-	contents : entityReducerFactory(entities, 'CONTENT'),
-	itemContent : entityReducerFactory(entities, 'ITEM_CONTENT'),
-	outfits : entityReducerFactory(entities, 'OUTFIT')
+	profile : entityReducerFactory(entities(maxProfileCount), 'PROFILE'),
+	items : entityReducerFactory(entities(maxItemCount), 'ITEM'),//itemsReducer,
+	contents : entityReducerFactory(entities(maxContentCount), 'CONTENT'),
+	itemContent : entityReducerFactory(entities(maxItemContentCount), 'ITEMCONTENT'),
+	outfits : entityReducerFactory(entities(maxOutfitCount), 'OUTFIT')
 });
 
 
@@ -158,6 +258,7 @@ const _OxiApp = combineReducers({
 	toggleModal,
 	saveToken,
 	entitiesReducer,
+	entitiesStateByType,
 	shownContentView,
 	editableContentView
 })
