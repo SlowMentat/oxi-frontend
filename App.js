@@ -24,6 +24,7 @@ import ModalContentSelection from './Components/Containers/SelectModalContent.js
 import VisibleItemList from './Components/Containers/VisibleItemList.js'
 import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js'
 import ContentContainer from './Components/Containers/ContentContainer.js'
+import WebAppView from './Components/Containers/WebAppViewContainer.js'
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
@@ -55,6 +56,7 @@ const unsubscribeStore = store.subscribe(() => console.log(store.getState()));
 const cookies = new Cookies();
 
 //Constant global variables
+//TODO:  Thios was moved to .../Util/OxiAppConstants.  Replace references to this definition in other modules with new location.
 export const OxiAppConstants = Object.freeze({	
 	debug : false,
 	HttpStatus : {
@@ -69,11 +71,19 @@ export const OxiAppConstants = Object.freeze({
 	modalRoot : document.getElementById('modalRoot'),
 	apiBaseUrl : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
 	navRequestMap : {
-		home : () => {console.log("home pressed")},
-		profile : () => {console.log("profile pressed")},
-		settings : () => {console.log("settings pressed")},
-		search : () => {console.log("serach pressed")},
-		logout : () => {sendAsyncRequest({}, {}, 'POST', 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/logout', null)}
+		home : () => store.dispatch(setWebAppView("home")),
+		profile : () => store.dispatch(setWebAppView("home")),
+		settings : () => store.dispatch(setWebAppView("home")),
+		search : () => store.dispatch(setWebAppView("home")),
+		logout : () => sendAsyncRequest({}, {}, 'POST', 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/logout', null)
+	},
+	EntityTypes : {
+		PROFILE : "PROFILE",
+		OUTFIT : "OUTFIT",
+		CONTENT: "CONTENT",
+		ITEM : "ITEM",
+		ITEM_CONTENT : "ITEMCONTENT",
+		PICTURE : "PICTURE"
 	}
 });
 
@@ -86,22 +96,6 @@ function navButton(props){
 	);
 }
 
-function SiteNav(props){		
-    return(
-    	<div className={Styles.headerBlock}>
-    		<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)}/>
-    	</div>
-
-	);
-}
-
-function Admin(props){		
-    return(
-    	<div className={Styles.footerBlock}>
-    		Administration Footer
-    	</div>
-	);
-}
 
 function OutfitFormContent(props){
 	return(
@@ -279,79 +273,7 @@ class ImageUpload extends React.Component{
 	}
 }
 
-class OutfitNav extends React.Component{
-	constructor(props){
-		super(props);
-		this.handleFormCreation = this.handleFormCreation.bind(this);
-		this.stateChangeFinish - this.stateChangeFinish.bind(this);
-	}
 
-	componentDidMount(){		 
-	}
-
-	componentWillUnmount(){
-	}
-
-	componentWillMount(){
-
-	}
-
-	stateChangeFinish(){
-	}
-
-	handleFormCreation(){
-		//if(store.getState(debug)) console.log("invoking handleFormCreation()");
-		this.props.parentCreateOutfitForm();
-	}
-
-	render(){
-		return(
-    		<div className={Styles.outfitBlock}>
-    			<div className={OutfitNavStyles.outfitNavContainer}>
-	    			<div className={OutfitNavStyles.outfitCtrlContainer}>
-	    				<AddOutfitButton enabled={this.props.enableAddOutfitButton} handleUserClick={this.handleFormCreation} />
-	    			</div>
-	    			<div className={OutfitNavStyles.previewContainer}>
-	    				<VisibleOutfitList />
-	    			</div>
-    			</div>
-    		</div>
-		);
-	}
-}
-
-class AddOutfitButton extends React.Component{
-	constructor(props){
-		super(props);
-		// This binding is necessary to make `this` work in the callback
-    	this.handleClick = this.handleClick.bind(this);
-	}
-
-	componentDidMount(){
-		 
-	}
-
-	componentWillUnmount(){
-
-	}
-
-	handleClick(){
-		/*if({store}.getState(debug)){
-			console.log("clicked!");
-			console.log("AddOutfitButton.props.enabled = " + this.props.enabled);
-		}*/
-		if(this.props.enabled) this.props.handleUserClick();
-	}
-
-	render(){
-		//return(null);
-		return(
-	    	<div className={OutfitNavStyles.outfitCtrlButton} onClick={this.handleClick}>
-	    		Add Outfit
-	    	</div>
-		);
-	}	
-}
 
 class OutfitForm extends React.Component{
 	constructor(props){
@@ -409,44 +331,7 @@ class ContentNav extends React.Component{
 	}
 }
 
-class Nav extends React.Component{
-	constructor(props){
-		super(props);
-		const blocks = this.props.blocks;
-		this.state = {
-			blockList: []
-		};
-		let percentWidth = 100 / this.state.blockList.length;
-		this.state.blockList = blocks.map((block) =>
-			<div key={block.toString()} className={NavStyles.stdNavButtonBlock} style={{width:'20%'}} onClick={OxiAppConstants.navRequestMap[block.toString()]}>
-				{block}
-			</div>
-		);
-	}
 
-	componentDidMount(){
-		 
-	}
-
-	componentWillUnmount(){
-
-	}
-
-	render(){
-		/*return(
-			<div className={Styles.headerBlock}>
-    			<BlockList blocks={['home', 'profile', 'settings', 'search', 'logout']} containerClass={NavStyles.navContainer}/>
-			</div>
-		);*/
-		return(
-			<div className={NavStyles.navContainer}>
-				<div className={NavStyles.center}>
-					{this.state.blockList}
-				</div>
-			</div>			
-		);
-	}
-}
 
 class App extends React.Component {
 	constructor(props){
@@ -473,7 +358,7 @@ class App extends React.Component {
 					'GET', 
 					OxiAppConstants.apiBaseUrl+'/outfits',
 					null);	*/
-		store.dispatch(fetchEntities('outfit', 1));
+		store.dispatch(fetchEntities('outfit', '00000000-0000-0000-0000-000000000000'));
 	}
 
 	_removeOutfitForm(){
@@ -482,14 +367,7 @@ class App extends React.Component {
 	render() {
 		//const formContent = this.state.showModal ? <Child actionUrl="" handleSubmit={this._hideModal}/> : null;
 	    return(
-	    	<div className={Styles.container}>
-	    		<SiteNav/>
-	    		<ContentContainer />
-	    		<VisibleItemList />
-	    		<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
-	    		<Admin/>
-	    		<ModalContentSelection/>		
-	    	</div>
+	    	<WebAppView />
 		);
 	}
 }

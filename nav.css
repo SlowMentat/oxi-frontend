@@ -18,7 +18,7 @@
 	height:100%;
 	font-size: 100%;
 	text-align: center;
-	background-color: #00BCD4;
+	/*background-color: #00BCD4;*/
 	color: white;
 }
 
@@ -52,5 +52,5 @@
 :local(.center){
 	/*composes: stdNavButtonBlock;*/
 	grid-area: center;
-	background-color: #00BCD4;
+	/*background-color: #00BCD4;*/
 }

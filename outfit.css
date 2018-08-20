@@ -17,10 +17,10 @@
 	border-radius: 6px;
     border-width: 10px;
     border-color: #212121;
+    border-style: solid;
 	height:175px;
 	width:150px;
 	font-size: 80%;
-    border-style: solid;
 	background-color: #171717;
 	vertical-align: top;
 }

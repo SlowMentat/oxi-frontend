@@ -1,6 +1,8 @@
 
 * {
 	box-sizing: border-box;
+  	-webkit-font-smoothing: antialiased;
+  	-moz-osx-font-smoothing: grayscale;
 }
 
 html{
@@ -8,10 +10,14 @@ html{
 }
 
 body{
-	background-color: #212121;
+	background-color: #fdfdfd;
 	height: 100%;
 	margin: 2.5px 0px 2.5px 0px;
 	padding: 0px 0px 0px 0px;	
+}
+
+div{
+	font-family: Comfortaa, cursive;
 }
 
 #root{;
@@ -36,7 +42,7 @@ body{
 
 .stdBlock{
 	border-radius: 5px;
-	background-color: #171717;
+	/*background-color: #434343;*/
 	padding: 3px;
 	font-size: 150%;
 	color: #FFFFFF;
@@ -53,11 +59,11 @@ body{
 	background-color: #c27e1d;
 }
 
-.container{
+.containerProfile{
 	display: grid;
 	grid-template-columns: auto auto auto 15%;
 	/*grid-template-rows: .03fr 1.7fr 1fr .03fr */
-	grid-template-rows: 5% 55% 35% 5%;
+	grid-template-rows: 8% 52% 35% 5%;
 	grid-gap: 5px;
 	grid-template-areas: 
 		"nav nav nav nav"
@@ -67,17 +73,31 @@ body{
 	height:100%;
 }
 
+.containerHome{
+	display: grid;
+	grid-template-columns: 28.3% auto;
+	grid-template-rows: 5% auto;
+	grid-gap: 5px;
+	grid-template-areas:
+		"nav nav"
+		"browse browse";
+}
+
 :local(.headerBlock){
-	composes: stdBlock;
-	background-color: #00BCD4;
+	z-index: 1000;
+	background-color: #434343;
 	grid-area: nav;
-	font-size: 100%
+	top: 0;
+	width: 100%;
+	height: 80px;
+	position: fixed;
+	font-size: 100%;
 }
 
 :local(.previewBlock){
 	composes: stdBlock;
 	grid-area: preview;
-	background-color: rgba(28, 32, 35, 0);
+	/*background-color: rgba(28, 32, 35, 0);*/
 }
 
 :local(.itemMenuBlock){

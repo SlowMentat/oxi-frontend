@@ -8,7 +8,19 @@ const OutfitList = ({outfitIds = [], outfits = {}, onClick, onControlClick, crea
 	    	<Outfit onClick={controlDisabled ?  console.log('Outfit control disabled!') : () => {onControlClick()}} isControl={true} >
 	    		Add Outfit
 	    	</Outfit>
-	    	{outfitIds.map((outfitId) => <Outfit key={outfitId} {...outfits[outfitId]} onClick={onClick} isControl={false}  createContent={createContent} thumbnail={outfits[outfitId].coverpicuri} getCoverPic={getCoverPic}/>)}
+	    	{outfitIds.map((outfitId) => 
+	    		<Outfit 
+	    			key={outfitId} 
+	    			{...outfits[outfitId]} 
+	    			id={outfitId}
+	    			onClick={onClick} 
+	    			isControl={false}  
+	    			createContent={createContent} 
+	    			thumbnail={outfits[outfitId].coverpicuri} 
+	    			getCoverPic={getCoverPic}
+	    			contents={outfits[outfitId]["contents"]}
+	    		/>
+	    	)}
 	    </div>
 	);
 }

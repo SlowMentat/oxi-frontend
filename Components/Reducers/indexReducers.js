@@ -1,9 +1,11 @@
 import {combineReducers} from 'redux'
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {SET_VISIBLE_FORM, 
 			SHOW_MODAL, 
 			SET_XCSRF_TOKEN,
 			EDIT_CONTENT_VIEW,
 			SHOW_CONTENT_VIEW,
+			PREVIEW_CONTENT,
 			SELECT_PAGE,
 			REQUEST_ENTITIES, 	
 			RECEIVE_ENTITIES,	
@@ -14,7 +16,27 @@ import {SET_VISIBLE_FORM,
 			CREATE_OUTFIT,
 			UPDATE_ITEM,
 			UPDATE_CONTENT,
-			SELECT_CONTENT
+			SELECT_CONTENT,
+			SELECT_WEB_APP_VIEW,
+			SET_LP_PROFILE_MENU,
+			ADD_ITEM,				
+			MODIFYITEM,
+			REMOVE_ITEM,
+			SELECT_NEW_ITEM,
+			ADD_ITEMCONTENT,
+			REMOVE_ITEMCONTENT,
+			ADD_CONTENT,
+			MODIFYCONTENT,
+			REMOVE_CONTENT,
+			SELECT_NEW_CONTENT,
+			ADD_OUTFIT,	
+			MODIFYOUTFIT,
+			REMOVE_OUTFIT,
+			SELECT_NEW_OUTFIT,
+			ADD_PROFILE,
+			MODIFYPROFILE,
+			REMOVE_PROFILE,
+			SELECT_NEW_PROFILE
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -72,9 +94,27 @@ const saveToken = (state = iniTokenState, action) => {
 	}
 }
 
-const pageView = (state = {page: home}, action) => {
+/*const pageView = (state = {page: home}, action) => {
 	switch(action.type){
 		case SELECT_PAGE:
+			return Object.assign({}, state, action.payload);
+		default:
+			return state;
+	}
+}*/
+
+const appView = (state = {"webAppView": "landing"}, action) => {
+	switch(action.type){
+		case SELECT_WEB_APP_VIEW:
+			return Object.assign({}, state, action.payload);
+		default:
+			return state;
+	}
+}
+
+const landingPage = (state = {'profileMenu': false}, action) => {
+	switch(action.type){
+		case SET_LP_PROFILE_MENU:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -91,9 +131,12 @@ function outfit(state={}, action){
 }
 function byId(state = {}, action){
 	switch(action.type){
+		//action type for modifing entities under "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.id] : action.payload});
-			//return outfit(state, action)
+		//action type for modifing entities under "addedEntitiesReducer"
+		case `ADD_${action.typeSpecifier}`:
+			return Object.assign({}, state, {[action.payload.id] : action.payload})
 		case `UPDATE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.id] : action.payload});
 		case `REPLACE_${action.typeSpecifier}`://Replace value of byId key with contents of action.payload
@@ -105,7 +148,11 @@ function byId(state = {}, action){
 
 function allIds(state = [], action){
 	switch(action.type){
+		//action type for modifing entities under "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
+			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
+		//action type for modifing entities under "addedEntitiesReducer"
+		case `ADD_${action.typeSpecifier}`:
 			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
 		case `DELETE_${action.typeSpecifier}`:
 			return state.splice(action.ids);
@@ -173,6 +220,62 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	}
 }
 
+const localEntities = maxCount => (state = {selected: false, count : 0, byIds : {}, allIds : []}, action) => {
+	let byIdsRef = {};
+	let allIdsRef = [];
+	//Check if excedes max number of entities.  If so trim data to maxCount.
+	if(state.allIds.length > maxCount){
+		console.log("greater than max allowed entities")
+		console.log(state.allIds);
+		allIdsRef =  state.allIds.slice(0,maxCount);
+		let keys = Object.keys(state.byIds).slice(0, maxCount)
+		for(var i = 0, len = keys.length; i < len; i++){
+  			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
+		}
+	}else{
+		console.log("less than max allowed entities");
+		console.log(state.allIds);
+		byIdsRef = state.byIds;
+		allIdsRef = state.allIds;
+	}
+	//Handle action
+	switch(action.type){
+		case `ADD_${action.typeSpecifier}`:
+			let nextCount = state.count + 1;
+			console.log(maxCount);
+			console.log(nextCount);
+			if(nextCount > maxCount){
+				return state;
+			}else{
+				let scrubbedAction = {};
+				//Insert a new entity id into action payload if none exists
+				if(!action.payload.id){
+					console.log('scrubbing action');
+					scrubbedAction = Object.assign({}, action, {
+						payload : Object.assign({}, action.payload, {id : allIdsRef.reduce((maxId, currentId) => Math.max(maxId, currentId), 0) + 1})
+					});
+					console.log(scrubbedAction);
+				}else{
+					scrubbedAction = Object.assign({}, action);
+				}
+				return Object.assign({}, state, {
+					byIds : byId(byIdsRef, scrubbedAction),
+					allIds : allIds(allIdsRef, scrubbedAction),
+					count : nextCount
+				});
+			}
+		case `MODIFY_${action.typeSpecifier}`: //fix this
+			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action), /*count :  state.count++*/});
+		case `REMOVE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action)})
+		case `SELECT_NEW_${action.typeSpecifier}`:
+			return Object.assign({}, state, {"selected": action.payload.id});
+		default:
+			console.log("no matching case in entities()")
+			return state;
+	}
+}
+
 //This reducer factory returns a wrapper function that invokes 'reducerFunction' 
 //only when the value of the action object's "targetEntity' key equals "reducerName"
 function entityReducerFactory(reducerFunction, reducerName){
@@ -184,23 +287,25 @@ function entityReducerFactory(reducerFunction, reducerName){
 	}
 }
 
-function shownContentView(state = {'shownContentView' : true}, action){
+function contentViewState(state = {'shownContentId' : false, 'isEditingContent' : false}, action){
 	switch(action.type){
-		case SHOW_CONTENT_VIEW:
+		case PREVIEW_CONTENT:
 			return Object.assign({}, state, action.payload);
-		default:
-			return state;
-	}
-}
-
-function editableContentView(state = {'isEditingContent' : false}, action){
-	switch(action.type){
 		case EDIT_CONTENT_VIEW:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
 	}
 }
+
+/*function editableContentView(state = {'isEditingContent' : false}, action){
+	switch(action.type){
+		case EDIT_CONTENT_VIEW:
+			return Object.assign({}, state, action.payload);
+		default:
+			return state;
+	}
+}*/
 
 /*const contentViewState = (state = {isEditingContent: false, isContentViewVisible : true}, action) => {
 	switch(action.type){
@@ -227,7 +332,7 @@ function entitiesModified(state = {isFetching:false, didInvalidate:false, entiti
 	}
 }
 
-function entitiesStateByType(state = {}, action){
+function entitiesState(state = {}, action){
 	switch(action.type){
 		case INVALIDATE_ENTITIES:
 		case RECEIVE_ENTITIES:
@@ -238,29 +343,43 @@ function entitiesStateByType(state = {}, action){
 	}
 }
 
-export const maxContentCount = 5;
-export const maxItemCount = 9;
-export const maxOutfitCount = 100;
+export const maxOutfitViewCount = 8;
+export const maxContentViewCount = 6;
+export const maxItemViewCount = 9;
 export const maxProfileCount = 1;
+export const maxOutfitCount = maxOutfitViewCount * 3;
+export const maxContentCount = maxContentViewCount * maxOutfitCount;
+export const maxItemCount = maxItemViewCount * maxContentCount;
 export const maxItemContentCount = maxContentCount * maxItemCount;
 
 const entitiesReducer = combineReducers({
-	profile : entityReducerFactory(entities(maxProfileCount), 'PROFILE'),
-	items : entityReducerFactory(entities(maxItemCount), 'ITEM'),//itemsReducer,
-	contents : entityReducerFactory(entities(maxContentCount), 'CONTENT'),
-	itemContent : entityReducerFactory(entities(maxItemContentCount), 'ITEMCONTENT'),
-	outfits : entityReducerFactory(entities(maxOutfitCount), 'OUTFIT')
+	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE),
+	items : entityReducerFactory(entities(maxItemCount), OxiAppConstants.EntityTypes.ITEM),//itemsReducer,
+	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT),
+	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT),
+	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT),
+	entitiesState
 });
+
+const addedEntitiesReducer = combineReducers({
+	profile : entityReducerFactory(localEntities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE),
+	items : entityReducerFactory(localEntities(maxItemCount), OxiAppConstants.EntityTypes.ITEM),
+	contents : entityReducerFactory(localEntities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT),
+	itemContent : entityReducerFactory(localEntities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT),
+	outfits : entityReducerFactory(localEntities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT)
+})
 
 
 const _OxiApp = combineReducers({
 	//add reducers for combining here
+	appView,
+	landingPage,
 	toggleModal,
 	saveToken,
+	contentViewState,
 	entitiesReducer,
-	entitiesStateByType,
-	shownContentView,
-	editableContentView
+	addedEntitiesReducer
+	//editableContentView
 })
 
 export default _OxiApp

@@ -26,14 +26,16 @@ export class Outfit extends React.Component{
 
 	_handleOnClick(event){
 		if(this.props.isControl){
-			console.log("Control Outfit div clicked")
+			console.log("Control Outfit div clicked");
+			this.props.onClick();
+			return;
 		}else{			
 			console.log("view Outfit div clicked")
+			this.props.onClick(this.props.id, this.props.contents[0]);
 		}
-		this.props.onClick();
-		//event.stopPropagation();
+		event.stopPropagation();
 	}
-	
+
 	_handleImageReceived(event, data){
 		this.setState({
 			base64Image: 'data:image/jpeg;base64,' + data

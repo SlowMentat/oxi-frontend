@@ -46,8 +46,9 @@ const controlContainerStyle = {
 }
 
 
-const ShowContentView = ({context, onImgClick, uploadImage}) => {
+const ShowContentView = ({context, contentsByIds, contentSelected, getPreviewPic, onImgClick, uploadImage}) => {
 	console.log("in showContentView");
+	console.log(context);
 	switch(context){
 		case "edit":
 			return(
@@ -63,12 +64,62 @@ const ShowContentView = ({context, onImgClick, uploadImage}) => {
 				<div className={FormStyles.formContentContainer}>		
 					<div className={FormStyles.imageUploadPreview}>				
 						<VisibleContentList />
+						<ImagePreview contentsByIds={contentsByIds} contentSelected={contentSelected} getPreviewPic={getPreviewPic} />
 					</div>
 				</div>
-			)
+			);
 		default:
-			console.log("nothing selected")
-			return
+			console.log("nothing selected");
+			return null;
+	}
+}
+
+class ImagePreview extends React.Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			base64Image:null,
+			contentId:null
+		};
+		this._handleImgChange = this._handleImgChange.bind(this);
+		this._handleImgMouseOver = this._handleImgMouseOver.bind(this);
+		this._handleImgClick = this._handleImgClick.bind(this);
+		this._handleImageReceived = this._handleImageReceived.bind(this);
+	}
+
+	componentDidMount(){
+	}
+
+	_handleImgChange(event){
+	}
+
+	_handleImgMouseOver(event){
+	}
+
+	_handleImgClick(event){
+	}
+
+	_handleImageReceived(event, data){
+		this.setState({
+			base64Image: 'data:image/jpeg;base64,' + data
+		});
+	}
+
+	render(){
+		if(this.state.contentId != this.props.contentSelected){			
+			//get image data from content entity coverpicuri property.  
+			//TODO:  This will need to be refactored to read filename from Picture entity instead
+			console.log("component did mount with contentSelected = " + this.props.contentSelected);
+			this.props.getPreviewPic(this.props.contentsByIds[this.props.contentSelected].coverpicuri, this._handleImageReceived);
+			this.state.contentId = this.props.contentSelected;
+		}
+		return (
+			<div style={imgFormStyle}>
+				<div style={{width:'auto',padding:'0px 10% 0px 10%','background-color':'#000000','max-height':'100%'}}>
+					<img src={this.state.base64Image} style={imgStyle}/>
+				</div>
+			</div>
+		)
 	}
 }
 
@@ -193,17 +244,28 @@ class ContentView extends React.Component{
 
 	render(){
 		var viewContext = null;
-		console.log("isVisible = " + this.props.isVisible +", editView = " + this.props.editView)
-		if(this.props.isVisible){
-			if(this.props.editView){
-				viewContext = "edit"
-			}else{
+		console.log("contentSelected = " + this.props.contentSelected +", editView = " + this.props.editView)
+		if(this.props.editView){
+			viewContext = "edit"
+		}else if(this.props.contentSelected != undefined){
+			if(this.props.contentSelected != false){
 				viewContext = "view"
+			}else{
+				console.log("contentSelected is false");
 			}
-		}		
+		}else{
+			console.log("contentSelected is undefined");
+		}
 		return(
     		<div className={Styles.previewBlock}>    			
-				<ShowContentView  context={viewContext} onImgClick={this.props.onImgClick} uploadImage={this.props.uploadImage}/>
+				<ShowContentView  
+					context={viewContext} 
+					contentsByIds={this.props.contentsByIds} 
+					contentSelected={this.props.contentSelected} 
+					getPreviewPic={this.props.getPreviewPic}
+					onImgClick={this.props.onImgClick} 
+					uploadImage={this.props.uploadImage}
+				/>
     		</div>
 		);
 	}

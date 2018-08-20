@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import FormStyles from './forms2.css';
 import Styles from '../../root.css';
 import {sendAsyncRequest, OxiAppConstants} from '../../App.js';
+import axios from 'axios';
+import {handleUnauthorizedRequest, requestInterceptor, loginConfig} from '../../Components/Actions/indexActions.js';
 
 //=========Primitives Elements=========
 
@@ -135,17 +137,33 @@ export class LoginForm extends React.Component{
 
 	_onSubmitLogin(e, username, password){
 		//e.stopPropagation();
-		var formData = new FormData();
+		/*var formData = new FormData();
 		formData.append('username', username);
 		formData.append('password', password);
-		console.log(formData);
-		sendAsyncRequest(
+		console.log(formData);*/
+		console.log('calling axio post request from Login Form');
+		axios(loginConfig(username, password))
+		/*axios.post(OxiAppConstants.apiBaseUrl + '/login', {
+			'password': password,
+			'username': username,
+			headers:{
+				'X-CSRF-TOKEN' : cookies.get('csrf_token')
+			}
+		})*/
+		.then(response => {
+			if(response.status == 200){
+				this.props.cancelAction();
+			}else{
+				//handleUnauthorizedRequest(response);
+			}
+		});
+		/*sendAsyncRequest(
 					{},
 					formData,
 					'POST',
-					'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/login'/*OxiAppConstants.apiBaseUri + '/login'*/,
+					'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/login',
 					this.props.cancelAction()
-		);
+		);*/
 		e.preventDefault();
 	}
 
