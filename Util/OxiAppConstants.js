@@ -33,5 +33,10 @@ export const OxiAppConstants = Object.freeze({
 	},
 	ContentDirectories : {
 		IMAGES: 'Graphics'
+	},
+	FormType : {
+		ADD_ITEM: 'AddItem',
+		UPDATE_ITEM: 'UpdateItem',
+		LOGIN: 'Login'
 	}
 });

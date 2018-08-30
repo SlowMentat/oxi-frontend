@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormStyles from './forms2.css';
 import Styles from '../../root.css';
-import {sendAsyncRequest, OxiAppConstants} from '../../App.js';
+import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import {handleUnauthorizedRequest, requestInterceptor, loginConfig} from '../../Components/Actions/indexActions.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //=========Primitives Elements=========
 
@@ -18,17 +19,28 @@ const InputTextField = ({type, name, onChange}) => (
 
 function FormDeck(props){
 	switch(props.formType){
-		case "Login":
+		case OxiAppConstants.FormType.LOGIN:
 			return (
 				<LoginForm cancelAction={props.cancelAction}/>
 			)
-		case "AddItem":
+		case OxiAppConstants.FormType.ADD_ITEM:
 			return (
-				<ItemForm cancelAction={props.cancelAction} submitAction={props.submitAction} submitContext="Add"/>
+				<ItemForm 
+					cancelAction={props.cancelAction} 
+					submitAction={props.submitAction} 
+					submitContext="Add" 
+					contents={props.contents} 
+					itemAllIds={props.itemAllIds}
+					modifyContentItems={props.modifyContentItems}
+				/>
 			)
-		case "UpdateItem":
+		case OxiAppConstants.FormType.UPDATE_ITEM:
 			return (
-				<ItemForm cancelAction={props.cancelAction} submitAction={props.submitAction} submitContext="Update"/>
+				<ItemForm 
+					cancelAction={props.cancelAction} 
+					submitAction={props.submitAction} 
+					submitContext="Update"
+				/>
 			)
 		default:
 			return null
@@ -75,6 +87,7 @@ export class ItemForm extends React.Component{
 
 	_handleOnSubmit(event){
 		this.props.submitAction(this.state.size, this.state.hashTag, this.state.url);
+		//this.props.modifyContentItems(this.props.contents.selected, this.props.itemAllIds)
 		this.props.cancelAction();
 	}
 

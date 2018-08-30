@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, setWebAppView, fetchEntities, showProfileMenu, createUser, addProfile } from '../../Components/Actions/indexActions.js';
+import { setFormVisibility, setWebAppView, fetchEntities, showProfileMenu, createUser, addProfile, modifyProfile, postProfile } from '../../Components/Actions/indexActions.js';
 
 //Presentation Components
 import LandingPage from '../../Components/Presentations/LandingPage.js'
@@ -27,13 +27,20 @@ const filterProfileFields = (profileById, filter) => {
 const mapStateToProps = state => {
 	return {
 		profileMenu : state.landingPage.profileMenu,
+		profileId: state.addedEntitiesReducer.profile.allIds[0],
 		profile: state.addedEntitiesReducer.profile.byIds[state.addedEntitiesReducer.profile.allIds[0]]//getVisibleProfileFields(state.addEntitiesReducer.profile, 0)
 	};
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-	createProfile: (email, password, username) => {
+	createUser: (email, password, username) => {
 		dispatch(createUser(email, password, username));
+	},
+	modifyProfile: (profile) => {
+		dispatch(modifyProfile(profile))
+	},
+	postProfile: (profile) => {
+		dispatch(postProfile(profile))
 	}/*,
 	toggleRadio: (bodyShape) => dispatch(selectBodyShape(bodyShape)),
 	checkBox: (boxChecked) => dispatch(selectApparelInterest())*/

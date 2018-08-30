@@ -1,6 +1,17 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, createContent, createItem, updateItem, fetchImage, selectContent, previewContent} from '../../Components/Actions/indexActions.js';
+import { 
+	setFormVisibility, 
+	addContent, 
+	createItem, 
+	updateItem, 
+	fetchImage, 
+	selectContent, 
+	previewContent,
+	selectAddedEntity,
+	modifyContent
+} from '../../Components/Actions/indexActions.js';
 import ContentList from '../../Components/Presentations/ContentList.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 const getVisibleContents = (contents, filter, outfits) => {
 	let contentsById = contents.byIds;
@@ -24,7 +35,7 @@ const getVisibleContents = (contents, filter, outfits) => {
 							//result.allIds = Object.keys(result.byIds);
 							console.log("result");
 							console.log(result);
-							return result;	
+							return Object.assign({}, contents, result);	
 						}else{
 							console.log("outfits.selected is false");
 						}				
@@ -47,12 +58,21 @@ const mapStateToProps = state => {
 		'BY_OUTFIT_ID',
 		state.entitiesReducer.outfits
 	);
+	let filteredAddedContents = getVisibleContents(
+		state.addedEntitiesReducer.contents,
+		'BY_OUTFIT_ID',
+		state.addedEntitiesReducer.outfits
+	);
 	return ({
 		contents : filteredContents.byIds,
 		//contents : state.entitiesReducer.contents.byIds,
 		contentIds : filteredContents.allIds,//state.entitiesReducer.contents.allIds,
 		controlDisabled: state.entitiesReducer.contents.controlDisabled,
-		isEdit: state.contentViewState.isEditingContent
+		isEdit: state.contentViewState.isEditingContent,
+		addedContents : filteredAddedContents.byIds,
+		addedContentIds : filteredAddedContents.allIds,
+		selected :  state.addedEntitiesReducer.contents.selected,
+		addedItemIds : state.addedEntitiesReducer.items.allIds
 	});
 }
 
@@ -61,8 +81,13 @@ const mapDispatchToProps = dispatch => ({
 		dispatch(selectContent(contentId));
 		dispatch(previewContent(contentId));
 	},
-	onControlClick : () => dispatch(createContent()),
-	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback))
+	onControlClick : () => dispatch(addContent()),
+	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
+	focusOnAddedContent : (addedContentId) => dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.CONTENT, addedContentId)),
+	modifyContentItems: (contentId, itemAllIds) => dispatch(modifyContent({
+		'id': contentId, 
+		'items':itemAllIds
+	}))
 })
 
 const VisibleContentList = connect(mapStateToProps, mapDispatchToProps)(ContentList);

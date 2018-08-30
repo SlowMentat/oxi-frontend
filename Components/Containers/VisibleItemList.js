@@ -50,6 +50,7 @@ const getVisibleItems = (items, filter, contents) => {
 	if(!(Object.keys(items).length === 0 && items.constructor === Object)){
 		switch(filter){
 			case 'SHOW_ALL':
+				return items;
 			case 'BY_TYPE':
 				return items.filter(item => item.type = data);
 			case 'BY_SIZE':
@@ -70,7 +71,7 @@ const getVisibleItems = (items, filter, contents) => {
 							//result.allIds = Object.keys(result.byIds);
 							console.log("result");
 							console.log(result);
-							return result;	
+							return Object.assign({}, items, result);	
 						}else{
 							console.log("contents.selected is false");
 						}				
@@ -81,7 +82,7 @@ const getVisibleItems = (items, filter, contents) => {
 					console.log("contents is undefined");
 				}
 			default:
-				return result;
+				return Object.assign({}, items, result);
 		}
 	}else if(selectedContentId === false){
 		return
@@ -95,20 +96,21 @@ const mapStateToProps = state => {
 		'BY_CONTENT_ID',
 		state.entitiesReducer.contents
 	);
+	let filteredAddedItems = getVisibleItems(
+		state.addedEntitiesReducer.items,
+		'BY_CONTENT_ID',
+		state.addedEntitiesReducer.contents
+	);
 	return ({
-		items : filteredItems.byIds/*getVisibleItems(
-			state.entitiesReducer.items.byIds, 
-			state.entitiesReducer.itemContent.byIds,
-			'BY_CONTENT_ID',
-			state.entitiesReducer.contents.selected
-		)*/,
-		//items : state.entitiesReducer.items.byIds,
-		itemIds : filteredItems.allIds//state.entitiesReducer.items.allIds 
+		items : filteredItems.byIds,
+		itemIds : filteredItems.allIds,//state.entitiesReducer.items.allIds 
+		addedItems : filteredAddedItems.byIds,
+		addedItemIds : filteredAddedItems.allIds
 	});
 }
 
 const mapDispatchToProps = dispatch => ({
-	onClick : () => {dispatch(setFormVisibility("UpdateItem"))}
+	onClick : () => {console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));}
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

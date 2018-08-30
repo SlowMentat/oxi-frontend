@@ -14,9 +14,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, props) => ({
 	navEventCallbacks : {
 		home : () => dispatch(setWebAppView("home")),
-		profile : () => {
+		profile : (profileId) => {
 			dispatch(setWebAppView("profile"));
-			dispatch(fetchEntities('outfit', '00000000-0000-0000-0000-000000000000'));
+			dispatch(fetchEntities('outfit', "gg"));
 		},
 		settings : () => dispatch(setWebAppView("settings")),
 		search : () => dispatch(setWebAppView("search")),

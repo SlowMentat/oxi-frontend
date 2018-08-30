@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, createItem } from '../../Components/Actions/indexActions.js';
+import { setFormVisibility, addItem, selectAddedEntity, modifyContent } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 /*const selectModalContent = (selectedForm) => {
 	console.log("entering switch statement if selectModalContent container")
@@ -18,14 +19,34 @@ import Modal from '../../Components/Presentations/Modal.js';
 
 const mapStateToProps = state => {
 	console.log("state = " + state.toggleModal.modal)
+	let contents = null;
+	let itemAllIds = null;
+	if(state.toggleModal.modal === OxiAppConstants.FormType.ADD_ITEM){
+		contents = state.addedEntitiesReducer.contents;
+		itemAllIds = state.addedEntitiesReducer.items.allIds;
+	}else if(state.toggleModal.modal === OxiAppConstants.FormType.UPDATE_ITEM){
+		contents = state.entitiesReducer.contents;
+		itemAllIds = state.entitiesReducer.items.allIds;
+	}
 	return {
-		modalContent: state.toggleModal.modal
+		formType: state.toggleModal.modal,
+		contents: contents,
+		itemAllIds: itemAllIds
 	};
 }
 
 const mapDispatchToProps = dispatch => ({
 		closeModal: () => dispatch(setFormVisibility(null)),
-		submitContext: (size, hashTag, url) => {dispatch(createItem(url, size, hashTag))}
+		submitAction: (size, hashTag, url) => {
+			dispatch(addItem(url, size, hashTag));
+			//dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.ITEM, addedOutfitId))
+		},
+		modifyContentItems: (contentId, itemAllIds) => {
+			dispatch(modifyContent({
+				'id': contentId, 
+				'items':itemAllIds
+			}));
+		}
 })
 
 const ModalContentSelection = connect(mapStateToProps, mapDispatchToProps)(Modal);

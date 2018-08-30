@@ -5,8 +5,8 @@ import axios from 'axios';
 //import sendAsyncRequest from '../../Util/AsyncRequest.js';
 import {sendAsyncRequest} from '../../App.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import {normalize} from 'normalizr';
-import {outfitsSchema} from '../../Util/Schema.js'
+import {normalize, denormalize} from 'normalizr';
+import {outfitsSchema, profileSchema} from '../../Util/Schema.js'
 import Cookies from 'universal-cookie';
 import qs from 'qs';
 
@@ -34,24 +34,24 @@ export const DELETE_OUTFIT			= "DELETE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const SELECT_PAGE 			= "SELECT_PAGE";
 
 //Action on for entities added to client
-export const ADD_ITEM				= 'ADD_'		+ OxiAppConstants.EntityTypes.ITEM;
-export const MODIFYITEM				= 'MODIFY_'		+ OxiAppConstants.EntityTypes.ITEM;
-export const REMOVE_ITEM			= 'REMOVE_'		+ OxiAppConstants.EntityTypes.ITEM;
-export const SELECT_NEW_ITEM		= 'SELECT_NEW_'	+ OxiAppConstants.EntityTypes.ITEM;
-export const ADD_ITEMCONTENT		= 'ADD_'		+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
-export const REMOVE_ITEMCONTENT		= 'REMOVE_'		+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
-export const ADD_CONTENT			= 'ADD_'		+ OxiAppConstants.EntityTypes.CONTENT;
-export const MODIFYCONTENT			= 'MODIFY_'		+ OxiAppConstants.EntityTypes.CONTENT;
-export const REMOVE_CONTENT			= 'REMOVE_'		+ OxiAppConstants.EntityTypes.CONTENT;
-export const SELECT_NEW_CONTENT		= 'SELECT_NEW_'	+ OxiAppConstants.EntityTypes.CONTENT;
-export const ADD_OUTFIT				= 'ADD_'		+ OxiAppConstants.EntityTypes.OUTFIT;
-export const MODIFYOUTFIT			= 'MODIFY_'		+ OxiAppConstants.EntityTypes.OUTFIT;
-export const REMOVE_OUTFIT			= 'REMOVE_'		+ OxiAppConstants.EntityTypes.OUTFIT;
-export const SELECT_NEW_OUTFIT		= 'SELECT_NEW_'	+ OxiAppConstants.EntityTypes.OUTFIT;
-export const ADD_PROFILE			= 'ADD_'		+ OxiAppConstants.EntityTypes.PROFILE;
-export const MODIFYPROFILE			= 'MODIFY_'		+ OxiAppConstants.EntityTypes.PROFILE;
-export const REMOVE_PROFILE			= 'REMOVE_'		+ OxiAppConstants.EntityTypes.PROFILE;
-export const SELECT_NEW_PROFILE		= 'SELECT_NEW_'	+ OxiAppConstants.EntityTypes.PROFILE;
+export const ADD_ITEM				= 'ADD_'				+ OxiAppConstants.EntityTypes.ITEM;
+export const MODIFYITEM				= 'MODIFY_'				+ OxiAppConstants.EntityTypes.ITEM;
+export const REMOVE_ITEM			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.ITEM;
+export const SELECT_NEW_ITEM		= 'SELECT_NEW_'			+ OxiAppConstants.EntityTypes.ITEM;
+export const ADD_ITEMCONTENT		= 'ADD_'				+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
+export const REMOVE_ITEMCONTENT		= 'REMOVE_'				+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
+export const ADD_CONTENT			= 'ADD_'				+ OxiAppConstants.EntityTypes.CONTENT;
+export const MODIFY_CONTENT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.CONTENT;
+export const REMOVE_CONTENT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.CONTENT;
+export const SELECT_ADDED_CONTENT	= 'SELECT_ADDED_'		+ OxiAppConstants.EntityTypes.CONTENT;
+export const ADD_OUTFIT				= 'ADD_'				+ OxiAppConstants.EntityTypes.OUTFIT;
+export const MODIFYOUTFIT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.OUTFIT;
+export const REMOVE_OUTFIT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.OUTFIT;
+export const SELECT_ADDED_OUTFIT	= 'SELECT_ADDED_'		+ OxiAppConstants.EntityTypes.OUTFIT;
+export const ADD_PROFILE			= 'ADD_'				+ OxiAppConstants.EntityTypes.PROFILE;
+export const MODIFY_PROFILE			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.PROFILE;
+export const REMOVE_PROFILE			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.PROFILE;
+export const SELECT_NEW_PROFILE		= 'SELECT_NEW_'			+ OxiAppConstants.EntityTypes.PROFILE;
  
 
 //Async action types
@@ -76,6 +76,27 @@ let nextItemId = 0;
 let nextOutfitId = 0;
 let nextContentId = 0;
 
+const defaultProfileData = {
+	'id':'',
+	'username':'',
+	'bodyShape':'',
+	'apparelInterest': '',
+	'height':'',
+	'neck':'',
+	'fullShoulder':'',
+	'halfShoulder':'',
+	'chest':'',
+	'waist':'',
+	'hips':'',
+	'sleeve':'',
+	'frontLength':'',
+	'backLength':'',
+	'pantOutseam':'',
+	'pantInseam':'',
+	'thigh':'',
+	'calf':''	
+};
+
 
 export const setFormVisibility	= makeActionCreator(SET_VISIBLE_FORM, null, 'modal');
 export const editContentView 	= makeActionCreator(EDIT_CONTENT_VIEW, null, 'isEditingContent');
@@ -94,42 +115,41 @@ export const createOutfit 		= makeActionCreator(CREATE_OUTFIT, OxiAppConstants.E
 export const updateOutfit 		= makeActionCreator(UPDATE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicUri', 'contents', 'profile');
 export const replaceOutfits 	= makeActionCreator(REPLACE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entities');
 export const deleteOutfit 		= makeActionCreator(DELETE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicUri', 'contents', 'profile');
+export const addOutfit 			= makeActionCreator(ADD_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicUri', 'contents', 'profile');
 //ITEM Actions
 export const createItem 		= makeActionCreator(CREATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'link', 'size', 'type');
 export const updateItem 		= makeActionCreator(UPDATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id', 'link', 'size', 'type');
 export const replaceItems 		= makeActionCreator(REPLACE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'entities');
+export const addItem 			= makeActionCreator(ADD_ITEM, OxiAppConstants.EntityTypes.ITEM, 'link', 'size', 'type');
+
 //ITEMCONTENT Actions
-export const createItemContent 	= makeActionCreator(CREATE_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT, 'itemId', 'contentId');
+export const createItemContent 	= makeActionCreator(CREATE_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT,'id', 'itemId', 'contentId');
+export const addItemContent 	= makeActionCreator(ADD_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT, 'itemId', 'contentId');
 //CONTENT Actions
 export const createContent 		= makeActionCreator(CREATE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'outfitId');
 export const updateContent 		= makeActionCreator(UPDATE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id', 'coverpicuri', 'items');
 export const replaceContents 	= makeActionCreator(REPLACE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entities');
 
+export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'outfitId', 'items');
+export const modifyContent 		= makeActionCreator(MODIFY_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity')
 
-//PROFILE Local Actions
-export const addProfile 		= makeActionCreator(
-									ADD_PROFILE, 
-									OxiAppConstants.EntityTypes.PROFILE,
-									'id',
-									'username',
-									'bodyShape',
-									'apparelInterest',
-									'height',
-									'neck',
-									'fullShoulder',
-									'halfShoulder',
-									'chest',
-									'waist',
-									'hips',
-									'sleeve',
-									'frontLength',
-									'backLength',
-									'pantOutseam',
-									'pantInseam',
-									'thigh',
-									'calf'
-								);
+export const selectAddedOutfit 	= makeActionCreator(SELECT_ADDED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
+export const selectAddedContent = makeActionCreator(SELECT_ADDED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
 
+//PROFILE Actions
+export const addProfile = (profileData) => {
+	let completeData = Object.assign({}, defaultProfileData, profileData)
+	return({
+		type: ADD_PROFILE,
+		typeSpecifier: OxiAppConstants.EntityTypes.PROFILE,
+		payload: completeData
+
+	});
+};
+
+//removes all profile entities from addedEntitiesReducer
+export const removeProfile = makeActionCreator(REMOVE_PROFILE, OxiAppConstants.EntityTypes.PROFILE, "id");
+export const modifyProfile = makeActionCreator(MODIFY_PROFILE, OxiAppConstants.EntityTypes.PROFILE, "entity");
 
 export const cookies = new Cookies();
 export const requestInterceptor = (config) => {
@@ -163,7 +183,7 @@ export const loginConfig = (username, password) => {
 
 //set axios defult headers
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['conentType'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+axios.defaults.headers.common['contentType'] = 'application/x-www-form-urlencoded; charset=UTF-8';
 
 //Set interceptor for responses with unauthorized status.
 //This will save the provided csrf token dispatch the login Form for authentication.
@@ -246,11 +266,36 @@ export function createUser(email, password, username){
 				console.log('response headers: ');
 				console.log(response);
 				cookies.set('csrf_token', response.headers['x-csrf-token']);
-				dispatch(addProfile(null,'','','','','','','','','','','','','','','','','',));
+				dispatch(addProfile({'username':response.data}));
 				dispatch(showProfileMenu(true));
 			}
 		})
 		//.then(response => callback(event, response));		
+	}
+}
+
+//Post new profile entities to the server.  There should only ever be one profile entity,
+//howevern support for multiple profile entities is implemented here
+export function postProfile(profile){
+	return function(dispatch){
+		//keep loacal ids
+		let id = profile.id;
+		//strip local ids from all profile entities
+		profile.id = '';
+		return axios.post(OxiAppConstants.serviceUrl + '/profile/' + profile.username,
+			//denormalize(profile, profileSchema, {});
+			profile
+		).then(response => {
+			if(response.status == 200){
+				console.log("dispatching removeProfile");
+				//Change switch to profile view
+				dispatch(setWebAppView('profile'));
+				//populate the profile view with usr content
+				///dispatch(fetchEntities('outfit', response.data.id));
+				//remove the sent profile from local addedEntitesReducer store
+				dispatch(removeProfile(id));
+			}
+		})
 	}
 }
 
@@ -272,7 +317,7 @@ export function fetchEntities(entityType, profileId){
 					'GET',
 					OxiAppConstants.serviceUrl + '/outfits/' + profileId,
 					null)*/
-		return axios.get(OxiAppConstants.serviceUrl + '/outfits/' + profileId)
+		return axios.get(OxiAppConstants.serviceUrl + '/outfits/' + profileId + "?page=0&size=10")
 		.then((response) => {
 			console.log('yo');
 			if(response.status == 200){
@@ -289,7 +334,7 @@ export function fetchEntities(entityType, profileId){
 					for(let content of outfit.contents){
 						if(content != null && content != undefined){
 							for (let item of content.items){
-								if(item != null && item != undefined) dispatch(createItemContent(item.id, content.id));
+								if(item != null && item != undefined) dispatch(createItemContent(null, item.id, content.id));
 							}
 						}
 					}
@@ -352,6 +397,7 @@ export function fetchEntities(entityType, profileId){
 	}
 }
 
+//use this action to batch select nested entities retreived from server
 export function selectAndPropogate(entityType, entityId, targetChildId){
 	return function(dispatch){
 		console.log("selectAndPropogate entityType = ");
@@ -365,6 +411,24 @@ export function selectAndPropogate(entityType, entityId, targetChildId){
 				return;
 			case OxiAppConstants.EntityTypes.CONTENT:
 				dispatch(selectContent(entityId));
+				return;
+			default:
+				return
+		}
+	}
+}
+
+//use this action to select entities as they are created on the client.
+export function selectAddedEntity(entityType, entityId){
+	return function(dispatch){
+		console.log("selectAddedEnity");
+		console.log(entityType);
+		switch(entityType){
+			case OxiAppConstants.EntityTypes.OUTFIT:
+				dispatch(selectAddedOutfit(entityId));
+				return;
+			case OxiAppConstants.EntityTypes.CONTENT:
+				dispatch(selectAddedContent(entityId));
 				return;
 			default:
 				return
@@ -392,15 +456,17 @@ export function fetchImage(filename, callback){
 	return function(dispatch){
 		let request = axios.create({
 			responseType: 'arraybuffer',
-			Accept:  'image/jpeg, image/png'
+			'Content-Type': 'text/html; charset=utf-8',
+			headers:{				
+				//'X-Requested-With': 'XMLHttpRequest',
+				Accept: 'image/*, application/json',
+				//contentType: 'text/html; charset=utf-8'
+				mediaType: 'jpeg, json'
+			}
 		})
-		//request.get(OxiAppConstants.serviceUrl + '/image/' + filename)
-		axios({
-			method:'get',
-			url:OxiAppConstants.serviceUrl + '/image/' + filename,
-			responseType:'stream'
-		})
-		.then(response => new Buffer(response.data, 'binary').toString('base64'))
+		request.get(OxiAppConstants.serviceUrl + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
+		//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
+		.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
 		.then(response => callback(event, response));
 	}
 }

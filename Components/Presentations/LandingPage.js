@@ -171,7 +171,7 @@ class GetStarted extends React.Component{
 
 	_handleOnSubmit(){
 		console.log("\"Creat Profile\" clicked");
-		if(this.state.validEmailSyntax) this.props.createProfile(this.state.email, this.state.password, this.state.username);
+		if(this.state.validEmailSyntax) this.props.createUser(this.state.email, this.state.password, this.state.username);
 		//Clear email password and username from react state
 		this.setState({
 			'email':'',
@@ -311,30 +311,47 @@ class ProfileMenu extends React.Component{
 	constructor(props){
 		super(props);
 		this.state ={
-			'fieldSet':[],
-			'bodyShape': 'female',
-			'womens':false,
-			'mens':false
+			'profileData':{
+				'id': this.props.profile.id,
+				'username':this.props.profile.username,
+				'bodyShape': 'female',
+				'womens':false,
+				'mens':false
+			}
 		}
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
 		this._handleRadioToggled = this._handleRadioToggled.bind(this);
 		this._handleBoxChecked = this._handleBoxChecked.bind(this);
+		this._handleOnSubmit = this._handleOnSubmit.bind(this);
 	}
 
 	_handleInputFieldChange(e, field){
-		this.setState({
-			[field]:e.target.value
-		})
+		this.setState(prevState => ({
+			'profileData':{
+				...prevState.profileData,				
+				[field]:e.target.value
+			}
+		}));
 	}
-	_handleRadioToggled(radio){
-		this.setState({
-			'bodyShape': radio
-		})
+	_handleRadioToggled(selection){
+		this.setState(prevState => ({
+			'profileData':{
+				...prevState.profileData,
+				'bodyShape':selection
+			}
+		}));
 	}
 	_handleBoxChecked(type){
-		this.setState({
-			[type]: !this.state[type]
-		})
+		this.setState(prevState => ({
+			'profileData':{
+				...prevState.profileData,
+				[type]: !prevState.profileData[type]
+			}
+		}));
+	}
+	_handleOnSubmit(){
+		this.props.modifyProfile(this.state.profileData);
+		this.props.postProfile(this.state.profileData);
 	}
 	/*shouldComponentUpdate(nextProps){
 		const differentProfile = this.props.profile !== nextProps.profile;
@@ -350,7 +367,14 @@ class ProfileMenu extends React.Component{
 	render(){
 		//**pusht this to the select in LandingPageConnector.js
 		let fields = Object.keys(this.props.profile);
-		let filteredFields =  fields.filter(field => field != 'id').filter(field => field != 'height').filter(field => field != 'bodyShape').filter(field => field != 'apparelInterest').filter(field => field != 'username');
+		let filteredFields =  fields.filter(field => field != 'id')
+		.filter(field => field != 'height')
+		.filter(field => field != 'bodyShape')
+		.filter(field => field != 'mens')
+		.filter(field => field != 'username')
+		.filter(field => field != 'womens')
+		.filter(field => field != 'apparelInterest')
+		.filter(field => field != 'country');
 		console.log('filteredFields');
 		console.log(filteredFields);
 		let fieldSet = filteredFields.map(field => (
@@ -373,13 +397,11 @@ class ProfileMenu extends React.Component{
 									<div id="bodyShapeRadioList" style={radioListStyle}>
 										<div id="female" style={radioAndCheckContainerStyle}>
 											<div style={radioTitleStyle}>Female</div>
-											<div style={this.state.bodyShape === 'female' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('female')}>
-											</div>
+											<div style={this.state.profileData.bodyShape === 'female' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('female')}></div>
 										</div>
 										<div id="male" style={{'display':'inline-block'}}>
 											<div style={radioTitleStyle}>Male</div>
-											<div style={this.state.bodyShape === 'male' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('male')}>
-											</div>										
+											<div style={this.state.profileData.bodyShape === 'male' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('male')}></div>										
 										</div>
 									</div>
 									<div id="bodyShapeTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
@@ -390,13 +412,11 @@ class ProfileMenu extends React.Component{
 									<div id="apperelInterestRadioList" style={radioListStyle}>
 										<div id="womens" style={radioAndCheckContainerStyle}>
 											<div style={radioTitleStyle}>Womens</div>
-											<div style={this.state.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} >
-											</div>
+											<div style={this.state.profileData.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} ></div>
 										</div>
 										<div id="mens" style={{'display':'inline-block'}}>
 											<div style={radioTitleStyle}>Mens</div>
-											<div style={this.state.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}>
-											</div>
+											<div style={this.state.profileData.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}></div>
 										</div>
 									</div>
 									<div id="apparelInterestTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
@@ -408,6 +428,11 @@ class ProfileMenu extends React.Component{
 					</div>
 					<ProfileFieldWrapper field='height' callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
 					{fieldSet}
+					<div style={submitBtnStyle}>
+						<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
+							Create Profile
+						</div>
+					</div>					
 				</div>
 			</div>
 		);
@@ -503,12 +528,16 @@ export default class LandingPage extends React.Component{
 	render() {
 		return(
 			<div>				
-				{this.props.profileMenu ? (<ProfileMenu profile={this.props.profile} toggleRadio={this.props.toggleRadio}/>) : (
+				{this.props.profileMenu ? (<ProfileMenu profile={this.props.profile} 
+														toggleRadio={this.props.toggleRadio} 
+														postProfile={this.props.postProfile} 
+														modifyProfile={this.props.modifyProfile}
+														profileId={this.props.profileId} />) : (
 					<div>
 						<div style={{'background-color':'#434343'}}>
 							<Description/>
 						</div>
-						<GetStarted style={getStartedStyle} createProfile={this.props.createProfile}/> 
+						<GetStarted style={getStartedStyle} createUser={this.props.createUser}/> 
 						<HowItWorks/>
 					</div>
 				)}								

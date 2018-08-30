@@ -215,18 +215,24 @@ export default class webAppView extends React.Component {
 				return(
 					<div className={Styles.containerHome}>
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
-						<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
+						<div style={{'margin-top':'80px'}}>
+							<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
+						</div>
 						<ModalContentSelection/>
 					</div>
 				);
 			case "profile":
 				return(
-					<div className={Styles.containerProfile}>
+					<div>
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
-						<ContentContainer />
-						<VisibleItemList />
-						<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
-						<Admin/>
+						<div style={{'margin-top':'80px'}}>
+							<div className={Styles.containerProfile}>
+								<ContentContainer />
+								<VisibleItemList />
+								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
+								<Admin/>
+							</div>
+						</div>
 						<ModalContentSelection/>
 					</div>
 				);

@@ -18,8 +18,7 @@ import {SET_VISIBLE_FORM,
 			UPDATE_CONTENT,
 			SELECT_CONTENT,
 			SELECT_WEB_APP_VIEW,
-			SET_LP_PROFILE_MENU,
-			ADD_ITEM,				
+			SET_LP_PROFILE_MENU,			
 			MODIFYITEM,
 			REMOVE_ITEM,
 			SELECT_NEW_ITEM,
@@ -28,15 +27,19 @@ import {SET_VISIBLE_FORM,
 			ADD_CONTENT,
 			MODIFYCONTENT,
 			REMOVE_CONTENT,
-			SELECT_NEW_CONTENT,
+			SELECT_ADDED_CONTENT,
 			ADD_OUTFIT,	
 			MODIFYOUTFIT,
 			REMOVE_OUTFIT,
-			SELECT_NEW_OUTFIT,
+			SELECT_ADDED_OUTFIT,
 			ADD_PROFILE,
 			MODIFYPROFILE,
 			REMOVE_PROFILE,
-			SELECT_NEW_PROFILE
+			SELECT_NEW_PROFILE,
+			ADD_ITEM,
+			MODIFY_ITEM,
+			MODIFY_CONTENT,
+			MODIFY_OUTFIT
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -131,16 +134,26 @@ function outfit(state={}, action){
 }
 function byId(state = {}, action){
 	switch(action.type){
-		//action type for modifing entities under "entitiesReducer"
+		//action typed performed on "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.id] : action.payload});
-		//action type for modifing entities under "addedEntitiesReducer"
+		//action type performed on "addedEntitiesReducer"
 		case `ADD_${action.typeSpecifier}`:
-			return Object.assign({}, state, {[action.payload.id] : action.payload})
+			return Object.assign({}, state, {[action.payload.id] : action.payload});
+
+		//action typed performed on "entitiesReducer"
 		case `UPDATE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.id] : action.payload});
-		case `REPLACE_${action.typeSpecifier}`://Replace value of byId key with contents of action.payload
+		//action type performed on "addedEntitiesReducer"
+		case `MODIFY_${action.typeSpecifier}`:
+			return Object.assign({}, state, {[action.payload.entity.id] : action.payload.entity});//(for profile entity) have to include entity key to payload because passing the entity oobject to the action parameter instead of the object fields as individual parameters
+
+		//action typed performed on "entitiesReducer"
+		case `REPLACE_${action.typeSpecifier}`:
 			return Object.assign({}, state, action.payload.entities);
+
+		case `REMOVE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {})
 		default:
 			return state;
 	}
@@ -148,18 +161,30 @@ function byId(state = {}, action){
 
 function allIds(state = [], action){
 	switch(action.type){
-		//action type for modifing entities under "entitiesReducer"
+		//action typed performed on "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
 			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
-		//action type for modifing entities under "addedEntitiesReducer"
+		//action type performed on "addedEntitiesReducer"
 		case `ADD_${action.typeSpecifier}`:
 			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
+
+		//action typed performed on "entitiesReducer"
 		case `DELETE_${action.typeSpecifier}`:
 			return state.splice(action.ids);
+
+		//action typed performed on "entitiesReducer"
 		case `UPDATE_${action.typeSpecifier}`:
 			return Object.keys(action.payload);
+		//action type performed on "addedEntitiesReducer"
+		case `MODIFY_${action.typeSpecifier}`:
+			return [...state];
+
+		//action typed performed on "entitiesReducer"
 		case `REPLACE_${action.typeSpecifier}`://Replace value of allIds key with keys of action.payload
 			return Object.keys(action.payload.entities);
+
+		case `REMOVE_${action.typeSpecifier}`:
+			return [];
 		default:
 			return state;
 	}
@@ -265,13 +290,22 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 				});
 			}
 		case `MODIFY_${action.typeSpecifier}`: //fix this
-			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action), /*count :  state.count++*/});
+			return Object.assign({}, state, {
+				byIds : byId(byIdsRef, action), 
+				allIds : allIds(allIdsRef, action), 
+				/*count :  state.count++*/
+			});
 		case `REMOVE_${action.typeSpecifier}`:
-			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action)})
-		case `SELECT_NEW_${action.typeSpecifier}`:
+			//decrement profile coutner
+			return Object.assign({}, state, {
+				byIds : byId(byIdsRef[action.id], action), 
+				allIds : allIds(allIdsRef, action),
+				count : (state.count - 1)
+			});
+		case `SELECT_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});
 		default:
-			console.log("no matching case in entities()")
+			console.log("no matching case in localEntities()")
 			return state;
 	}
 }
