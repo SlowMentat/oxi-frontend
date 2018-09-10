@@ -7,6 +7,7 @@ import ModalContentSelection from '../../Components/Containers/SelectModalConten
 import VisibleItemList from '../../Components/Containers/VisibleItemList.js';
 import VisibleOutfitList from '../../Components/Containers/VisibleOutfitList.js';
 import ContentContainer from '../../Components/Containers/ContentContainer.js';
+import OutfitPanelContainer from '../../Components/Containers/OutfitPanelContainer.js'
 
 //Presentation Component 
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js'
@@ -45,7 +46,7 @@ class Nav extends React.Component{
 			blockList: []
 		};
 
-		this._handleClick  = this._handleClick.bind(this);
+		this.__handleClick  = this.__handleClick.bind(this);
 
 		let percentWidth = 100 / this.state.blockList.length;
 		this.state.blockList = blocks.map((block) => {
@@ -65,7 +66,7 @@ class Nav extends React.Component{
 
 	}
 
-	_handleClick(callback){
+	__handleClick(callback){
 		callback();
 	}
 
@@ -125,7 +126,7 @@ class OutfitNav extends React.Component{
     		<div className={Styles.outfitBlock}>
     			<div className={OutfitNavStyles.outfitNavContainer}>
 	    			<div className={OutfitNavStyles.outfitCtrlContainer}>
-	    				<AddOutfitButton enabled={this.props.enableAddOutfitButton} handleUserClick={this.handleFormCreation} />
+						<OutfitPanelContainer/>
 	    			</div>
 	    			<div className={OutfitNavStyles.previewContainer}>
 	    				<VisibleOutfitList />
@@ -140,7 +141,7 @@ class AddOutfitButton extends React.Component{
 	constructor(props){
 		super(props);
 		// This binding is necessary to make `this` work in the callback
-    	this.handleClick = this.handleClick.bind(this);
+    	this._handleClick = this._handleClick.bind(this);
 	}
 
 	componentDidMount(){
@@ -151,7 +152,7 @@ class AddOutfitButton extends React.Component{
 
 	}
 
-	handleClick(){
+	_handleClick(){
 		/*if({store}.getState(debug)){
 			console.log("clicked!");
 			console.log("AddOutfitButton.props.enabled = " + this.props.enabled);
@@ -162,9 +163,10 @@ class AddOutfitButton extends React.Component{
 	render(){
 		//return(null);
 		return(
-	    	<div className={OutfitNavStyles.outfitCtrlButton} onClick={this.handleClick}>
+	    	<div className={OutfitNavStyles.outfitCtrlButton} onClick={this._handleClick}>
 	    		Add Outfit
 	    	</div>
+
 		);
 	}	
 }
@@ -187,14 +189,16 @@ export default class webAppView extends React.Component {
 			enableAddOutfitButton: !prevState.enableAddOutfitButton,
 			showOutfitForm: !prevState.showOutfitForm
 		}));
-		console.log("GET " + OxiAppConstants.apiBaseUrl + '/outfits/00000000-0000-0000-0000-000000000000');
-		/*sendAsyncRequest(
-					{}, 
-					{}, 
-					'GET', 
-					OxiAppConstants.apiBaseUrl+'/outfits',
-					null);	*/
-		//store.dispatch(fetchEntities('outfit', 1));
+
+		//First add outfit entity with passing child id addedContentIds taken from state mapping above
+		//Note:  this is anticipating content id of 1 since there should only 
+		//be one content entity present in the addedEntitiesReducer at anygiven time.
+		dispatch(addOutfit('','','','',[1], 'profileId'));
+		dispatch(editContentView(true));
+		//Then add outfit child entity/entiteis.
+		//Note:  this is anticipating outfit id of 1 since there should only 
+		//be one outfit entity present in the addedEntitiesReducer at anygiven time.
+		dispatch(addContent(1, []));
 	}
 
 	_removeOutfitForm(){
@@ -225,11 +229,14 @@ export default class webAppView extends React.Component {
 				return(
 					<div>
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
-						<div style={{'margin-top':'80px'}}>
+						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerProfile}>
+								<div className={Styles.metricBlock}>
+									Metric Block
+								</div>
+								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
 								<ContentContainer />
 								<VisibleItemList />
-								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
 								<Admin/>
 							</div>
 						</div>

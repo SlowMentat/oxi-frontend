@@ -14,6 +14,7 @@ body{
 	height: 100%;
 	margin: 2.5px 0px 2.5px 0px;
 	padding: 0px 0px 0px 0px;	
+	overflow-y: hidden;
 }
 
 div{
@@ -41,6 +42,7 @@ div{
 }
 
 .stdBlock{
+	--entity-selected-border-color: red;		/*Defualt border color for selected divs representing entities*/
 	border-radius: 5px;
 	/*background-color: #434343;*/
 	padding: 3px;
@@ -61,38 +63,41 @@ div{
 
 .containerProfile{
 	display: grid;
-	grid-template-columns: auto auto auto 15%;
+	grid-template-columns: auto 10% 50% 20%;
 	/*grid-template-rows: .03fr 1.7fr 1fr .03fr */
-	grid-template-rows: 600px auto 13%;
+	grid-template-rows: calc(100vh - 90px - 40px) 40px;
 	/*grid-template-rows: 5fr, 3fr, .4fr;*/
 	grid-gap: 5px;
 	grid-template-areas: 
 		/*"nav nav nav nav"*/
-		"preview preview preview itemMenu"
-		"browse browse browse browse"
+		"metric browse preview itemMenu"
 		"admin admin admin admin";
 	height:100%;
 }
 
 .containerHome{
 	display: grid;
-	grid-template-columns: 28.3% auto;
-	grid-template-rows: 5% auto;
+	grid-template-columns: auto 80%;
+	grid-template-rows: auto;
 	grid-gap: 5px;
 	grid-template-areas:
-		"nav nav"
-		"browse browse";
+		"metric browse";
 }
 
 :local(.headerBlock){
 	z-index: 1000;
-	background-color: #434343;
+	background-color: #212121;
 	/*grid-area: nav;*/
 	top: 0;
 	width: 100%;
 	height: 80px;
 	position: fixed;
 	font-size: 100%;
+}
+
+:local(.metricBlock){
+	compose: stdBlock;
+	grid-area: metric;
 }
 
 :local(.previewBlock){
@@ -108,14 +113,20 @@ div{
 
 :local(.outfitBlock){
 	composes: stdBlock;
+	overflow-y: scroll;
 	grid-area: browse;
 }
 
 :local(.footerBlock){
 	composes: stdBlock;
 	grid-area: admin;
-	//height: 25px;
-	font-size: 100%
+	background-color: #fdfdfd;
+	color: #212121;
+    font-size: 17px;
+    border-radius: 0px;
+    border-top-width: 1px;
+    border-top-color: #afafaf;
+    border-top-style: solid;
 }
 
 

@@ -1,28 +1,34 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { setFormVisibility, createItem } from '../../Components/Actions/indexActions.js';
+import { setFormVisibility, createItem, postImage } from '../../Components/Actions/indexActions.js';
 import FormStyles from '../../forms.css';
 import Styles from '../../root.css';
 import ContentStyles from '../../content.css';
-import VisibleContentList from '../Containers/VisibleContentList';
+import VisibleContentList from '../Containers/VisibleContentList.js';
+import CroppableImageForm from '../../Util/CroppableImageForm.js';
+import {} from '../../Util/OxiAppConstants.js';
 
 const imgStyle = {
-	width: '100%',
+	//width: 'calc((2 / 3) * (100vh - 40px - 80px))',
 	'max-height': 'inherit',
-	height: 'auto',
+	//height: 'auto',
+	'height': 'calc(100% - 80px - 5%)',
 	display: 'block',
 	'border-radius': '4px',
 	'object-fit': 'cover',
+	margin:'auto'
     /*'margin-top': '31%'		/*This is the heigt of the previes row (55%) divided by 2 and added to the height of the header (5%)*/
 }
 
 const imgFormStyle = {
-	display:'inline-block',
+	//display:'inline-block',
 	margin:'auto',
 	height:'100%', 
-	'max-width': '50%',
+	//'max-width': '50%',
+	//height: 'calc(100% - 80px)'
 	padding: '0px 5% 0px 5%',
-	'background-color':'#212121'
+	'background-color':'#ececec',
+	overflow: 'hidden'
 }
 
 const imgFormControlStyle = {
@@ -46,32 +52,33 @@ const controlContainerStyle = {
 }
 
 
-const ShowContentView = ({context, contentsByIds, contentSelected, getPreviewPic, onImgClick, uploadImage}) => {
+const ShowContentView = ({viewContext, addedEntities, contentsByIds, contentSelected, getPreviewPic, getItemForm, getGestureForm, postChanges}) => {
 	console.log("in showContentView");
-	console.log(context);
-	switch(context){
-		case "edit":
-			return(
-				<div className={FormStyles.formContentContainer}>
-					<div className={FormStyles.imageUploadPreview}>			
-						<VisibleContentList />	
-						<ImageUpload onClick={onImgClick} uploadImage={uploadImage}/>
-					</div>
-				</div>
-			);
-		case "view":
-			return(				
-				<div className={FormStyles.formContentContainer}>		
-					<div className={FormStyles.imageUploadPreview}>				
-						<VisibleContentList />
-						<ImagePreview contentsByIds={contentsByIds} contentSelected={contentSelected} getPreviewPic={getPreviewPic} />
-					</div>
-				</div>
-			);
-		default:
-			console.log("nothing selected");
-			return null;
+	console.log(viewContext);
+	let contentView = null;
+	if(viewContext === 'edit'){//OxiAppConstants.ContentViewStates.edit.CROPPING:
+		contentView = (
+			<ImageUpload addedEntities={addedEntities} getItemForm={getItemForm} postChanges={postChanges} />
+		);
+	}else if(viewContext === 'view'){//OxiAppConstants.ContentViewStates.edit.PREVIEWING:
+	/*case OxiAppConstants.ContentViewStates.edit.TAGGING:
+		$contentView = (
+			<ImagePreview onClick={getItemForm} postChanges={postChanges}/>
+		);*/
+		contentView = (
+			<ImagePreview onClick={getGestureForm} contentsByIds={contentsByIds} contentSelected={contentSelected} getPreviewPic={getPreviewPic} />
+		);
+	}else{
+		console.log("nothing selected");
 	}
+	
+	return(
+		<div style={{'height':'calc(100% - 80px)'}}>
+			<div className={FormStyles.imageUploadPreview}>
+				{contentView}
+			</div>			
+		</div>
+	)
 }
 
 class ImagePreview extends React.Component{
@@ -115,7 +122,7 @@ class ImagePreview extends React.Component{
 		}
 		return (
 			<div style={imgFormStyle}>
-				<div style={{width:'auto',padding:'0px 10% 0px 10%','background-color':'#000000','max-height':'100%'}}>
+				<div style={{'width':'auto','padding':'5% 0% 5% 0%', 'padding-top':'calc(5vh + 25px)', 'background-color':'#ececec','max-height':'100%'}}>
 					<img src={this.state.base64Image} style={imgStyle}/>
 				</div>
 			</div>
@@ -130,33 +137,61 @@ class ImageUpload extends React.Component{
 			file: '',
 			imagePreviewUrl: ''
 		};
-		this._handleImgChange = this._handleImgChange.bind(this);
+		//this._handleImgChange = this._handleImgChange.bind(this);
 		this._handleSubmit = this._handleSubmit.bind(this);
 		this._handleImgMouseOver = this._handleImgMouseOver.bind(this);
 		this._handleImgClick = this._handleImgClick.bind(this);
+		this._handleChangesDiscarded = this._handleChangesDiscarded.bind(this);
 	}
 
-	_handleSubmit(event) {
-		// TODO: do something with -> this.state.file
-		//uploadImage(this.state.file);
-		this.props.uploadImage(this.state.file);
-		event.preventDefault();
-	}
+	//TODO: this event handler gathers entity data for new Outfits only. this does not handle
+	//modified entities yet...
+	_handleSubmit(fileData) {
+		//build normalized json payload
+		var json = {contents:[{items:[{}]}]};
+		//check if added outfit exists
+		if(this.props.addedEntities.outfits.byIds){
+			json = Object.assign({}, json, this.props.addedEntities.outfits.byIds['1']);
+			if(json.id !== undefined) json.id = undefined;
+			//check if content exist
+			if(this.props.addedEntities.outfits.byIds['1'].contents.length > 0){
+				let contentId = this.props.addedEntities.outfits.byIds['1'].contents[0];	//Do not modify contentId
+				//There should only be one content per post
+				json = Object.assign({}, json, {contents: [this.props.addedEntities.contents.byIds[contentId]]});		
+				if(json.contents[0].id !== undefined) json.contents[0].id = undefined;		//delete client assigned content id	
+				//json.contents[0].items = [{}];												//set content.items to an array with a single empty object
+				//check if items exit
+				//let itemIds = this.props.addedEntities.contents.byIds[contentId].items;
+				let itemIds = this.props.addedEntities.items.allIds;
+				console.log("itemIds");
+				console.log(itemIds);
+				if(itemIds.length > 0){  //Do not modify itemIds
+					//There can be multiple items per post
+					for(let id of itemIds){
+						console.log('item id:');
+						console.log(id);
+						console.log('item to be scrubbed:')
+						console.log(this.props.addedEntities.items.byIds[id]);
+						let scrubbedItem = Object.assign({}, this.props.addedEntities.items.byIds[id], {id: undefined});						
+						//json.contents[0].items = [...json.contents[0].items, scrubbedItem];
+						if(json.contents[0].items !== undefined && Object.keys(json.contents[0].items[0]).length > 0 && json.contents[0].items[0].constructor === Object){
+							json.contents[0].items = [...json.contents[0].items, scrubbedItem];
+						}else{
+							json.contents[0].items = [scrubbedItem];
+						}
 
-	_handleImgChange(event) {
-		//event.preventDefault();
-
-		let reader = new FileReader();
-		let file = event.target.files[0];
-
-		reader.onloadend = () => {
-			this.setState({
-				file: file,
-				imagePreviewUrl: reader.result
-			});
+					}
+					console.log(json)
+					/*console.log(Object.values(this.props.addedEntities.items.byIds));
+					json.contents.items = Object.values(this.props.addedEntities.items.byIds);*/
+				}else{
+					console.log('itemIds is empty array');
+				}
+			}
 		}
-
-		reader.readAsDataURL(file)
+		console.log('normalized json payload for added outfit:');
+		console.log(json);
+		this.props.postChanges(fileData, json);
 	}
 
 	_handleImgMouseOver(event) {
@@ -164,11 +199,11 @@ class ImageUpload extends React.Component{
 	}
 
 	_handleImgClick(event) {
-		event.stopPropagation();
 		console.log("image clicked!!");
 		//store clicked location
 		//call item form
-		this.props.onClick();
+		this.props.getItemForm();
+		event.stopPropagation();
 		//store.dispatch(setFormVisibility("AddItem"));
 		//event.preventDefault();//maybe event.stopPropagation
 	}
@@ -176,45 +211,33 @@ class ImageUpload extends React.Component{
 		this.props.confirmDiscard
 	}
 
+	_handleChangesDiscarded(event){
+		//dispatch action to removeAndPropogate added Outfit
+		//dispatch action to transition into preview mode
+		//dispatch action to select previously selected Outfit id (before adding discarded outfit)
+	}
+
 	render() {
 		let {imagePreviewUrl} = this.state;
 		let $imagePreview = null;
 		let defaultImage = "Graphics/photo_upload_icon.svg"
 		if (imagePreviewUrl) {
-			$imagePreview = (
-				<img style={imgStyle} 
-					onmouseover={this._handleImgMouseOver} 
-					onClick={this._handleImgClick} 
-					src={imagePreviewUrl} 
-				/>
-			);
+			$imagePreview = (<CroppableImageForm />);
 		}else{
 			console.log("no img URI detected")
-			$imagePreview = (
-				<label for="fileInput">
-					<img style={imgStyle} src={defaultImage}/>
-				</label>
-			);			
+			$imagePreview = null;		
 		}
+
 		return (
-			<div style={imgFormStyle}>	
-				<div style={controlContainerStyle}>
-					<label for="fileInput">
-						<div style={imgFormControlStyle} onClick={this._handleOpenFile}>File</div>
-					</label>
-					<div style={imgFormControlStyle}>Discard</div>
-					<label for="submitButton">
-						<div style={imgFormControlStyle} onClick={this._handleSubmit}>Submit</div>
-					</label>
-				</div>
-				<form onSubmit={this._handleSubmit} style={{positon:'absolute','text-align':'center',display:'inline'}}>
-					<input id="fileInput" type="file" onChange={this._handleImgChange} style={{display:'none'}} />
-					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>
-				</form>
-				<div style={{width:'auto',padding:'0px 10% 0px 10%','background-color':'#000000','max-height':'100%'}}>
-					{$imagePreview}
-				</div>
-			</div>
+			<CroppableImageForm 
+				imgStyle={imgStyle}
+				imgFormStyle={imgFormStyle}
+				controlContainerStyle={controlContainerStyle}
+				imgFormControlStyle={imgFormControlStyle}
+				postChanges={this._handleSubmit}
+				onImageClick={this._handleImgClick}
+				discardChanges={this._handleChangesDiscarded}
+			/>
 		)
 	}
 }
@@ -259,13 +282,16 @@ class ContentView extends React.Component{
 		return(
     		<div className={Styles.previewBlock}>    			
 				<ShowContentView  
-					context={viewContext} 
+					viewContext={viewContext} 
+					addedEntities={this.props.addedEntities}
 					contentsByIds={this.props.contentsByIds} 
 					contentSelected={this.props.contentSelected} 
 					getPreviewPic={this.props.getPreviewPic}
-					onImgClick={this.props.onImgClick} 
-					uploadImage={this.props.uploadImage}
+					getItemForm={this.props.getItemForm}
+					getGestureForm={this.props.getGestureForm} 
+					postChanges={(imageData = null, json) => {if(imageData != null) postImage(imageData, json);}}
 				/>
+				<VisibleContentList />
     		</div>
 		);
 	}

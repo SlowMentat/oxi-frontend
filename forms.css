@@ -16,13 +16,13 @@ input{
 ======Photo Upload Form Styles======
 */
 :local(.formContentContainer) {
-	display: grid;
+	/*display: grid;
 	grid-template-columns: 18% 1fr;
 	grid-template-rows: 0px 100%;
 	grid-gap: 1px;
 	grid-template-areas: 
 		". control"
-		". addOutfit";
+		". addOutfit";*/
 	height:100%;
 }
 
@@ -37,12 +37,14 @@ input{
 
 :local(.imageUploadPreview) {
 	composes: stdFormBlk;
-	grid-area: addOutfit;
+	display: block;
+	height: 100%;
+	/*grid-area: addOutfit;
 	border-radius: 0px;
 	border-left-style: solid;
 	border-left-width: 1px;
-	background-color: #212121;
-	height: 100%;
+	background-color: #212121;*/
+	/*height: 100%;*/
 }
 
 :local(.outfitFormControl){

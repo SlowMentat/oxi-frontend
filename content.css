@@ -1,20 +1,21 @@
 :local(.contentContainer) {
 	composes:stdBlock from './root.css';
-	display:inline-block;
+	/*display:inline-block;*/
 	border-radius: 2px;
-	height:100%;
-	width:50%;
+	height:80px;
+	/*width:50%;*/
 	font-size: 80%;
-	background-color: #212121;
+	background-color: #ececec;
 	vertical-align: top;
 }
 
 :local(.stdContentBlock){
 	composes:stdBlock from './root.css';	
+	display:inline-flex;
     width: 50px;
     height: 50px;
     background-color: #eeeeee;
-    margin: auto auto 3% 11%;
+    margin: auto auto 3% 6%;
     border-style: solid;
     border-width: 1px;
     border-color: #212121;
@@ -22,14 +23,24 @@
     font:black;
 }
 
+:local(.selectedContentBlock){
+	composes:stdContentBlock;
+	border-color: var(--entity-selected-border-color);
+}
+
 :local(.contenttMenuBlock){
 
 }
 
 :local(.addContentButton){
-	composes:stdContentBlock;
-	background-color: #00BCD4;
+	composes:stdButton from './root.css';
+	display:inline-flex;
+    margin: auto auto 3% 6%;
 	border-width: 0px;
-	height: 30px;
-	width: 50px;
+    border-style: solid;
+    /*border-color: #212121;*/
+    border-radius: 5px;
+    font:black;
+    width: 50px;
+    height: 50px;
 }

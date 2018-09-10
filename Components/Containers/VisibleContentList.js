@@ -21,10 +21,9 @@ const getVisibleContents = (contents, filter, outfits) => {
 		switch(filter){
 			case 'SHOW_ALL':
 				return contents;
+				break;
 			case 'BY_OUTFIT_ID':
 				if(outfits != undefined){
-					console.log("outfits =");
-					console.log(outfits)
 					if(outfits.selected != undefined){
 						if(outfits.selected != false){
 							//array of content ids
@@ -33,7 +32,7 @@ const getVisibleContents = (contents, filter, outfits) => {
 								result.byIds[contentId] =  contentsById[contentId];
 							}
 							//result.allIds = Object.keys(result.byIds);
-							console.log("result");
+							console.log("returning filtered result");
 							console.log(result);
 							return Object.assign({}, contents, result);	
 						}else{
@@ -45,11 +44,15 @@ const getVisibleContents = (contents, filter, outfits) => {
 				}else{
 					console.log("outfits is undefined");
 				}
+				break;
 			default:
+				console.log('default case for BY_OUTFIT_ID filter selector')
 				return contents;
 		}
 	}
-	return contents;
+	console.log("returning empty result:");
+	console.log(result);
+	return result;
 }
 
 const mapStateToProps = state => {
@@ -71,7 +74,7 @@ const mapStateToProps = state => {
 		isEdit: state.contentViewState.isEditingContent,
 		addedContents : filteredAddedContents.byIds,
 		addedContentIds : filteredAddedContents.allIds,
-		selected :  state.addedEntitiesReducer.contents.selected,
+		selectedId :  state.addedEntitiesReducer.contents.selected,
 		addedItemIds : state.addedEntitiesReducer.items.allIds
 	});
 }
@@ -79,6 +82,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
 	onClick : (contentId) => {
 		dispatch(selectContent(contentId));
+		dispatch(previewContent(contentId));
+	},
+	onClickAddedContent : (contentId) => {
+		dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
 		dispatch(previewContent(contentId));
 	},
 	onControlClick : () => dispatch(addContent()),

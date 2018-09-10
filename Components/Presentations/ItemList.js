@@ -11,20 +11,24 @@ const ItemList = ({itemIds = [], items = {}, addedItemIds = [], addedItems = {},
 	}*/
 	return (
 	    <div className={ItemStyles.itemMenuBlock}>
-	    	{
-	    		itemIds.map((itemId) => {
-	    			console.log("itemId [from ItemList]");
-	    			console.log(itemId);
-	    			return <Item {...items[itemId]} onClick={onClick}/>
-	    		})
-	    	}
-	    	{
-	    		addedItemIds.map((itemId) => {
-	    			console.log("itemId [from ItemList]");
-	    			console.log(itemId);
-	    			return <Item {...addedItems[itemId]} onClick={onClick}/>
-	    		})
-	    	}
+	    	<div style={{'height':'calc(5vh + 25px)'}}>
+	    	</div>
+	    	<div>
+		    	{
+		    		itemIds.map((itemId) => {
+		    			console.log("itemId [from ItemList]");
+		    			console.log(itemId);
+		    			return <Item {...items[itemId]} onClick={onClick}/>
+		    		})
+		    	}
+		    	{
+		    		addedItemIds.map((itemId) => {
+		    			console.log("itemId [from ItemList]");
+		    			console.log(itemId);
+		    			return <Item {...addedItems[itemId]} onClick={onClick}/>
+		    		})
+		    	}
+	    	</div>
 	    </div>
 	);
 }

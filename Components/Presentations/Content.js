@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ContentStyles from '../../content.css';
 import {hextToBase64} from '../../Util/DataFormatConverter.js'
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
 
 
 export class Content extends React.Component{
@@ -35,11 +36,13 @@ export class Content extends React.Component{
 
 	render(){
 		console.log("isControl:")
-		console.log(this.props.isControl)
+		console.log(this.props.isControl);
+		console.log("selectedId:");
+		console.log(this.props.selectedId);
 		//Apply logic only on added content entities
-		if(this.props.selected != false && 
-			this.props.addedContents != undefined){										//note that new itesm added will only be added to the currently selected content entity
-			let items = this.props.addedContents[this.props.selected].items;			//get a reference to the selected content's "items" branch
+		if(this.props.selectedId != false && 
+			this.props.addedContents != undefined){										//note that new items added will only be added to the currently selected content entity
+			let items = this.props.addedContents[this.props.selectedId].items;			//get a reference to the selected content's "items" branch
 			console.log("this.props.addedItemIds");
 			console.log(this.props.addedItemIds);
 			console.log("this.props.modifyContentItems");
@@ -54,14 +57,22 @@ export class Content extends React.Component{
 				console.log("this.props.addedItemIds.length = ");
 				console.log(this.props.addedItemIds.length);
 				if(this.props.addedItemIds.length != items.length){
-					this.props.modifyContentItems(this.props.selected, this.props.addedItemIds);
+					this.props.modifyContentItems(this.props.selectedId, this.props.addedItemIds);
 				}
 			}
 		}
+		let contentBlockStyle = null;
+		if(this.props.isControl){
+			contentBlockStyle = ContentStyles.addContentButton;
+		}else if(this.props.selectedId === this.props.id){
+			contentBlockStyle = ContentStyles.selectedContentBlock;
+		}else{
+			contentBlockStyle = ContentStyles.stdContentBlock;
+		}
 		return(		
-			<div className={this.props.isControl ? ContentStyles.addContentButton : ContentStyles.stdContentBlock } onClick={this._handleOnClick}>
+			<div className={contentBlockStyle} onClick={this._handleOnClick}>
 
-				<img src={this.state.base64Image}  style={{width:'100%', 'max-height':'inherit'}}/>
+				<img src={this.state.base64Image} style={{width:'calc(2/3 * 100%)', 'height':'100%', 'margin':'auto', 'max-height':'inherit'}}/>
 			</div>		
 		);
 	}

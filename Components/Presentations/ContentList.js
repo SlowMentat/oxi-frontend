@@ -3,22 +3,26 @@ import ContentStyles from '../../content.css';
 import Content from './Content.js'
 import OxiAppConstants from '../../App.js';
 
-const ContentList = ({contentIds = [], contents = {}, addedContentIds = [], addedContents = {}, selected, addedItemIds, modifyContentItems, focusOnAddedContent, onClick, onControlClick, isEdit, controlDisabled, getCoverPic}) => {
+const ContentList = ({contentIds = [], contents = {}, addedContentIds = [], addedContents = {}, selectedId, addedItemIds, modifyContentItems, focusOnAddedContent, onClick, onClickAddedContent, onControlClick, isEdit, controlDisabled, getCoverPic}) => {
 	/*let contentKeys = Object.keys(contents)
 	let idArray = contentIds;
 	//modify the idArray to be in agreement with provided contents object
 	if(contentIds.length != contentKeys.length){
 		idArray = contentKeys;
 	}*/
+	console.log('contentIds');
+	console.log(contentIds);
+	console.log('contents');
+	console.log(contents);
 	if(addedContentIds != undefined){
 		if(addedContentIds.length > 0){
-			console.log('contents:');
+			console.log('added contents:');
 			console.log(addedContents);
-			console.log('addedContents.selected:');
-			console.log(selected);
+			console.log('addedContents.selectedId:');
+			console.log(selectedId);
 			console.log('addedContentIds[0]:');
 			console.log(addedContentIds[0])
-			if(selected != addedContentIds[0]) focusOnAddedContent(addedContentIds[0]);	
+			if(selectedId != addedContentIds[0]){console.log("calling focusOnAddedContent");focusOnAddedContent(addedContentIds[0]);}
 		}
 	}
 	return (
@@ -31,6 +35,7 @@ const ContentList = ({contentIds = [], contents = {}, addedContentIds = [], adde
 	    			id={contentId}
 		    		onClick={onClick} 
 		    		isControl={false} 
+		    		selectedId={selectedId}
 		    		thumbnail={contents[contentId].coverpicuri} 
 		    		getCoverPic={getCoverPic}
 	    		/>
@@ -40,11 +45,11 @@ const ContentList = ({contentIds = [], contents = {}, addedContentIds = [], adde
 		    		key = {contentId}
 		    		{...addedContents[contentId]} 
 	    			id={contentId}
-		    		onClick={onClick} 
+		    		onClick={onClickAddedContent} 
 		    		isControl={false} 
 		    		thumbnail={addedContents[contentId].coverpicuri} 
 		    		getCoverPic={getCoverPic}
-		    		selected={selected}
+		    		selectedId={selectedId}
 		    		addedItemIds={addedItemIds}
 		    		modifyContentItems={modifyContentItems}
 		    		addedContents = {addedContents}

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import OutfitStyles from '../../outfit.css';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
 
 
 export class Outfit extends React.Component{
@@ -13,10 +14,6 @@ export class Outfit extends React.Component{
 
 		this._handleOnClick = this._handleOnClick.bind(this);
 		this._handleImageReceived = this._handleImageReceived.bind(this);
-		//Dispatch ADD_CONTENT on creation
-		/*if(!this.props.isControl){
-			this.props.createContent(this.outfitId);
-		}*/
 	}
 
 	componentDidMount(){
@@ -25,12 +22,9 @@ export class Outfit extends React.Component{
 	}
 
 	_handleOnClick(event){
-		if(this.props.isControl){
-			console.log("Control Outfit div clicked");
-			this.props.onClick();
-			return;
-		}else{			
+		if(!this.props.isSelected){			
 			console.log("view Outfit div clicked")
+			//call selectAndPropogate
 			this.props.onClick(this.props.id, this.props.contents[0]);
 		}
 		event.stopPropagation();
@@ -42,23 +36,13 @@ export class Outfit extends React.Component{
 		});
 	}
 
-	//outfitClicked = () => {}
 	render(){
-		console.log("isControl:")
-		console.log(this.props.isControl)
 		return(		
-			<div className={this.props.isControl ? OutfitStyles.addOutfitButton : OutfitStyles.stdOutfitBlock} onClick={this._handleOnClick}>
-				<img src={this.state.base64Image}  style={{width:'100%', 'max-height':'inherit'}}/>
+			<div className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} onClick={this._handleOnClick}>
+				<img src={this.state.base64Image == null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} style={{width:'100%', 'max-height':'inherit'}}/>
 			</div>		
 		);
 	}
 }
-
-/*const Outfit = ({id}, onAddOutfit, isControl) => {
-	return(			
-		<div className={isControl ? OutfitStyles.outfitContainer : OutfitStyles.addOutfitButton} onClick={() => {console.log("controll click event in Outfit div"); console.log(onAddOutfit); onAddOutfit()}}>
-		</div>		
-	);
-}*/
 
 export default Outfit;

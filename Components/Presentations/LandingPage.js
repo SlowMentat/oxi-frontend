@@ -28,7 +28,7 @@ const descriptionContainerStyle = {
 	'padding-top':'110px',
 	'padding-bottom':'50px',
 	'color':'#fdfdfd',
-	'background-color':'#434343'
+	'background-color':'#212121'
 }
 
 const getStartedContainerStyle = {
@@ -534,7 +534,7 @@ export default class LandingPage extends React.Component{
 														modifyProfile={this.props.modifyProfile}
 														profileId={this.props.profileId} />) : (
 					<div>
-						<div style={{'background-color':'#434343'}}>
+						<div style={{'background-color':'#212121'}}>
 							<Description/>
 						</div>
 						<GetStarted style={getStartedStyle} createUser={this.props.createUser}/> 

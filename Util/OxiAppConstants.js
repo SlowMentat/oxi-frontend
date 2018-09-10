@@ -16,6 +16,16 @@ export const OxiAppConstants = Object.freeze({
 	modalRoot : document.getElementById('modalRoot'),
 	serviceUrl : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseUrl : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
+	aspectRatio : (2 / 3),
+	/*ContenViewStates: {
+		edit: {
+			CROPPING: 'PREVIEWING',
+			TAGGING: 'PREVIEWING'
+		},
+		preview: {
+			PREVIEWING: 'PREVIEWING'
+		}
+	}*/
 	navRequestMap : {
 		home : "Home",
 		profile : "Profile",

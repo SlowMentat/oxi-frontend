@@ -8,14 +8,18 @@ const mapStateToProps = state => {
 		//contentViewed: state.shownContentView.shownContentId,
 		contentsByIds: state.entitiesReducer.contents.byIds,
 		//contentSelected : state.contentViewState.shownContentId
-		contentSelected : state.entitiesReducer.contents.selected
+		contentSelected : state.entitiesReducer.contents.selected,
 		//isVisible: state.shownContentView.shownContentView
+		addedEntities : state.addedEntitiesReducer
 	};
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-		onImgClick: () => dispatch(setFormVisibility("AddItem")),
-		uploadImage : (imageData) => dispatch(postImage(imageData)),
+		getItemForm: () => dispatch(setFormVisibility("AddItem")),
+		getGestureForm: () => dispatch(setFormVisibility("AddGesture")),
+		/*postChanges : (imageData = null, json) => {
+			if(imageData != null) dispatch(postImage(imageData, json));
+		},*/
 		getPreviewPic : (filename, callback) => dispatch(fetchImage(filename, callback))
 })
 

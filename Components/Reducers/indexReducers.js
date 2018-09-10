@@ -1,45 +1,49 @@
 import {combineReducers} from 'redux'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import {SET_VISIBLE_FORM, 
-			SHOW_MODAL, 
-			SET_XCSRF_TOKEN,
-			EDIT_CONTENT_VIEW,
-			SHOW_CONTENT_VIEW,
-			PREVIEW_CONTENT,
-			SELECT_PAGE,
-			REQUEST_ENTITIES, 	
-			RECEIVE_ENTITIES,	
-			INVALIDATE_ENTITIES,
+import {
+			ADD_PROFILE,
+			ADD_OUTFIT,	
+			ADD_CONTENT,
+			ADD_ITEM,
+			ADD_ITEMCONTENT,
 			CREATE_ITEM,
 			CREATE_ITEMCONTENT,
 			CREATE_CONTENT,
 			CREATE_OUTFIT,
-			UPDATE_ITEM,
-			UPDATE_CONTENT,
-			SELECT_CONTENT,
-			SELECT_WEB_APP_VIEW,
-			SET_LP_PROFILE_MENU,			
+			DISABLE_BUTTON,
+			EDIT_CONTENT_VIEW,
+			INVALIDATE_ENTITIES,
 			MODIFYITEM,
-			REMOVE_ITEM,
-			SELECT_NEW_ITEM,
-			ADD_ITEMCONTENT,
-			REMOVE_ITEMCONTENT,
-			ADD_CONTENT,
 			MODIFYCONTENT,
-			REMOVE_CONTENT,
-			SELECT_ADDED_CONTENT,
-			ADD_OUTFIT,	
 			MODIFYOUTFIT,
-			REMOVE_OUTFIT,
-			SELECT_ADDED_OUTFIT,
-			ADD_PROFILE,
 			MODIFYPROFILE,
-			REMOVE_PROFILE,
-			SELECT_NEW_PROFILE,
-			ADD_ITEM,
 			MODIFY_ITEM,
 			MODIFY_CONTENT,
-			MODIFY_OUTFIT
+			MODIFY_OUTFIT,
+			PREVIEW_CONTENT,
+			REQUEST_ENTITIES, 	
+			RECEIVE_ENTITIES,	
+			REMOVE_PROFILE,
+			REMOVE_OUTFIT,
+			REMOVE_CONTENT,
+			REMOVE_ITEM,
+			REMOVE_ITEMCONTENT,
+			SELECT_CONTENT,
+			SELECT_WEB_APP_VIEW,
+			SELECT_PAGE,
+			SELECT_OUTFIT,
+			SELECT_ITEM,
+			SELECT_NEW_PROFILE,
+			SELECT_ADDED_OUTFIT,
+			SELECT_ADDED_CONTENT,
+			SELECT_NEW_ITEM,
+			SET_LP_PROFILE_MENU,	
+			SET_VISIBLE_FORM, 	
+			SET_XCSRF_TOKEN,
+			SHOW_MODAL, 
+			SHOW_CONTENT_VIEW,	
+			UPDATE_ITEM,
+			UPDATE_CONTENT
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -75,6 +79,12 @@ const iniEntitiesState = {
 	didInvalidate : false,
 	lastUpdated:0,
 	entites:[]
+}
+
+const iniButtonState = {
+	addOutfit: {
+		disabled : false
+	}
 }
 
 const toggleModal = (state = iniState, action) => {
@@ -196,7 +206,7 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	//Check if excedes max number of entities.  If so trim data to maxCount.
 	if(state.allIds.length > maxCount){
 		console.log("greater than max allowed entities")
-		console.log(state.allIds);
+		//console.log(state.allIds);
 		allIdsRef =  state.allIds.slice(0,maxCount);
 		let keys = Object.keys(state.byIds).slice(0, maxCount)
 		for(var i = 0, len = keys.length; i < len; i++){
@@ -204,7 +214,7 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 		}
 	}else{
 		console.log("less than max allowed entities");
-		console.log(state.allIds);
+		//console.log(state.allIds);
 		byIdsRef = state.byIds;
 		allIdsRef = state.allIds;
 	}
@@ -212,8 +222,8 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	switch(action.type){
 		case `CREATE_${action.typeSpecifier}`:
 			let nextCount = state.count + 1;
-			console.log(maxCount);
-			console.log(nextCount);
+			console.log('maxCount' + maxCount);
+			console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
@@ -251,7 +261,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 	//Check if excedes max number of entities.  If so trim data to maxCount.
 	if(state.allIds.length > maxCount){
 		console.log("greater than max allowed entities")
-		console.log(state.allIds);
+		//console.log(state.allIds);
 		allIdsRef =  state.allIds.slice(0,maxCount);
 		let keys = Object.keys(state.byIds).slice(0, maxCount)
 		for(var i = 0, len = keys.length; i < len; i++){
@@ -259,7 +269,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 		}
 	}else{
 		console.log("less than max allowed entities");
-		console.log(state.allIds);
+		//console.log(state.allIds);
 		byIdsRef = state.byIds;
 		allIdsRef = state.allIds;
 	}
@@ -267,19 +277,17 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 	switch(action.type){
 		case `ADD_${action.typeSpecifier}`:
 			let nextCount = state.count + 1;
-			console.log(maxCount);
-			console.log(nextCount);
+			console.log('maxCount' + maxCount);
+			console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
 				let scrubbedAction = {};
 				//Insert a new entity id into action payload if none exists
 				if(!action.payload.id){
-					console.log('scrubbing action');
 					scrubbedAction = Object.assign({}, action, {
 						payload : Object.assign({}, action.payload, {id : allIdsRef.reduce((maxId, currentId) => Math.max(maxId, currentId), 0) + 1})
 					});
-					console.log(scrubbedAction);
 				}else{
 					scrubbedAction = Object.assign({}, action);
 				}
@@ -321,7 +329,7 @@ function entityReducerFactory(reducerFunction, reducerName){
 	}
 }
 
-function contentViewState(state = {'shownContentId' : false, 'isEditingContent' : false}, action){
+function contentViewState(state = {'shownContentId' : null, 'isEditingContent' : false}, action){
 	switch(action.type){
 		case PREVIEW_CONTENT:
 			return Object.assign({}, state, action.payload);
@@ -377,6 +385,15 @@ function entitiesState(state = {}, action){
 	}
 }
 
+function buttonState(state = iniButtonState, action){
+	switch(action.type){
+		case DISABLE_BUTTON:
+			return Object.assign({}, state, {'addOutfit': action.payload});
+		default:
+			return state;
+	}
+}
+
 export const maxOutfitViewCount = 8;
 export const maxContentViewCount = 6;
 export const maxItemViewCount = 9;
@@ -406,6 +423,7 @@ const addedEntitiesReducer = combineReducers({
 
 const _OxiApp = combineReducers({
 	//add reducers for combining here
+	buttonState,
 	appView,
 	landingPage,
 	toggleModal,

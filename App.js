@@ -14,6 +14,7 @@ import ItemStyles from './item.css';
 import NavStyles from './nav.css';
 import OutfitNavStyles from './outfitNav.css';
 import FormStyles from './forms.css';
+import 'react-image-crop/dist/ReactCrop.css';
 
 //Display Components
 import FormDeck from './Components/Presentations/Forms.js';
@@ -165,7 +166,7 @@ export function sendAsyncRequest(headers,
 				if(_handleOnSuccess != null){
 					_handleOnSuccess();
 				}
-				resolve(this.status);
+				resolve(this);
 			}				
 			/*
 			*handle custom redirect here.  Custom redirect used to prevent browser from navigating
@@ -178,10 +179,10 @@ export function sendAsyncRequest(headers,
 				cookies.set('csrf_token', xhr.getResponseHeader('X-CSRF-TOKEN'));
 				//Present Login form
 				store.dispatch(setFormVisibility("Login"));
-				resolve(this.status);
+				resolve(this);
 			}
 			else{
-				reject(this.statusText);
+				reject(this);
 			}		
 		}
 		xhr.send(data);

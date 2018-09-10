@@ -2,13 +2,17 @@
 //Do this in every file where you use `fetch`
 import fetch from 'cross-fetch'
 import axios from 'axios';
+
 //import sendAsyncRequest from '../../Util/AsyncRequest.js';
 import {sendAsyncRequest} from '../../App.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {normalize, denormalize} from 'normalizr';
-import {outfitsSchema, profileSchema} from '../../Util/Schema.js'
+import {outfitsSchema, profileSchema, contents, items} from '../../Util/Schema.js'
 import Cookies from 'universal-cookie';
 import qs from 'qs';
+//const FormData = require('form-data');
+
+//import {FormData} from 'form-data';
 
 //Action Types
 export const SET_VISIBLE_FORM 		= 'SET_VISIBLE_FORM';
@@ -52,7 +56,7 @@ export const ADD_PROFILE			= 'ADD_'				+ OxiAppConstants.EntityTypes.PROFILE;
 export const MODIFY_PROFILE			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.PROFILE;
 export const REMOVE_PROFILE			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.PROFILE;
 export const SELECT_NEW_PROFILE		= 'SELECT_NEW_'			+ OxiAppConstants.EntityTypes.PROFILE;
- 
+export const CREATE_PROFILE			= 'CREATE_PROFILE'		+ OxiAppConstants.EntityTypes.PROFILE;
 
 //Async action types
 export const REQUEST_LOGIN 			= "REQUEST_LOGIN";
@@ -70,6 +74,8 @@ export const FETCH_AUTH_SUCCUSS 	= "FETCH_AUTH_SUCCUSS";
 export const SELECT_WEB_APP_VIEW	= "SELECT_WEB_APP_VIEW";
 
 export const SELECT_CONTENT 		= "SELECT_" 	+ OxiAppConstants.EntityTypes.CONTENT;
+export const SELECT_ITEM 			= "SELECT_"		+ OxiAppConstants.EntityTypes.ITEM;
+export const DISABLE_BUTTON			= "DISABLE_BUTTON";
 
 //global variables
 let nextItemId = 0;
@@ -107,8 +113,12 @@ export const setXcsrfToken 		= makeActionCreator(SET_XCSRF_TOKEN, null, 'xCsrfTo
 
 export const selectPage 		= makeActionCreator(SELECT_PAGE, null, 'page');
 export const setWebAppView		= makeActionCreator(SELECT_WEB_APP_VIEW, null, 'webAppView');
-export const selectContent 		= makeActionCreator(SELECT_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id')
-export const selectOutfit 		= makeActionCreator(SELECT_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id')
+
+export const selectItem 		= makeActionCreator(SELECT_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id');
+export const selectContent 		= makeActionCreator(SELECT_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
+export const selectOutfit 		= makeActionCreator(SELECT_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
+
+export const createProfile 		= makeActionCreator(CREATE_PROFILE, OxiAppConstants.EntityTypes.PROFILE, 'entity')
 
 //OUTFIT Actions
 export const createOutfit 		= makeActionCreator(CREATE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicUri', 'contents', 'profile');
@@ -135,6 +145,9 @@ export const modifyContent 		= makeActionCreator(MODIFY_CONTENT, OxiAppConstants
 
 export const selectAddedOutfit 	= makeActionCreator(SELECT_ADDED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
 export const selectAddedContent = makeActionCreator(SELECT_ADDED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
+
+export const disableAddOutfit 	= makeActionCreator(DISABLE_BUTTON, null, 'disabled');
+
 
 //PROFILE Actions
 export const addProfile = (profileData) => {
@@ -183,14 +196,14 @@ export const loginConfig = (username, password) => {
 
 //set axios defult headers
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['contentType'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
 
 //Set interceptor for responses with unauthorized status.
 //This will save the provided csrf token dispatch the login Form for authentication.
-axios.interceptors.response.use(/*handleUnauthorizedRequest/*, error => {
+/*axios.interceptors.response.use(handleUnauthorizedRequest*//*, error => {
 	handleUnauthorizedRequest(response);
 	return Promise.reject(error);
-}*/);
+}*///);
 
 //include the csrf_token from cookies in the X-CSRF-TOJEN header for each request.
 axios.interceptors.request.use(requestInterceptor,  error => {
@@ -290,6 +303,8 @@ export function postProfile(profile){
 				console.log("dispatching removeProfile");
 				//Change switch to profile view
 				dispatch(setWebAppView('profile'));
+				//Add new profile data returned in the response body to the redux tree
+				dispatch(updateProfile(response.data));
 				//populate the profile view with usr content
 				///dispatch(fetchEntities('outfit', response.data.id));
 				//remove the sent profile from local addedEntitesReducer store
@@ -299,7 +314,7 @@ export function postProfile(profile){
 	}
 }
 
-export function fetchEntities(entityType, profileId){
+export function fetchEntities(entityType, username){
 	return function(dispatch){
 		dispatch(requestEntities(entityType));
 		/*return fetch('http://72.14.177.220/gs-convert-jar-to-war-0.1.0/consumer/${entityType}/${profileId}')
@@ -317,9 +332,8 @@ export function fetchEntities(entityType, profileId){
 					'GET',
 					OxiAppConstants.serviceUrl + '/outfits/' + profileId,
 					null)*/
-		return axios.get(OxiAppConstants.serviceUrl + '/outfits/' + profileId + "?page=0&size=10")
+		return axios.get(OxiAppConstants.serviceUrl + '/outfits/' + username + "?page=0&size=20")
 		.then((response) => {
-			console.log('yo');
 			if(response.status == 200){
 				let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
 				console.log("json");
@@ -398,6 +412,9 @@ export function fetchEntities(entityType, profileId){
 }
 
 //use this action to batch select nested entities retreived from server
+//@param {String} valid entityType from OxiAppConstants.EntityTypes to select
+//@param {String} valid id of the entity selected
+//@param {STring} valid id of the child entity to be selected next.
 export function selectAndPropogate(entityType, entityId, targetChildId){
 	return function(dispatch){
 		console.log("selectAndPropogate entityType = ");
@@ -416,6 +433,31 @@ export function selectAndPropogate(entityType, entityId, targetChildId){
 				return
 		}
 	}
+}
+
+//use this action to batch deselect selected nested entities
+//@param {String} valid entityType from OxiAppConstants.EntityTypes to deselect
+//@param {String} valid id of the entity deselected
+export function deselectAndPropogate(entityType){
+	return function(dispatch){
+		console.log("selectAndPropogate entityType = ");
+		console.log(entityType);
+		switch(entityType){
+			case OxiAppConstants.EntityTypes.OUTFIT:
+				dispatch(selectOutfit(false));
+				dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.CONTENT));
+				return;
+			case OxiAppConstants.EntityTypes.CONTENT:
+				dispatch(selectContent(false));
+				dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.ITEM));
+				return;
+			case OxiAppConstants.EntityTypes.ITEM:
+				dispatch(selectItem(false));
+			default:
+				console.log("no matching entity type");
+				return null;
+		}
+	}	
 }
 
 //use this action to select entities as they are created on the client.
@@ -471,14 +513,81 @@ export function fetchImage(filename, callback){
 	}
 }
 
-export function postImage(imageFile){
+//POST image data to server
+export function postImage(imageFile, json){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
 	console.log("in postImage action");
-	return function(dispatch){
-		return axios.post(OxiAppConstants.serviceUrl + '/uploadPhoto/', imageFormData, {
-			headers: OxiAppConstants.RequestBaseConfig.HEADERS
+	//TODO:  Check if file name and image aspect ratio is valid
+	//return function(dispatch){
+		//dispatch(postEntities(json));
+		axios.post(
+			OxiAppConstants.serviceUrl + '/uploadPhoto', 
+			imageFormData,
+			{
+				headers:{
+					'Content-Disposition': 'form-data; name=\"imageFile\"',
+					'Content-Transfer-Encoding': 'base64',
+				}
+			}
+		)
+		//sendAsyncRequest({}, imageFormData, 'POST', OxiAppConstants.serviceUrl + '/uploadPhoto', null)
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				postEntities(json, response.data);
+			}else{
+				return response.status;
+			}
 		});
+	//}
+}
+
+//Sends POST request with added entities
+export function postEntities(json, imageFileName){
+	//return function(dispatch){
+		//denormalize outfits from addedEntitiesReducer
+		//send result as json in request payload
+		let requestTarget = '';
+		let entities = {};
+		if(json.contents !== undefined){
+			requestTarget = '/outfit';
+			//store assign outfit.coverpicuri to imageFileName. 
+			//TODO:  this needs to be reimplemented eventially using Picture resource entities
+			json.coverpicuri = imageFileName;
+			json.contents[0].coverpicuri = imageFileName;
+		}else if(json.items !== undefined){
+			requestTarget = '/contents';
+			json.contents[0].coverpicuri = imageFileName;
+		}
+		//denormalize json
+		if(requestTarget !== ''){
+			console.log("denormalized json data:");
+			console.log(json);
+			axios.post(
+				OxiAppConstants.serviceUrl + requestTarget,
+				json,
+				{}
+			)
+			.then(response => {
+				return response.status;
+			});			
+		}else{
+			console.log('requestTarget empty');
+		}
+	//}
+}
+
+function buildJsonFromEntities(id, entity ){
+
+}
+
+export function putEntities(id, entityType){
+	switch(entityType){
+		case OxiAppConstants.EntityTypes.OUTFIT:
+
+		case OxiAppConstants.EntityTypes.CONTENT:
+		default:
+			break
 	}
 }
 
