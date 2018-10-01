@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, setWebAppView, fetchEntities } from '../../Components/Actions/indexActions.js';
+import { setFormVisibility, setWebAppView, fetchEntities, replaceProfile, navigateTo } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
 import fetch from 'cross-fetch'
@@ -13,13 +13,25 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, props) => ({
 	navEventCallbacks : {
-		home : () => dispatch(setWebAppView("home")),
-		profile : (profileId) => {
-			dispatch(setWebAppView("profile"));
-			dispatch(fetchEntities('outfit', "gg"));
+		home : () => {
+			//dispatch(setWebAppView("home"))
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.home.toLowerCase()));
 		},
-		settings : () => dispatch(setWebAppView("settings")),
-		search : () => dispatch(setWebAppView("search")),
+		profile : (profileId) => {
+			/*dispatch(setWebAppView("profile"));
+			//fetch owners outfits 
+			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, ''));
+			//fetch owners body info
+			dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, ''));*/
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+		},
+		settings : () => {
+			//dispatch(setWebAppView("settings"))
+			//dispatch(navigateTo(OxiAppConstants.navRequestMap.landing.toLowerCase()));
+		},
+		search : () => {
+			dispatch(setWebAppView("search"))
+		},
 		logout : () => {
 			axios.post(OxiAppConstants.apiBaseUrl + '/logout', null, {
 				headers: {

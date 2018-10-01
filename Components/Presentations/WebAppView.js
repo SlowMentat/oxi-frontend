@@ -8,6 +8,8 @@ import VisibleItemList from '../../Components/Containers/VisibleItemList.js';
 import VisibleOutfitList from '../../Components/Containers/VisibleOutfitList.js';
 import ContentContainer from '../../Components/Containers/ContentContainer.js';
 import OutfitPanelContainer from '../../Components/Containers/OutfitPanelContainer.js'
+import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js'
+import MetricTitleContainer from '../../Components/Containers/MetricTitleContainer.js';
 
 //Presentation Component 
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js'
@@ -126,13 +128,28 @@ class OutfitNav extends React.Component{
     		<div className={Styles.outfitBlock}>
     			<div className={OutfitNavStyles.outfitNavContainer}>
 	    			<div className={OutfitNavStyles.outfitCtrlContainer}>
-						<OutfitPanelContainer/>
+						<OutfitPanelContainer webAppView={this.props.webAppView}/>
 	    			</div>
 	    			<div className={OutfitNavStyles.previewContainer}>
-	    				<VisibleOutfitList />
+	    				<VisibleOutfitList  webAppView={this.props.webAppView}/>
 	    			</div>
     			</div>
     		</div>
+		);
+	}
+}
+
+class MetricPanel extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		return(
+			<div className={Styles.metricBlock}>
+				<MetricTitleContainer />
+				<VisibleMetricList />
+			</div>
 		);
 	}
 }
@@ -175,10 +192,12 @@ export default class webAppView extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			enableAddOutfitButton: true
+			enableAddOutfitButton: true,
+			visibleItems: {}
 		};
 
 		this._createOutfitForm = this._createOutfitForm.bind(this);
+		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
 	}
 
 	//Add Outfit Form event handlers
@@ -204,6 +223,20 @@ export default class webAppView extends React.Component {
 	_removeOutfitForm(){
 	}
 
+	_handleItemsListUpdated(visibleItemsByIds){
+		//visibleItemsByIds can be modified
+		console.log('in _handleItemsListUpdated.  this.state.visibleItems.visibleItemsByIds = ', this.state.visibleItems.visibleItemsByIds)
+		console.log('in _handleItemsListUpdated.  visibleItemsByIds = ', visibleItemsByIds)
+		if(this.state.visibleItems.visibleItemsByIds != visibleItemsByIds){
+			this.setState(prevState => ({
+				visibleItems: {
+					//...prevState.visibleItems,
+					visibleItemsByIds
+				}
+			}));
+		}
+	}
+
 	render() {
 		console.log("webAppView = ")
 		console.log(this.props.webAppView)
@@ -217,12 +250,16 @@ export default class webAppView extends React.Component {
 				);
 			case "home":
 				return(
-					<div className={Styles.containerHome}>
+					<div>
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
-						<div style={{'margin-top':'80px'}}>
-							<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
+						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
+							<div className={Styles.containerBrowse}>
+								<MetricPanel />
+								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton} webAppView={this.props.webAppView}/>
+								<ModalContentSelection/>
+								<Admin/>
+							</div>
 						</div>
-						<ModalContentSelection/>
 					</div>
 				);
 			case "profile":
@@ -230,13 +267,11 @@ export default class webAppView extends React.Component {
 					<div>
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
-							<div className={Styles.containerProfile}>
-								<div className={Styles.metricBlock}>
-									Metric Block
-								</div>
-								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton}/>
-								<ContentContainer />
-								<VisibleItemList />
+							<div className={Styles.containerProfile}>								
+								<MetricPanel />
+								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton} webAppView={this.props.webAppView}/>
+								<ContentContainer visibleItems={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}/>
+								<VisibleItemList populateItemsMap={this._handleItemsListUpdated}/>
 								<Admin/>
 							</div>
 						</div>

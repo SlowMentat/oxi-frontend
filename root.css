@@ -30,7 +30,7 @@ div{
 }
 
 .modal{	
-	background-color: rgba(0,0,0,0.4);
+	background-color: rgba(0,0,0,0.6);
 	position: fixed;
 	height: 100%;
 	width: 100%;
@@ -63,9 +63,9 @@ div{
 
 .containerProfile{
 	display: grid;
-	grid-template-columns: auto 10% 50% 20%;
+	grid-template-columns: auto 250px 45% 20%;
 	/*grid-template-rows: .03fr 1.7fr 1fr .03fr */
-	grid-template-rows: calc(100vh - 90px - 40px) 40px;
+	grid-template-rows: calc(100vh - 80px - 40px) 40px;
 	/*grid-template-rows: 5fr, 3fr, .4fr;*/
 	grid-gap: 5px;
 	grid-template-areas: 
@@ -75,13 +75,14 @@ div{
 	height:100%;
 }
 
-.containerHome{
+.containerBrowse{
 	display: grid;
 	grid-template-columns: auto 80%;
-	grid-template-rows: auto;
+	grid-template-rows: calc(100vh - 80px - 40px) 40px;
 	grid-gap: 5px;
 	grid-template-areas:
-		"metric browse";
+		"metric browse"
+		"admin admin";
 }
 
 :local(.headerBlock){

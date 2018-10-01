@@ -61,7 +61,7 @@ const getVisibleItems = (items, filter, contents) => {
 				if(contents != undefined){
 					console.log("contents =");
 					console.log(contents)
-					if(contents.selected != undefined){
+					if(contents.selected != undefined && contents.allIds.length > 0){
 						if(contents.selected != false){
 							//array of content ids
 							result.allIds = contents.byIds[contents.selected]["items"].sort();
@@ -90,22 +90,24 @@ const getVisibleItems = (items, filter, contents) => {
 	return items;
 }
 
-const mapStateToProps = state => {
-	let filteredItems = getVisibleItems(
-		state.entitiesReducer.items,
-		'BY_CONTENT_ID',
-		state.entitiesReducer.contents
-	);
-	let filteredAddedItems = getVisibleItems(
-		state.addedEntitiesReducer.items,
-		'BY_CONTENT_ID',
-		state.addedEntitiesReducer.contents
-	);
+const mapStateToProps = (state, props) => {
+	let brands = state.entitiesReducer.brands.byIds;
+	let retailers = state.entitiesReducer.retailers.byIds;
+	/*
+	console.log('==================================');
+	console.log('brands', brands);
+	console.log('retailers', retailers);
+	console.log('==================================');
+	*/
+	let filteredItems = getVisibleItems(state.entitiesReducer.items, 'BY_CONTENT_ID', state.entitiesReducer.contents);
+	let filteredAddedItems = getVisibleItems(state.addedEntitiesReducer.items, 'BY_CONTENT_ID', state.addedEntitiesReducer.contents);
 	return ({
 		items : filteredItems.byIds,
 		itemIds : filteredItems.allIds,//state.entitiesReducer.items.allIds 
 		addedItems : filteredAddedItems.byIds,
-		addedItemIds : filteredAddedItems.allIds
+		addedItemIds : filteredAddedItems.allIds,
+		brands : brands,
+		retailers :  retailers
 	});
 }
 

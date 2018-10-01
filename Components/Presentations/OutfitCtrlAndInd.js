@@ -6,6 +6,7 @@ import OutfitNavStyles from '../../outfitNav.css';
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
 
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
 
 class OutfitCtrlAndInd extends React.Component{
 	constructor(props){
@@ -32,11 +33,15 @@ class OutfitCtrlAndInd extends React.Component{
 	}
 
 	render(){
-		return(
-			<div className={OutfitNavStyles.outfitCtrlButton} onClick={this.handleAddOutfitClcik}>
-				Add Outfit
-			</div>
-		);
+		let button = null;
+		if(this.props.webAppView.webAppView !== OxiAppConstants.navRequestMap.home.toLowerCase()){
+			button = (
+				<div className={OutfitNavStyles.outfitCtrlButton} onClick={this.handleAddOutfitClcik}>
+					Add Outfit
+				</div>
+			);
+		}
+		return(button);
 	}
 }
 

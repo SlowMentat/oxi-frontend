@@ -1,4 +1,6 @@
 
+import { setFormVisibility, navigateTo, fetchEntities, replaceProfile} from '../Components/Actions/indexActions.js';
+
 
 //Constant global variables
 export const OxiAppConstants = Object.freeze({	
@@ -10,6 +12,7 @@ export const OxiAppConstants = Object.freeze({
 		UNAUTHORIZED:401,
 		FORBIDDEN:403,
 		NOT_FOUND:404,
+		CONFLICT:409,
 		CUSTOM_REDIRECT:902
 	},
 	outfitFormRoot : document.getElementById('outfitForm'),
@@ -39,7 +42,9 @@ export const OxiAppConstants = Object.freeze({
 		CONTENT: "CONTENT",
 		ITEM : "ITEM",
 		ITEM_CONTENT : "ITEMCONTENT",
-		PICTURE : "PICTURE"
+		PICTURE : "PICTURE",
+		BRAND: "BRAND",
+		RETAILER: "RETAILER"
 	},
 	ContentDirectories : {
 		IMAGES: 'Graphics'
@@ -47,6 +52,21 @@ export const OxiAppConstants = Object.freeze({
 	FormType : {
 		ADD_ITEM: 'AddItem',
 		UPDATE_ITEM: 'UpdateItem',
-		LOGIN: 'Login'
-	}
+		LOGIN: 'Login',
+		DISCARD_EDITS:'DiscardEdits'
+	},
+	requestToBatchedDispatchMap : {
+		outfits: {
+			get: (dispatch) => {
+				dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+			},
+		}
+	},
+	Intent:{
+		DISCARD_EDITS: 'discardEdits'
+	}/*,
+	NavigationException:{
+		USER_CANCELED: "User Canceled",
+		USER_SUBMITTED: "User Submitted"
+	}*/
 });

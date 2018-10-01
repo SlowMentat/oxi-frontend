@@ -1,38 +1,56 @@
 :local(.itemContainer) {
-	height: 53px;	
-	display: grid;
+	height: 75px;
+	margin-bottom:8px;	
+	/*display: grid;
     grid-template-columns: repeat(4, 1fr);
 	grid-template-rows: auto;
 	grid-gap: 5px;
 	grid-template-areas: 
-		"size type image image"
+		"type size retailer brand"*/
 }
 
 :local(.stdItemBlock){
 	composes:stdBlock from './root.css';
-	margin-bottom: 3px;
+	/*margin-bottom: 3px;
 	margin-top: 3px;
 	border-radius: 2px;
     border-radius: 2px;
     border-width: 1px;
     border-color: #424242;
-    border-style: solid;
-	height:50px;
+    border-style: solid;*/
+    border-radius:0px;
+	height:100%;
 	font-size: 80%;
 	background-color: #000000;
+	display: inline-flex;
 }
 
 :local(.itemSizeBlock) {
 	composes: stdItemBlock;
 	grid-area: size;
+	width:50px;
+	border-top-left-radius: 15px;
 }
 
 :local(.itemTypeBlock) {
 	composes: stdItemBlock;
 	grid-area: type;
+	width: 50px;
 }
 
-:local(.itemImageBlock) {
+:local(.itemRetailerBlock) {
 	composes: stdItemBlock;
-	grid-area: image;
+	grid-area: retailer;
+	width: calc((100% - 100px)/2);
+	padding-left: 8px;
+	border-left-style: solid;
+    border-left-width: 2px;
+}
+
+:local(.itemBrandBlock) {
+	composes: stdItemBlock;
+	grid-area: brand;
+	width: calc((100% - 100px)/2);
+	padding-left: 8px;
+	background-image: linear-gradient(to right, black, black, #616161);
 }

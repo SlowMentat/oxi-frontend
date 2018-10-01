@@ -7,6 +7,7 @@ import { createLogger } from 'redux-logger';
 import { Provider } from 'react-redux';
 import Cookies from 'universal-cookie';
 import fetch from 'cross-fetch';
+import axios from 'axios';
 
 //CSS Components
 import Styles from './root.css';
@@ -29,7 +30,7 @@ import WebAppView from './Components/Containers/WebAppViewContainer.js'
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
-import {showModal, setFormVisibility, setXcsrfToken, fetchEntities} from './Components/Actions/indexActions.js';
+import {showModal, setFormVisibility, setXcsrfToken, fetchEntities, handleUnauthorizedRequest, insertCsrfToken} from './Components/Actions/indexActions.js';
 
 //See instructions when adding enhancers and middlewares
 import { devToolsEnhancer } from 'redux-devtools-extension';
@@ -44,7 +45,13 @@ const composeEnhancers = composeWithDevTools({
 //subscribe logging callback to store state change
 const store = createStore(_OxiApp,
 	{
-		toggleModal : {},
+		toggleModal : {
+			'modal':'HIDDEN',
+			'isModalVisible':true,
+			'prevRequestUrl':null,
+			'prevRequestType':null,
+			'otherData':{}
+		},
 		saveToken : {},
 		entitiesReducer : {
 		}
@@ -87,6 +94,17 @@ export const OxiAppConstants = Object.freeze({
 		PICTURE : "PICTURE"
 	}
 });
+
+//set axios defult headers
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+//Set interceptor for responses with unauthorized status.
+//This will save the provided csrf token dispatch the login Form for authentication.
+axios.interceptors.response.use((response) => store.dispatch(handleUnauthorizedRequest(response)));
+
+//include the csrf_token from cookies in the X-CSRF-TOJEN header for each request.
+axios.interceptors.request.use(insertCsrfToken);
 
 
 function navButton(props){

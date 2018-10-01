@@ -14,9 +14,15 @@
     display: block;
     /*width: calc((2 / 3) * (100vh - 40px - 80px));  /*Modified*/
     max-width: 100%;
-    max-height: -webkit-fill-available;
+    max-height: calc(100vh - 200px * (3/2));
+    /*height:100%;*/
+    border-radius: 4px;
+    /*object-fit: cover;*/
+    margin: auto;
+    /*max-height: -webkit-fill-available;
     max-height: -moz-available;
-    max-height: stretch; }
+    max-height: stretch; */
+  }
   .ReactCrop--crop-invisible .ReactCrop__image {
     opacity: 0.5; }
   .ReactCrop__crop-selection {

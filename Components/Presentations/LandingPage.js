@@ -125,9 +125,10 @@ const Description = (props) => (
 	</div>
 );
 
-const InputTextField = ({containerStyle, inputStyle, type, name, onChange, placeholder}) => (
+const InputTextField = ({containerStyle, inputStyle, type, name, onChange, placeholder, value}) => (
 	<div style={containerStyle}>
 		{type} <input 
+			value={value}
 			type="text" 
 			name={name} 
 			placeholder={placeholder} 
@@ -220,7 +221,7 @@ class GetStarted extends React.Component{
 								/>
 								<div style={submitBtnStyle}>
 									<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-										Create Profile
+										Create Account
 									</div>
 								</div>
 							</div>
@@ -252,6 +253,7 @@ class ProfileFieldWrapper extends React.Component{
 						inputStyle={{'width':'80%','text-align':'center','font-size':'15px','outline':'none'}} 
 						name={this.props.field}
 						placeholder="" 
+						value={this.props.value}
 						onChange={() => {this.props.callback()}}
 					/>
 					<div style={{'display':'inline-block'}}>
@@ -310,13 +312,45 @@ const radioTitleStyle = {
 class ProfileMenu extends React.Component{
 	constructor(props){
 		super(props);
-		this.state ={
-			'profileData':{
-				'id': this.props.profile.id,
-				'username':this.props.profile.username,
-				'bodyShape': 'female',
-				'womens':false,
-				'mens':false
+		console.log(this.props.test);
+		if(!this.props.test){
+			this.state = {
+				'profileData':{
+					//'id': this.props.profile.id,
+					'username':this.props.profile.username,
+					'bodyShape': 'female',
+					'womens':false,
+					'mens':false,				
+				}
+			}
+		}
+		//Hydrate all profile fields with a random float.  Used for creating test profiles.
+		//Generated values in inches :)
+		else{
+			let maxHeight = 84;
+			let minHeight = 48;
+			let height = minHeight + (Math.random() * (maxHeight - minHeight));
+			this.state = {
+				'profileData':{
+					'username':this.props.profile.username,
+					'bodyShape': 'female',
+					'womens':false,
+					'mens':false,	
+					'height': height,
+					'neck': (Math.random() * height),
+					'fullShoulder':(Math.random() * height),
+					'halfShoulder':(Math.random() * height),
+					'chest':(Math.random() * height),
+					'waist':(Math.random() * height),
+					'hips':(Math.random() * height),
+					'sleeve':(Math.random() * height),
+					'frontLength':(Math.random() * height),
+					'backLength':(Math.random() * height),
+					'pantInseam':(Math.random() * height),
+					'pantOutseam':(Math.random() * height),
+					'thigh':(Math.random() * height),
+					'calf':(Math.random() * height)
+				}				
 			}
 		}
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
@@ -350,22 +384,20 @@ class ProfileMenu extends React.Component{
 		}));
 	}
 	_handleOnSubmit(){
-		this.props.modifyProfile(this.state.profileData);
+		//When calling modifyProfile the profileData object is passed as the action payload.
+		//The reducer is expecting this payload to contain an id field which is uses as a key
+		//to reference the payload data in the redux state tree.  This id field needs to be
+		//added explicitly here because it is left undefined when the profile object is 
+		//returned by the server, which is refernced to dynamically build this.state.
+		//profileData fields
+		let scrubbedProfileState = Object.assign({}, this.state.profileData, {id: 1});
+		this.props.modifyProfile(scrubbedProfileState);
 		this.props.postProfile(this.state.profileData);
 	}
-	/*shouldComponentUpdate(nextProps){
-		const differentProfile = this.props.profile !== nextProps.profile;
-		return differentProfile;
-	}*/
-/*	
-	field != 'id' || 
-	field != 'username' || 
-	field != 'bodyShap' || 
-	field != 'apparelInterest' || 
-	field != 'height'
-*/
+
 	render(){
-		//**pusht this to the select in LandingPageConnector.js
+		//TODO:  pusht this to the select in LandingPageConnector.js
+		//This filters what properties to display on the Profile Creation page
 		let fields = Object.keys(this.props.profile);
 		let filteredFields =  fields.filter(field => field != 'id')
 		.filter(field => field != 'height')
@@ -377,9 +409,12 @@ class ProfileMenu extends React.Component{
 		.filter(field => field != 'country');
 		console.log('filteredFields');
 		console.log(filteredFields);
-		let fieldSet = filteredFields.map(field => (
-			<ProfileFieldWrapper key={field} field={field} callback={()=>{this._handleInputFieldChange(event, field)}}/>
-		));
+		let fieldSet = filteredFields.map(field => {
+			//console.log(this.state.profileData[field]);
+			return(
+				<ProfileFieldWrapper key={field} field={field} value={this.state.profileData[field]} callback={()=>{this._handleInputFieldChange(event, field)}}/>
+			);
+		});
 
 		console.log('fieldSet');
 		console.log(fieldSet);
@@ -389,7 +424,7 @@ class ProfileMenu extends React.Component{
 					
 				</div>
 				<div style={{'width':'300px','margin':'auto','margin-top':'160px','display':'inline-block','text-align':'center'}}>
-					<ProfileFieldWrapper field='country' callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
+					<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
 					<div style={{'margin-bottom':'10px'}} >
 						<div>
 							<div>
@@ -426,7 +461,7 @@ class ProfileMenu extends React.Component{
 							</div>
 						</div>
 					</div>
-					<ProfileFieldWrapper field='height' callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
+					<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
 					{fieldSet}
 					<div style={submitBtnStyle}>
 						<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
@@ -529,6 +564,7 @@ export default class LandingPage extends React.Component{
 		return(
 			<div>				
 				{this.props.profileMenu ? (<ProfileMenu profile={this.props.profile} 
+														test={true}
 														toggleRadio={this.props.toggleRadio} 
 														postProfile={this.props.postProfile} 
 														modifyProfile={this.props.modifyProfile}

@@ -6,13 +6,15 @@ import Styles from '../../root.css';
 import ContentStyles from '../../content.css';
 import VisibleContentList from '../Containers/VisibleContentList.js';
 import CroppableImageForm from '../../Util/CroppableImageForm.js';
-import {} from '../../Util/OxiAppConstants.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import ItemLocationMap from './ItemLocationMap.js';
 
 const imgStyle = {
 	//width: 'calc((2 / 3) * (100vh - 40px - 80px))',
-	'max-height': 'inherit',
-	//height: 'auto',
-	'height': 'calc(100% - 80px - 5%)',
+	height: '100%',
+	'max-height': 'calc(100vh - 200px * (3/2))',
+	//width: '100%',
+    'max-width': 'calc((100vh - 200px) * 2/3)',
 	display: 'block',
 	'border-radius': '4px',
 	'object-fit': 'cover',
@@ -31,49 +33,36 @@ const imgFormStyle = {
 	overflow: 'hidden'
 }
 
-const imgFormControlStyle = {
-    width: '50px',
-    height: '50px',
-    'background-color': '#eeeeee',
-    'border-style': 'solid',
-    'border-width': '1px',
-    'border-color': '#212121',
-    'border-radius': '5px',
-    color:'black',
-    'text-align':'center',
-    'font-size':'80%'
-}
-
 const controlContainerStyle = {
-	display:'inline-block',
-	'margin-left':'-50px',
-	width:'5%',
-	float:'left'
+	'text-align':'center',
+	padding: '0 10% 0 10%',
+    height: 'calc(5vh + 25px)',
+	width:'100%'
 }
 
 
-const ShowContentView = ({viewContext, addedEntities, contentsByIds, contentSelected, getPreviewPic, getItemForm, getGestureForm, postChanges}) => {
+const ShowContentView = ({viewContext, addedEntities, contentsByIds, contentSelected, getPreviewPic, getItemForm, getGestureForm, postAdditions, brands, retailers, confirmDiscard, visibleItems}) => {
 	console.log("in showContentView");
 	console.log(viewContext);
 	let contentView = null;
 	if(viewContext === 'edit'){//OxiAppConstants.ContentViewStates.edit.CROPPING:
 		contentView = (
-			<ImageUpload addedEntities={addedEntities} getItemForm={getItemForm} postChanges={postChanges} />
+			<ImageUpload addedEntities={addedEntities} brands={brands} retailers={retailers} getItemForm={getItemForm} postAdditions={postAdditions} confirmDiscard={confirmDiscard}/>
 		);
 	}else if(viewContext === 'view'){//OxiAppConstants.ContentViewStates.edit.PREVIEWING:
 	/*case OxiAppConstants.ContentViewStates.edit.TAGGING:
 		$contentView = (
-			<ImagePreview onClick={getItemForm} postChanges={postChanges}/>
+			<ImagePreview onClick={getItemForm} postAdditions={postAdditions}/>
 		);*/
 		contentView = (
-			<ImagePreview onClick={getGestureForm} contentsByIds={contentsByIds} contentSelected={contentSelected} getPreviewPic={getPreviewPic} />
+			<ImagePreview onClick={getGestureForm} contentsByIds={contentsByIds} contentSelected={contentSelected} getPreviewPic={getPreviewPic} visibleItems={visibleItems}/>
 		);
 	}else{
 		console.log("nothing selected");
 	}
 	
 	return(
-		<div style={{'height':'calc(100% - 80px)'}}>
+		<div style={{'height':'calc(100vh - 200px)'}}>
 			<div className={FormStyles.imageUploadPreview}>
 				{contentView}
 			</div>			
@@ -122,8 +111,9 @@ class ImagePreview extends React.Component{
 		}
 		return (
 			<div style={imgFormStyle}>
-				<div style={{'width':'auto','padding':'5% 0% 5% 0%', 'padding-top':'calc(5vh + 25px)', 'background-color':'#ececec','max-height':'100%'}}>
+				<div style={{'position':'relative','width':'auto','padding':'5% 0% 2vh 0%', 'padding-top':'calc(5vh + 25px)', 'background-color':'#ececec','max-height':'100%', 'height':'100%'}}>
 					<img src={this.state.base64Image} style={imgStyle}/>
+					<ItemLocationMap visibleItems={this.props.visibleItems}/>
 				</div>
 			</div>
 		)
@@ -157,22 +147,23 @@ class ImageUpload extends React.Component{
 			if(this.props.addedEntities.outfits.byIds['1'].contents.length > 0){
 				let contentId = this.props.addedEntities.outfits.byIds['1'].contents[0];	//Do not modify contentId
 				//There should only be one content per post
-				json = Object.assign({}, json, {contents: [this.props.addedEntities.contents.byIds[contentId]]});		
+				json = Object.assign({}, json, {contents: [Object.assign({}, this.props.addedEntities.contents.byIds[contentId])]});		
 				if(json.contents[0].id !== undefined) json.contents[0].id = undefined;		//delete client assigned content id	
 				//json.contents[0].items = [{}];												//set content.items to an array with a single empty object
 				//check if items exit
 				//let itemIds = this.props.addedEntities.contents.byIds[contentId].items;
 				let itemIds = this.props.addedEntities.items.allIds;
-				console.log("itemIds");
-				console.log(itemIds);
+				console.log("itemIds = ", itemIds);
 				if(itemIds.length > 0){  //Do not modify itemIds
 					//There can be multiple items per post
-					for(let id of itemIds){
-						console.log('item id:');
-						console.log(id);
-						console.log('item to be scrubbed:')
-						console.log(this.props.addedEntities.items.byIds[id]);
-						let scrubbedItem = Object.assign({}, this.props.addedEntities.items.byIds[id], {id: undefined});						
+					for(let itemId of itemIds){
+						console.log('item itemId = ', itemId);
+						console.log('item to be scrubbed = ', this.props.addedEntities.items.byIds[itemId])
+						let scrubbedItem = Object.assign({}, this.props.addedEntities.items.byIds[itemId], {
+							id: undefined, 
+							retailer: this.props.retailers.byIds[this.props.addedEntities.items.byIds[itemId].retailer].id,
+							brand: this.props.brands.byIds[this.props.addedEntities.items.byIds[itemId].brand].id
+						});						
 						//json.contents[0].items = [...json.contents[0].items, scrubbedItem];
 						if(json.contents[0].items !== undefined && Object.keys(json.contents[0].items[0]).length > 0 && json.contents[0].items[0].constructor === Object){
 							json.contents[0].items = [...json.contents[0].items, scrubbedItem];
@@ -188,10 +179,10 @@ class ImageUpload extends React.Component{
 					console.log('itemIds is empty array');
 				}
 			}
+			console.log('this.props.addedEntities = ', this.props.addedEntities);
+			this.props.postAdditions(fileData, json, this.props.addedEntities);
 		}
-		console.log('normalized json payload for added outfit:');
-		console.log(json);
-		this.props.postChanges(fileData, json);
+		console.log('normalized json payload for added outfit: ', json);
 	}
 
 	_handleImgMouseOver(event) {
@@ -202,7 +193,22 @@ class ImageUpload extends React.Component{
 		console.log("image clicked!!");
 		//store clicked location
 		//call item form
-		this.props.getItemForm();
+		console.log("pageX = ", event.pageX)
+		console.log("pageY = ", event.pageY)
+		console.log()
+		console.log("target width = ", event.target.width)
+		console.log('target height = ', event.target.height)
+		console.log()
+		console.log("top = ", event.target.getBoundingClientRect().top)
+		console.log("left = ", event.target.getBoundingClientRect().left)
+
+		let xCoordPercent = (event.pageX - event.target.getBoundingClientRect().left) / event.target.width;
+		let yCoordPercent = (event.pageY - event.target.getBoundingClientRect().top) / event.target.height; 	
+		
+		console.log('xCoord = ', xCoordPercent)	
+		console.log('yCoord = ', yCoordPercent)
+
+		this.props.getItemForm(xCoordPercent, yCoordPercent);
 		event.stopPropagation();
 		//store.dispatch(setFormVisibility("AddItem"));
 		//event.preventDefault();//maybe event.stopPropagation
@@ -212,9 +218,9 @@ class ImageUpload extends React.Component{
 	}
 
 	_handleChangesDiscarded(event){
-		//dispatch action to removeAndPropogate added Outfit
-		//dispatch action to transition into preview mode
-		//dispatch action to select previously selected Outfit id (before adding discarded outfit)
+		//dispatch verificatio modal
+		this.props.confirmDiscard();
+		event.stopPropagation();
 	}
 
 	render() {
@@ -233,8 +239,8 @@ class ImageUpload extends React.Component{
 				imgStyle={imgStyle}
 				imgFormStyle={imgFormStyle}
 				controlContainerStyle={controlContainerStyle}
-				imgFormControlStyle={imgFormControlStyle}
-				postChanges={this._handleSubmit}
+				imgFormControlStyle={FormStyles.imgFormControlStyle}
+				postAdditions={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
 			/>
@@ -284,12 +290,16 @@ class ContentView extends React.Component{
 				<ShowContentView  
 					viewContext={viewContext} 
 					addedEntities={this.props.addedEntities}
+					brands={this.props.brands}
+					retailers={this.props.retailers}
 					contentsByIds={this.props.contentsByIds} 
 					contentSelected={this.props.contentSelected} 
 					getPreviewPic={this.props.getPreviewPic}
 					getItemForm={this.props.getItemForm}
 					getGestureForm={this.props.getGestureForm} 
-					postChanges={(imageData = null, json) => {if(imageData != null) postImage(imageData, json);}}
+					postAdditions={this.props.postAdditions}
+					confirmDiscard={this.props.confirmDiscard}
+					visibleItems={this.props.visibleItems}
 				/>
 				<VisibleContentList />
     		</div>

@@ -27,14 +27,14 @@ function getCroppedImg(data, pixelCrop, fileName, imageWidth, imagHeight) {
 				image,
 				pixelCrop.x*image.width/100,	//x coordinate of the top left corner of the sub-rectagle of the source image to draw into the destination context
 				pixelCrop.y*image.height/100,	//The Y coordinate of the top left corner of the sub-rectangle of the source image to draw into the destination context.
-				canvas.width,	//The width of the sub-rectangle of the source image to draw into the destination context. If not specified, the entire rectangle from the coordinates specified by sx and sy to the bottom-right corner of the image is used.
-				canvas.height,	//The height of the sub-rectangle of the source image to draw into the destination context.
-				0,				//The X coordinate in the destination canvas at which to place the top-left corner of the source image.
-				0,				//The Y coordinate in the destination canvas at which to place the top-left corner of the source image.
-				canvas.width,	//The width to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in width when drawn.
-				canvas.height 	//The height to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in height when drawn.
+				canvas.width,					//The width of the sub-rectangle of the source image to draw into the destination context. If not specified, the entire rectangle from the coordinates specified by sx and sy to the bottom-right corner of the image is used.
+				canvas.height,					//The height of the sub-rectangle of the source image to draw into the destination context.
+				0,								//The X coordinate in the destination canvas at which to place the top-left corner of the source image.
+				0,								//The Y coordinate in the destination canvas at which to place the top-left corner of the source image.
+				canvas.width,					//The width to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in width when drawn.
+				canvas.height 					//The height to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in height when drawn.
 			);
-			resolve(canvas.toDataURL('image/jpeg'));
+			resolve(canvas.toDataURL('image/jpeg', 0.7));
 		};
 	});
 	// As Base64 string
@@ -79,8 +79,8 @@ class CroppableImageForm extends React.Component{
 	_handleSubmit(e) {
 		e.preventDefault();
 		// TODO: do something with -> this.state.file
-		//postChanges(this.state.file);
-		this.state.cropping === false ? this.props.postChanges(this.state.src) : console.log('please finish cropping befor submiting image');
+		//postAdditions(this.state.file);
+		this.state.cropping === false ? this.props.postAdditions(this.state.src) : console.log('please finish cropping befor submiting image');
 		//event.preventDefault();
 	}
 
@@ -144,27 +144,28 @@ class CroppableImageForm extends React.Component{
 				/>
 			)
 		}else{
+			this.state.crop.height
 			content = (
-				<img style={this.props.imgStyle} src={this.state.src} onClick={this.props.onImageClick}/>
+				<img style={Object.assign(this.props.imgStyle, )} src={this.state.src} onClick={this.props.onImageClick}/>
 			)
 		}
 		return (
 			<div style={this.props.imgFormStyle}>
 				<div style={this.props.controlContainerStyle}>
 					<label for="fileInput">
-						<div style={this.props.imgFormControlStyle}>File</div>
+						<div className={this.props.imgFormControlStyle}>File</div>
 					</label>
-					<div style={this.props.imgFormControlStyle} onClick={this.props.discardChanges}>Discard</div>
+					<div className={this.props.imgFormControlStyle} onClick={this.props.discardChanges}>Discard</div>
 					<label for="submitButton">
-						<div style={this.props.imgFormControlStyle}>Submit</div>	
+						<div className={this.props.imgFormControlStyle}>Submit</div>	
 					</label>				
-					<div style={this.props.imgFormControlStyle} onClick={this._handleAcceptCrop}>Crop</div>
+					<div className={this.props.imgFormControlStyle} onClick={this._handleAcceptCrop}>Crop</div>
 				</div>
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
 					<input id="fileInput" type="file" name="imageFile" onChange={this._onSelectFile} style={{display:'none'}} />
 					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>
 				</form>
-				<div style={{width:'auto',padding:'0px 10% 0px 10%','padding-top':'calc(5vh + 25px)', 'background-color':'#ececec','max-height':'100%'}}>
+				<div style={{'position':'relative',width:'auto',padding:'0px 10% 0px 10%','text-align':'center', 'background-color':'#ececec','max-height':'100%'}}>
 					{content}
 				</div>
 			</div>

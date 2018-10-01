@@ -4,19 +4,31 @@ import ReactDOM from 'react-dom';
 import FormDeck from './Forms.js';
 
 
-const Modal = ({formType, closeModal, submitAction, modifyContentItems, contents, itemAllIds}) => {
+function Modal(props){
 	return (
 		<ModalContainer>
 			<FormDeck 
-				formType={formType} 
-				cancelAction={closeModal} 
-				submitAction={submitAction} 
-				contents={contents} 
-				itemAllIds={itemAllIds}
-				modifyContentItems={modifyContentItems}
+				formType={props.formType} 
+				cancelAction={props.closeModal} 
+				submitAction={props.submitAction} 
+				confirmDiscardSubmitAction = {props.confirmDiscardSubmitAction}
+				outfits={props.outfits}
+				contents={props.contents} 
+				items={props.items}
+				itemAllIds={props.itemAllIds}
+				modifyContentItems={props.modifyContentItems}
+				afterLoginSuccess={props.afterLoginSuccess}
+				requestUrl={props.requestUrl}
+				requestType={props.requestType}
+				brandIds={props.brandIds}
+				brands={props.brands}
+				retailerIds={props.retailerIds}
+				retailers={props.retailers}
+				requestedNav={props.requestedNav}
+				itemLocation={props.itemLocation}
 			/>
 		</ModalContainer>
-	)
+	);
 }
 
 /*

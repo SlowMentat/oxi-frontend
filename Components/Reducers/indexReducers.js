@@ -20,14 +20,21 @@ import {
 			MODIFY_ITEM,
 			MODIFY_CONTENT,
 			MODIFY_OUTFIT,
+			MODIFY_PROFILE,
 			PREVIEW_CONTENT,
 			REQUEST_ENTITIES, 	
-			RECEIVE_ENTITIES,	
+			RECEIVE_ENTITIES,
+			REMOVE_ADDED_CONTENT,
+			REMOVE_ADDED_ITEM,
+			REMOVE_ADDED_OUTFIT,
 			REMOVE_PROFILE,
 			REMOVE_OUTFIT,
 			REMOVE_CONTENT,
 			REMOVE_ITEM,
 			REMOVE_ITEMCONTENT,
+			REPLACE_RETAILER,
+			REPLACE_BRAND,
+			REQUEST_NAVIGATION,
 			SELECT_CONTENT,
 			SELECT_WEB_APP_VIEW,
 			SELECT_PAGE,
@@ -43,14 +50,17 @@ import {
 			SHOW_MODAL, 
 			SHOW_CONTENT_VIEW,	
 			UPDATE_ITEM,
-			UPDATE_CONTENT
+			UPDATE_CONTENT,
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
 
 const iniState = {
 	'modal':'HIDDEN',
-	'isModalVisible':true
+	'isModalVisible':true,
+	'prevRequestUrl':null,
+	'prevRequestType':null,
+	'otherData':{}
 }
 
 const iniTokenState = {
@@ -90,6 +100,7 @@ const iniButtonState = {
 const toggleModal = (state = iniState, action) => {
 	switch(action.type){
 		case SET_VISIBLE_FORM:
+			action.payload.otherData === undefined ? action.payload.otherData = state.otherData : null
 			return Object.assign({}, state, action.payload);
 		case SHOW_MODAL:
 			return Object.assign({}, state, action.payload);
@@ -125,6 +136,15 @@ const appView = (state = {"webAppView": "landing"}, action) => {
 	}
 }
 
+const requestedNavigation = (state= {'location':null}, action) => {
+	switch(action.type){
+		case REQUEST_NAVIGATION:
+			return Object.assign({}, state, action.payload);
+		default:
+			return state;
+	}
+}
+
 const landingPage = (state = {'profileMenu': false}, action) => {
 	switch(action.type){
 		case SET_LP_PROFILE_MENU:
@@ -146,7 +166,8 @@ function byId(state = {}, action){
 	switch(action.type){
 		//action typed performed on "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
-			return Object.assign({}, state, {[action.payload.id] : action.payload});
+			//return Object.assign({}, state, {[action.payload.id] : action.payload});
+			return Object.assign({}, state, action.payload.entities);
 		//action type performed on "addedEntitiesReducer"
 		case `ADD_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.id] : action.payload});
@@ -162,7 +183,7 @@ function byId(state = {}, action){
 		case `REPLACE_${action.typeSpecifier}`:
 			return Object.assign({}, state, action.payload.entities);
 
-		case `REMOVE_${action.typeSpecifier}`:
+		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {})
 		default:
 			return state;
@@ -173,7 +194,8 @@ function allIds(state = [], action){
 	switch(action.type){
 		//action typed performed on "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
-			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
+			//return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
+			return [...state, Object.keys(action.payload.entities)];
 		//action type performed on "addedEntitiesReducer"
 		case `ADD_${action.typeSpecifier}`:
 			return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
@@ -193,7 +215,7 @@ function allIds(state = [], action){
 		case `REPLACE_${action.typeSpecifier}`://Replace value of allIds key with keys of action.payload
 			return Object.keys(action.payload.entities);
 
-		case `REMOVE_${action.typeSpecifier}`:
+		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			return [];
 		default:
 			return state;
@@ -205,7 +227,7 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
 	if(state.allIds.length > maxCount){
-		console.log("greater than max allowed entities")
+		//console.log("greater than max allowed entities")
 		//console.log(state.allIds);
 		allIdsRef =  state.allIds.slice(0,maxCount);
 		let keys = Object.keys(state.byIds).slice(0, maxCount)
@@ -213,8 +235,8 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
   			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
 		}
 	}else{
-		console.log("less than max allowed entities");
-		//console.log(state.allIds);
+		//console.log("less than max allowed entities");
+		////console.log(state.allIds);
 		byIdsRef = state.byIds;
 		allIdsRef = state.allIds;
 	}
@@ -222,8 +244,8 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	switch(action.type){
 		case `CREATE_${action.typeSpecifier}`:
 			let nextCount = state.count + 1;
-			console.log('maxCount' + maxCount);
-			console.log('nextCount' + nextCount);
+			//console.log('maxCount' + maxCount);
+			//console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
@@ -250,7 +272,7 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 		case `SELECT_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});
 		default:
-			console.log("no matching case in entities()")
+			//console.log("no matching case in entities()")
 			return state;
 	}
 }
@@ -260,16 +282,16 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
 	if(state.allIds.length > maxCount){
-		console.log("greater than max allowed entities")
-		//console.log(state.allIds);
+		//console.log("greater than max allowed entities")
+		////console.log(state.allIds);
 		allIdsRef =  state.allIds.slice(0,maxCount);
 		let keys = Object.keys(state.byIds).slice(0, maxCount)
 		for(var i = 0, len = keys.length; i < len; i++){
   			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
 		}
 	}else{
-		console.log("less than max allowed entities");
-		//console.log(state.allIds);
+		//console.log("less than max allowed entities");
+		////console.log(state.allIds);
 		byIdsRef = state.byIds;
 		allIdsRef = state.allIds;
 	}
@@ -277,8 +299,8 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 	switch(action.type){
 		case `ADD_${action.typeSpecifier}`:
 			let nextCount = state.count + 1;
-			console.log('maxCount' + maxCount);
-			console.log('nextCount' + nextCount);
+			//console.log('maxCount' + maxCount);
+			//console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
@@ -303,7 +325,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 				allIds : allIds(allIdsRef, action), 
 				/*count :  state.count++*/
 			});
-		case `REMOVE_${action.typeSpecifier}`:
+		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			//decrement profile coutner
 			return Object.assign({}, state, {
 				byIds : byId(byIdsRef[action.id], action), 
@@ -313,7 +335,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 		case `SELECT_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});
 		default:
-			console.log("no matching case in localEntities()")
+			//console.log("no matching case in localEntities()")
 			return state;
 	}
 }
@@ -409,6 +431,8 @@ const entitiesReducer = combineReducers({
 	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT),
 	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT),
 	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT),
+	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND),
+	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER),
 	entitiesState
 });
 
@@ -429,6 +453,7 @@ const _OxiApp = combineReducers({
 	toggleModal,
 	saveToken,
 	contentViewState,
+	requestedNavigation,
 	entitiesReducer,
 	addedEntitiesReducer
 	//editableContentView
