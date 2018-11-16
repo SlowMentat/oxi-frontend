@@ -19,9 +19,9 @@ const Item = ({item, onClick, brands, retailers}) => {
 	console.log('item', item);
 	*/
 	if(brands !== undefined && brands !== null && item.brand){
-		console.log("brand id = ", brands)
+		/*console.log("brand id = ", brands)
 		console.log('item.brand = ', item.brand)
-		console.log('brand[item.brand] = ', brands[`${item.brand}`])
+		console.log('brand[item.brand] = ', brands[`${item.brand}`])*/
 		brandName = brands[item.brand].name;
 		brandLink = brands[item.brand].link;
 		brandColorStyle = {
@@ -29,8 +29,8 @@ const Item = ({item, onClick, brands, retailers}) => {
 		};
 	}
 	if(retailers !== undefined && retailers !== null && item.retailer){
-		console.log("brand id = ", Object.keys(brands))
-		console.log('item.brand = ', item.brand)
+		/*console.log("brand id = ", Object.keys(brands))
+		console.log('item.brand = ', item.brand)*/
 		retailerName = retailers[item.retailer].name;
 		retailerLink = retailers[item.retailer].link
 	}

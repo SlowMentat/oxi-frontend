@@ -49,6 +49,11 @@ export const OxiAppConstants = Object.freeze({
 	ContentDirectories : {
 		IMAGES: 'Graphics'
 	},
+	viewState:{
+		PREVIEW: 'preview',
+		EDIT: 'edit',
+		ADD: 'add'
+	},
 	FormType : {
 		ADD_ITEM: 'AddItem',
 		UPDATE_ITEM: 'UpdateItem',
@@ -64,9 +69,44 @@ export const OxiAppConstants = Object.freeze({
 	},
 	Intent:{
 		DISCARD_EDITS: 'discardEdits'
-	}/*,
+	},/*
 	NavigationException:{
 		USER_CANCELED: "User Canceled",
 		USER_SUBMITTED: "User Submitted"
 	}*/
+	EntityTemplates:{
+		OUTFIT: {
+			id: null,
+			likes:'',
+			comments:'',
+			contents:[],
+			coverpicuri:''
+		},
+		CONTENT: {
+			id: null,
+			coverpicuri: '',
+			picture: '',
+			items: []
+		},
+		ITEM: {
+			id: null,
+			positionx: '',
+			positiony: '',
+			type: '',
+			size: '',
+			retailer: '',
+			brand: ''
+		},
+		PICTURE: {
+			id: null,
+			thumbnailuri: '', 
+			smalluri: '',
+			largeuri: ''
+		},
+		ITEMCONTENT: {
+			id: null,
+			itemId: '',
+			contentId: ''
+		}
+	}
 });

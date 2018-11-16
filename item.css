@@ -30,6 +30,7 @@
 	grid-area: size;
 	width:50px;
 	border-top-left-radius: 15px;
+	border-bottom-left-radius: 15px;
 }
 
 :local(.itemTypeBlock) {

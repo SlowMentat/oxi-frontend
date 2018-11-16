@@ -27,8 +27,9 @@ const filterProfileFields = (profileById, filter) => {
 const mapStateToProps = state => {
 	return {
 		profileMenu : state.landingPage.profileMenu,
-		profileId: state.addedEntitiesReducer.profile.allIds[0],
-		profile: state.addedEntitiesReducer.profile.byIds[state.addedEntitiesReducer.profile.allIds[0]]//getVisibleProfileFields(state.addEntitiesReducer.profile, 0)
+		profile :  state.entitiesReducer.profile.byIds.owner,
+		addedProfileId: state.addedEntitiesReducer.profile.allIds[0],
+		addedProfile: state.addedEntitiesReducer.profile.byIds[state.addedEntitiesReducer.profile.allIds[0]]//getVisibleProfileFields(state.addEntitiesReducer.profile, 0)
 	};
 }
 

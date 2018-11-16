@@ -1,9 +1,18 @@
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Media from "react-media";
 
 //Presentation Components
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js'
+
+//SVG Assets
+import FemaleFront from '../../Components/SvgAssets/FemaleFront.js'
+import FemaleSide from '../../Components/SvgAssets/FemaleSide.js'
+import MaleFront from '../../Components/SvgAssets/MaleFront.js'
+import MaleSide from '../../Components/SvgAssets/MaleSide.js'
+import MaleSideVertMirrored from '../../Components/SvgAssets/MaleSideVertMirrored.js'
+import FemaleSideVertMirrored from '../../Components/SvgAssets/FemaleSideVertMirrored.js'
 
 //Third Party
 import fetch from 'cross-fetch'
@@ -86,7 +95,7 @@ const inputTextContainerProfileFrm = {
 	'margin':'auto',
 	'margin-top':'8px',
 	'margin-right':'10px',
-	'border-radius': '10px',
+	'border-radius': '3px',
     'border-width': '1px',
     'border-color': '#434343',
     'border-style': 'solid',
@@ -117,7 +126,7 @@ const descriptionBlockImgStyle = {
 
 const Description = (props) => (
 	<div style={descriptionContainerStyle}>
-		<div> comming soon </div>
+		<div>  </div>
 		<div>
 			<div style={{'margin-top':'65px','margin-bottom':'25px','font-size':'30px'}}> Shop your style that fits your body </div>
 			<div style={{'font-size':'20px'}}> Upload • Discover • Compare • Buy </div>
@@ -125,7 +134,7 @@ const Description = (props) => (
 	</div>
 );
 
-const InputTextField = ({containerStyle, inputStyle, type, name, onChange, placeholder, value}) => (
+const InputTextField = ({containerStyle, inputStyle, type, name, onChange, placeholder, value, onSelect}) => (
 	<div style={containerStyle}>
 		{type} <input 
 			value={value}
@@ -134,6 +143,25 @@ const InputTextField = ({containerStyle, inputStyle, type, name, onChange, place
 			placeholder={placeholder} 
 			onChange={onChange} 
 			style={inputStyle}
+			onFocus={onSelect}
+		/>
+	</div>	
+);
+
+const InputNumberField = ({containerStyle, inputStyle, type, name, onChange, placeholder, value, onSelect}) => (
+	<div style={containerStyle}>
+		{type} <input 
+			id="measurementField"
+			value={value}
+			type="number"
+			step="0.01"
+			min="0"
+			max="999.99" 
+			name={name} 
+			placeholder={placeholder} 
+			onChange={onChange} 
+			style={inputStyle}
+			onFocus={onSelect}
 		/>
 	</div>	
 );
@@ -248,13 +276,21 @@ class ProfileFieldWrapper extends React.Component{
 		return(
 			<div>
 				<div style={{'width':'100%','margin':'auto','text-align':'left','display':'inline-block'}}>
-					<InputTextField 
+					<InputNumberField 
 						containerStyle={inputTextContainerProfileFrm} 
-						inputStyle={{'width':'80%','text-align':'center','font-size':'15px','outline':'none'}} 
+						inputStyle={{
+							'width':'80%',
+							'text-align':'center',
+							'font-size':'15px',
+							'outline':'none',
+							'color': '#212121',
+							'background-color': '#fdfdfd',
+						}} 
 						name={this.props.field}
 						placeholder="" 
 						value={this.props.value}
 						onChange={() => {this.props.callback()}}
+						onSelect={this.props.onSelect}
 					/>
 					<div style={{'display':'inline-block'}}>
 						{this.props.field}
@@ -308,6 +344,23 @@ const selectedCheckBoxStyle = {
 const radioTitleStyle = {
 	'font-size':'10px'
 }
+const bodySvgContianerStyles = {
+	'width': '50%',
+	'display': 'inline-block'
+}
+const maleContainer = {
+	'height':'calc(100vh - 80px)', 
+	'width':'90%',
+	'margin':'auto',
+	'margin-top':'80px',
+	'vertical-align':'top'
+}
+const femaleContainer = {								
+	'width': '75%',
+	'display': 'block',
+	'margin':'auto',
+	'margin-top': '185px'	
+}
 
 class ProfileMenu extends React.Component{
 	constructor(props){
@@ -331,6 +384,8 @@ class ProfileMenu extends React.Component{
 			let minHeight = 48;
 			let height = minHeight + (Math.random() * (maxHeight - minHeight));
 			this.state = {
+				'prevSelectedField':'',
+				'selectedField':'',
 				'profileData':{
 					'username':this.props.profile.username,
 					'bodyShape': 'female',
@@ -357,6 +412,8 @@ class ProfileMenu extends React.Component{
 		this._handleRadioToggled = this._handleRadioToggled.bind(this);
 		this._handleBoxChecked = this._handleBoxChecked.bind(this);
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
+		this._handleFieldFocus = this._handleFieldFocus.bind(this);
+		this._handleFieldBlur = this._handleFieldBlur.bind(this);
 	}
 
 	_handleInputFieldChange(e, field){
@@ -383,6 +440,17 @@ class ProfileMenu extends React.Component{
 			}
 		}));
 	}
+	_handleFieldFocus(event){
+		console.log('event.target.name = ', event.target.name)
+		this.setState(prevState => ({
+			selectedField: event.target.name
+		}));
+	}
+	_handleFieldBlur(event){
+		/*this.setState(prevState => ({
+			prevSelectedField: event.target.name
+		}));*/
+	}
 	_handleOnSubmit(){
 		//When calling modifyProfile the profileData object is passed as the action payload.
 		//The reducer is expecting this payload to contain an id field which is uses as a key
@@ -396,7 +464,7 @@ class ProfileMenu extends React.Component{
 	}
 
 	render(){
-		//TODO:  pusht this to the select in LandingPageConnector.js
+		//TODO:  push this to the select in LandingPageConnector.js
 		//This filters what properties to display on the Profile Creation page
 		let fields = Object.keys(this.props.profile);
 		let filteredFields =  fields.filter(field => field != 'id')
@@ -412,67 +480,216 @@ class ProfileMenu extends React.Component{
 		let fieldSet = filteredFields.map(field => {
 			//console.log(this.state.profileData[field]);
 			return(
-				<ProfileFieldWrapper key={field} field={field} value={this.state.profileData[field]} callback={()=>{this._handleInputFieldChange(event, field)}}/>
+				<ProfileFieldWrapper key={field} field={field} value={this.state.profileData[field]} callback={()=>{this._handleInputFieldChange(event, field)}} onSelect={() => this._handleFieldFocus(event)}/>
 			);
 		});
-
+		let bodyShapeContainer = (this.state.profileData.bodyShape === 'female') ? femaleContainer : maleContainer
+		console.log('bodyShapeContainer = ', bodyShapeContainer);
 		console.log('fieldSet');
 		console.log(fieldSet);
 		return(
-			<div>
-				<div style={{'display':'inline-block','width':'47%','margin-top':'160px'}}>
-					
-				</div>
-				<div style={{'width':'300px','margin':'auto','margin-top':'160px','display':'inline-block','text-align':'center'}}>
-					<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
-					<div style={{'margin-bottom':'10px'}} >
+			<Media query="(max-aspect-ratio: 16/9)">
+				{matches => 
+					matches ? (
 						<div>
-							<div>
-								<div id="bodyShape" style={{'text-align':'left', 'margin-top':'10px'}} >
-									<div id="bodyShapeRadioList" style={radioListStyle}>
-										<div id="female" style={radioAndCheckContainerStyle}>
-											<div style={radioTitleStyle}>Female</div>
-											<div style={this.state.profileData.bodyShape === 'female' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('female')}></div>
-										</div>
-										<div id="male" style={{'display':'inline-block'}}>
-											<div style={radioTitleStyle}>Male</div>
-											<div style={this.state.profileData.bodyShape === 'male' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('male')}></div>										
-										</div>
-									</div>
-									<div id="bodyShapeTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
-										Body Shape
-									</div>								
+							<div id='leftBodyDiagramContainer'>
+								<div style={bodySvgContianerStyles}>
+									{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
 								</div>
-								<div id="apparelInterest" style={{'text-align':'left','margin-top':'10px'}} >
-									<div id="apperelInterestRadioList" style={radioListStyle}>
-										<div id="womens" style={radioAndCheckContainerStyle}>
-											<div style={radioTitleStyle}>Womens</div>
-											<div style={this.state.profileData.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} ></div>
-										</div>
-										<div id="mens" style={{'display':'inline-block'}}>
-											<div style={radioTitleStyle}>Mens</div>
-											<div style={this.state.profileData.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}></div>
+								<div style={bodySvgContianerStyles}>
+									{this.state.profileData.bodyShape === 'male' ? <MaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
+								</div>
+							</div>
+							<div id='fieldList' 
+								style={{
+									'width':'100%',
+									'display':' block',
+									'text-align':'center',
+									'vertical-align':'top',
+									'padding':' 10px',
+									'padding-top':' 30px',
+									'padding-bottom':' 30p',
+									'border-style':'none'
+								}}>
+								<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
+								<div style={{'margin-bottom':'10px'}} >
+									<div>
+										<div>
+											<div id="bodyShape" 
+												style={{
+													'display':'inline-block',
+													'text-align':'left',
+													'margin-right':'10p',
+													'width':'100%'
+												}}>
+												<div id="bodyShapeRadioList" 
+													style={{
+														'display': 'inline-block',
+													  	'text-align': 'center',
+													  	'margin-right': '10px',
+													  	'width': '100%'
+													}}>
+													<div id="female" 
+														style={{																
+														    'display':' inline-block',
+														    'width':'40px',
+														    'margin-right':'10p'
+														}}>
+														<div id='bodyShapeTitle' style={{'font-size': '2em'}}>Female</div>
+														<div id='bodyShapeRadio' 
+															style={
+																this.state.profileData.bodyShape === 'female' 
+																? Object.assign({}, selectedRadioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'}) 
+																: Object.assign({}, radioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'})
+															} 
+															onClick={() => this._handleRadioToggled('female')}></div>
+													</div>
+													<div id="male" 
+														style={{																
+														    'display':' inline-block',
+														    'width':'40px',
+														    'margin-left':'45%'
+														}}>>
+														<div id='bodyShapeTitle' style={{'font-size': '2em'}}>Male</div>
+														<div id='bodyShapeRadio' 
+															style={
+																this.state.profileData.bodyShape === 'male' 
+																? Object.assign({}, selectedRadioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'}) 
+																: Object.assign({}, radioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'})
+															} 
+															onClick={() => this._handleRadioToggled('male')}></div>										
+													</div>
+												</div>
+												<div id="bodyShapeTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
+													Body Shape
+												</div>								
+											</div>
+											<div id="apparelInterest" style={{'text-align':'left','margin-top':'10px'}} >
+												<div id="apperelInterestRadioList" style={radioListStyle}>
+													<div id="womens" style={radioAndCheckContainerStyle}>
+														<div style={radioTitleStyle}>Womens</div>
+														<div style={this.state.profileData.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} ></div>
+													</div>
+													<div id="mens" style={{'display':'inline-block'}}>
+														<div style={radioTitleStyle}>Mens</div>
+														<div style={this.state.profileData.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}></div>
+													</div>
+												</div>
+												<div id="apparelInterestTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
+													Apperel Interest
+												</div>			
+											</div>								
 										</div>
 									</div>
-									<div id="apparelInterestTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
-										Apperel Interest
-									</div>			
-								</div>								
+								</div>
+								<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
+								{fieldSet}
+								<div style={submitBtnStyle}>
+									<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
+										Create Profile
+									</div>
+								</div>					
+							</div>
+							<div  id='rightBodyContainer' /*style={{
+								'height':'calc(100vh - 80px)', 
+								'display':'inline-block',
+								'width':'42.5%',
+								'margin-top':'80px',
+								'vertical-align':'top'
+							}}*/>
+								<div style={bodySvgContianerStyles}>
+									{this.state.profileData.bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
+								</div>
+								<div style={bodySvgContianerStyles}>
+									{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
+								</div>
 							</div>
 						</div>
-					</div>
-					<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
-					{fieldSet}
-					<div style={submitBtnStyle}>
-						<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-							Create Profile
+					) 
+					: (
+						<div>
+							<div style={{							
+    							'display': 'inline-block',
+    							'width': '42.5%',
+    							'vertical-align':'top'
+    						}}>
+								<div id='leftBodyDiagramContainer' style={bodyShapeContainer}>
+									<div style={bodySvgContianerStyles}>
+										{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+									</div>
+									<div style={bodySvgContianerStyles}>
+										{this.state.profileData.bodyShape === 'male' ? <MaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+									</div>
+								</div>
+							</div>
+							<div id='fieldList'>
+								<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
+								<div style={{'margin-bottom':'10px'}} >
+									<div>
+										<div>
+											<div id="bodyShape" style={{'text-align':'left', 'margin-top':'10px'}} >
+												<div id="bodyShapeRadioList" style={radioListStyle}>
+													<div id="female" style={radioAndCheckContainerStyle}>
+														<div id='bodyShapeTitle' style={radioTitleStyle}>Female</div>
+														<div id='bodyShapeRadio' style={this.state.profileData.bodyShape === 'female' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('female')}></div>
+													</div>
+													<div id="male" style={{'display':'inline-block'}}>
+														<div id='bodyShapeTitle' style={radioTitleStyle}>Male</div>
+														<div id='bodyShapeRadio' style={this.state.profileData.bodyShape === 'male' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('male')}></div>										
+													</div>
+												</div>
+												<div id="bodyShapeTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
+													Body Shape
+												</div>								
+											</div>
+											<div id="apparelInterest" style={{'text-align':'left','margin-top':'10px'}} >
+												<div id="apperelInterestRadioList" style={radioListStyle}>
+													<div id="womens" style={radioAndCheckContainerStyle}>
+														<div style={radioTitleStyle}>Womens</div>
+														<div style={this.state.profileData.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} ></div>
+													</div>
+													<div id="mens" style={{'display':'inline-block'}}>
+														<div style={radioTitleStyle}>Mens</div>
+														<div style={this.state.profileData.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}></div>
+													</div>
+												</div>
+												<div id="apparelInterestTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
+													Apperel Interest
+												</div>			
+											</div>								
+										</div>
+									</div>
+								</div>
+								<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
+								{fieldSet}
+								<div style={submitBtnStyle}>
+									<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
+										Create Profile
+									</div>
+								</div>					
+							</div>
+							<div style={{							
+    							'display': 'inline-block',
+    							'width': '42.5%',
+    							'vertical-align':'top'
+							}}>
+								<div  id='rightBodyContainer' style={bodyShapeContainer}>
+									<div style={bodySvgContianerStyles}>
+										{this.state.profileData.bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+									</div>
+									<div style={bodySvgContianerStyles}>
+										{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+									</div>
+								</div>
+							</div>
 						</div>
-					</div>					
-				</div>
-			</div>
+					)}
+			</Media>
 		);
 	}
 }
+
+
 
 class Step extends React.Component{
 	constructor(props){
@@ -563,12 +780,13 @@ export default class LandingPage extends React.Component{
 	render() {
 		return(
 			<div>				
-				{this.props.profileMenu ? (<ProfileMenu profile={this.props.profile} 
+				{this.props.profileMenu ? (<ProfileMenu 
+														profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
 														test={true}
 														toggleRadio={this.props.toggleRadio} 
 														postProfile={this.props.postProfile} 
 														modifyProfile={this.props.modifyProfile}
-														profileId={this.props.profileId} />) : (
+														profileId={this.props.addedProfileId} />) : (
 					<div>
 						<div style={{'background-color':'#212121'}}>
 							<Description/>

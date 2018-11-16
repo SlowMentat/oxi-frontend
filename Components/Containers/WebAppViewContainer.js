@@ -28,6 +28,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 		settings : () => {
 			//dispatch(setWebAppView("settings"))
 			//dispatch(navigateTo(OxiAppConstants.navRequestMap.landing.toLowerCase()));
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.settings.toLowerCase()));
 		},
 		search : () => {
 			dispatch(setWebAppView("search"))

@@ -37,6 +37,7 @@ function FormDeck(props){
 					retailerIds={props.retailerIds}
 					retailers={props.retailers}
 					itemLocation={props.itemLocation}
+					editingItem={props.editingItem}
 				/>
 			)
 		case OxiAppConstants.FormType.UPDATE_ITEM:
@@ -56,6 +57,8 @@ function FormDeck(props){
 					outfits={props.outfits}
 					contents={props.contents}
 					items={props.items}
+					clearUpdates={props.clearUpdates}
+					clearInvalidations={props.clearInvalidations}
 				/>
 			)
 		default:
@@ -189,8 +192,21 @@ export class ItemForm extends React.Component{
 
 		if(matchedBrand.length > 0){
 			if(matchedRetailers.length > 0){
-				this.props.submitAction(this.state.type, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
-				//this.props.modifyContentItems(this.props.contents.selected, this.props.itemAllIds)
+				let itemEntity = Object.assign(
+					{}, 
+					OxiAppConstants.EntityTemplates.ITEM, 
+					{
+						...this.state,
+						positionx: this.props.itemLocation.positionx,
+						positiony: this.props.itemLocation.positiony,
+						retailer: matchedRetailers[0].id,
+						brand: matchedBrand[0].id
+					}); 
+				console.log('itemEntity = ', itemEntity);
+				//this.props.submitAction(this.state.type, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
+				this.props.submitAction(itemEntity);
+				//TODO:  commenting out line below, but there is a need to handle legal items as UUID and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
+				this.props.editingItem(this.props.itemAllIds);
 				this.props.cancelAction();
 			}else{
 				console.log('input is not an approved retailer');
@@ -399,7 +415,8 @@ export class DiscardForm extends React.Component{
 		console.log('denormalized contents = ', denormContents)
 		//build denormalized outfit object
 		let denormOutfit = Object.assign({}, this.props.outfits['1'], {contents: denormContents});*/
-		let denormOutfit = denormalizeOutfit(this.props.outfits['1'], this.props.contents, this.props.items);
+		let denormOutfit = null;
+		denormOutfit = denormalizeOutfit(this.props.outfits, this.props.contents, this.props.items);
 		console.log('denormOutfit = ', denormOutfit)
 		return(
 			<div className={Styles.modal}>
@@ -410,7 +427,17 @@ export class DiscardForm extends React.Component{
 								<p> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
 							</div>
 						</div>
-						<div className={FormStyles.submitButton} style={{'margin-right': 'calc(100% - 250px)', 'display':'inline-block'}} onClick={() => this.props.submitAction(denormOutfit, this.props.requestedNav)}>Continue</div>
+						<div 
+							className={FormStyles.submitButton} 
+							style={{'margin-right': 'calc(100% - 250px)', 'display':'inline-block'}} 
+							onClick={() => {
+								this.props.submitAction(denormOutfit, this.props.requestedNav);
+								this.props.clearUpdates();
+								this.props.clearInvalidations();
+							}
+						}>
+							Continue
+						</div>
 						<div className={FormStyles.submitButton} style={{'display':'inline-block'}} onClick={() => this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS)}>Cancel</div>
 					</div>
 				</div>

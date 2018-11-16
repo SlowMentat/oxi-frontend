@@ -16,6 +16,7 @@ const ButtonContainer ={
 }
 
 const Button = {
+	'cursor':'pointer',
 	'position': 'absolute',
     'width': '50px',
     'height': '50px',
@@ -37,7 +38,7 @@ export class UserProfileOutfitCtrl extends React.Component{
 		return(
 			<div style={{overflow:'hidden', height:'50%'}}>
 				<div style={ButtonContainer}>
-					<div style={Object.assign({}, Button, {left:'10px'})}>
+					<div style={Object.assign({}, Button, {left:'10px'})} onClick={this.props.deleteOutfit}>
 						<div style={{'text-align':'center'}}>
 							<div style={{
 								width:'100%',
@@ -52,7 +53,7 @@ export class UserProfileOutfitCtrl extends React.Component{
 					</div>
 				</div>
 				<div style={ButtonContainer}>
-					<div style={Object.assign({}, Button, {right:'10px'})}>
+					<div style={Object.assign({}, Button, {right:'10px'})} onClick={this.props.editOutfit}>
 						<div style={{'text-align':'center'}}>
 							<div style={{
 								width:'100%',

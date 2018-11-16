@@ -8,12 +8,17 @@ import {
 	selectContent, 
 	previewContent,
 	selectAddedEntity,
-	modifyContent
+	modifyContent,
+	modifyOutfit,
+	selectEntity,
+	disableAddContentButton,
+	clientInvalidateEntities
 } from '../../Components/Actions/indexActions.js';
 import ContentList from '../../Components/Presentations/ContentList.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import {maskEdits} from '../../Util/CommonSelectors.js';
 
-const getVisibleContents = (contents, filter, outfits) => {
+const getVisibleContents = (contents, filter, outfits, /*addedOutfits,*/ selectedOutfitId) => {
 	let contentsById = contents.byIds;
 	let result = {byIds:{}, allIds:[]};
 	//Only perform filter on non-empty contents object
@@ -24,22 +29,22 @@ const getVisibleContents = (contents, filter, outfits) => {
 				break;
 			case 'BY_OUTFIT_ID':
 				if(outfits != undefined){
-					if(outfits.selected != undefined){
-						if(outfits.selected != false){
+					if(selectedOutfitId != undefined){
+						if(selectedOutfitId != false){
 							//array of content ids
-							result.allIds = outfits.byIds[outfits.selected]["contents"].sort();
+							//result.allIds = outfits.allEditingIds.includes(selectedOutfitId) ? addedOutfits.byIds[selectedOutfitId]["contents"].sort() : outfits.byIds[selectedOutfitId]["contents"].sort();
+							result.allIds = outfits.byIds[selectedOutfitId]["contents"].sort();
 							for(let contentId of result.allIds){
 								result.byIds[contentId] =  contentsById[contentId];
 							}
 							//result.allIds = Object.keys(result.byIds);
-							console.log("returning filtered result");
-							console.log(result);
+							console.log("returning filtered result = ", result);
 							return Object.assign({}, contents, result);	
 						}else{
-							console.log("outfits.selected is false");
+							console.log("selectedOutfitId is false");
 						}				
 					}else{
-						console.log("outfits.selected is undefined");
+						console.log("selectedOutfitId is undefined");
 					}
 				}else{
 					console.log("outfits is undefined");
@@ -56,45 +61,79 @@ const getVisibleContents = (contents, filter, outfits) => {
 }
 
 const mapStateToProps = state => {
-	let filteredContents = getVisibleContents(
+	console.log("state.entitiesReducer.outfits = ", state.entitiesReducer.outfits);
+	let filteredContents = maskEdits(getVisibleContents(
 		state.entitiesReducer.contents,
 		'BY_OUTFIT_ID',
-		state.entitiesReducer.outfits
-	);
-	let filteredAddedContents = getVisibleContents(
+		state.entitiesReducer.outfits,
+		/*state.addedEntitiesReducer.outfits,*/
+		state.entitiesStateReducer.outfits.selected === 1 ? false : state.entitiesStateReducer.outfits.selected
+	), state.entitiesReducer.contents.allEditingIds);
+	let filteredAddedContents = state.addedEntitiesReducer.contents/*getVisibleContents(
 		state.addedEntitiesReducer.contents,
 		'BY_OUTFIT_ID',
-		state.addedEntitiesReducer.outfits
-	);
+		state.addedEntitiesReducer.outfits,
+		state.entitiesStateReducer.outfits.selected
+	);*/
 	return ({
+		selectedOutfitId :  state.entitiesStateReducer.outfits.selected,
+		addedOutfitEntity : state.addedEntitiesReducer.outfits,
 		contents : filteredContents.byIds,
 		//contents : state.entitiesReducer.contents.byIds,
 		contentIds : filteredContents.allIds,//state.entitiesReducer.contents.allIds,
-		controlDisabled: state.entitiesReducer.contents.controlDisabled,
-		isEdit: state.contentViewState.isEditingContent,
+		//controlDisabled: state.entitiesReducer.contents.controlDisabled,
+		controlDisabled: state.buttonState.addContent.disabled,
+		viewState: state.contentViewState.viewState,
 		addedContents : filteredAddedContents.byIds,
 		addedContentIds : filteredAddedContents.allIds,
-		selectedId :  state.addedEntitiesReducer.contents.selected,
-		addedItemIds : state.addedEntitiesReducer.items.allIds
+		selectedId :  state.entitiesStateReducer.contents.selected,
+		addedItemIds : state.addedEntitiesReducer.items.allIds,
+		pictureIds : state.entitiesReducer.pictures.byIds,
+		invalidatedItemIds: state.entitiesStateReducer.items.clientInvalidated,
+		invalidatedContentIds:  state.entitiesStateReducer.contents.clientInvalidated
 	});
 }
 
 const mapDispatchToProps = dispatch => ({
 	onClick : (contentId) => {
-		dispatch(selectContent(contentId));
-		dispatch(previewContent(contentId));
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
+		dispatch(previewContent(contentId)); 
 	},
 	onClickAddedContent : (contentId) => {
-		dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
-		dispatch(previewContent(contentId));
+		//dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
+		//dispatch(previewContent(contentId));
 	},
-	onControlClick : () => dispatch(addContent()),
+	onControlClick : () => {
+		dispatch(disableAddContentButton(true));
+		dispatch(addContent(Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {})));
+	},
+	modifyAddedOutfitContents : (selectedOutfitId, addedContentIds) => {
+		if(selectedOutfitId !== false ){
+			dispatch(modifyOutfit({
+				'id':selectedOutfitId, 'contents': addedContentIds
+			}));
+		}		
+	},
+	selectAfterAdd: (addedContentId) => {
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, addedContentId))
+		dispatch(previewContent(addedContentId));
+	},
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 	focusOnAddedContent : (addedContentId) => dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.CONTENT, addedContentId)),
 	modifyContentItems: (contentId, itemAllIds) => dispatch(modifyContent({
 		'id': contentId, 
 		'items':itemAllIds
-	}))
+	})),
+	clientInvalidateItems: (invalidatedItemIds, addedItemIds) => {
+		let itemIdsToInvalidate = [];
+		for(let itemId of addedItemIds){
+			if(!invalidatedItemIds.includes(itemId)){
+				itemIdsToInvalidate = [...itemIdsToInvalidate, itemId];					
+			}
+			dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIdsToInvalidate));
+		}
+	}
 })
 
 const VisibleContentList = connect(mapStateToProps, mapDispatchToProps)(ContentList);

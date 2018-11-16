@@ -101,26 +101,6 @@ function Admin(props){
 class OutfitNav extends React.Component{
 	constructor(props){
 		super(props);
-		this.handleFormCreation = this.handleFormCreation.bind(this);
-		this.stateChangeFinish - this.stateChangeFinish.bind(this);
-	}
-
-	componentDidMount(){		 
-	}
-
-	componentWillUnmount(){
-	}
-
-	componentWillMount(){
-
-	}
-
-	stateChangeFinish(){
-	}
-
-	handleFormCreation(){
-		//if(store.getState(debug)) console.log("invoking handleFormCreation()");
-		this.props.parentCreateOutfitForm();
 	}
 
 	render(){
@@ -154,40 +134,6 @@ class MetricPanel extends React.Component{
 	}
 }
 
-class AddOutfitButton extends React.Component{
-	constructor(props){
-		super(props);
-		// This binding is necessary to make `this` work in the callback
-    	this._handleClick = this._handleClick.bind(this);
-	}
-
-	componentDidMount(){
-		 
-	}
-
-	componentWillUnmount(){
-
-	}
-
-	_handleClick(){
-		/*if({store}.getState(debug)){
-			console.log("clicked!");
-			console.log("AddOutfitButton.props.enabled = " + this.props.enabled);
-		}*/
-		if(this.props.enabled) this.props.handleUserClick();
-	}
-
-	render(){
-		//return(null);
-		return(
-	    	<div className={OutfitNavStyles.outfitCtrlButton} onClick={this._handleClick}>
-	    		Add Outfit
-	    	</div>
-
-		);
-	}	
-}
-
 export default class webAppView extends React.Component {
 	constructor(props){
 		super(props);
@@ -196,29 +142,14 @@ export default class webAppView extends React.Component {
 			visibleItems: {}
 		};
 
-		this._createOutfitForm = this._createOutfitForm.bind(this);
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
 	}
 
-	//Add Outfit Form event handlers
-
-	_createOutfitForm(){		
-		//if(store.getState(debug)) console.log("invoking creatOutfitForm()");
-		this.setState((prevState) => ({
-			enableAddOutfitButton: !prevState.enableAddOutfitButton,
-			showOutfitForm: !prevState.showOutfitForm
-		}));
-
-		//First add outfit entity with passing child id addedContentIds taken from state mapping above
-		//Note:  this is anticipating content id of 1 since there should only 
-		//be one content entity present in the addedEntitiesReducer at anygiven time.
-		dispatch(addOutfit('','','','',[1], 'profileId'));
-		dispatch(editContentView(true));
-		//Then add outfit child entity/entiteis.
-		//Note:  this is anticipating outfit id of 1 since there should only 
-		//be one outfit entity present in the addedEntitiesReducer at anygiven time.
-		dispatch(addContent(1, []));
-	}
+	/*shouldComponentUpdate(nextProps, nextState) {
+        const differentView = this.props.webAppView !== nextProps.webAppView;
+        console.log('differentView = ',differentView);
+        return differentView;
+    }*/
 
 	_removeOutfitForm(){
 	}
@@ -255,7 +186,7 @@ export default class webAppView extends React.Component {
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerBrowse}>
 								<MetricPanel />
-								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton} webAppView={this.props.webAppView}/>
+								<OutfitNav 	webAppView={this.props.webAppView}/>
 								<ModalContentSelection/>
 								<Admin/>
 							</div>
@@ -269,8 +200,8 @@ export default class webAppView extends React.Component {
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerProfile}>								
 								<MetricPanel />
-								<OutfitNav 	parentCreateOutfitForm={this._createOutfitForm} enableAddOutfitButton={this.state.enableAddOutfitButton} webAppView={this.props.webAppView}/>
-								<ContentContainer visibleItems={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}/>
+								<OutfitNav 	webAppView={this.props.webAppView}/>
+								<ContentContainer visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}/>
 								<VisibleItemList populateItemsMap={this._handleItemsListUpdated}/>
 								<Admin/>
 							</div>

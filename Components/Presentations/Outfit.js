@@ -12,7 +12,7 @@ export class Outfit extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			thumbnail:null,
+			coverpic:null,
 			base64Image:null,
 			tileControlShown: false
 		};
@@ -24,8 +24,9 @@ export class Outfit extends React.Component{
 	}
 
 	componentDidMount(){
-		//if thumbnail filename exists, call get request for content coverpic data
-		if(this.props.thumbnail != null) this.props.getCoverPic(this.props.thumbnail, this._handleImageReceived);
+		//if coverpic filename exists, call get request for content coverpic data
+		console.log("small = ", this.props.coverpicuri)
+		if(this.props.coverpicuri !== null  && this.props.coverpicuri !== undefined) this.props.getCoverPic(this.props.coverpicuri, this._handleImageReceived, 'small');
 	}
 
 	_handleOnClick(event){
@@ -35,9 +36,9 @@ export class Outfit extends React.Component{
 				this.props.onClickContextHome(this.props.id);
 				break;
 			case OxiAppConstants.navRequestMap.profile.toLowerCase():
-				if(!this.props.isSelected){			
+				if(!this.props.isSelected && this.props.viewState === OxiAppConstants.viewState.PREVIEW){			
 					//call selectAndPropogate
-					this.props.onClickContextProfile(this.props.id, this.props.contents[0]);
+					this.props.onClickContextProfile(this.props.id, this.props.contentIds[0]);
 				}
 				event.stopPropagation();
 				break;
@@ -47,7 +48,6 @@ export class Outfit extends React.Component{
 	}
 
 	_handleOnMouseOver(event){
-		console.log('mouseover fired');
 		showOutfitTileControls = Object.assign({}, {display: 'block'});
 		this.setState({tileControlShown: !this.state.tileControlShown});
 		switch(this.props.webAppView){
@@ -61,7 +61,6 @@ export class Outfit extends React.Component{
 	}
 
 	_handleOnMouseOut(event){
-		console.log('mouseout fired');
 		showOutfitTileControls = Object.assign({}, {display: 'none'});
 		this.setState({tileControlShown: !this.state.tileControlShown})
 		switch(this.props.webAppView){
@@ -82,7 +81,6 @@ export class Outfit extends React.Component{
 
 	render(){
 		let outfitBlockHomeStyle = null;
-		console.log('webAppView = ',this.props.webAppView);
 		if(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase()){
 			outfitBlockHomeStyle = {'display':'inline-block','margin':'20px'};
 		}
@@ -96,7 +94,7 @@ export class Outfit extends React.Component{
 				onMouseOut={this._handleOnMouseOut}
 			>
 				<img 
-					src={this.state.base64Image == null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
+					src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
 					style={{
 						width:'100%', 
 						'max-height':'inherit',
@@ -104,8 +102,17 @@ export class Outfit extends React.Component{
 						position:'absolute'
 					}}
 				/>
-				<div className={OutfitStyles.outfitTileCtrlContainer} style={showOutfitTileControls}>
-					{this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? (<UserProfileOutfitCtrl />): (null)}
+				<div 
+					className={
+						(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? OutfitStyles.outfitTileCtrlContainer : (!this.props.isSelected) ? OutfitStyles.outfitTileMask : null
+					} 
+					style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? showOutfitTileControls : {'display':'block'}}
+				>
+					{
+						(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) 
+						? (<UserProfileOutfitCtrl editOutfit={this.props.editOutfit}/>)
+						: (null)
+					}
 				</div>
 			</div>		
 		);

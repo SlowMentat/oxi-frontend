@@ -78,20 +78,28 @@ class CroppableImageForm extends React.Component{
 
 	_handleSubmit(e) {
 		e.preventDefault();
-		// TODO: do something with -> this.state.file
-		//postAdditions(this.state.file);
-		this.state.cropping === false ? this.props.postAdditions(this.state.src) : console.log('please finish cropping befor submiting image');
+		// TODO: do something with -> this.state.file 
+		//postAddedOutfit(this.state.file);
+		this.state.cropping ?  
+			console.log('please finish cropping before submiting image') : 
+			(this.props.entitiesStateReducer.pictures.clientInvalidated.length >= 0) ? //TODO:  should be ... > 0
+				this.props.postAddedOutfit(this.state.src) :
+				null;
 		//event.preventDefault();
 	}
 
 	_handleAcceptCrop(event){
 		if(this.state.cropping){
-			getCroppedImg(this.state.src, this.state.crop, 'croppedResult', this.state.maxWidth, this.state.maxHeight)
+			getCroppedImg((this.state.src || this.props.src), this.state.crop, 'croppedResult', this.state.maxWidth, this.state.maxHeight)
 			.then(croppedFile => {				
 				this.setState({
 					src: croppedFile,
-					cropping: false
+					cropping: !this.state.cropping
 				});
+			})
+		}else{
+			this.setState({
+				cropping: !this.state.cropping
 			})
 		}
 	}
@@ -107,6 +115,9 @@ class CroppableImageForm extends React.Component{
 			}
 			// reader.addEventListener('load',(this) => this.setState({src: reader.result}), false);
 			reader.readAsDataURL(e.target.files[0]);
+			//invalidate the selected content once file data has been changed or added
+			console.log('calling clientInvalidateEntity() from CroppableImageForm.js');
+			this.props.clientInvalidateEntity([this.props.entitiesStateReducer.contents.selected], OxiAppConstants.EntityTypes.CONTENT)();
 		}
 	}
 
@@ -118,11 +129,12 @@ class CroppableImageForm extends React.Component{
 			 	aspect: 2 / 3,
 			 	width: 100,
 			}, image.width / image.height),
-		});
+		});	
 	}
 
 	_onCropComplete(crop){
-	  console.log('onCropComplete', crop);
+	 	console.log('onCropComplete', crop);
+		//May be fine with having this called made in _onSelectFile only depending on the crop initiation logic 
 	}
 
 	_onCropChange(crop){
@@ -136,7 +148,7 @@ class CroppableImageForm extends React.Component{
 			content = (
 				<ReactCrop
 					className={ReactCropStyles}
-					src={this.state.src}
+					src={this.state.src || this.props.src}
 					crop={this.state.crop}
 					onImageLoaded={this._onImageLoaded}
 					onComplete={this._onCropComplete}
@@ -146,7 +158,7 @@ class CroppableImageForm extends React.Component{
 		}else{
 			this.state.crop.height
 			content = (
-				<img style={Object.assign(this.props.imgStyle, )} src={this.state.src} onClick={this.props.onImageClick}/>
+				<img style={Object.assign(this.props.imgStyle, )} src={this.state.src || this.props.src} onClick={this.props.onImageClick}/>
 			)
 		}
 		return (
@@ -162,11 +174,12 @@ class CroppableImageForm extends React.Component{
 					<div className={this.props.imgFormControlStyle} onClick={this._handleAcceptCrop}>Crop</div>
 				</div>
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
-					<input id="fileInput" type="file" name="imageFile" onChange={this._onSelectFile} style={{display:'none'}} />
+					<input id="fileInput" type="file" multiple name="imageFile" onChange={this._onSelectFile} style={{display:'none'}} />
 					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>
 				</form>
-				<div style={{'position':'relative',width:'auto',padding:'0px 10% 0px 10%','text-align':'center', 'background-color':'#ececec','max-height':'100%'}}>
+				<div style={{'position':'relative',width:'auto',padding:'0px 10% 0px 10%','text-align':'center', /*'background-color':'#ececec',*/'max-height':'100%'}}>
 					{content}
+					{this.props.itemLocationMap || null}
 				</div>
 			</div>
 		)

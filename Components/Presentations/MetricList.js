@@ -16,38 +16,6 @@ const BodyFitProjection = (ownerX, hostX) => {
 	});
 }
 
-const MetricCoordinates = ({sourceMetricIds = [], sourceMetrics = {}, yOffsetStart, yPercentOffset, host, updateLabelPositions, pointRadius}) => {
-	let labelPosMap = {};		    	
-	let htmlOutput = sourceMetricIds.map((sourceMetricId, ind, metricList) => {
-		let absYOffset = 0;
-		host ? absYOffset = (metricList.length * 13) : 0;
-		return(
-			<Metric 
-				key = {sourceMetricId}
-				{...sourceMetrics[sourceMetricId]} 
-				id={sourceMetricId}
-				value = {sourceMetrics[sourceMetricId]}
-				yPercentOffset = {( yOffsetStart + ( ind * ( yPercentOffset )))}
-				yAdjust = {((13 + (6.5 / sourceMetricIds.length)) * ind)}
-				absYOffset = {absYOffset}
-				savedValue = {ind === 0 ? null : (ind - 1)}
-				bufferToMap = {(updateLabelPositions !== null && updateLabelPositions !== undefined) ? (label, position) => {labelPosMap[label] = position} : null}
-				pointRadius={pointRadius}
-			/>
-		);
-	});
-	console.log('labelPosMap = ', labelPosMap);
-	if(updateLabelPositions !== null && updateLabelPositions !== undefined){
-		updateLabelPositions(labelPosMap)
-	}else{
-		null
-	}
-
-	return(
-		htmlOutput
-	);
-}
-
 class MetricGraph extends React.Component{
 	constructor(props){
 		super(props);
@@ -66,19 +34,82 @@ class MetricGraph extends React.Component{
 		let width = 50;
 		let height = width;
 		let yPercentOffset = ( 100 / (2 * this.props.sourceMetricIds.length) );
-		let yOffsetStart = 0//( yPercentOffset );
 		let pointRadius = 3;
+		let yOffsetStart = ( (yPercentOffset - pointRadius*2) / 2);
+
+		let labelPosMap = {};
+
+		let output = this.props.sourceMetricIds.map((sourceMetricId, ind, metricList) => {
+			console.log('ind = ', ind)
+			console.log('yPercentOffset = ', yPercentOffset)
+			console.log('yOffsetStart = ', yOffsetStart)
+			console.log('sourceMetricIds = ', this.props.sourceMetricIds)
+			console.log('sourceMetrics = ', this.props.sourceMetrics)
+			console.log('x1:  this.props.sourceMetrics[sourceMetricIds[ind-1]] = ', this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]])
+			console.log('x2:  this.props.sourceMetrics[sourceMetricId] = ', this.props.sourceMetrics[sourceMetricId])
+			//let labelPosYCss = `calc((${( yOffsetStart + ( ind * ( yPercentOffset )))} / 100) * (100vh))`
+			let labelPosYCss = `${( (yOffsetStart*2) + ( (ind) * ( yPercentOffset*2) ) )}%`;
+			labelPosMap[sourceMetricId] = labelPosYCss;
+			return(
+				<React.Fragment>
+					<line 
+					/*x1 = {`${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius/2}%`}
+					y1 = {`${ind === 0 ? `${yOffsetStart*2 + pointRadius/2}%` : ( (yOffsetStart*2) + ( (ind - 1) * ( yPercentOffset*2 + pointRadius/2 )))}%`}
+					x2 = {`${this.props.sourceMetrics[sourceMetricId]+ pointRadius/2}%`}
+					y2 = {`${( (yOffsetStart*2) + (ind*( yPercentOffset*2 + pointRadius/2)))}%`}*/
+					x1 = {(ind != 0) ? `${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius}%` : 0}
+					y1 = {(ind != 0) ? `${( (yOffsetStart*2) + ( (ind - 1) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%` : 0}
+					x2 = {(ind != 0) ? `${this.props.sourceMetrics[sourceMetricId]+ pointRadius}%` : 0}
+					y2 = {(ind != 0) ? `${( (yOffsetStart*2) + ( (ind) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%` : 0}
+					//lineColor = {this.props.lineColor | 'black'}
+					stroke = {this.props.lineColor ? this.props.lineColor : '#bcbcbc'}
+					stroke-width = "1%"
+					/>
+					{
+						ind !== 0 ? (<circle 
+										cx={`${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius}%`} 
+										cy={`${( (yOffsetStart*2) + ( (ind-1) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%`} 
+										r="2%" 
+										fill="#fdfdfd" 
+										stroke="black" 
+										stroke-width="0.5%"
+									/>) : null
+					}
+					{
+						ind === (this.props.sourceMetricIds.length-1) ? (<circle 
+							cx={`${this.props.sourceMetrics[this.props.sourceMetricIds[ind]] + pointRadius}%`} 
+							cy={`${( (yOffsetStart*2) + ( (ind) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%`} 
+							r="2%" 
+							fill="#fdfdfd" 
+							stroke="black" 
+							stroke-width="0.5%"
+						/>) : null			    					
+					}
+				</React.Fragment>
+			);
+		});
+
+		console.log('labelPosMap = ', labelPosMap);
+		if(this.props.updateLabelPositions !== null && this.props.updateLabelPositions !== undefined){
+			this.props.updateLabelPositions(labelPosMap)
+		}else{
+			null
+		}
+
 		return(
 			<div>
 				<svg viewBox='0 0 100 auto'  
-					reserveAspectRatio="none" 
+					preserveAspectRatio="none" 
 					style={{
 						'position':'absolute', 
 						'height':'100%', 
 						'width':'100%', 
 						'left':'0', 
 						'top':'0',
-						'padding-top':`${pointRadius}%`
+						'padding-top':`${pointRadius*2}%`,
+						'padding-bottom':`${pointRadius*2}%`,
+						'padding-left':`${pointRadius*2}%`,
+						'padding-right':`${pointRadius*2}%`
 						/*'border-color': 'black',
 	    				'border-style': 'solid',
 	    				'border-width': '1px'*/
@@ -86,45 +117,9 @@ class MetricGraph extends React.Component{
 						'padding-left':`calc(${pointRadius}% / 2)`*/
 					}}>
 					{
-						this.props.sourceMetricIds.map((sourceMetricId, ind, metricList) => {
-							if(ind === 0){
-								return null;
-							}else{
-								console.log('ind = ', ind)
-								console.log('yPercentOffset = ', yPercentOffset)
-								console.log('yOffsetStart = ', yOffsetStart)
-								console.log('sourceMetricIds = ', this.props.sourceMetricIds)
-								console.log('sourceMetrics = ', this.props.sourceMetrics)
-								console.log('x1:  this.props.sourceMetrics[sourceMetricIds[ind-1]] = ', this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]])
-								console.log('x2:  this.props.sourceMetrics[sourceMetricId] = ', this.props.sourceMetrics[sourceMetricId])
-								return(
-									<line 
-			    					/*x1 = {`${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius/2}%`}
-			    					y1 = {`${ind === 0 ? `${yOffsetStart*2 + pointRadius/2}%` : ( (yOffsetStart*2) + ( (ind - 1) * ( yPercentOffset*2 + pointRadius/2 )))}%`}
-			    					x2 = {`${this.props.sourceMetrics[sourceMetricId]+ pointRadius/2}%`}
-			    					y2 = {`${( (yOffsetStart*2) + (ind*( yPercentOffset*2 + pointRadius/2)))}%`}*/
-			    					x1 = {`${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius}%`}
-			    					y1 = {`${( (yOffsetStart*2) + ( (ind - 1) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%`}
-			    					x2 = {`${this.props.sourceMetrics[sourceMetricId]+ pointRadius}%`}
-			    					y2 = {`${( (yOffsetStart*2) + ( (ind) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%`}
-			    					//lineColor = {this.props.lineColor | 'black'}
-			    					stroke = {this.props.lineColor ? this.props.lineColor : '#dcdcdc'}
-			    					stroke-width = "2px"
-			    					/>
-			    				);
-							}
-			    		})
+						output
 					}
 				</svg>
-				<MetricCoordinates 
-					sourceMetricIds={this.props.sourceMetricIds} 
-					sourceMetrics={this.props.sourceMetrics} 
-					yOffsetStart={yOffsetStart} 
-					yPercentOffset={yPercentOffset} 
-					host={this.props.host}
-					pointRadius={pointRadius}
-					updateLabelPositions={this.props.updateLabelPositions}
-				/>
 			</div>
 		);
 	}
@@ -310,7 +305,7 @@ class MetricList extends React.Component{
 						Size Fit
 					</div>
 				</div>
-				<div id='upperBodySection' style={{'height':'calc((100% - (5vh + 28px))/2)', 'width':'50%', 'margin':'auto', 'position':'relative','padding-bottom':'0%','margin-top':'15px', 'margin-bottom':'15px'}}>
+				<div id='upperBodySection' style={{'height':'calc((100% - (5vh + 28px))/2)', 'width':'50%', 'margin':'auto', 'position':'relative','padding-bottom':'0%','margin-top':'15px', 'margin-bottom':'0px'}}>
 					<Labels labelToPositionMap={this.state.labels.upperBody}/>
 					<MetricGraph 
 						sourceMetricIds={this.props.ownerUpperBodyMetricIds} 

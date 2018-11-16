@@ -4,7 +4,10 @@ import Item from './Item.js'
 
 export default class ItemList extends React.Component{
 	constructor(props){
-		super(props)
+		super(props)		
+		this.state = {
+			visibleItemIds: []
+		};
 	}
 
 	shouldComponentUpdate(nextProps) {
@@ -29,8 +32,9 @@ export default class ItemList extends React.Component{
 	render(){
 		console.log('items = ', this.props.items)
 		console.log('addedItems = ', this.props.addedItems)
-		let allFilteredItems = Object.assign({}, this.props.items, this.props.addItems);
+		let allFilteredItems = Object.assign({}, this.props.items, this.props.addedItems);
 		console.log('allFilteredItems = ', allFilteredItems);
+		console.log('this.props.populateItemsMap = ', this.props.populateItemsMap);
 		this.props.populateItemsMap(allFilteredItems);
 		return (
 		    <div className={ItemStyles.itemMenuBlock}>

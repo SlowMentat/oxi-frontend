@@ -11,7 +11,7 @@ function Modal(props){
 				formType={props.formType} 
 				cancelAction={props.closeModal} 
 				submitAction={props.submitAction} 
-				confirmDiscardSubmitAction = {props.confirmDiscardSubmitAction}
+				confirmDiscardSubmitAction = {() => props.confirmDiscardSubmitAction(null, props.addedEntitiesReducer)}
 				outfits={props.outfits}
 				contents={props.contents} 
 				items={props.items}
@@ -26,6 +26,10 @@ function Modal(props){
 				retailers={props.retailers}
 				requestedNav={props.requestedNav}
 				itemLocation={props.itemLocation}
+				editingItem={props.editingItem}
+				clearUpdates={props.clearUpdates}
+				clearInvalidations={() => props.clearInvalidations(props.entitiesStateReducer)}
+
 			/>
 		</ModalContainer>
 	);

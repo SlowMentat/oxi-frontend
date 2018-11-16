@@ -26,6 +26,7 @@
 	font-size: 80%;
 	/*background-color: #171717;*/
 	vertical-align: top;
+	padding:0px;
 }
 
 :local(.outfitMenuBlock){
@@ -33,6 +34,7 @@
 
 :local(.Outfit__div--selected){
 	composes:stdOutfitBlock;
+	border-style: solid;
 	border-color: var(--entity-selected-border-color);
 }
 
@@ -46,17 +48,24 @@
 }
 
 :local(.outfitTileCtrlContainer){
-    /*background-color: #212121a3;*/
-	background-color: linear-gradient(to top, #212121, #212121, #212121, #212121, #212121cc, #21212188,#21212144, transparent);
+    background-color: #21212193;
     position: relative;
     height: 100px;
-    margin-right: -6px;
     top: calc((200px * 3/2) - 100px);
     overflow: hidden;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
     display:none;
-};
+}
+
+:local(.outfitTileMask){
+    background-color: #ffffff9e;
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border-radius: 3px;
+    overflow: hidden;	
+}
 
 :local(.outfitCtrlUserProfile__div){
 

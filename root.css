@@ -58,6 +58,10 @@ div{
 }
 
 .stdButton:hover{
+	cursor:pointer;
+}
+
+.stdButton:hover{
 	background-color: #c27e1d;
 }
 

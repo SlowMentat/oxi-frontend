@@ -37,10 +37,11 @@ export const UPDATE_OUTFIT 			= "UPDATE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const REPLACE_OUTFIT 		= "REPLACE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const DELETE_OUTFIT			= "DELETE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const SELECT_PAGE 			= "SELECT_PAGE";
+export const CREATE_PICTURE			= "CREATE_"		+ OxiAppConstants.EntityTypes.PICTURE;
 
 //Action on for entities added to client
 export const ADD_ITEM				= 'ADD_'				+ OxiAppConstants.EntityTypes.ITEM;
-export const MODIFYITEM				= 'MODIFY_'				+ OxiAppConstants.EntityTypes.ITEM;
+export const MODIFY_ITEM			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.ITEM;
 export const REMOVE_ITEM			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.ITEM;
 export const SELECT_NEW_ITEM		= 'SELECT_NEW_'			+ OxiAppConstants.EntityTypes.ITEM;
 export const ADD_ITEMCONTENT		= 'ADD_'				+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
@@ -50,7 +51,7 @@ export const MODIFY_CONTENT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.CONTE
 export const REMOVE_CONTENT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.CONTENT;
 export const SELECT_ADDED_CONTENT	= 'SELECT_ADDED_'		+ OxiAppConstants.EntityTypes.CONTENT;
 export const ADD_OUTFIT				= 'ADD_'				+ OxiAppConstants.EntityTypes.OUTFIT;
-export const MODIFYOUTFIT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.OUTFIT;
+export const MODIFY_OUTFIT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.OUTFIT;
 export const REMOVE_OUTFIT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.OUTFIT;
 export const SELECT_ADDED_OUTFIT	= 'SELECT_ADDED_'		+ OxiAppConstants.EntityTypes.OUTFIT;
 export const ADD_PROFILE			= 'ADD_'				+ OxiAppConstants.EntityTypes.PROFILE;
@@ -61,12 +62,13 @@ export const CREATE_PROFILE			= 'CREATE_PROFILE'		+ OxiAppConstants.EntityTypes.
 export const REPLACE_PROFILE		= "REPLACE_"			+ OxiAppConstants.EntityTypes.PROFILE;
 export const REPLACE_BRAND			= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.BRAND;
 export const REPLACE_RETAILER		= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.RETAILER;
+export const REPLACE_PICTURE		= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.PICTURE;
 
 //Async action types
 export const REQUEST_LOGIN 			= "REQUEST_LOGIN";
 export const REQUEST_ENTITIES 		= "REQUEST_ENTITIES";
 export const RECEIVE_ENTITIES 		= "RECEIVE_ENTITIES";
-export const INVALIDATE_ENTITIES 	= "INVALIDATE_ENTITIES";
+export const SERVER_INVALIDATE_ENTITIES 	= "SERVER_INVALIDATE_ENTITIES";
 //Fetch HTTP request actions
 export const FETCH_ENTITIES_REQUEST = "FETCH_ENTITIES_REQUEST";//type of action informing reducers request began
 export const FETCH_ENTITIES_FAILURE = "FETCH_ENTITIES_FAILURE";//type of action infiorming reducers the request failed
@@ -80,6 +82,7 @@ export const SELECT_WEB_APP_VIEW	= "SELECT_WEB_APP_VIEW";
 export const SELECT_CONTENT 		= "SELECT_" 	+ OxiAppConstants.EntityTypes.CONTENT;
 export const SELECT_ITEM 			= "SELECT_"		+ OxiAppConstants.EntityTypes.ITEM;
 export const DISABLE_BUTTON			= "DISABLE_BUTTON";
+export const DISABLE_CONTENT_BUTTON = 'DISABLE_CONTENT_BUTTON';
 
 export const REQUEST_NAVIGATION		= 'REQUEST_NAVIGATION';
 
@@ -87,6 +90,7 @@ export const REMOVE_ADDED_OUTFIT	= 'REMOVE_ADDED_'		+ OxiAppConstants.EntityType
 export const REMOVE_ADDED_CONTENT	= 'REMOVE_ADDED_'		+ OxiAppConstants.EntityTypes.CONTENT;
 export const REMOVE_ADDED_ITEM		= 'REMOVE_ADDED_'		+ OxiAppConstants.EntityTypes.ITEM;
 
+export const UPDATE_PROFILE 		= 'UPDATE_' + OxiAppConstants.EntityTypes.PROFILE;
 //global variables
 let nextItemId = 0;
 let nextOutfitId = 0;
@@ -115,7 +119,7 @@ const defaultProfileData = {
 
 
 export const setFormVisibility	= makeActionCreator(SET_VISIBLE_FORM, null, 'modal', 'prevRequestUrl', 'prevRequestType', 'otherData');
-export const editContentView 	= makeActionCreator(EDIT_CONTENT_VIEW, null, 'isEditingContent');
+export const editContentView 	= makeActionCreator(EDIT_CONTENT_VIEW, null, 'viewState');
 export const previewContent		= makeActionCreator(PREVIEW_CONTENT, null, 'shownContentId')
 export const showContentView 	= makeActionCreator(SHOW_CONTENT_VIEW, null, 'isContentViewVisible');
 export const showModal 			= makeActionCreator(SHOW_MODAL, null, 'isModalVisible');
@@ -135,32 +139,48 @@ export const replaceBrands 		= makeActionCreator(REPLACE_BRAND, OxiAppConstants.
 export const replaceRetailers	= makeActionCreator(REPLACE_RETAILER, OxiAppConstants.EntityTypes.RETAILER, 'entities');
 
 //PROFILE actions
-export const replaceProfile		= makeActionCreator(REPLACE_PROFILE, OxiAppConstants.EntityTypes.PROFILE, 'entities')
+export const replaceProfile		= makeActionCreator(REPLACE_PROFILE, OxiAppConstants.EntityTypes.PROFILE, 'entities');
+export const updateProfile 		= makeActionCreator(UPDATE_PROFILE, OxiAppConstants.EntityTypes.PROFILE, 'id');
 
 //OUTFIT Actions
 export const createOutfit 		= makeActionCreator(CREATE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entities');
-export const updateOutfit 		= makeActionCreator(UPDATE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicuri', 'contents', 'profile');
+export const updateOutfit 		= makeActionCreator(UPDATE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
 export const replaceOutfits 	= makeActionCreator(REPLACE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entities');
 export const deleteOutfit 		= makeActionCreator(DELETE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicuri', 'contents', 'profile');
-export const addOutfit 			= makeActionCreator(ADD_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicuri', 'contents', 'profile');
+//export const addOutfit 			= makeActionCreator(ADD_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicuri', 'contents', 'profile');
+export const addOutfit 			= makeActionCreator(ADD_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entity');
+export const modifyOutfit 		= makeActionCreator(MODIFY_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entity');
 
 //ITEM Actions
 export const createItem 		= makeActionCreator(CREATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'entities');
-export const updateItem 		= makeActionCreator(UPDATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id', 'positionx', 'positiony', 'link', 'size', 'type');
+export const updateItem 		= makeActionCreator(UPDATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id');
+//export const updateItems 		= makeActionCreator(UPDATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'ids');
 export const replaceItems 		= makeActionCreator(REPLACE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'entities');
-export const addItem 			= makeActionCreator(ADD_ITEM, OxiAppConstants.EntityTypes.ITEM, 'type','positionx', 'positiony', 'size', 'retailer', 'brand');
+//export const addItem 			= makeActionCreator(ADD_ITEM, OxiAppConstants.EntityTypes.ITEM, 'type','positionx', 'positiony', 'size', 'retailer', 'brand');
+export const addItem 			= makeActionCreator(ADD_ITEM, OxiAppConstants.EntityTypes.ITEM, 'entity');
+export const modifyItem 		= makeActionCreator(MODIFY_ITEM, OxiAppConstants.EntityTypes.ITEM, 'entity');
 
 //ITEMCONTENT Actions
-export const createItemContent 	= makeActionCreator(CREATE_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT,'id', 'itemId', 'contentId');
+//export const createItemContent 	= makeActionCreator(CREATE_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT,'id', 'itemId', 'contentId');
+export const createItemContent 	= makeActionCreator(CREATE_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT, 'entities');
 export const updateItemContent 	= makeActionCreator(UPDATE_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT,'id', 'itemId', 'contentId');
-export const addItemContent 	= makeActionCreator(ADD_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT, 'itemId', 'contentId');
+//export const addItemContent 	= makeActionCreator(ADD_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT, 'itemId', 'contentId');
+export const addItemContent 	= makeActionCreator(ADD_ITEMCONTENT, OxiAppConstants.EntityTypes.ITEM_CONTENT, 'entity');
+
 //CONTENT Actions
 export const createContent 		= makeActionCreator(CREATE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entities');
-export const updateContent 		= makeActionCreator(UPDATE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id', 'coverpicuri', 'items');
+export const updateContent 		= makeActionCreator(UPDATE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
 export const replaceContents 	= makeActionCreator(REPLACE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entities');
 
-export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'outfitId', 'items');
+//export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id', 'outfitId', 'items');
+export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity');
+
+//Action primarily used to modify the items propterty of the content entity in the addedEntityReducer tree after an item entity has been added to addedEntityRedercer.items branch
 export const modifyContent 		= makeActionCreator(MODIFY_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity')
+
+//PICTURE Actions
+export const createPictures		= makeActionCreator(CREATE_PICTURE, OxiAppConstants.EntityTypes.PICTURE, 'entities');
+export const replacePictures 	= makeActionCreator(REPLACE_PICTURE, OxiAppConstants.EntityTypes.PICTURE, 'entities');
 
 export const selectAddedOutfit 	= makeActionCreator(SELECT_ADDED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
 export const selectAddedContent = makeActionCreator(SELECT_ADDED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
@@ -170,15 +190,30 @@ export const removeAddedContent = makeActionCreator(REMOVE_ADDED_CONTENT, OxiApp
 export const removeAddedItem	= makeActionCreator(REMOVE_ADDED_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id');
 
 export const disableAddOutfit 	= makeActionCreator(DISABLE_BUTTON, null, 'disabled');
+export const disableAddContentButton = makeActionCreator(DISABLE_CONTENT_BUTTON, null, 'disabled');
 
-
+/*export const updateItemContent 	= (id, itemId, contentId) => {
+	return({
+		type: UPDATE_ITEMCONTENT,
+		typeSpecifier: OxiAppConstants.EntityTypes.ITEM_CONTENT,
+		payload: {
+			entity: {
+				id: id,
+				itemId: itmeId,
+				contentId: contentId
+			}
+		}
+	})
+};*/
 //PROFILE Actions
 export const addProfile = (profileData) => {
 	let completeData = Object.assign({}, defaultProfileData, profileData)
 	return({
 		type: ADD_PROFILE,
 		typeSpecifier: OxiAppConstants.EntityTypes.PROFILE,
-		payload: completeData
+		payload: {
+			entity: completeData
+		}
 
 	});
 };
@@ -211,6 +246,7 @@ export const loginConfig = (username, password) => {
 export const requestNavigation = makeActionCreator(REQUEST_NAVIGATION, null, 'location');
 
 //Thunks dispatched by anonymous callback functions passed to Axios request interceptor
+
 export function handleUnauthorizedRequest(response){
 	return function(dispatch){
 		console.log('response', response);
@@ -241,11 +277,131 @@ export const insertCsrfToken = (config) => {
 //export const requestLogin = makeActionCreator(REQUEST_LOGIN, "", 'usersname', 'password');
 //export const requestEntities = makeActionCreator(REQUEST_ENTITIES, "", '');
 
+/*export const receiveProfile = makeActionCreator(RECEIVED_PROFILE, OxiAppConstants.EntityTypes.PROFILE, '' );
+export const receiveOutfit = makeActionCreator(RECEIVED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, '' );
+export const receiveContent = makeActionCreator(RECEIVED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, '' );
+export const receiveItem = makeActionCreator(RECEIVED_ITEM, OxiAppConstants.EntityTypes.ITEM, '' );
+export const receivePicture = makeActionCreator(RECEIVED_PICTURE, OxiAppConstants.EntityTypes.PICTURE, '' );
+export const receiveRetailer = makeActionCreator(RECEIVED_RETAILER, OxiAppConstants.EntityTypes.RETAILER, '' );
+export const receiveBrand = makeActionCreator(RECEIVED_BRAND, OxiAppConstants.EntityTypes.BRAND, '' );*/
+
+
+export const receiveEntitiesTest = (entityType, data) => {
+	dispatch(makeActionCreator(`RECEIVED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'receivedAt')(data));
+}
+
+export const selectEntity = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SELECT_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'selected')(entityId));
+	}
+}
+
+//======== ADDED ENTITIES ACTIONS ========
+
+//Removes a single entity from the addedEntitiesReducer state tree
+export const removeAddedEntity = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase, 'id')(entityId));
+	}
+}
+
+//Removes a multiple entities specified by entityIds array from the addedEntitiesReducer state tree
+export const removeAddedEntities = (entityType, entityIds) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_MULTIPLE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase, 'ids')(entityIds));
+	}
+}
+
+//Remove all entities from the addedEntitiesReducer state tree
+export const removeAllAddedEntities = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_ALL_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase));
+	}
+}
+
+
+//======== EDITTING IDS ACITONS ========
+
+
+//appends the given id to the specified entityType's allEdittingIds state array
+export const addToEdittingIds = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`ADD_TO_${entityType.toUpperCase()}_EDITTING_IDS`, entityType.toUpperCase(), 'id')(entityId));
+	}
+};
+
+//replaces the array of ids to the specified entityType's allEdittingIds state array
+export const replaceEdittingIds = (entityType, entityIds) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REPLACE_${entityType.toUpperCase()}_EDITTING_IDS`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+
+//clears the array of ids to the specified entityType's allEdittingIds state array
+export const clearEdittingIds = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLEAR_${entityType.toUpperCase()}_EDITTING_IDS`, entityType.toUpperCase())());
+	}
+};
+
+
+//========CLIENT INVALIDATION ACTIONS========
+
+//add specified entityIds to the clientInvalidated Leaf of entitiesStateReducer
+export const clientInvalidateEntities = (entityType, entityIds=[]) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLIENT_INVALIDATE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+//Remove specified entityIds from the clientInvalidated Leaf of entitiesStateReducer
+export const removeClientInvalidation = (entityType, entityIds=[]) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_CLIENT_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+//Remove all entityIds from the clientInvalidated Leaf of entitiesStateReducer
+export const clearClientInvalidation = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLEAR_CLIENT_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+};
+
+
+//========SERVER INVALIDATION ACTIONS========
+
+//add specified entityIds to the serverInvalidation Leaf of entitiesStateReducer
+export const serverInvalidateEntities = (entityType, entityIds=[]) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SERVER_INVALIDATE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+//Remove specified entityIds from the serverInvalidated Leaf of entitiesStateReducer
+export const removeServerInvalidation = (entityType, entityIds=[]) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_SERVER_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+//Remove all entityIds from the serverInvalidated Leaf of entitiesStateReducer
+export const clearServerInvalidation = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLEAR_SERVER_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+};
+
+
+/*export const primeClientInvalidation = (entitytype, entityIds) => {
+	return () => clientInvalidateEntities(entitytype, entityIds);
+}
+
+export const primeServerInvalidation = (entitytype, entityIds) => {
+	return () => clientInvalidateEntities(entitytype, entityIds);
+}*/
+
 export const receiveEntities = (entityType, json) => {
 	return({
 		type: RECEIVE_ENTITIES,
 		payload:{
-			entityType: entityType,
+			entityType: entityType.toLowerCase(),
 			entities: json.entities,
 			receivedAt: Date.now()
 		}
@@ -257,17 +413,8 @@ export const requestEntities = (entityType) => {
 	return({
 		type: REQUEST_ENTITIES,
 		payload:{
-			entityType: entityType
+			entityType: entityType.toLowerCase()
 		} 
-	});
-};
-
-export const invalidateEntities = (entityType) => {
-	return({
-		type: INVALIDATE_ENTITIES,
-		payload:{
-			entityType: entityType
-		}
 	});
 };
 
@@ -294,11 +441,13 @@ function selectDestination(location, dispatch){
 			//Get the Brand and Retailer Lists
 			dispatch(fetchItemMenus()).then((response) => {
 				//dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT));
-				dispatch(setWebAppView(location));
 				dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', ''));
-				dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));				
-			}).catch((reason) => {
-				console.log('exception occured within dispatch to fetchItemMenus.  Reasin is: ', reason);
+				dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));			
+			}).then(response => {
+				dispatch(setWebAppView(location));	
+			}).catch((error) => {
+				console.log('exception occured within dispatch to fetchItemMenus.  Reason is: ', error);
+				dispatch(handleUnauthorizedRequest(error.response));
 			})
 			break;
 		case OxiAppConstants.navRequestMap.settings.toLowerCase():
@@ -316,7 +465,7 @@ export function navigateTo(location){
 		dispatch(requestNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
-		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().contentViewState.isEditingContent){
+		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
 			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
 		}else{
 			selectDestination(location, dispatch);
@@ -508,13 +657,17 @@ export function fetchEntities(entityType, username, filter){
 						//normalize received json payload
 						let normalizedJson = normalize(json, outfitsSchema);
 						let keys = Object.keys(normalizedJson.entities);
-						console.log(normalizedJson); 
+						console.log('fetchEntities:  normalizedJson = ', normalizedJson); 
 						//Manually build itemContents join table
 						for(let outfit of json){
 							for(let content of outfit.contents){
 								if(content != null && content != undefined){
 									for (let item of content.items){
-										if(item != null && item != undefined) dispatch(updateItemContent(null, item.id, content.id));
+										if(item != null && item != undefined) dispatch(createItemContent({
+											id: null, 
+											itemId: item.id, 
+											contentId: content.id
+										}));
 									}
 								}
 							}
@@ -525,14 +678,14 @@ export function fetchEntities(entityType, username, filter){
 						for(let entity of keys){
 							if(entity === 'outfits'){
 								containsOutfits = true;
-								dispatch(replaceOutfits(normalizedJson.entities[entity]));
-		
+								dispatch(replaceOutfits(normalizedJson.entities[entity]));		
 							}else if(entity === 'contents'){
 								containsContents = true;
-								dispatch(replaceContents(normalizedJson.entities[entity]));
-		
+								dispatch(replaceContents(normalizedJson.entities[entity]));		
 							}else if(entity === 'items'){
 								dispatch(replaceItems(normalizedJson.entities[entity]));
+							}else if(entity === 'picture'){
+								dispatch(replacePictures(normalizedJson.entities[entity]));
 							}else{
 								return;
 							}
@@ -540,11 +693,11 @@ export function fetchEntities(entityType, username, filter){
 						//select the first outfit if it exists
 						if(containsOutfits){
 							let outfitKeys = Object.keys(normalizedJson.entities["outfits"]);		
-							if (outfitKeys.length > 0) dispatch(selectOutfit(outfitKeys[0]));		
+							if (outfitKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, outfitKeys[0]));		
 							//select the first content if it exist
 							if(containsContents){
 								let contentKeys = Object.keys(normalizedJson.entities["contents"]);
-								if (contentKeys.length > 0) dispatch(selectContent(contentKeys[0]));
+								if (contentKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentKeys[0]));
 							}
 						}
 					}else{
@@ -597,21 +750,21 @@ export function verifyIntent(intentTo){
 //@param {STring} valid id of the child entity to be selected next.
 export function selectAndPropogate(entityType, entityId, targetChildId){
 	return function(dispatch){
-		console.log("selectAndPropogate entityType = ");
-		console.log(entityType);
+		console.log("selectAndPropogate entityType = ", entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
-				dispatch(selectOutfit((entityId || false)))
-				console.log("targetChildId = ");
-				console.log(targetChildId)
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, entityId));
+				//dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (entityId || false)));
+				console.log("targetChildId = ", targetChildId);
 				dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.CONTENT, targetChildId, null));
-				return;
+				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
-				dispatch(selectContent((entityId || false)));
-				return;
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, entityId));
+				break;
 			default:
-				return
+				break
 		}
+		return;
 	}
 }
 
@@ -624,15 +777,15 @@ export function deselectAndPropogate(entityType){
 		console.log(entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
-				dispatch(selectOutfit(false));
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
 				dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.CONTENT));
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
-				dispatch(selectContent(false));
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
 				dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.ITEM));
 				break;
 			case OxiAppConstants.EntityTypes.ITEM:
-				dispatch(selectItem(false));
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
 				break;
 			default:
 				console.log("no matching entity type");
@@ -660,17 +813,46 @@ export function selectAddedEntity(entityType, entityId){
 	}
 }
 
+/*export function addEntityAndPropogate(entityType, entity){
+	switch(entityType){
+		case OxiAppConstants.EntityTypes.OUTFIT:
+			for(let contentId of entity.contents){
+				addEntityAndPropogate(OxiAppConstants.EntityTypes.CONTENT, )				
+			}
+		case OxiAppConstants.EntityTypes.CONTENT:
+		case OxiAppConstants.EntityTypes.ITEM:
+		default:
+			break;
+	}
+	return;
+}*/
+
+export function clearAllAddedEntitiesState(addedEntities){
+	return function(dispatch){
+		switch(true){
+			case addedEntities.outfits.allIds.length > 0:
+				dispatch(removeAllAddedEntities(OxiAppConstants.EntityTypes.OUTFIT));
+			case addedEntities.contents.allIds.length > 0:
+				dispatch(removeAllAddedEntities(OxiAppConstants.EntityTypes.CONTENT));
+			case addedEntities.items.allIds.length > 0:
+				dispatch(removeAllAddedEntities(OxiAppConstants.EntityTypes.ITEM));
+			default:
+				return;	
+		}
+	}
+}
+
 export function removeAddedEntityAndPropogate(entityType, entity){
 	return function(dispatch){
 		//console.log("selectAndPropogate entityType = ", entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
 				//Remove any child entities
-				dispatch(selectAddedEntity(entityType, false));
+				dispatch(selectEntity(entityType, false));
 				if(entity.contents){
 					for(let content of entity.contents){
 						//console.log('removeAddedEntityAndPropogate(): content = ', content)
-						dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.CONTENT, content));
+						if(entity.contents.length > 0) dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.CONTENT, content));
 					}
 				}
 				//console.log('removeAddedEntityAndPropogate():  Removing Outfit with id ', entity.id)
@@ -678,11 +860,11 @@ export function removeAddedEntityAndPropogate(entityType, entity){
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
 				//Remove any child entities
-				dispatch(selectAddedEntity(entityType, false))
+				dispatch(selectEntity(entityType, false))
 				if(entity.items){
 					for(let item of entity.items){
 						//console.log('removeAddedEntityAndPropogate(): item = ', item)
-						dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.ITEM, item));
+						if(entity.items.length > 0) dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.ITEM, item));
 					}
 				}
 				//console.log('removeAddedEntityAndPropogate():  Removing Content with id ', entity.id)
@@ -707,17 +889,18 @@ export function removeAddedEntityAndPropogate(entityType, entity){
 /*function selectFirstEntity(entityArray, entityType, dispatch){
 	switch(entityType){
 		case OxiAppConstants.EntityTypes.OUTFIT:
-			dispatch(selectOutfit(entityArray[0]));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, entityArray[0]));
 		case OxiAppConstants.EntityTypes.CONTENT:
-			dispatch(selectContent(entityArray[0]));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, entityArray[0]));
 	}
 	if (entityArray.length > 0){
-		dispatch(selectContent(entityArray[0]));
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, entityArray[0]));
 	}	
 }*/
 
-export function fetchImage(filename, callback){
+export function fetchImage(filename, callback, picture){
 	return function(dispatch){
+		console.log('getting image, filename = ', filename);
 		let request = axios.create({
 			responseType: 'arraybuffer',
 			'Content-Type': 'text/html; charset=utf-8',
@@ -728,15 +911,16 @@ export function fetchImage(filename, callback){
 				mediaType: 'jpeg, json'
 			}
 		})
+
 		request.get(OxiAppConstants.serviceUrl + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
 		//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
 		.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
-		.then(response => callback(event, response));
+		.then(response => callback(event, response, picture));
 	}
 }
 
 //POST image data to server
-export function postImage(imageFile, json, onSuccess){
+export function postImage(imageFile, onSuccess){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
 	console.log("in postImage action");
@@ -755,7 +939,8 @@ export function postImage(imageFile, json, onSuccess){
 		)
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				postEntities(json, response.data, onSuccess);
+				onSuccess()(response.data);
+				//postEntities(json, response.data, enityType, onSuccess);
 			}else{
 				return response.status;
 			}
@@ -763,22 +948,109 @@ export function postImage(imageFile, json, onSuccess){
 	//}
 }
 
+export function putImage(imageFile, contentId, onSuccess){
+	let imageFormData = new FormData();
+	imageFormData.append('imageFile', imageFile);
+	//Currently server does not handle Multipart PUT requests
+	axios.post(
+		OxiAppConstants.serviceUrl + '/updatePhoto/' + contentId, 
+		imageFormData,
+		{
+			headers:{
+				'Content-Disposition': 'form-data; name=\"imageFile\"',
+				'Content-Transfer-Encoding': 'base64',
+			}
+		}
+	)
+	.then(response => {
+		if(response.status === OxiAppConstants.HttpStatus.OK){
+			onSuccess()(response.data[0]);
+			//putEntities(json, response.data, entityType, onSuccess);
+		}else{
+			return response.status;
+		}
+	});
+}
+
+export function postOutfit(outfitJson, onSuccess){
+	return (pictureJson) => {
+		//TODO:  this will need to handle multiple content entites for multi-file upload
+		axios.post(
+			OxiAppConstants.serviceUrl + '/outfit',
+			Object.assign( {}, outfitJson,  {coverpicuri: pictureJson.smalluri, contents: Object.values( Object.assign( {}, graftPictureJson(outfitJson.contents, [pictureJson] ) ) ) } ),
+			{})
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response);
+			}
+			return response.status;
+		})
+	}
+}
+
+export function postContent(contentJson, outfitId, onSuccess){
+	return (pictureJson) => {
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+		axios.post(
+			OxiAppConstants.serviceUrl + '/contents' + pathVariable, 
+			[Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0])], 
+			{})
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response);
+			}
+			return response.status;		
+		});		
+	}
+}
+
+export function putContent(contentJson, onSuccess){
+	return (pictureJson) => {
+		axios.post(
+			OxiAppConstants.serviceUrl + '/contents', 
+			[Object.assign({}, graftPictureJson([contentJson], pictureJson)[0])], 
+			{})
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.OK){
+				onSuccess(response);
+			}
+			return response.status;		
+		});	
+	};
+}
+
 //Sends POST request with added entities
-export function postEntities(json, imageFileName, onSuccess){
+export function postEntities(json, picturesJson, enityType, onSuccess){
 	//return function(dispatch){
 		//denormalize outfits from addedEntitiesReducer
 		//send result as json in request payload
 		let requestTarget = '';
 		let entities = {};
-		if(json.contents !== undefined){
-			requestTarget = '/outfit';
-			//store assign outfit.coverpicuri to imageFileName. 
-			//TODO:  this needs to be reimplemented eventially using Picture resource entities
-			json.coverpicuri = imageFileName;
-			json.contents[0].coverpicuri = imageFileName;
-		}else if(json.items !== undefined){
-			requestTarget = '/contents';
-			json.contents[0].coverpicuri = imageFileName;
+		//json data represents outfit
+		switch(enityType){
+			case OxiAppConstants.EntityTypes.OUTFIT:
+				requestTarget = '/outfit';
+				//store assign outfit.coverpicuri to imageFileName. 
+				//TODO:  this needs to be reimplemented eventially using Picture resource entities
+				json.coverpicuri = picturesJson.smalluri;
+				//id and content properties are sent from the server as null.
+				//Set these to undefined so their values can be auto generated.
+				picturesJson.id = undefined;
+				picturesJson.contentId = undefined;
+				json.contents[0].picture = picturesJson;
+				json.contents[0].coverpicuri = picturesJson.thumbnailuri;
+				break;
+			case OxiAppConstants.EntityTypes.CONTENT:
+				requestTarget = '/content/' + json.id;
+				json.picture = picturesJson;
+				json.coverpicuri = picturesJson.thumbnailuri;
+				break;
+			case OxiAppConstants.EntityTypes.ITEM:
+				break;
+			case OxiAppConstants.EntityTypes.PICTURE:
+				break;
+			default:
+				break;
 		}
 		//denormalize json
 		if(requestTarget !== ''){
@@ -800,11 +1072,113 @@ export function postEntities(json, imageFileName, onSuccess){
 	//}
 }
 
+//TODO:  Impliment
+//Sends PUT request with added entities
+export function putEntities(outfitJson, picturesJson, enityType, onSuccess){
+	//return function(dispatch){
+	//denormalize outfits from addedEntitiesReducer
+	//send result as outfitJson in request payload
+	let requestTarget = '';
+	let entities = {};
+	let finalJson = Object.assign({}, outfitJson);
+	switch(enityType){
+		case OxiAppConstants.EntityTypes.OUTFIT:
+			requestTarget = '/outfit';
+			//store assign outfit.coverpicuri to imageFileName. 
+			//TODO:  this needs to be reimplemented eventially using Picture resource entities
+			if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
+				finalJson.coverpicuri = picturesJson[0].smalluri;
+			}
+			//add the picture outfitJson object returned from the server
+			finalJson = Object.assign({}, finalJson, {contents: graftPictureJson(finalJson.contents, picturesJson)});
+			break;
+		case OxiAppConstants.EntityTypes.CONTENT:
+			if(outfitJson.contents.length > 1){
+				requestTarget = '/contents/' + outfitJson.id;
+				//add the picture outfitJson object returned from the server
+				finalJson = Object.assign({}, graftPictureJson(outfitJson[contents], picturesJson));
+			}else{
+				requestTarget = '/content/' + outfitJson.id;
+				//add the picture outfitJson object returned from the server
+				//finalJson = Object.assign({}, graftPictureJson(outfitJson['contents'][0], picturesJson));
+			}
+			break;
+		case OxiAppConstants.EntityTypes.ITEM:
+			if(outfitJson.contents.length > 1){
+				requestTarget = '/contents/' + outfitJson.id;
+				finalJson = Object.assign({}, outfitJson.contents);
+			}else{
+				requestTarget = '/item';
+				//finalJson = Object.assign({}, outfitJson.contents);
+			}
+			break;
+		/*case OxiAppConstants.EntityTypes.PICTURE:
+			if(outfitJson.contents.length > 1) requestTarget = '/pictures/' + outfitJson.contents.id;
+			else requestTarget = '/picture';
+			finalJson = Object.assign({}, outfitJson.contents);
+			break;*/
+		default:
+			break;
+	}
+	//denormalize outfitJson
+	if(requestTarget !== ''){
+		console.log("finalJson data = ", finalJson);
+		axios.post(
+			OxiAppConstants.serviceUrl + requestTarget,
+			finalJson,
+			{}
+		)
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response);
+			}
+			return response.status;
+		});			
+	}else{
+		console.log('requestTarget empty');
+	}
+}
+
+//Modifies content.picture json with the json data returned from Posting image data to server
+//Also updates each content's coverpicuri if picture object has been updated.
+//@param {Object} contentJson:  the [contents] json body to be modified
+//@param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
+function graftPictureJson(contentsJson, picturesJson){
+	if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
+		//Case when a single new content is posted.  the returned picture json object has id and contentId properties = null.
+		if(picturesJson[0].contentId === null){
+			picturesJson[0].contentId = undefined;
+			//set picture and coverpicuri properties
+			contentsJson[0] = Object.assign({}, contentsJson[0], {
+				coverpicuri: picturesJson[0].thumbnailuri,
+				picture: picturesJson[0]
+			});
+		}else{
+			for(let pkey of Object.keys(picturesJson)){
+				for(let ckey of Object.keys(contentsJson)){
+					if(contentsJson[ckey].id === picturesJson[pkey].contentId){
+						//set id property of picture json to undefined if server returns as null (new Picture entity)
+						//if(picturesJson[pkey].id === null) picturesJson[pkey].id = undefined;
+						//remove content property from the picture json object returned by the server
+						picturesJson[pkey].contentId = undefined;
+						//set picture and coverpicuri properties
+						contentsJson[ckey] = Object.assign({}, contentsJson[ckey], {
+							coverpicuri: picturesJson[pkey].thumbnailuri,
+							picture: picturesJson[pkey]
+						});
+					}
+				}
+			}			
+		}
+	}
+	return contentsJson;
+}
+
 function buildJsonFromEntities(id, entity ){
 
 }
 
-export function putEntities(id, entityType){
+/*export function putEntities(id, entityType){
 	switch(entityType){
 		case OxiAppConstants.EntityTypes.OUTFIT:
 
@@ -812,10 +1186,10 @@ export function putEntities(id, entityType){
 		default:
 			break
 	}
-}
+}*/
 
 function shouldFetchEntites(state, entityType){
-	const entityState = state.entitiesReducer.entitiesState[entityType];
+	const entityState = state.entitiesState[entityType];
 	if(!entityState){
 		return true;
 	}else if(entityState.isFetching){

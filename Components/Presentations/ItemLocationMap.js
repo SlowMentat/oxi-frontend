@@ -28,23 +28,31 @@ export default class ItemLocationMap extends React.Component{
 	}
 
 	render(){
-		console.log('this.props.visibleItems = ', this.props.visibleItems)
+		console.log('this.props.visibleItemsMap = ', this.props.visibleItemsMap)
 		return(			
 			<div style={containerStyle}>
 				<div style={svgContainerStyle}>
 					<svg style={{height:'100%',width:'100%',left:'0px',top:'0px'}}>
-						{this.props.visibleItems.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItems.visibleItemsByIds).map(itemId => {
-							return(
-								<circle 
-									id={itemId}
-									stroke-width='2px' 
-									stroke='black' 
-									fill='#ececec' 
-									r='2%' 
-									cy={`${100*this.props.visibleItems.visibleItemsByIds[itemId].positiony}%`} 
-									cx={`${100*this.props.visibleItems.visibleItemsByIds[itemId].positionx}%`}>
-								</circle>
-							);
+						{this.props.visibleItemsMap.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItemsMap.visibleItemsByIds).map(itemId => {
+							console.log('itemId = ', itemId);
+							console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
+							//do not return object owned properties
+							//if(this.props.visibleItemsMap.visibleItemsByIds.hasOwnProperty(itemId)){
+							if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
+								return(
+									<circle 
+										id={itemId}
+										stroke-width='2px' 
+										stroke='black' 
+										fill='#ececec' 
+										r='2%' 
+										cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
+										cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}>
+									</circle>
+								);
+							}else{
+								return null;
+							}
 						}) : null }
 					</svg>
 				</div>

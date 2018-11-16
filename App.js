@@ -358,29 +358,6 @@ class App extends React.Component {
 		this.state = {
 			enableAddOutfitButton: true
 		};
-
-		this._createOutfitForm = this._createOutfitForm.bind(this);
-	}
-
-	//Add Outfit Form event handlers
-
-	_createOutfitForm(){		
-		//if(store.getState(debug)) console.log("invoking creatOutfitForm()");
-		this.setState((prevState) => ({
-			enableAddOutfitButton: !prevState.enableAddOutfitButton,
-			showOutfitForm: !prevState.showOutfitForm
-		}));
-		console.log("GET " + OxiAppConstants.apiBaseUrl + '/outfits');
-		/*sendAsyncRequest(
-					{}, 
-					{}, 
-					'GET', 
-					OxiAppConstants.apiBaseUrl+'/outfits',
-					null);	*/
-		store.dispatch(fetchEntities('outfit', '00000000-0000-0000-0000-000000000000'));
-	}
-
-	_removeOutfitForm(){
 	}
 
 	render() {

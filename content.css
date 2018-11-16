@@ -1,12 +1,19 @@
 :local(.contentContainer) {
 	composes:stdBlock from './root.css';
 	/*display:inline-block;*/
-	border-radius: 2px;
+	/*border-radius: 2px;*/
 	height:80px;
 	/*width:50%;*/
 	font-size: 80%;
-	background-color: #ececec;
+	/*background-color: #ececec;*/
 	vertical-align: top;
+
+    width: 60%;
+    margin: auto;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: #212121;
 }
 
 :local(.stdContentBlock){
@@ -21,6 +28,10 @@
     border-color: #212121;
     border-radius: 5px;
     font:black;
+
+    top: calc(50% - 50px/2);
+    position: relative;
+    overflow: hidden;
 }
 
 :local(.selectedContentBlock){
@@ -35,7 +46,7 @@
 :local(.addContentButton){
 	composes:stdButton from './root.css';
 	display:inline-flex;
-    margin: auto auto 3% 6%;
+    margin: auto auto 0px 6%;
 	border-width: 0px;
     border-style: solid;
     /*border-color: #212121;*/
@@ -43,4 +54,8 @@
     font:black;
     width: 50px;
     height: 50px;
+
+    top: calc(50% - 50px/2);
+    position: relative;
+    overflow: hidden;
 }

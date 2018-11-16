@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { setFormVisibility, createItem, updateItem } from '../../Components/Actions/indexActions.js';
 import ItemList from '../../Components/Presentations/ItemList.js';
+import {maskEdits} from '../../Util/CommonSelectors.js';
 
 /*const getVisibleItems = (items, joinTable, filter, selectedContentId) => {
 	let result = {byIds:{}, allIds:[]};
@@ -43,7 +44,7 @@ import ItemList from '../../Components/Presentations/ItemList.js';
 	return items;
 }*/
 
-const getVisibleItems = (items, filter, contents) => {
+const getVisibleItems = (items, filter, contents, selectedContentId) => {
 	let itemsById = items.byIds;
 	let result = {byIds:{}, allIds:[]};
 	//Only perform filter on non-empty items object
@@ -61,10 +62,10 @@ const getVisibleItems = (items, filter, contents) => {
 				if(contents != undefined){
 					console.log("contents =");
 					console.log(contents)
-					if(contents.selected != undefined && contents.allIds.length > 0){
-						if(contents.selected != false){
+					if(selectedContentId != undefined && contents.allIds.length > 0){
+						if(selectedContentId != false){
 							//array of content ids
-							result.allIds = contents.byIds[contents.selected]["items"].sort();
+							result.allIds = contents.byIds[selectedContentId]["items"].sort();
 							for(let itemId of result.allIds){
 								result.byIds[itemId] =  itemsById[itemId];
 							}
@@ -73,10 +74,10 @@ const getVisibleItems = (items, filter, contents) => {
 							console.log(result);
 							return Object.assign({}, items, result);	
 						}else{
-							console.log("contents.selected is false");
+							console.log("selectedContentId is false");
 						}				
 					}else{
-						console.log("contents.selected is undefined");
+						console.log("selectedContentId is undefined");
 					}
 				}else{
 					console.log("contents is undefined");
@@ -99,8 +100,19 @@ const mapStateToProps = (state, props) => {
 	console.log('retailers', retailers);
 	console.log('==================================');
 	*/
-	let filteredItems = getVisibleItems(state.entitiesReducer.items, 'BY_CONTENT_ID', state.entitiesReducer.contents);
-	let filteredAddedItems = getVisibleItems(state.addedEntitiesReducer.items, 'BY_CONTENT_ID', state.addedEntitiesReducer.contents);
+	let filteredItems = maskEdits(getVisibleItems(
+			state.entitiesReducer.items, 
+			'BY_CONTENT_ID', 
+			state.entitiesReducer.contents, 
+			state.entitiesStateReducer.contents.selected === 1 ? false : state.entitiesStateReducer.contents.selected), 
+		state.entitiesReducer.items.allEditingIds);
+
+	let filteredAddedItems = getVisibleItems(
+		state.addedEntitiesReducer.items, 
+		'BY_CONTENT_ID', 
+		state.addedEntitiesReducer.contents,
+		state.entitiesStateReducer.contents.selected);
+
 	return ({
 		items : filteredItems.byIds,
 		itemIds : filteredItems.allIds,//state.entitiesReducer.items.allIds 

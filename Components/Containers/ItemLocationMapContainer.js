@@ -3,7 +3,7 @@ import { setFormVisibility, createItem, updateItem } from '../../Components/Acti
 import ItemList from '../../Components/Presentations/ItemLocationMap.js';
 
 
-const mapStateToProps = state => {
+/*const mapStateToProps = (state) => {
 	return ({
 		selectedItemIds: state.entitiesReducer.contents.byIds[state.entitiesReducer.contents.selected].items
 }
@@ -13,4 +13,4 @@ const mapDispatchToProps = dispatch => ({
 })
 
 const ItemLocationMapContainer = connect(mapStateToProps, mapDispatchToProps)(ItemLocationMap);
-export default ItemLocationMapContainer;
+export default ItemLocationMapContainer;*/
