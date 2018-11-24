@@ -1,5 +1,9 @@
 import React from 'react';
+import Draggable, {DraggableCore} from 'react-draggable';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
+//CSS
+import ItemStyles from '../../item.css';
 
 const containerStyle = {
     'position': 'absolute',
@@ -8,7 +12,9 @@ const containerStyle = {
     'width': '100%',
     'text-align': 'center',
     'top': '0px',
-    'margin-top': 'calc(5vh + 25px)'
+    'left':'0px',
+    'margin-top': 'calc(5vh + 25px)',
+    
 }
 
 const svgContainerStyle = {
@@ -25,14 +31,104 @@ const svgContainerStyle = {
 export default class ItemLocationMap extends React.Component{
 	constructor(props){
 		super(props);
+		this._handleOnMouseOver = this._handleOnMouseOver.bind(this);
+		this._handleOnMouseUp = this._handleOnMouseUp.bind(this);
+		this._onStart = this._onStart.bind(this);
+		this._onStop = this._onStop.bind(this);
+		this._handleDrag = this._handleDrag.bind(this);
+		this.state = {
+			activeDrags: 0,
+			draggedItemId: null,
+			deltaPosition: {
+				x: 0, y: 0
+			},
+			controlledPosition: {
+				x: 0, y: 0
+			}
+		}
+	}
+
+	_handleOnMouseOver(event, itemId){
+		console.log('hovering over: ', itemId);
+	}
+
+	_handleOnMouseDown(event, itemId){
+
+	}
+
+	_handleOnMouseUp(event, itemId){
+		event.stopPropagation();
+		let delXPercent = (this.state.deltaPosition.x / this.props.itemMapDimension.width);
+		let delYPercent = (this.state.deltaPosition.y / this.props.itemMapDimension.height);
+		let xCoordPercentUpdate = this.props.visibleItemsMap.visibleItemsByIds[itemId].positionx + delXPercent;
+		let yCoordPercentUpdate = this.props.visibleItemsMap.visibleItemsByIds[itemId].positiony + delYPercent;
+
+		xCoordPercentUpdate = xCoordPercentUpdate < 0 ? 0 : xCoordPercentUpdate > 1 ? 1 : xCoordPercentUpdate; 
+		yCoordPercentUpdate = yCoordPercentUpdate < 0 ? 0 : yCoordPercentUpdate > 1 ? 1 : yCoordPercentUpdate;
+		console.log('xCoordPercent = ', xCoordPercentUpdate);
+		console.log('yCoordPercent = ', yCoordPercentUpdate);
+		console.log();
+		
+		//remvove the transorm style
+		event.target.style.transform = '';
+		//invalidate the modified item
+		this.props.modifyItemStatePosition(itemId, xCoordPercentUpdate, yCoordPercentUpdate);
+		if(!this.props.clientInvalidateItems.includes(itemId)){
+			this.props.clientInvalidateItem(itemId);
+		}
+
+		this.props.populateItemsMap(Object.assign({}, this.props.visibleItemsMap.visibleItemsByIds, {
+			...this.props.visibleItemsMap.visibleItemsByIds,
+			[itemId]: {
+				...this.props.visibleItemsMap.visibleItemsByIds[itemId],
+				positionx: xCoordPercentUpdate, 
+				positiony: yCoordPercentUpdate
+			}
+		}));
+		this.setState({
+			deltaPosition:{
+				x: 0,
+				y: 0,
+			}
+		});
+		//event.stopPropagation();
+	}
+
+	_handleDrag(event, ui){
+		const {x,y} = this.state.deltaPosition;
+		this.setState({
+			deltaPosition:{
+				x: x + ui.deltaX,
+				y: y + ui.deltaY,
+			}
+		});
+	}
+
+	_onStart(event, itemId){
+		this.setState({
+			activeDrags: ++this.state.activeDrags,
+			draggedItemId: itemId
+		});
+	}
+
+	_onStop(event, itemId){
+		this.setState({
+			activeDrags: --this.state.activeDrags,
+			draggedItemId: null
+		});
+		this._handleOnMouseUp(event, itemId);
 	}
 
 	render(){
+		const dragHandlers = {
+			onStart: this._onStart, 
+			onStop: this._onStop
+		};
 		console.log('this.props.visibleItemsMap = ', this.props.visibleItemsMap)
 		return(			
-			<div style={containerStyle}>
-				<div style={svgContainerStyle}>
-					<svg style={{height:'100%',width:'100%',left:'0px',top:'0px'}}>
+			<div style={this.props.viewState != OxiAppConstants.viewState.PREVIEW ? Object.assign({}, containerStyle, {'margin-top': '0px'}) : containerStyle}>
+				<div style={Object.assign({}, svgContainerStyle, this.props.itemMapDimension)}>
+					<svg onClick={(event) => this.props.simulateImageClick(event.pageX, event.pageY)} style={{height:'100%',width:'100%',left:'0px',top:'0px'}}>
 						{this.props.visibleItemsMap.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItemsMap.visibleItemsByIds).map(itemId => {
 							console.log('itemId = ', itemId);
 							console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
@@ -40,15 +136,44 @@ export default class ItemLocationMap extends React.Component{
 							//if(this.props.visibleItemsMap.visibleItemsByIds.hasOwnProperty(itemId)){
 							if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
 								return(
-									<circle 
-										id={itemId}
-										stroke-width='2px' 
-										stroke='black' 
-										fill='#ececec' 
-										r='2%' 
-										cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
-										cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}>
-									</circle>
+									this.props.viewState != OxiAppConstants.viewState.PREVIEW ? 
+									(
+										<DraggableCore
+											onStop={() => this._onStop(event, itemId)}
+											onStart={() => this._onStart(event, itemId)}
+											onDrag={this._handleDrag}
+											bounds="div"
+											//{...dragHandlers}
+										>
+											<circle 
+												onMouseOver={() => this._handleOnMouseOver(event, itemId)}
+												onMouseUp={() => this._handleOnMouseUp(event, itemId)}
+												onClick={(event) => event.stopPropagation()}
+												id={itemId}
+												stroke-width='2px' 
+												stroke='black' 
+												fill='#ececec' 
+												r='2%' 
+												cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
+												cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
+												className={ItemStyles.itemPin}
+												transform={this.state.draggedItemId === itemId ? `translate(${this.state.deltaPosition.x}, ${this.state.deltaPosition.y})` : 'translate(0,0)'}
+												>
+											</circle>
+										</DraggableCore>
+									) : (
+										<circle 
+											onMouseOver={() => this._handleOnMouseOver(event, itemId)}
+											id={itemId}
+											stroke-width='2px' 
+											stroke='black' 
+											fill='#ececec' 
+											r='2%' 
+											cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
+											cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
+											>
+										</circle>
+									)
 								);
 							}else{
 								return null;

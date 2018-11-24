@@ -9,6 +9,14 @@
 		"type size retailer brand"*/
 }
 
+.itemPin:hover{
+	cursor: grab;
+}
+
+:local(.itemPin){
+	
+}
+
 :local(.stdItemBlock){
 	composes:stdBlock from './root.css';
 	/*margin-bottom: 3px;

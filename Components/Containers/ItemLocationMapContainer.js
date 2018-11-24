@@ -1,16 +1,34 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, createItem, updateItem } from '../../Components/Actions/indexActions.js';
-import ItemList from '../../Components/Presentations/ItemLocationMap.js';
+import { 
+	setFormVisibility, 
+	createItem, 
+	updateItem,
+	clientInvalidateEntities,
+	modifyItem
+} from '../../Components/Actions/indexActions.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import ItemLocationMap from '../../Components/Presentations/ItemLocationMap.js';
 
 
-/*const mapStateToProps = (state) => {
+const mapStateToProps = (state, props) => {
 	return ({
-		selectedItemIds: state.entitiesReducer.contents.byIds[state.entitiesReducer.contents.selected].items
+		viewState: state.contentViewState.viewState,
+		clientInvalidateItems:  state.entitiesStateReducer.items.clientInvalidated
+	})
 }
 
 const mapDispatchToProps = dispatch => ({
-	onClick : () => {console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));}
+		clientInvalidateItem: (itemId) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, [itemId])),
+		modifyItemStatePosition: (itemId, posx, posy) => {
+			dispatch(modifyItem(
+				{
+					id: itemId,
+					positionx: posx,
+					positiony: posy
+				}
+			));			
+		}
 })
 
 const ItemLocationMapContainer = connect(mapStateToProps, mapDispatchToProps)(ItemLocationMap);
-export default ItemLocationMapContainer;*/
+export default ItemLocationMapContainer;

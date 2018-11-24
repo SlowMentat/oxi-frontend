@@ -16,7 +16,8 @@ import {
 	disableAddOutfit,
 	selectContent,
 	addItem,
-	clientInvalidateEntities
+	clientInvalidateEntities,
+	addItemContent
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -84,6 +85,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 				//dispatch(updateItem(itemId));
 				dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.ITEM, itemId));
 				dispatch(addItem(Object.assign({}, OxiAppConstants.EntityTemplates.ITEM, items[itemId])));
+				dispatch(addItemContent({id: null, itemId: itemId, contentId: contentId}));
 			}
 		}
 		//select the first child content.  There should always exist at least 1 content child per outfit

@@ -207,7 +207,7 @@ function allIds(state = [], action){
 				}
 				return true;
 			});
-			console.log('allIds: filteredIds = ', filteredIds);
+			//batch comment//console.log('allIds: filteredIds = ', filteredIds);
 			return [...state, ...filteredIds];
 		//action type performed on "addedEntitiesReducer"
 		case `ADD_${action.typeSpecifier}`:
@@ -225,8 +225,16 @@ function allIds(state = [], action){
 		case `MODIFY_${action.typeSpecifier}`:
 			return [...state];
 		//action typed performed on "entitiesReducer"
-		case `REPLACE_${action.typeSpecifier}`://Replace value of allIds key with keys of action.payload
-			return Object.keys(action.payload.entities);
+		case `REPLACE_${action.typeSpecifier}`:
+			let replacementIds = Object.keys(action.payload.entities);
+			let ind = 0;
+			for(let id of replacementIds){
+				if(state.includes(id)){
+					replacementIds.splice(ind, 1);
+				}
+				ind++;
+			}
+			return [...state, ...replacementIds];
 
 		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			return [];
@@ -240,16 +248,16 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
 	if(state.allIds.length > maxCount){
-		//console.log("greater than max allowed entities")
-		//console.log(state.allIds);
+		////batch comment//console.log("greater than max allowed entities")
+		////batch comment//console.log(state.allIds);
 		allIdsRef =  state.allIds.slice(0,maxCount);
 		let keys = Object.keys(state.byIds).slice(0, maxCount)
 		for(var i = 0, len = keys.length; i < len; i++){
   			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
 		}
 	}else{
-		//console.log("less than max allowed entities");
-		////console.log(state.allIds);
+		////batch comment//console.log("less than max allowed entities");
+		//////batch comment//console.log(state.allIds);
 		byIdsRef = state.byIds;
 		allIdsRef = state.allIds;
 	}
@@ -257,14 +265,14 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 	switch(action.type){
 		case `CREATE_${action.typeSpecifier}`:
 			let nextCount = state.count + 1;
-			//console.log('maxCount' + maxCount);
-			//console.log('nextCount' + nextCount);
+			////batch comment//console.log('maxCount' + maxCount);
+			////batch comment//console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
 				let scrubbedAction = {};
 				//Insert a new entity id into action payload if none exists
-				//console.log('action.payload = ', action.payload);
+				////batch comment//console.log('action.payload = ', action.payload);
 				if(false/*action.payload.entities.id === null || action.payload.entities.id === undefined || action.payload.entities.id === ''*/){//Note:  ... === undefined screws things up since action.payload = {[id] : {id:...}}, but this isn't needed anyway beacuse all client side created entities will be stored int he addedEntitiesReduceer.
 					let incrementedId = allIdsRef.reduce((maxId, currentId) => Math.max(maxId, currentId), 0) + 1;
 					/*scrubbedAction = Object.assign({}, action, {
@@ -281,7 +289,7 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 				}else{
 					scrubbedAction = Object.assign({}, action);
 				}
-				console.log('entities: scrubbedAction = ', scrubbedAction);
+				//batch comment//console.log('entities: scrubbedAction = ', scrubbedAction);
 				return Object.assign({}, state, {
 					byIds : byId(byIdsRef, scrubbedAction),
 					allIds : allIds(allIdsRef, scrubbedAction),
@@ -304,7 +312,7 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 		/*case `SELECT_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});*/
 		default:
-			//console.log("no matching case in entities()")
+			////batch comment//console.log("no matching case in entities()")
 			return state;
 	}
 }
@@ -366,10 +374,10 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 			return removeInvalidation(state, action);
 
 		case `SELECT_${action.typeSpecifier}`:
-			console.log('entitiesState reducer: action = ', action)
+			//batch comment//console.log('entitiesState reducer: action = ', action)
 			return Object.assign({}, state, action.payload);
 		default:
-			//console.log("no matching case in entities()")
+			////batch comment//console.log("no matching case in entities()")
 			return state;
 	}
 }
@@ -379,28 +387,28 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
 	if(state.allIds.length > maxCount){
-		//console.log("greater than max allowed entities")
-		////console.log(state.allIds);
+		////batch comment//console.log("greater than max allowed entities")
+		//////batch comment//console.log(state.allIds);
 		allIdsRef =  state.allIds.slice(0,maxCount);
 		let keys = Object.keys(state.byIds).slice(0, maxCount)
 		for(var i = 0, len = keys.length; i < len; i++){
   			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
 		}
 	}else{
-		//console.log("less than max allowed entities");
-		////console.log(state.allIds);
+		////batch comment//console.log("less than max allowed entities");
+		//////batch comment//console.log(state.allIds);
 		byIdsRef = state.byIds;
 		allIdsRef = state.allIds;
 	}
 	//Handle action
-	console.log('localEntities:  action = ', action);
-	console.log('localEntities:  state = ', state);
+	//batch comment//console.log('localEntities:  action = ', action);
+	//batch comment//console.log('localEntities:  state = ', state);
 	switch(action.type){
 		case `ADD_${action.typeSpecifier}`:
-			console.log('localEntities:  switch case ADD_');
+			//batch comment//console.log('localEntities:  switch case ADD_');
 			let nextCount = state.count + 1;
-			//console.log('maxCount' + maxCount);
-			//console.log('nextCount' + nextCount);
+			////batch comment//console.log('maxCount' + maxCount);
+			////batch comment//console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
@@ -421,7 +429,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 							}
 						}
 					});
-					console.log('scrubbedAction = ', scrubbedAction);
+					//batch comment//console.log('scrubbedAction = ', scrubbedAction);
 				}else{
 					scrubbedAction = Object.assign({}, action);
 				}
@@ -432,14 +440,14 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 				});
 			}
 		case `MODIFY_${action.typeSpecifier}`: //fix this
-			console.log('localEntities:  switch case MODIFY_');
+			//batch comment//console.log('localEntities:  switch case MODIFY_');
 			return Object.assign({}, state, {
 				byIds : byId(byIdsRef, action), 
 				allIds : allIds(allIdsRef, action), 
 				/*count :  state.count++*/
 			});
 		case `REMOVE_ADDED_${action.typeSpecifier}`:
-			console.log('localEntities:  switch case REMOVE_');
+			//batch comment//console.log('localEntities:  switch case REMOVE_');
 			//decrement profile coutner
 			return Object.assign({}, state, {
 				byIds : byId(byIdsRef[action.id], action), 
@@ -453,9 +461,9 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 		case `REMOVE_ALL_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {byIds:{}, allIds:[], count: 0});
 		default:
-			console.log('localEntities:  switch case default');
-			console.log('localEntities: state = ', state);
-			//console.log("no matching case in localEntities()")
+			//batch comment//console.log('localEntities:  switch case default');
+			//batch comment//console.log('localEntities: state = ', state);
+			////batch comment//console.log("no matching case in localEntities()")
 			return state;
 	}
 }

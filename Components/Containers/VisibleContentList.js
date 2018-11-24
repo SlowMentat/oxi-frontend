@@ -12,7 +12,8 @@ import {
 	modifyOutfit,
 	selectEntity,
 	disableAddContentButton,
-	clientInvalidateEntities
+	clientInvalidateEntities,
+	addItemContent
 } from '../../Components/Actions/indexActions.js';
 import ContentList from '../../Components/Presentations/ContentList.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -133,6 +134,9 @@ const mapDispatchToProps = dispatch => ({
 			}
 			dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIdsToInvalidate));
 		}
+	},
+	addItemContent: (contentId, itemId) => {
+		dispatch(addItemContent({id: null, itemId: itemId, contentId: contentId}));
 	}
 })
 

@@ -59,6 +59,10 @@ class CroppableImageForm extends React.Component{
 			src: null,
 			maxHeight: 600,
 			maxWidth: this.maxHeight * OxiAppConstants.aspectRatio,
+			imageX: 0,
+			imageY: 0,
+			imageWidth: 0,
+			imageHeight: 0,
 			crop: {
 				x: 25,
 				y: 0,
@@ -74,6 +78,8 @@ class CroppableImageForm extends React.Component{
 		this._onCropComplete = this._onCropComplete.bind(this);
 		this._onCropChange = this._onCropChange.bind(this);
 		this._handleAcceptCrop = this._handleAcceptCrop.bind(this);
+		this._handleImageLoad = this._handleImageLoad.bind(this);
+		//this.simulateImageClick = this.simulateImageClick.bind(this);
 	}
 
 	_handleSubmit(e) {
@@ -84,7 +90,7 @@ class CroppableImageForm extends React.Component{
 			console.log('please finish cropping before submiting image') : 
 			(this.props.entitiesStateReducer.pictures.clientInvalidated.length >= 0) ? //TODO:  should be ... > 0
 				this.props.postAddedOutfit(this.state.src) :
-				null;
+				this.props.postAddedOutfit(null);
 		//event.preventDefault();
 	}
 
@@ -141,6 +147,15 @@ class CroppableImageForm extends React.Component{
 	  this.setState({ crop });
 	}
 
+	_handleImageLoad(event){
+		this.setState({
+			imageX: event.target.getBoundingClientRect().left,
+			imageY: event.target.getBoundingClientRect().top,
+			imageWidth: event.target.width,
+			imageHeight: event.target.height,
+		})
+	}
+
 	render(){
 		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
 		let content = null;
@@ -158,7 +173,7 @@ class CroppableImageForm extends React.Component{
 		}else{
 			this.state.crop.height
 			content = (
-				<img style={Object.assign(this.props.imgStyle, )} src={this.state.src || this.props.src} onClick={this.props.onImageClick}/>
+				<img style={Object.assign(this.props.imgStyle, )} src={this.state.src || this.props.src} onClick={this.props.onImageClick} onLoad={this._handleImageLoad} ref={this.props.setupImageRef}/>
 			)
 		}
 		return (
@@ -179,7 +194,7 @@ class CroppableImageForm extends React.Component{
 				</form>
 				<div style={{'position':'relative',width:'auto',padding:'0px 10% 0px 10%','text-align':'center', /*'background-color':'#ececec',*/'max-height':'100%'}}>
 					{content}
-					{this.props.itemLocationMap || null}
+					{this.state.cropping ? null : (this.props.itemLocationMap(this.props.itemMapDimension) || null)}
 				</div>
 			</div>
 		)

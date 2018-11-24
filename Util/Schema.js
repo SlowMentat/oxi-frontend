@@ -38,3 +38,29 @@ export function denormalizeOutfit(outfits, contents, items){
 	//build denormalized outfit object
 	return Object.assign({}, outfits[Object.keys(outfits)[0]], {contents: denormContents});
 }
+
+//helper function to build and return itemContent json object
+//@param {[outfit]} Array of denormalized outfit json object
+export function buildItemContentsObject(outfitsJson){ 
+	//Manually build itemContents join table
+	let itemContents = {};
+	let nextId = 0;
+	for(let outfit of outfitsJson){
+		for(let contentJson of outfit.contents){
+			if(contentJson != null && contentJson != undefined){
+				for(let itemJson of contentJson.items){
+					if(itemJson != null && itemJson != undefined){
+						itemContents[nextId] = {
+							id: nextId, 
+							itemId: itemJson.id, 
+							contentId: contentJson.id
+						};
+						nextId++;
+					}
+				}
+			}
+		}
+	}
+	console.log('itemContents object = ', itemContents);
+	return itemContents;
+}

@@ -8,6 +8,7 @@ import VisibleContentList from '../Containers/VisibleContentList.js';
 import CroppableImageForm from '../../Util/CroppableImageForm.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import ItemLocationMap from './ItemLocationMap.js';
+import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js';
 
 const imgStyle = {
 	//width: 'calc((2 / 3) * (100vh - 40px - 80px))',
@@ -48,6 +49,8 @@ const ShowContentView = (props) => {
 	if(props.viewContext === OxiAppConstants.viewState.ADD){
 		contentView = (
 			<ImageAdd 
+				setupImageRef={props.setupImageRef}
+				itemMapDimension={props.itemMapDimension}
 				addedEntities={props.addedEntities}
 				entitiesStateReducer={props.entitiesStateReducer}
 				contentSelected={props.contentSelected} 
@@ -57,27 +60,41 @@ const ShowContentView = (props) => {
 				getItemForm={props.getItemForm} 
 				visibleItemsMap={props.visibleItemsMap} 
 				postAddedOutfit={props.postAddedOutfit} 
+				postAddedItems={props.postAddedItems}
+				putModifiedOutfit={props.putModifiedOutfit}
 				confirmDiscard={props.confirmDiscard}
 				clientInvalidateEntity={props.clientInvalidateEntity}
 				clientInvalidatedContents={props.invalidatedContents}
 				clientInvalidatedOutfits={props.invalidatedOutfits}
 				clientInvalidatedItems={props.invalidatedItems}
+				viewContext={props.viewContext}
+				populateItemsMap={props.populateItemsMap}
+				updateImageDimension={props.updateImageDimension}
+				simulateImageClick={props.simulateImageClick}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
 		contentView = (
 			<ImagePreview 
+				setupImageRef={props.setupImageRef}
+				itemMapDimension={props.itemMapDimension}
 				onClick={props.getGestureForm} 
 				contents={props.contents} 
 				contentSelected={props.contentSelected} 
 				visibleItemsMap={props.visibleItemsMap} 
 				getPreviewPic={props.getPreviewPic} 
 				pictures={props.pictures}
+				viewContext={props.viewContext}
+				populateItemsMap={props.populateItemsMap}
+				updateImageDimension={props.updateImageDimension}
+				simulateImageClick={props.simulateImageClick}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.EDIT){
 		contentView = (
 			<ImageEdit 
+				setupImageRef={props.setupImageRef}
+				itemMapDimension={props.itemMapDimension}
 				addedEntities={props.addedEntities} 
 				entitiesStateReducer={props.entitiesStateReducer}
 				contents={props.contents} 
@@ -91,6 +108,8 @@ const ShowContentView = (props) => {
 				getPreviewPic={props.getPreviewPic} 
 				postAddedOutfit={props.postAddedOutfit} 
 				postAddedContent={props.postAddedContent} 
+				postAddedItems={props.postAddedItems}
+				putModifiedItems={props.putModifiedItems}
 				confirmDiscard={props.confirmDiscard}
 				pictures={props.pictures}
 				clientInvalidateEntity={props.clientInvalidateEntity}
@@ -98,6 +117,10 @@ const ShowContentView = (props) => {
 				clientInvalidatedOutfits={props.invalidatedOutfits}
 				clientInvalidatedItems={props.invalidatedItems}
 				putModifiedOutfit={props.putModifiedOutfit}
+				viewContext={props.viewContext}
+				populateItemsMap={props.populateItemsMap}
+				updateImageDimension={props.updateImageDimension}
+				simulateImageClick={props.simulateImageClick}
 			/>
 		);
 	}else{
@@ -118,9 +141,9 @@ class ImagePreview extends React.Component{
 		super(props);
 		this.state = {
 			base64Image:null,
-			contentId:null
+			contentId:null,
 		};
-		this._handleImgChange = this._handleImgChange.bind(this);
+		this._handleImgLoad = this._handleImgLoad.bind(this);
 		this._handleImgMouseOver = this._handleImgMouseOver.bind(this);
 		this._handleImgClick = this._handleImgClick.bind(this);
 		this._handleImageReceived = this._handleImageReceived.bind(this);
@@ -129,7 +152,11 @@ class ImagePreview extends React.Component{
 	componentDidMount(){
 	}
 
-	_handleImgChange(event){
+	componentDidUnmount(){
+	}
+
+	_handleImgLoad(event){
+		this.props.updateImageDimension(event.target.width, event.target.height);
 	}
 
 	_handleImgMouseOver(event){
@@ -145,7 +172,7 @@ class ImagePreview extends React.Component{
 	}
 
 	render(){
-		if(this.state.contentId != this.props.contentSelected){			
+		if(this.state.contentId != this.props.contentSelected){
 			//get image data from content entity coverpicuri property
 			console.log("component did mount with contentSelected = " + this.props.contentSelected);
 			console.log("this.props.pictures = ", this.props.pictures);
@@ -155,7 +182,14 @@ class ImagePreview extends React.Component{
 				console.log("this.props.contents = ", this.props.contents);
 				if(Object.keys(this.props.pictures).length > 0 && contentIds.length > 0){
 					console.log('contentSelected = ', this.props.contentSelected);
-					this.props.getPreviewPic(this.props.pictures[this.props.contents[this.props.contentSelected].picture].largeuri, this._handleImageReceived);
+					//check if selected contentId is valid
+					//TODO: 	race condition this module renders when contentSelect or entitiesReducer.contents changes.  
+					//			Either content.selected id is invalid, or I'm assuming the content entity will not yet exist in entitiesReducer.contents state. Fix this shit!
+					if(this.props.contents[this.props.contentSelected] !== undefined){
+						this.props.getPreviewPic(this.props.pictures[this.props.contents[this.props.contentSelected].picture].largeuri, this._handleImageReceived);
+					}else{
+						console.log("invalid contentId in entitiesStateReducer.content.selected state");
+					}
 				}
 			}
 			this.state.contentId = this.props.contentSelected;
@@ -163,8 +197,13 @@ class ImagePreview extends React.Component{
 		return (
 			<div style={imgFormStyle}>
 				<div style={{'position':'relative','width':'auto','padding':'5% 0% 2vh 0%', 'padding-top':'calc(5vh + 25px)', /*'background-color':'#ececec',*/'max-height':'100%', 'height':'100%'}}>
-					<img src={this.state.base64Image} style={imgStyle}/>
-					<ItemLocationMap visibleItemsMap={this.props.visibleItemsMap}/>
+					<img src={this.state.base64Image} style={imgStyle} ref={this.props.setupImageRef} onLoad={() => this._handleImgLoad(event)}/>
+					<ItemLocationMap 
+						visibleItemsMap={this.props.visibleItemsMap} 
+						viewState={this.props.viewContext} 
+						populateItemsMap={this.props.populateItemsMap}
+						itemMapDimension={this.props.itemMapDimension}
+					/>
 				</div>
 			</div>
 		)
@@ -229,7 +268,7 @@ class ImageAdd extends React.Component{
 				}
 			}
 			console.log('this.props.addedEntities = ', this.props.addedEntities);
-			this.props.postAddedOutfit(fileData, json, this.props.addedEntities);
+			this.props.postAddedOutfit(fileData, json, this.props.addedEntities, this.props.entitiesStateReducer);
 		}
 		console.log('normalized json payload for added outfit: ', json);
 	}
@@ -238,7 +277,7 @@ class ImageAdd extends React.Component{
 
 	}
 
-	_handleImgClick(event) {
+	/*_handleImgClick(event) {
 		console.log("image clicked!!");
 		//store clicked location
 		//call item form
@@ -248,7 +287,16 @@ class ImageAdd extends React.Component{
 		event.stopPropagation();
 		//store.dispatch(setFormVisibility("AddItem"));
 		//event.preventDefault();//maybe event.stopPropagation
+	}*/
+
+	_handleImgClick(event) {
+		console.log("image clicked!!");
+		let xCoordPercent = ((event.pageX === 0 ? event.clientX : event.pageX) - ((event.target.getBoundingClientRect === undefined) ? event.target.x : event.target.getBoundingClientRect().left)) / event.target.width;
+		let yCoordPercent = ((event.pageY === 0 ? event.clientY : event.pageY) - ((event.target.getBoundingClientRect === undefined) ? event.target.y : event.target.getBoundingClientRect().top)) / event.target.height;
+		this.props.getItemForm(xCoordPercent, yCoordPercent);
+		event.stopPropagation();
 	}
+
 	_handleOpenFile(event){
 		this.props.confirmDiscard
 	}
@@ -280,8 +328,22 @@ class ImageAdd extends React.Component{
 				postAddedOutfit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
-				itemLocationMap ={<ItemLocationMap visibleItemsMap={this.props.visibleItemsMap}/>}
+				//itemLocationMap ={<ItemLocationMap visibleItemsMap={this.props.visibleItemsMap} viewState={this.props.viewContext} populateItemsMap={this.props.populateItemsMap}/>}
+				itemLocationMap={
+					(itemMapDimension) => (
+						<ItemLocationMapContainer 
+							visibleItemsMap={this.props.visibleItemsMap} 
+							viewState={this.props.viewContext} 
+							populateItemsMap={this.props.populateItemsMap}
+							itemMapDimension={itemMapDimension}	
+							onImageClick={this._handleImgClick}
+							simulateImageClick={this.props.simulateImageClick}/>				
+					)
+				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
+				setupImageRef={this.props.setupImageRef}
+				itemMapDimensions={this.props.itemMapDimensions}
+				itemMapDimension={this.props.itemMapDimension}
 			/>
 		)
 	}
@@ -427,11 +489,11 @@ class ImageEdit extends React.Component{
 				switch(typeof this.props.entitiesStateReducer.outfits.selected){
 					//outfit exists on the server
 					case 'string':
-						this.props.putModifiedOutfit(fileData, this.props.entitiesStateReducer.contents.selected, outfitJson, this.props.addedEntities);
+						this.props.putModifiedOutfit(fileData, this.props.entitiesStateReducer.contents.selected, outfitJson, this.props.addedEntities, this.props.entitiesStateReducer);
 						break;
 					//outfit does not exist on the server
 					case 'number':
-						this.props.postAddedOutfit(fileData, outfitJson.contents[0], outfitJson.id, this.props.addedEntities);
+						this.props.postAddedOutfit(fileData, outfitJson.contents[0], outfitJson.id, this.props.addedEntities, this.props.entitiesStateReducer);
 						break;
 					default:
 						break;
@@ -444,13 +506,70 @@ class ImageEdit extends React.Component{
 						this.props.putModifiedContent(fileData, outfitJson.contents[0], this.props.addedEntities);
 						break;
 					case 'number':
-						this.props.postAddedContent(fileData, outfitJson.contents[0], this.props.entitiesStateReducer.outfits.selected, this.props.addedEntities);
+						this.props.postAddedContent(fileData, outfitJson.contents[0], this.props.entitiesStateReducer.outfits.selected, this.props.addedEntities, this.props.entitiesStateReducer);
 						break;
 					default:
 						break;
 				}
 				break;
+			//Only item enitties have been modified or added
 			case this.props.entitiesStateReducer.items.clientInvalidated.length > 0:
+				let payloadJsonPost = {}; 	//payload for new items
+				let payloadJsonPut = {};	//payload for existing items
+				let postPayloadEmpty = true;
+				let putPayloadEmpty = true;
+				console.log('mark1');
+				for(let itemId of this.props.entitiesStateReducer.items.clientInvalidated){
+					switch(typeof itemId){
+						case 'string':
+							//get the parent id
+							for(let itemContentId of this.props.addedEntities.itemContent.allIds){
+								//add to payload
+								if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
+									let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
+									let payloadJsonValue = payloadJsonPut[contentId] ? payloadJsonPut[contentId] : [];
+									payloadJsonPut = Object.assign({}, payloadJsonPut, {
+										[contentId]: [
+											...payloadJsonValue, 
+											this.props.addedEntities.items.byIds[itemId]
+										]
+									});
+									putPayloadEmpty = false;
+								}
+							}
+							break;
+						case 'number':
+							//get the parent id
+							for(let itemContentId of this.props.addedEntities.itemContent.allIds){
+								//add to payload
+								if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
+									let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
+									let payloadJsonValue = payloadJsonPost[contentId] ? payloadJsonPost[contentId] : [];
+									payloadJsonPost =Object.assign({}, payloadJsonPost, {
+										[contentId]: [
+											...payloadJsonValue, 
+											{
+												...this.props.addedEntities.items.byIds[itemId], 
+												id: null
+											}
+										]
+									});
+									postPayloadEmpty = false;
+								}
+							}
+							break;
+						default:
+							break;
+					}
+				}
+				
+				if(!putPayloadEmpty){
+					this.props.putModifiedItems(payloadJsonPut, this.props.addedEntities, this.props.entitiesStateReducer);						
+				}
+				if(!postPayloadEmpty){
+					this.props.postAddedItems(payloadJsonPost, this.props.addedEntities, this.props.entitiesStateReducer);
+				}
+				
 				break;
 			default:
 				break;
@@ -479,13 +598,14 @@ class ImageEdit extends React.Component{
 		console.log("image clicked!!");
 		//store clicked location
 		//call item form
-		let xCoordPercent = (event.pageX - event.target.getBoundingClientRect().left) / event.target.width;
-		let yCoordPercent = (event.pageY - event.target.getBoundingClientRect().top) / event.target.height;
+		let xCoordPercent = ((event.pageX === 0 ? event.clientX : event.pageX) - ((event.target.getBoundingClientRect === undefined) ? event.target.x : event.target.getBoundingClientRect().left)) / event.target.width;
+		let yCoordPercent = ((event.pageY === 0 ? event.clientY : event.pageY) - ((event.target.getBoundingClientRect === undefined) ? event.target.y : event.target.getBoundingClientRect().top)) / event.target.height;
 		this.props.getItemForm(xCoordPercent, yCoordPercent);
-		event.stopPropagation();
+		//event.stopPropagation();
 		//store.dispatch(setFormVisibility("AddItem"));
 		//event.preventDefault();//maybe event.stopPropagation
 	}
+
 	_handleOpenFile(event){
 		this.props.confirmDiscard
 	}
@@ -504,10 +624,11 @@ class ImageEdit extends React.Component{
 			if(Object.keys(this.props.pictures).length > 0){
 				//let contentPicture = this.props.pictures[this.props.contents[this.props.contentSelected].picture];
 				console.log('this.props.pictures = ', this.props.pictures);
-				console.log('this.props.')
-				let contentPictureId = this.props.addedContents[this.props.contentSelected].picture.id;
+				console.log('this.props.');
+				let contentPictureId = null;
+				if(this.props.addedContents[this.props.contentSelected] !== undefined) contentPictureId = this.props.addedContents[this.props.contentSelected].picture;
 				console.log('contentPictureId = ', contentPictureId);
-				//determin if the selcted content's picture property is different, and thus not loaded in the contentView
+				//determine if the selcted content's picture property is different, and thus not loaded in the contentView
 				if(contentPictureId !== this.state.pictureId && contentPictureId !== undefined && contentPictureId !== null){
 					//check if the picture id is not from a newly added content entity.  If so the content view needs to be nullified
 					if(contentPictureId !== ''){
@@ -536,21 +657,80 @@ class ImageEdit extends React.Component{
 				postAddedOutfit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
-				itemLocationMap ={<ItemLocationMap visibleItemsMap={this.props.visibleItemsMap}/>}
+				itemLocationMap={
+					(itemMapDimension) => (
+						<ItemLocationMapContainer 
+							visibleItemsMap={this.props.visibleItemsMap} 
+							viewState={this.props.viewContext} 
+							populateItemsMap={this.props.populateItemsMap}
+							itemMapDimension={itemMapDimension}	
+							onImageClick={this._handleImgClick}
+							simulateImageClick={this.props.simulateImageClick}/>				
+					)
+				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
+				setupImageRef={this.props.setupImageRef}
+				itemMapDimension={this.props.itemMapDimension}
 			/>
 		)
 	}
 }
 
+
 class ContentView extends React.Component{
 	constructor(props){
 		super(props);
+		this.state = {
+			imageWidth: 0,
+			imageHeight: 0,
+		};
+		//this.image = React.createRef();
+		this.updateImageDimension = this.updateImageDimension.bind(this);
+		this.setupImageRef = this.setupImageRef.bind(this);
+		this._handleResize = this._handleResize.bind(this);
 		this._handlePictureClick = this._handlePictureClick.bind(this);
+		this.simulateImageClickFactory = this.simulateImageClickFactory.bind(this);
+	}
+
+
+	setupImageRef(img){
+		this.image = img;
+		this.simulateImageClick = this.simulateImageClickFactory(img).bind(this);
+		this.forceUpdate();
+	}
+
+
+	simulateImageClickFactory(imageElement){
+		return((x, y) => {
+			var event = new MouseEvent('click', {
+				view: window,
+				bubbles: true,
+				cancelable: true,
+				target: imageElement,
+				clientX: x,
+				clientY: y,
+			});
+			imageElement.dispatchEvent(event);
+		});
+	}
+
+	updateImageDimension(width, height){
+		this.setState({
+			imageWidth: width,
+			imageHeight: height,
+		});		
+	}
+
+	_handleResize(event){
+		this.updateImageDimension(this.image.clientWidth, this.image.clientHeight);
 	}
 
 	componentDidMount(){
-		 
+		window.addEventListener('resize', this._handleResize);
+	}
+
+	componentDidUnmount(){
+		window.removeEventListener('resize', this._handleResize);
 	}
 
 	componentWillUnmount(){
@@ -583,17 +763,6 @@ class ContentView extends React.Component{
 			default:
 				break;
 		}
-		//TODO:  verify if this can be deleted
-		/*if(this.props.contentSelected != undefined){
-			if(this.props.contentSelected != false){
-				viewContext = OxiAppConstants.viewState.PREVIEW
-			}else{
-				console.log("contentSelected is false");
-			}
-		}else{
-			console.log("contentSelected is undefined");
-		}*/
-		console.log('viewContext = ', viewContext);
 		return(
     		<div className={Styles.previewBlock}>    			
 				<ShowContentView  
@@ -621,7 +790,14 @@ class ContentView extends React.Component{
 					postAddedContent={this.props.postAddedContent}
 					putModifiedOutfit={this.props.putModifiedOutfit}
 					putModifiedContent={this.props.putModifiedContent}
-				/>
+					putModifiedItems={this.props.putModifiedItems}
+					postAddedItems={this.props.postAddedItems}
+					populateItemsMap={this.props.populateItemsMap}
+					setupImageRef={this.setupImageRef}
+					imageElement={this.image}
+					itemMapDimension={{width: this.state.imageWidth, height: this.state.imageHeight}}
+					updateImageDimension={this.updateImageDimension}
+					simulateImageClick={this.simulateImageClick}/>
 				<VisibleContentList />
     		</div>
 		);

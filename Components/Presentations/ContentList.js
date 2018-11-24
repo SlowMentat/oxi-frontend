@@ -54,8 +54,10 @@ class ContentList extends React.Component {
 					//Note:  This block will not be executed during componentDidMount
 					if(!duplicate){
 						this.props.modifyContentItems(this.props.selectedId, [...this.props.addedContents[this.props.selectedId].items, addedItemId]);
-						if(/*this.props.addedContents[this.props.selectedId].items.length > 0 &&*/ this.props.invalidatedContentIds.length > 0){
+						if(this.props.addedContents[this.props.selectedId].items.length > 0 || this.props.invalidatedContentIds.length > 0){
 							this.props.clientInvalidateItems(this.props.invalidatedItemIds, [addedItemId]);
+							//TODO: experimental
+							this.props.addItemContent(this.props.selectedId, addedItemId);
 						}
 					}
 				}
@@ -128,9 +130,10 @@ class ContentList extends React.Component {
 		}
 
 		if(this.props.selectedOutfitId != false){
-			if(this.props.viewState !== OxiAppConstants.viewState.PREVIEW && 
-				this.props.addedOutfitEntity.byIds[this.props.selectedOutfitId].contents.length !== this.props.addedContentIds.length){
-				this.props.modifyAddedOutfitContents(this.props.selectedOutfitId, this.props.addedContentIds)
+			if(this.props.viewState !== OxiAppConstants.viewState.PREVIEW && this.props.addedOutfitEntity.byIds[this.props.selectedOutfitId] !== undefined){
+				if(this.props.addedOutfitEntity.byIds[this.props.selectedOutfitId].contents.length !== this.props.addedContentIds.length){
+					this.props.modifyAddedOutfitContents(this.props.selectedOutfitId, this.props.addedContentIds)
+				}
 			}
 		}
 

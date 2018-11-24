@@ -7,7 +7,8 @@ import axios from 'axios';
 import {sendAsyncRequest} from '../../App.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {normalize, denormalize} from 'normalizr';
-import {outfitsSchema, profileSchema, contents, items} from '../../Util/Schema.js'
+import {outfitsSchema, profileSchema, contents, items} from '../../Util/Schema.js';
+import {buildItemContentsObject} from '../../Util/Schema.js'
 import Cookies from 'universal-cookie';
 import qs from 'qs';
 //const FormData = require('form-data');
@@ -301,21 +302,21 @@ export const selectEntity = (entityType, entityId) => {
 //Removes a single entity from the addedEntitiesReducer state tree
 export const removeAddedEntity = (entityType, entityId) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase, 'id')(entityId));
+		dispatch(makeActionCreator(`REMOVE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'id')(entityId));
 	}
 }
 
 //Removes a multiple entities specified by entityIds array from the addedEntitiesReducer state tree
 export const removeAddedEntities = (entityType, entityIds) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_MULTIPLE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase, 'ids')(entityIds));
+		dispatch(makeActionCreator(`REMOVE_MULTIPLE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
 	}
 }
 
 //Remove all entities from the addedEntitiesReducer state tree
 export const removeAllAddedEntities = (entityType) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_ALL_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase));
+		dispatch(makeActionCreator(`REMOVE_ALL_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase())());
 	}
 }
 
@@ -656,23 +657,15 @@ export function fetchEntities(entityType, username, filter){
 						dispatch(receiveEntities(entityType.toLowerCase(), json));
 						//normalize received json payload
 						let normalizedJson = normalize(json, outfitsSchema);
-						let keys = Object.keys(normalizedJson.entities);
+						
 						console.log('fetchEntities:  normalizedJson = ', normalizedJson); 
+						
 						//Manually build itemContents join table
-						for(let outfit of json){
-							for(let content of outfit.contents){
-								if(content != null && content != undefined){
-									for (let item of content.items){
-										if(item != null && item != undefined) dispatch(createItemContent({
-											id: null, 
-											itemId: item.id, 
-											contentId: content.id
-										}));
-									}
-								}
-							}
-						}
-						let containsContents = false;
+						let itemContentJson = buildItemContentsObject(json);
+						dispatch(createItemContent(itemContentJson));							
+
+						mergeResponseEntities(dispatch, normalizedJson);
+						/*let containsContents = false;
 						let containsOutfits = false;
 						//let containsItems = false;
 						for(let entity of keys){
@@ -699,7 +692,7 @@ export function fetchEntities(entityType, username, filter){
 								let contentKeys = Object.keys(normalizedJson.entities["contents"]);
 								if (contentKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentKeys[0]));
 							}
-						}
+						}*/
 					}else{
 						//handleUnauthorizedRequest(response);
 					}
@@ -728,6 +721,38 @@ export function fetchEntities(entityType, username, filter){
 				break;
 			default:
 				break;
+		}
+	}
+}
+
+export function mergeResponseEntities(dispatch, normalizedJson){
+	let containsContents = false;
+	let containsOutfits = false;
+	let keys = Object.keys(normalizedJson.entities);
+	//let containsItems = false;
+	for(let entity of keys){
+		if(entity === 'outfits'){
+			containsOutfits = true;
+			dispatch(replaceOutfits(normalizedJson.entities[entity]));		
+		}else if(entity === 'contents'){
+			containsContents = true;
+			dispatch(replaceContents(normalizedJson.entities[entity]));		
+		}else if(entity === 'items'){
+			dispatch(replaceItems(normalizedJson.entities[entity]));
+		}else if(entity === 'picture'){
+			dispatch(replacePictures(normalizedJson.entities[entity]));
+		}else{
+			return;
+		}
+	}
+	//select the first outfit if it exists
+	if(containsOutfits){
+		let outfitKeys = Object.keys(normalizedJson.entities["outfits"]);		
+		if (outfitKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, outfitKeys[0]));		
+		//select the first content if it exist
+		if(containsContents){
+			let contentKeys = Object.keys(normalizedJson.entities["contents"]);
+			if (contentKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentKeys[0]));
 		}
 	}
 }
@@ -981,7 +1006,7 @@ export function postOutfit(outfitJson, onSuccess){
 			{})
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				onSuccess(response);
+				onSuccess(response, pictureJson);
 			}
 			return response.status;
 		})
@@ -997,7 +1022,7 @@ export function postContent(contentJson, outfitId, onSuccess){
 			{})
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				onSuccess(response);
+				onSuccess(response, pictureJson);
 			}
 			return response.status;		
 		});		
@@ -1017,6 +1042,38 @@ export function putContent(contentJson, onSuccess){
 			return response.status;		
 		});	
 	};
+}
+
+export function postItems(payloadJson, outfitId, onSuccess){
+	return () => {
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+		axios.post(
+			OxiAppConstants.serviceUrl + '/items' + pathVariable,
+			payloadJson,
+			{})
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response);
+			}
+			return response.status;
+		})
+	}
+}
+
+export function putItems(payloadJson, outfitId, onSuccess){
+	return () => {
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+		axios.put(
+			OxiAppConstants.serviceUrl + '/items' + pathVariable,
+			payloadJson,
+			{})
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.OK){
+				onSuccess(response);
+			}
+			return response.status;
+		})
+	}
 }
 
 //Sends POST request with added entities

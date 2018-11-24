@@ -201,7 +201,7 @@ export default class webAppView extends React.Component {
 							<div className={Styles.containerProfile}>								
 								<MetricPanel />
 								<OutfitNav 	webAppView={this.props.webAppView}/>
-								<ContentContainer visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}/>
+								<ContentContainer visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}} populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}/>
 								<VisibleItemList populateItemsMap={this._handleItemsListUpdated}/>
 								<Admin/>
 							</div>
