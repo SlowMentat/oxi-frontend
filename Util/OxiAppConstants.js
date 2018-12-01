@@ -108,5 +108,51 @@ export const OxiAppConstants = Object.freeze({
 			itemId: '',
 			contentId: ''
 		}
+	},
+	ItemTypesByIconName: {
+		TypeJacket: {
+			label: "jacket",
+		},
+		TypePants: {
+			label: "pants",
+		},
+		TypeShorts: {
+			label: "shorts",
+		},
+		TypeShirtLong: {
+			label: "shirt",
+		},
+		TypeShirtT: {
+			label: "T-shirt",
+		},
+		TypeSkirt: {
+			label: "skirt",
+		},
+		TypeDress: {
+			label: "dress",
+		},
+	},
+	ItemTypesByLabel: {
+		jacket: {
+			iconName: 'TypeJacket',
+		},
+		pants: {
+			iconName: 'TypePants',
+		},
+		shorts: {
+			iconName: 'TypeShorts',
+		},
+		shirt: {
+			iconName: 'TypeShirtLong',
+		},
+		'T-shirt': {
+			iconName: 'TypeShirtT',
+		},
+		skirt: {
+			iconName: 'TypeSkirt',
+		},
+		dress: {
+			iconName: 'TypeDress',
+		},
 	}
 });

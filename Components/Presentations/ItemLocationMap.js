@@ -50,6 +50,12 @@ export default class ItemLocationMap extends React.Component{
 
 	_handleOnMouseOver(event, itemId){
 		console.log('hovering over: ', itemId);
+		if(this.state.activeDrags == 0) this.props.changeItemHovered(itemId);
+	}
+
+	_handleOnMouseLeave(event, itemId){
+		console.log('left hover: ', itemId);
+		if(this.state.activeDrags == 0) this.props.changeItemHovered(null);
 	}
 
 	_handleOnMouseDown(event, itemId){
@@ -134,6 +140,7 @@ export default class ItemLocationMap extends React.Component{
 							console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
 							//do not return object owned properties
 							//if(this.props.visibleItemsMap.visibleItemsByIds.hasOwnProperty(itemId)){
+							if(this.props.itemIdHovered === itemId) console.log('itemIdHovered equals itemId: ', itemId)
 							if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
 								return(
 									this.props.viewState != OxiAppConstants.viewState.PREVIEW ? 
@@ -147,12 +154,13 @@ export default class ItemLocationMap extends React.Component{
 										>
 											<circle 
 												onMouseOver={() => this._handleOnMouseOver(event, itemId)}
+												onMouseLeave={() => this._handleOnMouseLeave(event)}
 												onMouseUp={() => this._handleOnMouseUp(event, itemId)}
 												onClick={(event) => event.stopPropagation()}
 												id={itemId}
 												stroke-width='2px' 
 												stroke='black' 
-												fill='#ececec' 
+												fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'} 
 												r='2%' 
 												cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
 												cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
@@ -164,10 +172,11 @@ export default class ItemLocationMap extends React.Component{
 									) : (
 										<circle 
 											onMouseOver={() => this._handleOnMouseOver(event, itemId)}
+											onMouseLeave={() => this._handleOnMouseLeave(event)}
 											id={itemId}
 											stroke-width='2px' 
 											stroke='black' 
-											fill='#ececec' 
+											fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'}  
 											r='2%' 
 											cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
 											cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}

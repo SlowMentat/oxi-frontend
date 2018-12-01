@@ -22,6 +22,8 @@ import OutfitNavStyles from '../../outfitNav.css';
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
 
+//Third pary
+import isEqual from 'lodash.isequal';
 
 
 const bannerTitleImg = {
@@ -139,10 +141,14 @@ export default class webAppView extends React.Component {
 		super(props);
 		this.state = {
 			enableAddOutfitButton: true,
-			visibleItems: {}
+			visibleItems: {
+				visibleItemsByIds: {}
+			},
+			itemIdHovered: null,
 		};
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
+		this._handleItemHovered = this._handleItemHovered.bind(this);
 	}
 
 	/*shouldComponentUpdate(nextProps, nextState) {
@@ -156,16 +162,80 @@ export default class webAppView extends React.Component {
 
 	_handleItemsListUpdated(visibleItemsByIds){
 		//visibleItemsByIds can be modified
-		console.log('in _handleItemsListUpdated.  this.state.visibleItems.visibleItemsByIds = ', this.state.visibleItems.visibleItemsByIds)
-		console.log('in _handleItemsListUpdated.  visibleItemsByIds = ', visibleItemsByIds)
-		if(this.state.visibleItems.visibleItemsByIds != visibleItemsByIds){
+		console.log('in _handleItemsListUpdated.  this.state.visibleItems.visibleItemsByIds = ', this.state.visibleItems.visibleItemsByIds);
+		console.log('in _handleItemsListUpdated.  visibleItemsByIds = ', visibleItemsByIds);
+		/*if(isEqual(visibleItemsByIds, this.state.visibleItems.visibleItemsByIds)){
+			this.setState(prevState => ({
+				visibleItems: {
+					//...prevState.visibleItems,
+					visibleItemsByIds
+				}
+			}));			
+		}*/
+		let forceStateUpdate = false;
+		let itemIdExistsInState = false;
+		//force update if number of properties differs
+		if(Object.keys(this.state.visibleItems.visibleItemsByIds).length != Object.keys(visibleItemsByIds).length){
 			this.setState(prevState => ({
 				visibleItems: {
 					//...prevState.visibleItems,
 					visibleItemsByIds
 				}
 			}));
+		}else{
+			//Item count is equal here. Check for item object differences
+			for(let itemIdParam of Object.keys(visibleItemsByIds)){
+				let itemIdExistsInState = false;
+				for(let itemIdState of Object.keys(this.state.visibleItems.visibleItemsByIds)){
+					if(itemIdParam === itemIdState){
+						itemIdExistsInState = true;
+						//check if object properities are different:
+						//Frist number of properties from both objects
+						if(Object.keys(this.state.visibleItems.visibleItemsByIds[itemIdState]).length != Object.keys(visibleItemsByIds[itemIdParam]).length){
+							forceStateUpdate = true;
+							break
+						}else{
+							//chack if property values are different
+							for(let itemPropKeyParam of Object.keys(visibleItemsByIds[itemIdParam])){
+								for(let itemPropKeyState of Object.keys(this.state.visibleItems.visibleItemsByIds[itemIdState])){
+									if(itemPropKeyState === itemPropKeyParam){
+										if(itemPropKeyState == 'positionx' || itemPropKeyState == 'positiony') console.log('at position_ property key')
+										if(visibleItemsByIds[itemIdParam][itemPropKeyParam] !== this.state.visibleItems.visibleItemsByIds[itemIdState][itemPropKeyState]){
+											console.log('difference found at ' + itemPropKeyState);
+											forceStateUpdate = true;
+											break;
+										}
+									}
+								}
+								if(forceStateUpdate) break;
+							}
+							if(forceStateUpdate) break;
+						}
+					}
+				}
+				//check if itemId of parameter object exists in the current state
+				if(!itemIdExistsInState){
+						forceStateUpdate = true;
+						break;					
+				}
+			}
+			if(forceStateUpdate){
+				this.setState(prevState => ({
+					visibleItems: {
+						//...prevState.visibleItems,
+						visibleItemsByIds
+					}
+				}));				
+			}
 		}
+	}
+
+	_handleItemHovered(itemId){
+		//if(itemId != this.state.itemIdHovered){
+			this.setState({
+				itemIdHovered: itemId
+			})
+		//}
 	}
 
 	render() {
@@ -201,8 +271,15 @@ export default class webAppView extends React.Component {
 							<div className={Styles.containerProfile}>								
 								<MetricPanel />
 								<OutfitNav 	webAppView={this.props.webAppView}/>
-								<ContentContainer visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}} populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}/>
-								<VisibleItemList populateItemsMap={this._handleItemsListUpdated}/>
+								<ContentContainer 
+									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
+									itemIdHovered={this.state.itemIdHovered}
+									changeItemHovered={(itemId) => this._handleItemHovered(itemId)}/>
+								<VisibleItemList 
+									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
+									itemIdHovered={this.state.itemIdHovered}
+									changeItemHovered={(itemId) => this._handleItemHovered(itemId)}/>
 								<Admin/>
 							</div>
 						</div>

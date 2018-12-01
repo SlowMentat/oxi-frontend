@@ -119,7 +119,8 @@ const mapStateToProps = (state, props) => {
 		addedItems : filteredAddedItems.byIds,
 		addedItemIds : filteredAddedItems.allIds,
 		brands : brands,
-		retailers :  retailers
+		retailers :  retailers,
+		viewState: state.contentViewState.viewState,
 	});
 }
 

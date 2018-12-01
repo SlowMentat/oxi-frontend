@@ -3,7 +3,11 @@ import ReactCrop, { makeAspectCrop } from 'react-image-crop';
 //import {ReactCropStyles} from 'react-image-crop/dist/ReactCrop.css';
 import {ReactCropStyles} from '../reactCrop.css';
 import {OxiAppConstants} from './OxiAppConstants.js';
-
+import {FileUploadIcon} from '../Components/SvgAssets/Icons/FileUploadIcon.js';
+//import DiscardIcon from '../Components/SvgAssets/Icons/DiscardIcon.js';
+//import CropIcon from '../Components/SvgAssets/Icons/CropIcon.js';
+//import SubmitIcon from '../Components/SvgAssets/Icons/SubmitIcon.js';
+import {SvgIcon} from '../Components/SvgAssets/SvgIcon.js';
 
 /**
  * @param {File} image - Image File Object
@@ -69,7 +73,11 @@ class CroppableImageForm extends React.Component{
 				width: 0,
 				height: 0,
 				aspect: this.height * OxiAppConstants.aspectRatio
-			}
+			},
+			fileUploadHovering: false,
+			submitHovering: false,
+			cropHovering:false,
+			discardHovering:false,
 		}
 
 		this._handleSubmit = this._handleSubmit.bind(this);
@@ -80,6 +88,7 @@ class CroppableImageForm extends React.Component{
 		this._handleAcceptCrop = this._handleAcceptCrop.bind(this);
 		this._handleImageLoad = this._handleImageLoad.bind(this);
 		//this.simulateImageClick = this.simulateImageClick.bind(this);
+		this._handleIconHover = this._handleIconHover.bind(this);
 	}
 
 	_handleSubmit(e) {
@@ -156,6 +165,33 @@ class CroppableImageForm extends React.Component{
 		})
 	}
 
+	_handleIconHover(event, icon, hovering){
+		switch(icon){
+			case 'file':
+				this.setState({
+					fileUploadHovering: hovering,
+				})
+				break;
+			case 'submit':
+				this.setState({
+					submitHovering: hovering,
+				})
+				break;
+			case 'crop':
+				this.setState({
+					cropHovering: hovering,
+				})
+				break;
+			case 'discard':
+				this.setState({
+					discardHovering: hovering,
+				})
+				break;
+			default:
+				break;
+		}
+	}
+
 	render(){
 		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
 		let content = null;
@@ -178,23 +214,47 @@ class CroppableImageForm extends React.Component{
 		}
 		return (
 			<div style={this.props.imgFormStyle}>
-				<div style={this.props.controlContainerStyle}>
-					<label for="fileInput">
-						<div className={this.props.imgFormControlStyle}>File</div>
-					</label>
-					<div className={this.props.imgFormControlStyle} onClick={this.props.discardChanges}>Discard</div>
-					<label for="submitButton">
-						<div className={this.props.imgFormControlStyle}>Submit</div>	
-					</label>				
-					<div className={this.props.imgFormControlStyle} onClick={this._handleAcceptCrop}>Crop</div>
-				</div>
-				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
-					<input id="fileInput" type="file" multiple name="imageFile" onChange={this._onSelectFile} style={{display:'none'}} />
-					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>
-				</form>
-				<div style={{'position':'relative',width:'auto',padding:'0px 10% 0px 10%','text-align':'center', /*'background-color':'#ececec',*/'max-height':'100%'}}>
-					{content}
-					{this.state.cropping ? null : (this.props.itemLocationMap(this.props.itemMapDimension) || null)}
+				<div style={{'text-align':'center'}}>
+					<div style={this.props.controlContainerStyle}>
+						<label for="fileInput" style={{'margin-left':'5%','margin-right':'5%'}}>
+							<div 
+								className={this.props.imgFormControlStyle} 
+								onMouseOver={(event) => this._handleIconHover(event, 'file', true)}
+								onMouseLeave={(event) => this._handleIconHover(event, 'file', false)}>
+									<SvgIcon name={'FileUploadIcon'} hovered={this.state.fileUploadHovering}/>
+							</div>
+						</label>
+						<div 
+							className={this.props.imgFormControlStyle} 
+							onClick={this.props.discardChanges}
+							onMouseOver={(event) => this._handleIconHover(event, 'discard', true)}
+							onMouseLeave={(event) => this._handleIconHover(event, 'discard', false)}>							
+							<SvgIcon name={'DiscardIcon'} hovered={this.state.discardHovering}/>
+						</div>
+						<label for="submitButton" style={{'margin-left':'5%','margin-right':'5%'}}>
+							<div 
+								className={this.props.imgFormControlStyle}
+								onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
+								onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>
+								
+								<SvgIcon name={'SubmitIcon'} hovered={this.state.submitHovering}/>
+							</div>	
+						</label>				
+						<div className={this.props.imgFormControlStyle} onClick={this._handleAcceptCrop}>
+							
+							<SvgIcon name={'CropIcon'} />
+						</div>
+					</div>
+					<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
+						<input id="fileInput" type="file" multiple name="imageFile" onChange={this._onSelectFile} style={{display:'none'}} />
+						<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
+							Upload Image
+						</button>
+					</form>
+					<div style={{'position':'relative',width:'auto',padding:'0px 10% 0px 10%','text-align':'center', /*'background-color':'#ececec',*/'max-height':'100%'}}>
+						{content}
+						{this.state.cropping ? null : (this.props.itemLocationMap(this.props.itemMapDimension) || null)}
+					</div>
 				</div>
 			</div>
 		)

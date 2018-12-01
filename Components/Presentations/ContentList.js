@@ -1,7 +1,8 @@
 import React from 'react';
 import ContentStyles from '../../content.css';
 import Content from './Content.js'
-import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import {AddContentButton} from './AddContentButton.js';
 
 class ContentList extends React.Component {
 	constructor(props) {
@@ -116,9 +117,10 @@ class ContentList extends React.Component {
 			}
 		}
 
-		switch(this.props.viewState){
+		/*switch(this.props.viewState){
 			case OxiAppConstants.viewState.ADD:
 				addContentButton = (<Content onClick={this.props.controlDisabled ?  console.log('Content control disabled!') : () => {this.props.onControlClick()}} isControl={true}>Add Content</Content>);
+
 				break;
 			case OxiAppConstants.viewState.EDIT:
 				addContentButton = (<Content onClick={this.props.controlDisabled ?  console.log('Content control disabled!') : () => {this.props.onControlClick()}} isControl={true}>Add Content</Content>);
@@ -127,7 +129,7 @@ class ContentList extends React.Component {
 				break;
 			default:
 				break;
-		}
+		}*/
 
 		if(this.props.selectedOutfitId != false){
 			if(this.props.viewState !== OxiAppConstants.viewState.PREVIEW && this.props.addedOutfitEntity.byIds[this.props.selectedOutfitId] !== undefined){
@@ -139,7 +141,7 @@ class ContentList extends React.Component {
 
 		return (
 		    <div className={ContentStyles.contentContainer}>
-		    	{addContentButton}
+		    	<AddContentButton shown={this.props.viewState != OxiAppConstants.PREVIEW} enabled={!this.props.controlDisabled} handleClick={this.props.onControlClick}/>
 		    	{this.props.contentIds.map((contentId) => 
 		    		<Content 
 			    		key = {contentId}

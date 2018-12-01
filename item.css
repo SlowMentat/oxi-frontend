@@ -14,7 +14,7 @@
 }
 
 :local(.itemPin){
-	
+
 }
 
 :local(.stdItemBlock){
@@ -61,5 +61,69 @@
 	grid-area: brand;
 	width: calc((100% - 100px)/2);
 	padding-left: 8px;
-	background-image: linear-gradient(to right, black, black, #616161);
+	/*background-image: linear-gradient(to right, black, black, #616161);*/
+}
+
+
+
+
+/*==========TRANSITION GROUP CLASSES==========*/
+
+
+/*All Items*/
+
+.itemInitialize-enter{
+	height: 0px;
+	opacity: 0;
+}
+
+.itemInitialize-enter-active{
+	opacity: 1;
+	height: 75px;
+	transition: all 200ms ease-in;
+
+}
+
+.itemInitialize-exit{
+	opacity: 1;
+	height: 75px;	
+}
+
+.itemInitialize-exit-active{
+	opacity: 0;
+	height: 0px;
+	transition: all 100ms;
+}
+
+
+/*Item Menu Icons*/
+
+.itemMenuContainer{
+	z-index:-1;
+	position: absolute;
+	height:75px;
+}
+
+.itemMenuContainer-enter{
+	opacity: 0;
+	margin-left: 25px;
+}
+
+.itemMenuContainer-enter-active{
+	/*z-index:1;*/
+	opacity : 1; 
+	margin-left: -50px;
+	transition: all 200ms ease-in;
+}
+
+.itemMenuContainer-exit{
+	/*opacity : 1;*/
+	/*margin-left: -50px;*/
+}
+
+.itemMenuContainer-exit-active{
+	/*z-index:-1;*/
+	opacity: 0;
+	margin-left: 25px;
+	transition: margin-left 100ms, opacity 100ms;
 }

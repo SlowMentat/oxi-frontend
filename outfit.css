@@ -30,6 +30,8 @@
 }
 
 :local(.outfitMenuBlock){
+	margin-right: -50px;
+	margin-top: -25px;
 }
 
 :local(.Outfit__div--selected){
@@ -47,11 +49,11 @@
     vertical-align: top;
 }
 
-:local(.outfitTileCtrlContainer){
-    background-color: #21212193;
+:local(.outfitMenuContainer){
+    background-color: #212121c7;
     position: relative;
-    height: 100px;
-    top: calc((200px * 3/2) - 100px);
+    height: 70px;
+    top: calc((200px * 3/2) - 70px);
     overflow: hidden;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
@@ -84,4 +86,56 @@
 :local(.outfitImageBlock) {
 	composes: stdOutfitBlock;
 	grid-area: image;
+}
+
+
+/*Social Statistics CSS*/
+
+:local(.SocialStatsContainer){
+	position: absolute;
+	width: 23px;
+	height: calc(200px + 200px/2);
+	margin-left: -30px;
+}
+
+:local(.socialStatsIconContainer){
+	width:100%;
+	height: 30px;
+	position: relative;
+}
+
+:local(.socialStatsIcon){
+	top: 25%;
+	height: 50%;
+	width: 100%;
+	position: absolute;
+}
+
+/*==========TRANSITION GROUP CLASSES==========*/
+
+/*Outfit Menu Icons*/
+
+
+.outfitMenuContainer-enter{
+	display: none;
+	opacity: 0;
+}
+
+.outfitMenuContainer-enter-active{
+	display: block;
+	/*z-index:1;*/
+	opacity : 1; 
+	transition: all 200ms ease-in;
+}
+
+.outfitMenuContainer-exit{
+	/*opacity : 1;*/
+	/*margin-left: -50px;*/
+}
+
+.outfitMenuContainer-exit-active{
+	display: none;
+	/*z-index:-1;*/
+	opacity: 0;
+	transition: margin-left 100ms, opacity 100ms;
 }

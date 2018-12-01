@@ -43,19 +43,33 @@
 
 }
 
-:local(.addContentButton){
+/*:local(.addContentButton){
 	composes:stdButton from './root.css';
-	display:inline-flex;
-    margin: auto auto 0px 6%;
+    position: absolute;
+    display: inline-flex;
+    margin-left: calc(-75px);
 	border-width: 0px;
     border-style: solid;
     /*border-color: #212121;*/
-    border-radius: 5px;
+    /*border-radius: 5px;
     font:black;
     width: 50px;
     height: 50px;
+    overflow: hidden;
+}*/
 
-    top: calc(50% - 50px/2);
+:local(.addContentButton){
     position: relative;
+    display: inline-flex;
+    /* margin-left: calc(-75px); */
+    border-width: 0px;
+    border-style: solid;
+    /* border-color: #212121; */
+    border-radius: 5px;
+    font: black;
+    width: 50px;
+    margin-top: 10px;
+    height: 50px;
+    /* top: calc(100% - 50%/2); */
     overflow: hidden;
 }

@@ -35,10 +35,11 @@ const imgFormStyle = {
 }
 
 const controlContainerStyle = {
-	'text-align':'center',
+	display: 'inline-flex',
+	//'text-align':'center',
 	padding: '0 10% 0 10%',
     height: 'calc(5vh + 25px)',
-	width:'100%'
+	width:'75%'
 }
 
 
@@ -71,6 +72,8 @@ const ShowContentView = (props) => {
 				populateItemsMap={props.populateItemsMap}
 				updateImageDimension={props.updateImageDimension}
 				simulateImageClick={props.simulateImageClick}
+				itemIdHovered={props.itemIdHovered}
+				changeItemHovered={props.changeItemHovered}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
@@ -88,6 +91,8 @@ const ShowContentView = (props) => {
 				populateItemsMap={props.populateItemsMap}
 				updateImageDimension={props.updateImageDimension}
 				simulateImageClick={props.simulateImageClick}
+				itemIdHovered={props.itemIdHovered}
+				changeItemHovered={props.changeItemHovered}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.EDIT){
@@ -121,6 +126,8 @@ const ShowContentView = (props) => {
 				populateItemsMap={props.populateItemsMap}
 				updateImageDimension={props.updateImageDimension}
 				simulateImageClick={props.simulateImageClick}
+				itemIdHovered={props.itemIdHovered}
+				changeItemHovered={props.changeItemHovered}
 			/>
 		);
 	}else{
@@ -203,6 +210,9 @@ class ImagePreview extends React.Component{
 						viewState={this.props.viewContext} 
 						populateItemsMap={this.props.populateItemsMap}
 						itemMapDimension={this.props.itemMapDimension}
+
+						itemIdHovered={this.props.itemIdHovered}
+						changeItemHovered={this.props.changeItemHovered}/>	
 					/>
 				</div>
 			</div>
@@ -337,7 +347,10 @@ class ImageAdd extends React.Component{
 							populateItemsMap={this.props.populateItemsMap}
 							itemMapDimension={itemMapDimension}	
 							onImageClick={this._handleImgClick}
-							simulateImageClick={this.props.simulateImageClick}/>				
+							simulateImageClick={this.props.simulateImageClick}
+
+							itemIdHovered={this.props.itemIdHovered}
+							changeItemHovered={this.props.changeItemHovered}/>				
 					)
 				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
@@ -665,7 +678,10 @@ class ImageEdit extends React.Component{
 							populateItemsMap={this.props.populateItemsMap}
 							itemMapDimension={itemMapDimension}	
 							onImageClick={this._handleImgClick}
-							simulateImageClick={this.props.simulateImageClick}/>				
+							simulateImageClick={this.props.simulateImageClick}
+
+							itemIdHovered={this.props.itemIdHovered}
+							changeItemHovered={this.props.changeItemHovered}/>				
 					)
 				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
@@ -797,7 +813,9 @@ class ContentView extends React.Component{
 					imageElement={this.image}
 					itemMapDimension={{width: this.state.imageWidth, height: this.state.imageHeight}}
 					updateImageDimension={this.updateImageDimension}
-					simulateImageClick={this.simulateImageClick}/>
+					simulateImageClick={this.simulateImageClick}
+					itemIdHovered={this.props.itemIdHovered}
+					changeItemHovered={this.props.changeItemHovered}/>
 				<VisibleContentList />
     		</div>
 		);

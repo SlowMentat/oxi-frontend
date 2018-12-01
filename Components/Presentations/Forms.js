@@ -6,7 +6,13 @@ import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import {handleUnauthorizedRequest, requestInterceptor, loginConfig} from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import {denormalizeOutfit} from '../../Util/Schema.js'
+import {denormalizeOutfit} from '../../Util/Schema.js';
+/*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
+import TypePants from '../SvgAssets/Icons/TypePants.js';
+import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
+import TypeShirtT from '../SvgAssets/Icons/TypeShirtT.js';
+import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 
 //=========Form selection switch block//=========
@@ -82,6 +88,37 @@ const InputTextField = ({type, name, onChange, toggleFocus, toggleBlur, textValu
 	</div>	
 )
 
+const DropDownTypeContent = (props) => {
+	console.log('dropDownType = ',props.type);
+	return(
+		<React.Fragment>
+			<div style={{
+				display: 'inline-block',
+				width: '60px',
+				height: '100%',
+				'margin-left': '-25px',
+			}}>
+				<SvgIcon name={props.type}/>
+			</div> 
+			<div style={{
+				display: 'inline-block',
+				position: 'relative',
+				height: '100%',
+				width: 'calc(100% - 50px)',
+				'margin-left': '10px'
+			}}>
+				<div style={{
+					position: 'absolute',
+					width: '100%',
+					top: '12px',
+				}}>
+					{OxiAppConstants.ItemTypesByIconName[props.type].label}
+				</div>
+			</div>
+		</React.Fragment>
+	)
+};
+
 class DropDownField extends React.Component{
 	constructor(props){
 		super(props);
@@ -111,7 +148,7 @@ class DropDownField extends React.Component{
 
 	render(){
 		//console.log('this.props.inputValue', this.props.inputValue);
-		//console.log('dropdownNames for ' + this.props.type + ' = ', this.props.dropdownNames)
+		console.log('dropdownNames for ' + this.props.type + ' = ', this.props.dropdownNames)
 		return(
 			<div>
 				<InputTextField 
@@ -127,13 +164,23 @@ class DropDownField extends React.Component{
 						{
 							this.props.inputValue ? 
 							this.props.dropdownNames.filter((dropdownName) => dropdownName.toLowerCase().includes(this.props.inputValue.toLowerCase())).map((dropdownName) => (
-								<div className={FormStyles.dropdownItemContainer} onMouseDown={() => this.props.dropdownSelected(dropdownName)}>
-									{dropdownName}
+								<div 
+									className={FormStyles.dropdownItemContainer} 
+									style={this.props.style} 
+									onMouseDown={() => this.props.dropdownSelected(dropdownName)}>
+									{
+										OxiAppConstants.ItemTypesByIconName[dropdownName] !== undefined ? (<DropDownTypeContent type={dropdownName}/>) : dropdownName								
+									}
 								</div>)
 							) : 
 							this.props.dropdownNames.map((dropdownName) => (
-								<div className={FormStyles.dropdownItemContainer} onMouseDown={() => this.props.dropdownSelected(dropdownName)}>
-									{dropdownName}
+								<div 
+									className={FormStyles.dropdownItemContainer}
+									style={this.props.style} 
+									onMouseDown={() => this.props.dropdownSelected(dropdownName)}>
+									{
+										OxiAppConstants.ItemTypesByIconName[dropdownName] !== undefined ? (<DropDownTypeContent type={dropdownName}/>) : dropdownName									
+									}
 								</div>
 							))
 						}
@@ -153,7 +200,8 @@ export class ItemForm extends React.Component{
 			'type':'',
 			'size':'',
 			'retailer':'',
-			'brand':''
+			'brand':'',
+			'iconName':'',
 		};
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
@@ -166,7 +214,9 @@ export class ItemForm extends React.Component{
 
 		switch (target.name){
 			case 'type':
-				this.setState({type: event.target.value});
+				this.setState({
+					type: event.target.value
+				});
 				break;
 			case 'size':
 				this.setState({size: event.target.value});
@@ -186,7 +236,6 @@ export class ItemForm extends React.Component{
 	_handleOnSubmit(event){
 		let matchedBrand = Object.values(this.props.brands).filter((brand) => brand.name.toLowerCase().includes(this.state.brand.toLowerCase()));
 		let matchedRetailers = Object.values(this.props.retailers).filter((retailer) => retailer.name.toLowerCase().includes(this.state.retailer.toLowerCase()));
-
 		//console.log('matchedBrand length', matchedBrand.length);
 		//console.log('matchedRetailers length', matchedRetailers.length);
 
@@ -200,7 +249,7 @@ export class ItemForm extends React.Component{
 						positionx: this.props.itemLocation.positionx,
 						positiony: this.props.itemLocation.positiony,
 						retailer: matchedRetailers[0].id,
-						brand: matchedBrand[0].id
+						brand: matchedBrand[0].id,
 					}); 
 				console.log('itemEntity = ', itemEntity);
 				//this.props.submitAction(this.state.type, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
@@ -238,7 +287,6 @@ export class ItemForm extends React.Component{
 	}
 
 	render(){
-
 		let retailerNames = [];	
 		let brandNames = [];
 		if(this.props.brands !== undefined && this.props.brands !== null){
@@ -262,16 +310,9 @@ export class ItemForm extends React.Component{
 							onInputChange={() => this._handleInputFieldChange(event)} 
 							inputValue={this.state.type}
 							dropdownItemIds={null}
-							staticDropDown={(
-								<div>
-									<div>pants</div>
-									<div>shirt</div>
-									<div>shoes</div>
-									<div>accessories</div>
-									<div>dresses</div>
-								</div>
-							)} 
-							dropdownNames={['shirt','pants','shoes','hats','coats']}
+							dropdownNames={Object.keys(OxiAppConstants.ItemTypesByIconName)}
+							dropdownSelected={(value) => this._handleDropdownSelected(event, 'type', OxiAppConstants.ItemTypesByIconName[value].label)}
+							style={{height:'50px'}}
 						/>
 						<DropDownField 
 							type='Size' 
@@ -279,6 +320,7 @@ export class ItemForm extends React.Component{
 							inputValue={this.state.size}
 							dropdownItemIds={null} 
 							dropdownNames={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']}
+							dropdownSelected={(value) => this._handleDropdownSelected(event, 'size', value)}
 						/>
 						<DropDownField 
 							textValue={this.state.retailer}
@@ -377,9 +419,9 @@ export class LoginForm extends React.Component{
 			<div className={Styles.modal}>
 				<div id="form_containter_add_item" style={{'background-color':'#fdfdfd', padding:'10px', 'border-radius':'3px', 'width':'25%'}}>
 					<form className={FormStyles.loginForm} action="" method="POST">
-						<InputTextField type="User Name" name="username" onChange={() => {this._handleInputFieldChange(event, 'name')}}/>
-						<InputTextField type="Password" name="password" onChange={() => {this._handleInputFieldChange(event, 'password')}}/>
-						<div className={FormStyles.submitButton} onClick={() => {
+						<InputTextField type="User Name" name="username" onChange={(event) => {this._handleInputFieldChange(event, 'name')}}/>
+						<InputTextField type="Password" name="password" onChange={(event) => {this._handleInputFieldChange(event, 'password')}}/>
+						<div className={FormStyles.submitButton} onClick={(event) => {
 								this._onSubmitLogin(event, this.state.inputNameVal, this.state.inputPasswordVal)
 							}
 						}>

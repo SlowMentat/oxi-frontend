@@ -118,7 +118,6 @@ div{
 
 :local(.outfitBlock){
 	composes: stdBlock;
-	overflow-y: scroll;
 	grid-area: browse;
 }
 

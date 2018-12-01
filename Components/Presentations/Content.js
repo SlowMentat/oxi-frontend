@@ -56,9 +56,9 @@ export class Content extends React.Component{
 			}
 		}*/
 		let contentBlockStyle = null;
-		if(this.props.isControl){
+		/*if(this.props.isControl){
 			contentBlockStyle = ContentStyles.addContentButton;
-		}else if(this.props.selectedId === this.props.id){
+		}else */if(this.props.selectedId === this.props.id){
 			contentBlockStyle = ContentStyles.selectedContentBlock;
 		}else{
 			contentBlockStyle = ContentStyles.stdContentBlock;

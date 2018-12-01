@@ -940,7 +940,7 @@ export function fetchImage(filename, callback, picture){
 		request.get(OxiAppConstants.serviceUrl + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
 		//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
 		.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
-		.then(response => callback(event, response, picture));
+		.then(response => callback(null, response, picture));
 	}
 }
 

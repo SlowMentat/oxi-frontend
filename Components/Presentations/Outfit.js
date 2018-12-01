@@ -1,8 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import OutfitStyles from '../../outfit.css';
-import {UserProfileOutfitCtrl} from './OutfitTileCtrls.js'
-import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
+import {OutfitAddDelete} from './OutfitTileCtrls.js';
+import {OutfitSocialStatistics} from './OutfitSocialStatistics.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 var showOutfitTileControls = {
 
@@ -14,7 +16,7 @@ export class Outfit extends React.Component{
 		this.state = {
 			coverpic:null,
 			base64Image:null,
-			tileControlShown: false
+			hovering: false
 		};
 
 		this._handleOnClick = this._handleOnClick.bind(this);
@@ -49,7 +51,7 @@ export class Outfit extends React.Component{
 
 	_handleOnMouseOver(event){
 		showOutfitTileControls = Object.assign({}, {display: 'block'});
-		this.setState({tileControlShown: !this.state.tileControlShown});
+		this.setState({hovering: true});
 		switch(this.props.webAppView){
 			case OxiAppConstants.navRequestMap.home.toLowerCase():
 				break;
@@ -62,7 +64,7 @@ export class Outfit extends React.Component{
 
 	_handleOnMouseOut(event){
 		showOutfitTileControls = Object.assign({}, {display: 'none'});
-		this.setState({tileControlShown: !this.state.tileControlShown})
+		this.setState({hovering: false})
 		switch(this.props.webAppView){
 			case OxiAppConstants.navRequestMap.home.toLowerCase():
 				break;
@@ -85,7 +87,7 @@ export class Outfit extends React.Component{
 			outfitBlockHomeStyle = {'display':'inline-block','margin':'20px'};
 		}
 
-		return(		
+		return(
 			<div 
 				className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
 				style={outfitBlockHomeStyle} 
@@ -93,6 +95,7 @@ export class Outfit extends React.Component{
 				onMouseOver={this._handleOnMouseOver}
 				onMouseOut={this._handleOnMouseOut}
 			>
+			<OutfitSocialStatistics/>
 				<img 
 					src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
 					style={{
@@ -102,19 +105,30 @@ export class Outfit extends React.Component{
 						position:'absolute'
 					}}
 				/>
-				<div 
-					className={
-						(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? OutfitStyles.outfitTileCtrlContainer : (!this.props.isSelected) ? OutfitStyles.outfitTileMask : null
-					} 
-					style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? showOutfitTileControls : {'display':'block'}}
-				>
-					{
-						(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) 
-						? (<UserProfileOutfitCtrl editOutfit={this.props.editOutfit}/>)
-						: (null)
-					}
-				</div>
-			</div>		
+				<CSSTransition 
+					key={this.props.id}
+				    tiemout={200}
+				    classNames="outfitMenuContainer"
+				    in={(this.state.hovering && this.props.viewState === OxiAppConstants.viewState.PREVIEW)}
+				    unmountOnExit >
+					<div 
+						className={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
+							OutfitStyles.outfitMenuContainer : 
+							(!this.props.isSelected) ? 
+								OutfitStyles.outfitTileMask : 
+								null} 
+						style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
+							showOutfitTileControls : 
+							{'display':'block'}} >
+	
+						{
+							(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) 
+							? (<OutfitAddDelete editOutfit={this.props.editOutfit}/>)
+							: (null)
+						}
+					</div>
+				</CSSTransition>
+			</div>
 		);
 	}
 }
