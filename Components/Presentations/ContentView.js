@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { setFormVisibility, createItem, postImage } from '../../Components/Actions/indexActions.js';
+import { setFormVisibility, createItem, postImage, batchRequestEntities, putItems, postItems } from '../../Components/Actions/indexActions.js';
 import FormStyles from '../../forms.css';
 import Styles from '../../root.css';
 import ContentStyles from '../../content.css';
@@ -74,6 +74,8 @@ const ShowContentView = (props) => {
 				simulateImageClick={props.simulateImageClick}
 				itemIdHovered={props.itemIdHovered}
 				changeItemHovered={props.changeItemHovered}
+				createResponseHandler={props.createResponseHandler}
+				exitEditMode={props.exitEditMode}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
@@ -128,6 +130,8 @@ const ShowContentView = (props) => {
 				simulateImageClick={props.simulateImageClick}
 				itemIdHovered={props.itemIdHovered}
 				changeItemHovered={props.changeItemHovered}
+				createResponseHandler={props.createResponseHandler}
+				exitEditMode={props.exitEditMode}
 			/>
 		);
 	}else{
@@ -575,12 +579,35 @@ class ImageEdit extends React.Component{
 							break;
 					}
 				}
-				
-				if(!putPayloadEmpty){
-					this.props.putModifiedItems(payloadJsonPut, this.props.addedEntities, this.props.entitiesStateReducer);						
-				}
-				if(!postPayloadEmpty){
-					this.props.postAddedItems(payloadJsonPost, this.props.addedEntities, this.props.entitiesStateReducer);
+				let requestPromise = null;
+				if(!putPayloadEmpty && !postPayloadEmpty){
+					let requestPromise = new Promise((resolve, reject) => {
+						let status = putItems(payloadJsonPut, this.props.entitiesStateReducer.outfits.selected, ()=>{})();
+						console.log('checking status from put request: status = ', status);
+						//status === OxiAppConstants.HttpStatus.OK ? resolve(status) : reject(status);
+						resolve(status);
+					}).then(value => {
+						let status = postItems(payloadJsonPost, this.props.entitiesStateReducer.outfits.selected, this.props.createResponseHandler(this.props.addedEntities, () => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+						console.log('checking status from post request: status = ', status);
+						//resolve(status);
+						//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
+					}, reason => {
+						console.log('rejected: ', reason);
+						//throw reason;
+					})/*.catch(error => {
+						console.log("error thrown from requestPromise:  " + error);
+						//reject(error);
+					})*/;
+					//batchRequestEntities(requestPromise);
+				}else{
+					if(!putPayloadEmpty){
+						//this.props.putModifiedItems(payloadJsonPut, this.props.addedEntities, this.props.entitiesStateReducer);
+						putItems(payloadJsonPut, this.props.entitiesStateReducer.outfits.selected, this.props.createResponseHandler(this.props.addedEntities, () => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+					}
+					if(!postPayloadEmpty){
+						//this.props.postAddedItems(payloadJsonPost, this.props.addedEntities, this.props.entitiesStateReducer);						
+						postItems(payloadJsonPost, this.props.entitiesStateReducer.outfits.selected, this.props.createResponseHandler(this.props.addedEntities, () => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+					}
 				}
 				
 				break;
@@ -815,7 +842,9 @@ class ContentView extends React.Component{
 					updateImageDimension={this.updateImageDimension}
 					simulateImageClick={this.simulateImageClick}
 					itemIdHovered={this.props.itemIdHovered}
-					changeItemHovered={this.props.changeItemHovered}/>
+					changeItemHovered={this.props.changeItemHovered}
+					createResponseHandler={this.props.createResponseHandler}
+					exitEditMode={this.props.exitEditMode}/>
 				<VisibleContentList />
     		</div>
 		);

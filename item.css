@@ -17,6 +17,24 @@
 
 }
 
+
+
+:local(.itemMenuHeaderContainer){
+    height: 100%;
+}
+
+:local(.itemMenuHeader){
+	width: 35px;
+    height: 100%;
+}
+
+:local(.itemMenuHeaderIconContainer){
+	height: 100%;
+    padding-top: 20px;
+}
+
+
+
 :local(.stdItemBlock){
 	composes:stdBlock from './root.css';
 	/*margin-bottom: 3px;
@@ -80,7 +98,7 @@
 .itemInitialize-enter-active{
 	opacity: 1;
 	height: 75px;
-	transition: all 200ms ease-in;
+	transition: opacity 200ms ease-in, height 200ms ease-in;
 
 }
 
@@ -92,7 +110,7 @@
 .itemInitialize-exit-active{
 	opacity: 0;
 	height: 0px;
-	transition: all 100ms;
+	transition: opacity 100ms, height 100ms;
 }
 
 
@@ -113,7 +131,7 @@
 	/*z-index:1;*/
 	opacity : 1; 
 	margin-left: -50px;
-	transition: all 200ms ease-in;
+	transition: all 200ms ease-in, border-radius 0;
 }
 
 .itemMenuContainer-exit{

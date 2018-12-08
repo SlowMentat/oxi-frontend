@@ -16,7 +16,8 @@ import {
 	addToEdittingIds,
 	replaceEdittingIds,
 	disableAddContentButton,
-	clearClientInvalidation
+	clearClientInvalidation,
+	clearSelectMultipleEntity
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -94,6 +95,7 @@ const mapDispatchToProps = (dispatch) => ({
 			//dispatch(updateItem(addedItemIds[addedItemIds.length-1]));
 			console.log('editingItem:  addedItemIds = ', addedItemIds);
 			dispatch(replaceEdittingIds(OxiAppConstants.EntityTypes.ITEM, addedItemIds));
+			//dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.ITEM, addedItemIds));
 		},
 		//entity:  		is the enttiy object to discard
 		//location:  	indicates this method was invoced from a navigation action to location
@@ -104,6 +106,7 @@ const mapDispatchToProps = (dispatch) => ({
 			//TODO: change this to support adding pre-existing outfits/contents/items/pictures containing UUID's
 			//dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, entity))
 			dispatch(clearAllAddedEntitiesState(addedEntities));
+			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
 			//dispatch action to transition into preview mode
 			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
 			//check if the form was created due to a navigation action.  If so, follow up with navigation.

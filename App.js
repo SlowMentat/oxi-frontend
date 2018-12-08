@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
+import promiseMiddleware from 'redux-promise-middleware';
 import { createLogger } from 'redux-logger';
 import { Provider } from 'react-redux';
 import Cookies from 'universal-cookie';

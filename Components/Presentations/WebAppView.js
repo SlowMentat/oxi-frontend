@@ -176,6 +176,9 @@ export default class webAppView extends React.Component {
 		let itemIdExistsInState = false;
 		//force update if number of properties differs
 		if(Object.keys(this.state.visibleItems.visibleItemsByIds).length != Object.keys(visibleItemsByIds).length){
+			console.log('>> Update forced due to different key count')
+			console.log('>> state = ', this.state.visibleItems.visibleItemsByIds);
+			console.log('>> parameter = ', visibleItemsByIds)
 			this.setState(prevState => ({
 				visibleItems: {
 					//...prevState.visibleItems,
@@ -184,6 +187,7 @@ export default class webAppView extends React.Component {
 			}));
 		}else{
 			//Item count is equal here. Check for item object differences
+			let idsToRemove = {visibleItemsByIds:{}};
 			for(let itemIdParam of Object.keys(visibleItemsByIds)){
 				let itemIdExistsInState = false;
 				for(let itemIdState of Object.keys(this.state.visibleItems.visibleItemsByIds)){
@@ -191,35 +195,57 @@ export default class webAppView extends React.Component {
 						itemIdExistsInState = true;
 						//check if object properities are different:
 						//Frist number of properties from both objects
-						if(Object.keys(this.state.visibleItems.visibleItemsByIds[itemIdState]).length != Object.keys(visibleItemsByIds[itemIdParam]).length){
-							forceStateUpdate = true;
-							break
-						}else{
-							//chack if property values are different
-							for(let itemPropKeyParam of Object.keys(visibleItemsByIds[itemIdParam])){
-								for(let itemPropKeyState of Object.keys(this.state.visibleItems.visibleItemsByIds[itemIdState])){
-									if(itemPropKeyState === itemPropKeyParam){
-										if(itemPropKeyState == 'positionx' || itemPropKeyState == 'positiony') console.log('at position_ property key')
-										if(visibleItemsByIds[itemIdParam][itemPropKeyParam] !== this.state.visibleItems.visibleItemsByIds[itemIdState][itemPropKeyState]){
-											console.log('difference found at ' + itemPropKeyState);
-											forceStateUpdate = true;
-											break;
+						if(visibleItemsByIds[itemIdParam] !== undefined){  //check if item id has bee removed
+							if(Object.keys(this.state.visibleItems.visibleItemsByIds[itemIdState]).length != Object.keys(visibleItemsByIds[itemIdParam]).length){
+								forceStateUpdate = true;
+								break
+							}else{
+								//check if property values are different
+								for(let itemPropKeyParam of Object.keys(visibleItemsByIds[itemIdParam])){
+									for(let itemPropKeyState of Object.keys(this.state.visibleItems.visibleItemsByIds[itemIdState])){
+										if(itemPropKeyState === itemPropKeyParam){
+											if(itemPropKeyState == 'positionx' || itemPropKeyState == 'positiony') console.log('at position_ property key')
+											if(visibleItemsByIds[itemIdParam][itemPropKeyParam] !== this.state.visibleItems.visibleItemsByIds[itemIdState][itemPropKeyState]){
+												console.log('difference found at ' + itemPropKeyState);
+												forceStateUpdate = true;
+												break;
+											}
 										}
 									}
+									if(forceStateUpdate) break;
 								}
 								if(forceStateUpdate) break;
 							}
-							if(forceStateUpdate) break;
+						}//accumulate all non-existing ids for removal from itemIdParam from state.visibleItems.visibleItemsByIds 
+						else{
+							console.log('>> detected undefined property in parameter, visibleItemsByIds[', itemIdParam, ']');
+							delete visibleItemsByIds[itemIdParam];
+							forceStateUpdate = true;
+							//idsToRemove.visibleItemsByIds[itemIdParam] = undefined;
 						}
 					}
 				}
 				//check if itemId of parameter object exists in the current state
 				if(!itemIdExistsInState){
-						forceStateUpdate = true;
-						break;					
+					forceStateUpdate = true;
+					break;					
 				}
 			}
-			if(forceStateUpdate){
+			console.log('**visibleItemsByIds = ', visibleItemsByIds)
+			/*if(Object.keys(idsToRemove.visibleItemsByIds).length > 0){
+				console.log('idsToRemove = ', idsToRemove);
+				/*this.setState(prevState => ({
+					visibleItems: {
+						visibleItemsByIds:{
+							...this.state.visibleItems.visibleItemsByIds,
+							...idsToRemove.visibleItemsByIds
+						}
+					}
+				}))*/
+			/*}
+			else*/ if(forceStateUpdate){
+				console.log('>> Forced Update')
+				console.log('visibleItemsByIds = ', visibleItemsByIds);
 				this.setState(prevState => ({
 					visibleItems: {
 						//...prevState.visibleItems,
@@ -277,6 +303,7 @@ export default class webAppView extends React.Component {
 									itemIdHovered={this.state.itemIdHovered}
 									changeItemHovered={(itemId) => this._handleItemHovered(itemId)}/>
 								<VisibleItemList 
+									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
 									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
 									itemIdHovered={this.state.itemIdHovered}
 									changeItemHovered={(itemId) => this._handleItemHovered(itemId)}/>

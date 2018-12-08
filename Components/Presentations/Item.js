@@ -23,68 +23,23 @@ const itemContainer = {
 	'margin-bottom':'8px',	
 };
 
+const itemContainerSelected = {
+	'height': '75px',
+	'margin-bottom':'8px',
+    'border-style':'solid',
+    'border-color':'#6dd7b4',
+    'border-width':'3px',
+    'border-top-left-radius':'18px',
+    'border-bottom-left-radius':'18px',
+    'border-right':'none',
+    'margin-left':'-3px',
+}
+
+const itemContainerSelectedPrev = Object.assign({}, itemContainerSelected, {'border-color':'red'});
+
 const defualtItemMenuContainer = {
 	position:'absolute',
 }
-
-/*export default class Item extends React.Component{
-	constructor(props){
-		super(props);
-		this._handleMouseOver = this._handleMouseOver.bind(this);
-		this._handleMouseLeave = this._handleMouseLeave.bind(this);
-	}
-
-	_handleMouseOver(event){
-		this.props.changeItemHovered(this.props.item.id);
-	}
-
-	_handleMouseLeave(event){
-		this.props.changeItemHovered(null);
-	}
-
-	render(){	
-		let brandColorStyle = null;
-		let brandName = null;
-		let brandLink = null;
-		let retailerName = null;
-		let retailerLink = null;
-		
-		if(this.props.brands !== undefined && this.props.brands !== null && this.props.item.brand){
-			brandName = this.props.brands[this.props.item.brand].name;
-			brandLink = this.props.brands[this.props.item.brand].link;
-			brandColorStyle = {
-				'background-image': `linear-gradient(to right, black, black, rgb(${this.props.brands[this.props.item.brand].red},${this.props.brands[this.props.item.brand].green},${this.props.brands[this.props.item.brand].blue}))`
-			};
-		}
-		if(this.props.retailers !== undefined && this.props.retailers !== null && this.props.item.retailer){
-			retailerName = this.props.retailers[this.props.item.retailer].name;
-			retailerLink = this.props.retailers[this.props.item.retailer].link
-		}
-		return(			
-			<div 
-				style={this.props.item.id === this.props.itemIdHovered ? itemContainerHovered : itemContainer}
-				onMouseOver={() => this._handleMouseOver(event)}
-				onMouseLeave={() => this._handleMouseLeave(event)}>
-				<a className={ItemStyles.itemSizeBlock}>
-					{this.props.item.type}
-				</a>
-				<a className={ItemStyles.itemTypeBlock}>	
-					{this.props.item.size}
-				</a>
-				<a className={ItemStyles.itemRetailerBlock} href={retailerLink} target="_blank">
-					{retailerName}
-				</a>
-				<a 
-					className={ItemStyles.itemBrandBlock} 
-					//style={brandColorStyle} 
-					href={brandLink} 
-					target="_blank">
-					{brandName}
-				</a>
-			</div>		
-		);
-	}
-}*/
 
 const itemCellContainer = {
 	position: 'absolute',
@@ -138,11 +93,14 @@ export const Item = (props) => {
 	//console.log('itemContainer = ', itemContainer);
 	let fill = "#FFF";
 	let stroke = "#FFF";
+	let isSelected = props.selectedAllIds.includes(props.item.id);
 	return(			
 		<div 
-			style={props.item.id === props.itemIdHovered ? itemContainerHovered : itemContainer}
+			//style={props.item.id === props.itemIdHovered ? itemContainerHovered : itemContainer}
+			style={!isSelected ? itemContainer : props.viewState === OxiAppConstants.viewState.PREVIEW ? itemContainerSelectedPrev : itemContainerSelected }
 			onMouseOver={props._handleMouseOver.bind(this)}
-			onMouseLeave={props._handleMouseLeave.bind(null)} >
+			onMouseLeave={props._handleMouseLeave.bind(null)} 
+			onClick={(isSelected === true) ? props.onDeselect : props.onSelect} >
 			<CSSTransition
 			    tiemout={200}
 			    classNames="itemMenuContainer"

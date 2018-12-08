@@ -254,8 +254,9 @@ export class ItemForm extends React.Component{
 				console.log('itemEntity = ', itemEntity);
 				//this.props.submitAction(this.state.type, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
 				this.props.submitAction(itemEntity);
-				//TODO:  commenting out line below, but there is a need to handle legal items as UUID and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
-				this.props.editingItem(this.props.itemAllIds);
+				//TODO:  	commenting out line below, but there is a need to handle the ids of server persisted items as UUID
+				// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
+				//this.props.editingItem(this.props.itemAllIds);
 				this.props.cancelAction();
 			}else{
 				console.log('input is not an approved retailer');

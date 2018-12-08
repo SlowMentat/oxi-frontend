@@ -12,6 +12,7 @@ class ContentList extends React.Component {
 		};
 		this.extractAddedElement = this.extractAddedElement.bind(this);
 		this.syncronizeState = this.syncronizeState.bind(this);
+		this.extractNonExistingIds = this.extractNonExistingIds.bind(this);
 	}
 
 	//Searches for each element of stat.addedItemIds from this.props.addedItemIds to identify the new element in this.props.addedItemIds.
@@ -27,6 +28,27 @@ class ContentList extends React.Component {
 			if(!match) return searchElement;
 		}
 		return null;
+	}
+
+	//Returns an array without ids not present in both targetArray and searchArray
+	extractNonExistingIds(targetArray, searchArray){
+		let result = targetArray;
+		for(let searchElement of searchArray){
+			let targetIndex = 0;
+			let match = false;
+			for(let targetElement of targetArray){
+				if(targetElement === searchElement){
+					match = true;
+					break;
+				}
+				targetIndex++;
+			}
+			if(!match){
+				console.log('targetIndex = ', targetIndex)
+				result = result.splice(targetIndex, 1);
+			}
+		}
+		return result;		
 	}
 
 	syncronizeState(){
@@ -77,7 +99,17 @@ class ContentList extends React.Component {
 					})
 				}else{
 					//TODO: handle the case when an added item entity is removed during and EDITING viewState
-					//...
+					/*let result = this.extractNonExistingIds(this.state.addedItemIds, this.props.addedItemIds);
+					console.log('result = ', result);
+					if(result.length !== this.state.addedItemIds.length){
+						this.props.modifyContentItems(this.props.selectedId, result);
+						this.setState({
+							addedItemIds: this.props.addedItemIds
+						});
+					}*/
+					this.setState({
+						addedItemIds: this.props.addedItemIds
+					});
 				}
 				break;
 			case (itemIdsLengthDiff <= 2):

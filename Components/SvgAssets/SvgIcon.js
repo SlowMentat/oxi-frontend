@@ -20,6 +20,7 @@ import HeartIcon from './Icons/HeartIcon.js';
 import WardrobeIcon from './Icons/WardrobeIcon.js';
 import CommojiIcon from './Icons/CommojiIcon.js';
 import TypeUnknown from './Icons/TypeUnknown.js';
+import BookmarkIcon from './Icons/BookmarkIcon.js';
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -43,6 +44,7 @@ export const SvgIcon = (props) => {
 		case 'HeartIcon': return(<HeartIcon {...props}/>); break;
 		case 'CommojiIcon': return(<CommojiIcon {...props}/>); break;
 		case 'WardrobeIcon': return(<WardrobeIcon {...props}/>); break;
+		case 'BookmarkIcon': return(<BookmarkIcon {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

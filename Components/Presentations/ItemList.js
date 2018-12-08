@@ -2,6 +2,8 @@ import React from 'react';
 import ItemStyles from '../../item.css';
 import {Item} from './Item.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 export default class ItemList extends React.Component{
 	constructor(props){
@@ -39,14 +41,39 @@ export default class ItemList extends React.Component{
 		let allFilteredItems = Object.assign({}, this.props.items, this.props.addedItems);
 		console.log('allFilteredItems = ', allFilteredItems);
 		console.log('this.props.populateItemsMap = ', this.props.populateItemsMap);
-		if(Object.keys(allFilteredItems).length > 0) this.props.populateItemsMap(allFilteredItems);
+		this.props.populateItemsMap(allFilteredItems);
+		//if(Object.keys(allFilteredItems).length > 0){
+			/*console.log('>>> this.props.visibleItemsMap = ', this.props.visibleItemsMap.visibleItemsByIds);
+			console.log('>>> allFilteredItems = ', allFilteredItems);*/
+			this.props.populateItemsMap(allFilteredItems);
+			/*if(Object.keys(this.props.visibleItemsMap.visibleItemsByIds).length !== Object.keys(allFilteredItems).length){
+				//this.props.populateItemsMap(allFilteredItems);
+			}*/
+		//}
 		/*this.setState({
 			itemIds: [...this.props.itemIds],
 			addedItemIds: [...this.props.addedItemIds],
 		});*/
+		let itemControl
 		return (
 		    <div className={ItemStyles.itemMenuBlock}>
 		    	<div style={{'height':'calc(5vh + 25px)'}}>
+		    		<div className={ItemStyles.itemMenuHeaderContainer}>
+		    			<div className={ItemStyles.itemMenuHeader}>
+		    				<div className={ItemStyles.itemMenuHeaderIconContainer}>
+		    					{this.props.multipleSelectedAllIds.length === 0 ? 
+		    						null : 
+		    						this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
+		    							<SvgIcon 
+		    								name="BookmarkIcon"
+		    								onClick={() => console.log('bookmark clicked')}/> : 
+		    							<SvgIcon 
+		    								name="DeleteIcon"
+		    								onClick={() => this.props.deleteItem(this.props.multipleSelectedAllIds, this.props.selectedContent)}/>
+		    					}
+		    				</div>
+		    			</div>
+		    		</div>
 		    	</div>
 		    	<div>
 		    		<TransitionGroup>
@@ -67,7 +94,9 @@ export default class ItemList extends React.Component{
 			    								(state) => (state === 'unmounted' ? null : (<Item 
 			    									key={itemId}
 			    									item={this.props.items[itemId]} 
-			    									onClick={this.props.onClick} 
+			    									selectedAllIds={this.props.multipleSelectedAllIds}
+			    									onSelect={this.props.createHandleMulSel(itemId)} 
+			    									onDeselect={this.props.createHandleMulDesel(itemId)}
 			    									brands={this.props.brands} 
 			    									retailers={this.props.retailers}
 			    									itemIdHovered={this.props.itemIdHovered}
@@ -95,7 +124,9 @@ export default class ItemList extends React.Component{
 			    							{
 			    								(state) => (state === 'unmounted' ? null : (<Item 
 			    									item={this.props.addedItems[itemId]}
-			    									onClick={this.props.onClick} 
+			    									selectedAllIds={this.props.multipleSelectedAllIds}
+			    									onSelect={this.props.createHandleMulSel(itemId)} 
+			    									onDeselect={this.props.createHandleMulDesel(itemId)}
 			    									brands={this.props.brands} 
 			    									retailers={this.props.retailers}
 			    									itemIdHovered={this.props.itemIdHovered}

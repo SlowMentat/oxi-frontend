@@ -297,6 +297,24 @@ export const selectEntity = (entityType, entityId) => {
 	}
 }
 
+export const selectMultipleEntity = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SELECT_MUL_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'selected')(entityId));
+	}
+}
+
+export const deselectMultipleEntity = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`DESELECT_MUL_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'selected')(entityId));
+	}
+}
+
+export const clearSelectMultipleEntity = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLEAR_SELECT_MUL_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+}
+
 //======== ADDED ENTITIES ACTIONS ========
 
 //Removes a single entity from the addedEntitiesReducer state tree
@@ -541,7 +559,8 @@ export function postProfile(profile){
 			if(response.status == OxiAppConstants.HttpStatus.CREATED){
 				console.log("dispatching removeProfile");
 				//Change switch to profile view
-				dispatch(setWebAppView('profile'));
+				//dispatch(setWebAppView('profile'));
+				dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
 				//Add new profile data returned in the response body to the redux tree
 				dispatch(replaceProfile({'owner': response.data}));
 				//populate the profile view with usr content
@@ -1047,7 +1066,7 @@ export function putContent(contentJson, onSuccess){
 export function postItems(payloadJson, outfitId, onSuccess){
 	return () => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
-		axios.post(
+		return axios.post(
 			OxiAppConstants.serviceUrl + '/items' + pathVariable,
 			payloadJson,
 			{})
@@ -1063,11 +1082,12 @@ export function postItems(payloadJson, outfitId, onSuccess){
 export function putItems(payloadJson, outfitId, onSuccess){
 	return () => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
-		axios.put(
+		return axios.put(
 			OxiAppConstants.serviceUrl + '/items' + pathVariable,
 			payloadJson,
 			{})
 		.then(response => {
+			console.log('putItems:  response = ', response)
 			if(response.status === OxiAppConstants.HttpStatus.OK){
 				onSuccess(response);
 			}
@@ -1075,9 +1095,15 @@ export function putItems(payloadJson, outfitId, onSuccess){
 		})
 	}
 }
+//TODO:  implemented for redux-promise-middleware... get working
+export const batchRequestEntities = (entityType, promise) => {
+	return function(dispatch){
+		dispatch(makePromiseActionCreator(`POST_${entityType.toUpperCase()}`, entityType.toUpperCase(), promise))();
+	}
+}
 
 //Sends POST request with added entities
-export function postEntities(json, picturesJson, enityType, onSuccess){
+/*export function postEntities(json, picturesJson, enityType, onSuccess){
 	//return function(dispatch){
 		//denormalize outfits from addedEntitiesReducer
 		//send result as json in request payload
@@ -1127,7 +1153,7 @@ export function postEntities(json, picturesJson, enityType, onSuccess){
 			console.log('requestTarget empty');
 		}
 	//}
-}
+}*/
 
 //TODO:  Impliment
 //Sends PUT request with added entities
@@ -1280,4 +1306,16 @@ function makeActionCreator(type, entityTarget, ...dataKeys){
       	return action;
     };
 }
+
+function makePromiseActionCreator(type, entityTarget, promise, ...dataKeys){
+	return function(...dataValues){
+		const action = {type: type, meta:{typeSpecifier: entityTarget}, payload: promise};
+		dataKeys.forEach((dataKey, index) => {
+			action.meta[dataKey] = dataValues[index] 
+		}) 
+      	return action;
+	}
+}
+
+
 

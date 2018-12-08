@@ -30,7 +30,9 @@ import {
 	clearEdittingIds,
 	mergeResponseEntities,
 	modifyContent,
-	clearClientInvalidation
+	clearClientInvalidation,
+	batchRequestEntities,
+	clearSelectMultipleEntity,
 	
 } from '../../Components/Actions/indexActions.js';
 import {outfit, profileSchema, contents, items, denormalizeOutfit, buildItemContentsObject} from '../../Util/Schema.js';
@@ -59,7 +61,7 @@ const mapStateToProps = (state, props) => {
 		clientInvalidatedItems: state.entitiesStateReducer.items.clientInvalidated,
 	};
 }
-
+//TODO:  consolidate all the http request functions below :(
 const mapDispatchToProps = (dispatch) => ({
 	getItemForm: (posx, posy) => {
 		/*dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))
@@ -137,11 +139,76 @@ const mapDispatchToProps = (dispatch) => ({
 	putModifiedContent : (imageData = null, contentJson, addedEntities, entitiesStateReducer) => {
 		if(imageData !== null) putImage(imageData, contentJson.id, () => putContent(contentJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer)));	
 	},
+	putPostItems: (itemPayload, addedEntities, entitiesStateReducer) => {
+
+	},
 	putModifiedItems: (itemPayload, addedEntities, entitiesStateReducer) => {
 		putItems(itemPayload, entitiesStateReducer.outfits.selected, createResponseHandler(dispatch, addedEntities, entitiesStateReducer))();
 	},
 	postAddedItems: (itemPayload, addedEntities, entitiesStateReducer) => {
 		postItems(itemPayload, entitiesStateReducer.outfits.selected, createResponseHandler(dispatch, addedEntities, entitiesStateReducer))();
+	},
+	batchRequestEntities: (batchedRequests) => {
+		//batchRequestEntities(OxiAppConstants.EntityTypes.ITEM, 
+	},
+	createResponseHandler: (addedEntities, exitEditMode=false) => {
+		return (response, pictureJson) => {
+			//normalize response data and create a new outfit node in entitiesReducer tree
+			let normalizedJson = normalize(response.data, outfit);
+			//Remove all entities from addedEntitiesReducer
+			dispatch(clearAllAddedEntitiesState(addedEntities));
+			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
+			//dispatch(modifyContent(Object.assign({}, addedEntities.contents.byIds[entitiesStateReducer.contents.selected], {picture: {...pictureJson, contentId: undefined}})));
+			mergeResponseEntities(dispatch, normalizedJson);
+			//response data is just a single outfit object
+			let outfitJson = response.data;
+			
+			//Manually build itemContents join table
+			let itemContentJson = buildItemContentsObject([outfitJson]);
+			dispatch(createItemContent(itemContentJson));
+	
+			//dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, denormAddedOutfit));
+	
+			//get the find the new content id
+			let addedContentIds = [];
+			for(let returnedContent of outfitJson.contents){
+				for(let existingContentId of addedEntities.contents.allIds){
+					if(returnedContent.id === existingContentId) break;
+				}
+				addedContentIds = [...addedContentIds, returnedContent.id];
+			}
+	
+			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitJson.id, (addedContentIds.length > 0 ? addedContentIds[0] :  null)));
+	
+			exitEditMode ? exitEditMode() : null; 
+		}
+	},
+	exitEditMode: (entitiesStateReducer) => {
+		//Remove all ids from edditingIds array associated to each entity
+		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.OUTFIT));
+		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.CONTENT));
+		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.ITEM));
+		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.PROFILE));
+	
+		console.log('ContentContainer#createResponseHandler: clearing all clientInvalidations');
+		switch(true){
+			case entitiesStateReducer.profile.clientInvalidated.length > 0:
+				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PROFILE));
+			case entitiesStateReducer.outfits.clientInvalidated.length > 0:
+				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.OUTFIT));
+			case entitiesStateReducer.contents.clientInvalidated.length > 0:
+				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.CONTENT));
+			case entitiesStateReducer.items.clientInvalidated.length > 0:
+				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.ITEM));
+			case entitiesStateReducer.pictures.clientInvalidated.length > 0:
+				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PICTURE));
+			default:
+				break;
+		}
+		//clear all selected items		
+		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
+		//Enable the button that adds outfits
+		dispatch(disableAddOutfit(false));
 	}
 })
 
@@ -194,7 +261,9 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer){
 				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PICTURE));
 			default:
 				break;
-		}		
+		}	
+		//clear all selected items		
+		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));	
 		//Enable the button that adds outfits
 		dispatch(disableAddOutfit(false));
 	}

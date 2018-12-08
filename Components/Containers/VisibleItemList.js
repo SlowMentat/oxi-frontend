@@ -1,7 +1,17 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, createItem, updateItem } from '../../Components/Actions/indexActions.js';
+import { 
+	setFormVisibility, 
+	createItem, updateItem, 
+	selectMultipleEntity, 
+	deselectMultipleEntity,
+	clientInvalidateEntities,
+	clearSelectMultipleEntity,
+	removeAddedEntities,
+	modifyContent
+} from '../../Components/Actions/indexActions.js';
 import ItemList from '../../Components/Presentations/ItemList.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 /*const getVisibleItems = (items, joinTable, filter, selectedContentId) => {
 	let result = {byIds:{}, allIds:[]};
@@ -121,11 +131,35 @@ const mapStateToProps = (state, props) => {
 		brands : brands,
 		retailers :  retailers,
 		viewState: state.contentViewState.viewState,
+		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
+		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected]
 	});
 }
 
 const mapDispatchToProps = dispatch => ({
-	onClick : () => {console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));}
+	onClick : () => {
+		console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));
+	},
+	createHandleMulSel: (id) => () => dispatch(selectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
+	createHandleMulDesel: (id) => () => dispatch(deselectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
+	deleteItem: (selectedAllIds, selectedContent) => {
+		//add selected content to content.clientInvalidated
+		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [selectedContent.id]));
+		//remove items from addedEntitiesReducer corresponding to the id found in items.multipleSelected
+		dispatch(removeAddedEntities(OxiAppConstants.EntityTypes.ITEM, selectedAllIds));
+		//update content child items to reflect changes
+		dispatch(modifyContent({
+			id: selectedContent.id,
+			items: selectedContent.items.filter(id => {
+				for(let removedId of selectedAllIds){
+					if(id === removedId) return false;
+				}
+				return true;
+			})
+		}));
+		//clear items.mulltipleSelected
+		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
+	}
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

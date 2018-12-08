@@ -190,6 +190,17 @@ function byId(state = {}, action){
 
 		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {})
+
+		case `REMOVE_MULTIPLE_ADDED_${action.typeSpecifier}`:
+			let result = Object.assign({}, state);
+			//build maskObject
+			if(action.payload.ids.length > 0){
+				for(let id of action.payload.ids){
+					delete result[id];
+				}
+			}
+			return result;
+
 		default:
 			return state;
 	}
@@ -238,6 +249,18 @@ function allIds(state = [], action){
 
 		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			return [];
+
+		case `REMOVE_MULTIPLE_ADDED_${action.typeSpecifier}`:
+			let idsToRemove = action.payload.ids;
+			return state.filter(stateId => {
+				for(let id of idsToRemove){
+					if (stateId === id){
+						return false;
+					}
+				}
+				return true;
+			});
+
 		default:
 			return state;
 	}
@@ -346,7 +369,7 @@ function filterInvalidated(state=[], action){
 	return duplicatesFiltered;
 }
 
-const entitiesState = (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false}, action) => {
+const entitiesState = (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
 	switch(action.type){
 		case `RECEIVE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {receivedAt: action.payload, isFetching: !state.isFetching, 'serverInvalidated': !state.serverInvalidated});
@@ -375,7 +398,28 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 
 		case `SELECT_${action.typeSpecifier}`:
 			//batch comment//console.log('entitiesState reducer: action = ', action)
-			return Object.assign({}, state, action.payload);
+			return Object.assign({}, state, {...action.payload, multipleSelected: [action.payload.selected]});
+
+		case `SELECT_MUL_${action.typeSpecifier}`:
+			return Object.assign({}, state, {
+				multipleSelected: [...state.multipleSelected.filter(id => id !== action.payload.selected), action.payload.selected]
+			});
+
+		case `DESELECT_MUL_${action.typeSpecifier}`:
+			return state.multipleSelected.length > 1 ? 
+				Object.assign({}, state, {
+					multipleSelected: state.multipleSelected.filter(id => id !== action.payload.selected)
+				}) :
+				Object.assign({}, state, {
+					multipleSelected: state.multipleSelected.filter(id => id !== action.payload.selected),
+					seleted: false
+				});
+
+		case `CLEAR_SELECT_MUL_${action.typeSpecifier}`:
+			return Object.assign({}, state, {
+				multipleSelected: []
+			});
+
 		default:
 			////batch comment//console.log("no matching case in entities()")
 			return state;
@@ -457,6 +501,13 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 		/*case `SELECT_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});*/
 		//TODO implement this... case `REMOVE_MULTIPLE_ADDED_${action.typeSpecifier}`:
+
+		case `REMOVE_MULTIPLE_ADDED_${action.typeSpecifier}`:
+			return Object.assign({}, state, {
+				byIds: byId(byIdsRef, action),
+				allIds: allIds(allIdsRef, action),
+				count: (state.count - action.payload.ids.length)
+			})
 
 		case `REMOVE_ALL_ADDED_${action.typeSpecifier}`:
 			return Object.assign({}, state, {byIds:{}, allIds:[], count: 0});
@@ -579,7 +630,7 @@ const addedEntitiesReducer = combineReducers({
 	outfits : entityReducerFactory(localEntities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtStoreState)
 })
 
-defualtStoreState = {isFetching:false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false}
+defualtStoreState = {isFetching:false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}
 
 const entitiesStateReducer = combineReducers({
 	profile : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PROFILE, defualtStoreState),
