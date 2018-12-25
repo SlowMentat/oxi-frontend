@@ -50,11 +50,10 @@ export const REMOVE_ITEMCONTENT		= 'REMOVE_'				+ OxiAppConstants.EntityTypes.IT
 export const ADD_CONTENT			= 'ADD_'				+ OxiAppConstants.EntityTypes.CONTENT;
 export const MODIFY_CONTENT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.CONTENT;
 export const REMOVE_CONTENT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.CONTENT;
-export const SELECT_ADDED_CONTENT	= 'SELECT_ADDED_'		+ OxiAppConstants.EntityTypes.CONTENT;
+export const SELECT_CONTENT			= 'SELECT_'				+ OxiAppConstants.EntityTypes.CONTENT;
 export const ADD_OUTFIT				= 'ADD_'				+ OxiAppConstants.EntityTypes.OUTFIT;
 export const MODIFY_OUTFIT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.OUTFIT;
 export const REMOVE_OUTFIT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.OUTFIT;
-export const SELECT_ADDED_OUTFIT	= 'SELECT_ADDED_'		+ OxiAppConstants.EntityTypes.OUTFIT;
 export const ADD_PROFILE			= 'ADD_'				+ OxiAppConstants.EntityTypes.PROFILE;
 export const MODIFY_PROFILE			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.PROFILE;
 export const REMOVE_PROFILE			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.PROFILE;
@@ -80,16 +79,11 @@ export const FETCH_AUTH_FAILURE 	= "FETCH_AUTH_FAILURE";
 export const FETCH_AUTH_SUCCUSS 	= "FETCH_AUTH_SUCCUSS";
 export const SELECT_WEB_APP_VIEW	= "SELECT_WEB_APP_VIEW";
 
-export const SELECT_CONTENT 		= "SELECT_" 	+ OxiAppConstants.EntityTypes.CONTENT;
 export const SELECT_ITEM 			= "SELECT_"		+ OxiAppConstants.EntityTypes.ITEM;
 export const DISABLE_BUTTON			= "DISABLE_BUTTON";
 export const DISABLE_CONTENT_BUTTON = 'DISABLE_CONTENT_BUTTON';
 
 export const REQUEST_NAVIGATION		= 'REQUEST_NAVIGATION';
-
-export const REMOVE_ADDED_OUTFIT	= 'REMOVE_ADDED_'		+ OxiAppConstants.EntityTypes.OUTFIT;
-export const REMOVE_ADDED_CONTENT	= 'REMOVE_ADDED_'		+ OxiAppConstants.EntityTypes.CONTENT;
-export const REMOVE_ADDED_ITEM		= 'REMOVE_ADDED_'		+ OxiAppConstants.EntityTypes.ITEM;
 
 export const UPDATE_PROFILE 		= 'UPDATE_' + OxiAppConstants.EntityTypes.PROFILE;
 //global variables
@@ -183,12 +177,12 @@ export const modifyContent 		= makeActionCreator(MODIFY_CONTENT, OxiAppConstants
 export const createPictures		= makeActionCreator(CREATE_PICTURE, OxiAppConstants.EntityTypes.PICTURE, 'entities');
 export const replacePictures 	= makeActionCreator(REPLACE_PICTURE, OxiAppConstants.EntityTypes.PICTURE, 'entities');
 
-export const selectAddedOutfit 	= makeActionCreator(SELECT_ADDED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
-export const selectAddedContent = makeActionCreator(SELECT_ADDED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
+export const selectAddedOutfit 	= makeActionCreator(SELECT_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
+export const selectAddedContent = makeActionCreator(SELECT_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
 
-export const removeAddedOutfit	= makeActionCreator(REMOVE_ADDED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
-export const removeAddedContent = makeActionCreator(REMOVE_ADDED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
-export const removeAddedItem	= makeActionCreator(REMOVE_ADDED_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id');
+export const removeAddedOutfit	= makeActionCreator(REMOVE_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
+export const removeAddedContent = makeActionCreator(REMOVE_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
+export const removeAddedItem	= makeActionCreator(REMOVE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'id');
 
 export const disableAddOutfit 	= makeActionCreator(DISABLE_BUTTON, null, 'disabled');
 export const disableAddContentButton = makeActionCreator(DISABLE_CONTENT_BUTTON, null, 'disabled');
@@ -315,26 +309,50 @@ export const clearSelectMultipleEntity = (entityType) => {
 	}
 }
 
+
+//======== ADDED ENTITIES ACTIONS ========
+
+export const removeEntity = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'id')(entityId));
+	}
+}
+
+//Removes a multiple entities specified by entityIds array from the addedEntitiesReducer state tree
+export const removeEntities = (entityType, entityIds) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_MULTIPLE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+}
+
+//Remove all entities from the addedEntitiesReducer state tree
+export const removeAllEntities = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_ALL_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+}
+
+
 //======== ADDED ENTITIES ACTIONS ========
 
 //Removes a single entity from the addedEntitiesReducer state tree
 export const removeAddedEntity = (entityType, entityId) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'id')(entityId));
+		dispatch(makeActionCreator(`REMOVE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'id')(entityId));
 	}
 }
 
 //Removes a multiple entities specified by entityIds array from the addedEntitiesReducer state tree
 export const removeAddedEntities = (entityType, entityIds) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_MULTIPLE_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+		dispatch(makeActionCreator(`REMOVE_MULTIPLE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
 	}
 }
 
 //Remove all entities from the addedEntitiesReducer state tree
 export const removeAllAddedEntities = (entityType) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_ALL_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+		dispatch(makeActionCreator(`REMOVE_ALL_${entityType.toUpperCase()}`, entityType.toUpperCase())());
 	}
 }
 
@@ -506,7 +524,8 @@ export function navigateTo(location){
 		dispatch(requestNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
-		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
+		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && 
+			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
 			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
 		}else{
 			selectDestination(location, dispatch);
@@ -706,34 +725,8 @@ export function fetchEntities(entityType, username, filter){
 						dispatch(createItemContent(itemContentJson));							
 
 						mergeResponseEntities(dispatch, normalizedJson);
-						/*let containsContents = false;
-						let containsOutfits = false;
-						//let containsItems = false;
-						for(let entity of keys){
-							if(entity === 'outfits'){
-								containsOutfits = true;
-								dispatch(replaceOutfits(normalizedJson.entities[entity]));		
-							}else if(entity === 'contents'){
-								containsContents = true;
-								dispatch(replaceContents(normalizedJson.entities[entity]));		
-							}else if(entity === 'items'){
-								dispatch(replaceItems(normalizedJson.entities[entity]));
-							}else if(entity === 'picture'){
-								dispatch(replacePictures(normalizedJson.entities[entity]));
-							}else{
-								return;
-							}
-						}
-						//select the first outfit if it exists
-						if(containsOutfits){
-							let outfitKeys = Object.keys(normalizedJson.entities["outfits"]);		
-							if (outfitKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, outfitKeys[0]));		
-							//select the first content if it exist
-							if(containsContents){
-								let contentKeys = Object.keys(normalizedJson.entities["contents"]);
-								if (contentKeys.length > 0) dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentKeys[0]));
-							}
-						}*/
+						let outfitKeys = Object.keys(normalizedJson.entities.outfits);
+						//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
 					}else{
 						//handleUnauthorizedRequest(response);
 					}

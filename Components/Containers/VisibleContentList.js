@@ -34,7 +34,7 @@ const getVisibleContents = (contents, filter, outfits, /*addedOutfits,*/ selecte
 						if(selectedOutfitId !== false){
 							//array of content ids
 							//result.allIds = outfits.allEditingIds.includes(selectedOutfitId) ? addedOutfits.byIds[selectedOutfitId]["contents"].sort() : outfits.byIds[selectedOutfitId]["contents"].sort();
-							result.allIds = outfits.byIds[selectedOutfitId]["contents"].sort();
+							if(Object.keys(outfits.byIds).length > 0) result.allIds = outfits.byIds[selectedOutfitId]["contents"].sort();
 							for(let contentId of result.allIds){
 								result.byIds[contentId] =  contentsById[contentId];
 							}

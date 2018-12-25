@@ -336,6 +336,9 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 
 		case `REPLACE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action)})
+
+		case `REMOVE_ALL_${action.typeSpecifier}`:
+			return Object.assign({}, state, {byIds:{}, allIds:[], count: 0});
 		/*case `SELECT_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});*/
 		default:

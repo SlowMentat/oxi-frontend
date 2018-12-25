@@ -1,5 +1,13 @@
 import { connect } from 'react-redux';
-import { setFormVisibility, setWebAppView, fetchEntities, replaceProfile, navigateTo } from '../../Components/Actions/indexActions.js';
+import { 
+	setFormVisibility, 
+	setWebAppView, 
+	fetchEntities, 
+	replaceProfile, 
+	navigateTo,
+	removeAllEntities,
+	selectEntity
+} from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
 import fetch from 'cross-fetch'
@@ -23,6 +31,18 @@ const mapDispatchToProps = (dispatch, props) => ({
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, ''));
 			//fetch owners body info
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, ''));*/
+			//Clear existing store
+
+			//Deselect everything
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+			//remove all entitiy data from entitiesReducer branch
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
+
 			dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
 		},
 		settings : () => {

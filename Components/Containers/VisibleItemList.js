@@ -77,7 +77,7 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 					if(selectedContentId != undefined && contents.allIds.length > 0){
 						if(selectedContentId != false){
 							//array of content ids
-							result.allIds = contents.byIds[selectedContentId]["items"].sort();
+							if(Object.keys(contents.byIds).length > 0) result.allIds = contents.byIds[selectedContentId]["items"].sort();
 							for(let itemId of result.allIds){
 								result.byIds[itemId] =  itemsById[itemId];
 							}
