@@ -219,6 +219,10 @@ function allIds(state = [], action){
 				return true;
 			});
 			//batch comment//console.log('allIds: filteredIds = ', filteredIds);
+			if (action.type === 'CREATE_ITEMCONTENT'){
+				console.log('itemcontents state = ', state);
+				console.log('itemcontents new state =', [...state, ...filteredIds]);
+			}
 			return [...state, ...filteredIds];
 		//action type performed on "addedEntitiesReducer"
 		case `ADD_${action.typeSpecifier}`:
@@ -350,6 +354,15 @@ function removeInvalidation(state, action){
 	return Object.assign({}, state, {clientInvalidated: []});
 }
 
+function removeDeletion(state, action){
+	let clientDelData = state.clientDeleted.filter(id => {
+		for(let payloadId of action.payload.ids){
+			if(id === payloadId) return true;
+		}
+		return false;
+	});
+}
+
 //return ids that aren't already present in the invalidation state
 function filterInvalidated(state=[], action){
 	let duplicatesFiltered = [];
@@ -390,11 +403,21 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 			let clientInvData = filterInvalidated(state.clientInvalidated, action);
 			return Object.assign({}, state, {clientInvalidated: [...state.clientInvalidated, ...clientInvData]});
 
-		case `CLEAR_CLIENT_INVALIDATION_${action.typeSpecifier}`:
+		case `CLEAR_CLIENT_INVALIDATE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {clientInvalidated: []});
 
-		case `REMOVE_CLIENT_INVALIDATION_${action.typeSpecifier}`:
+		case `REMOVE_CLIENT_INVALIDATE_${action.typeSpecifier}`:
 			return removeInvalidation(state, action);
+
+		case `CLIENT_DELETE_${action.typeSpecifier}`:
+			let clientDeletedData = filterInvalidated(state.clientDeleted, action);
+			return Object.assign({}, state, {clientDeleted: [...state.clientDeleted, ...clientDeletedData]});
+
+		case `CLEAR_CLIENT_DELETE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {clientDeleted: []});
+
+		case `REMOVE_CLIENT_DELETE_${action.typeSpecifier}`:
+			return removeDeletion(state, action);
 
 		case `SELECT_${action.typeSpecifier}`:
 			//batch comment//console.log('entitiesState reducer: action = ', action)
@@ -630,7 +653,15 @@ const addedEntitiesReducer = combineReducers({
 	outfits : entityReducerFactory(localEntities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtStoreState)
 })
 
-defualtStoreState = {isFetching:false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}
+defualtStoreState = {
+	isFetching:false, 
+	serverInvalidated: [], 
+	clientInvalidated: [], 
+	clientDeleted: [],
+	receivedAt: null, 
+	selected: false, 
+	multipleSelected: []
+}
 
 const entitiesStateReducer = combineReducers({
 	profile : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PROFILE, defualtStoreState),

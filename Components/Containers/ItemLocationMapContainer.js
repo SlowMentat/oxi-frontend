@@ -13,7 +13,7 @@ import ItemLocationMap from '../../Components/Presentations/ItemLocationMap.js';
 const mapStateToProps = (state, props) => {
 	return ({
 		viewState: state.contentViewState.viewState,
-		clientInvalidateItems:  state.entitiesStateReducer.items.clientInvalidated
+		clientInvalidatedItems:  state.entitiesStateReducer.items.clientInvalidated
 	})
 }
 

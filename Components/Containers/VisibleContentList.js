@@ -30,8 +30,8 @@ const getVisibleContents = (contents, filter, outfits, /*addedOutfits,*/ selecte
 				break;
 			case 'BY_OUTFIT_ID':
 				if(outfits != undefined){
-					if(selectedOutfitId != undefined){
-						if(selectedOutfitId != false){
+					if(selectedOutfitId !== undefined){
+						if(selectedOutfitId !== false){
 							//array of content ids
 							//result.allIds = outfits.allEditingIds.includes(selectedOutfitId) ? addedOutfits.byIds[selectedOutfitId]["contents"].sort() : outfits.byIds[selectedOutfitId]["contents"].sort();
 							result.allIds = outfits.byIds[selectedOutfitId]["contents"].sort();

@@ -175,16 +175,23 @@ export default class webAppView extends React.Component {
 		let forceStateUpdate = false;
 		let itemIdExistsInState = false;
 		//force update if number of properties differs
-		if(Object.keys(this.state.visibleItems.visibleItemsByIds).length != Object.keys(visibleItemsByIds).length){
-			console.log('>> Update forced due to different key count')
-			console.log('>> state = ', this.state.visibleItems.visibleItemsByIds);
-			console.log('>> parameter = ', visibleItemsByIds)
-			this.setState(prevState => ({
-				visibleItems: {
-					//...prevState.visibleItems,
-					visibleItemsByIds
-				}
-			}));
+		let visibleItemsByIdsKeys = Object.keys(visibleItemsByIds);
+		if(Object.keys(this.state.visibleItems.visibleItemsByIds).length != visibleItemsByIdsKeys.length  && visibleItemsByIdsKeys.length > 0){
+			if(typeof visibleItemsByIdsKeys[0] === 'object'){
+				console.log('keys are typeof object')
+				throw new Error('Illegal key type of visibileItemsById object.');
+			}else{
+				console.log('typeof visibleItemsByIdsKeys = ', typeof visibleItemsByIdsKeys[0])
+				console.log('>> Update forced due to different key count')
+				console.log('>> state = ', this.state.visibleItems.visibleItemsByIds);
+				console.log('>> parameter = ', visibleItemsByIds)
+				this.setState(prevState => ({
+					visibleItems: {
+						//...prevState.visibleItems,
+						visibleItemsByIds
+					}
+				}));
+			}
 		}else{
 			//Item count is equal here. Check for item object differences
 			let idsToRemove = {visibleItemsByIds:{}};

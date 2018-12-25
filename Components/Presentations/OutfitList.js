@@ -15,7 +15,7 @@ const OutfitList = ({items={}, outfitIds = [], outfits = {}, addedOutfitIds = []
 	}*/
 	return (
 		<TransitionGroup>
-	    	<div className={OutfitStyles.outfitMenuBlock}>
+	    	<div className={OutfitStyles.outfitMenuBlock} syle={{'margin-left':'50px'}}>
 	    		
 	    		{outfitIds.map((outfitId) => 
 	    			<Outfit 

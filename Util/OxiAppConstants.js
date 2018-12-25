@@ -46,6 +46,24 @@ export const OxiAppConstants = Object.freeze({
 		BRAND: "BRAND",
 		RETAILER: "RETAILER"
 	},
+	EmbeddedEntityPropertyNames : {	
+		PROFILE : "profileDto",
+		OUTFIT : "outfitDtoes",
+		CONTENT: "contentDtos",
+		ITEM : "itemDtos",
+		PICTURE : "pictureDtos",
+		BRAND: "brandDtos",
+		RETAILER: "retailerDtos"	
+	},
+	JsonPropertyNames : {		
+		PROFILE : "profile",
+		OUTFIT : "outfits",
+		CONTENT: "contents",
+		ITEM : "items",
+		PICTURE : "picture",
+		BRAND: "brands",
+		RETAILER: "retailers"
+	},
 	ContentDirectories : {
 		IMAGES: 'Graphics'
 	},

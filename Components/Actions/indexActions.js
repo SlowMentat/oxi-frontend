@@ -375,13 +375,35 @@ export const clientInvalidateEntities = (entityType, entityIds=[]) => {
 //Remove specified entityIds from the clientInvalidated Leaf of entitiesStateReducer
 export const removeClientInvalidation = (entityType, entityIds=[]) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_CLIENT_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+		dispatch(makeActionCreator(`REMOVE_CLIENT_INVALIDATE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
 	}
 };
 //Remove all entityIds from the clientInvalidated Leaf of entitiesStateReducer
 export const clearClientInvalidation = (entityType) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`CLEAR_CLIENT_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+		dispatch(makeActionCreator(`CLEAR_CLIENT_INVALIDATE_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+};
+
+
+//========CLIENT INVALIDATION ACTIONS========
+
+//add specified entityIds to the clientInvalidated Leaf of entitiesStateReducer
+export const clientDeleteEntities = (entityType, entityIds=[]) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLIENT_DELETE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+//Remove specified entityIds from the clientInvalidated Leaf of entitiesStateReducer
+export const removeClientDeleteEntities = (entityType, entityIds=[]) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_CLIENT_DELETE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+};
+//Remove all entityIds from the clientInvalidated Leaf of entitiesStateReducer
+export const clearClientDeleteEntities = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLEAR_CLIENT_DELETE_${entityType.toUpperCase()}`, entityType.toUpperCase())());
 	}
 };
 
@@ -677,10 +699,10 @@ export function fetchEntities(entityType, username, filter){
 						//normalize received json payload
 						let normalizedJson = normalize(json, outfitsSchema);
 						
-						console.log('fetchEntities:  normalizedJson = ', normalizedJson); 
+						console.log('entitiesStateReducer', normalizedJson); 
 						
 						//Manually build itemContents join table
-						let itemContentJson = buildItemContentsObject(json);
+						let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
 						dispatch(createItemContent(itemContentJson));							
 
 						mergeResponseEntities(dispatch, normalizedJson);
@@ -880,6 +902,8 @@ export function clearAllAddedEntitiesState(addedEntities){
 				dispatch(removeAllAddedEntities(OxiAppConstants.EntityTypes.CONTENT));
 			case addedEntities.items.allIds.length > 0:
 				dispatch(removeAllAddedEntities(OxiAppConstants.EntityTypes.ITEM));
+			case addedEntities.itemContent.allIds.length > 0:
+				dispatch(removeAllAddedEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
 			default:
 				return;	
 		}
@@ -1037,7 +1061,7 @@ export function postContent(contentJson, outfitId, onSuccess){
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		axios.post(
 			OxiAppConstants.serviceUrl + '/contents' + pathVariable, 
-			[Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0])], 
+			[ Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]) ], 
 			{})
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
@@ -1048,19 +1072,54 @@ export function postContent(contentJson, outfitId, onSuccess){
 	}
 }
 
-export function putContent(contentJson, onSuccess){
+export function putContent(contentJson, outfitId, onSuccess){
 	return (pictureJson) => {
-		axios.post(
-			OxiAppConstants.serviceUrl + '/contents', 
-			[Object.assign({}, graftPictureJson([contentJson], pictureJson)[0])], 
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+		if(pictureJson !== null){
+			console.log('picturejson != null');
+			console.log('contentJson = ', contentJson);
+			axios.put(
+				OxiAppConstants.serviceUrl + '/content' + pathVariable, 
+				Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]), 
+				{})
+			.then(response => {
+				if(response.status === OxiAppConstants.HttpStatus.OK){
+					onSuccess(response);
+				}
+				return response.status;		
+			});	
+		}else{
+			console.log('picturejson == null');
+			console.log('contentJson = ', contentJson);
+			axios.put(
+				OxiAppConstants.serviceUrl + '/content' + pathVariable, 
+				contentJson, 
+				{})
+			.then(response => {
+				if(response.status === OxiAppConstants.HttpStatus.OK){
+					onSuccess(response);
+				}
+				return response.status;		
+			});	
+		}
+	};
+}
+
+export function putRemoveItems(payloadJson, outfitId, onSuccess){
+	return () => {
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+		console.log('putRemoveItems:  payloadJson = ', payloadJson);
+		axios.put(
+			OxiAppConstants.serviceUrl + '/removeItems' + pathVariable,
+			payloadJson,
 			{})
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.OK){
 				onSuccess(response);
 			}
-			return response.status;		
-		});	
-	};
+			return response.status;
+		});
+	}
 }
 
 export function postItems(payloadJson, outfitId, onSuccess){
@@ -1075,7 +1134,7 @@ export function postItems(payloadJson, outfitId, onSuccess){
 				onSuccess(response);
 			}
 			return response.status;
-		})
+		});
 	}
 }
 

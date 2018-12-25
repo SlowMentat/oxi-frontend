@@ -79,7 +79,7 @@ export default class ItemLocationMap extends React.Component{
 		event.target.style.transform = '';
 		//invalidate the modified item
 		this.props.modifyItemStatePosition(itemId, xCoordPercentUpdate, yCoordPercentUpdate);
-		if(!this.props.clientInvalidateItems.includes(itemId)){
+		if(!this.props.clientInvalidatedItems.includes(itemId)){
 			this.props.clientInvalidateItem(itemId);
 		}
 

@@ -78,9 +78,10 @@ const mapDispatchToProps = (dispatch, state) => ({
 		for(let contentId of outfit['contents']){
 			dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.CONTENT, contentId));
 			//dispatch(updateContent(contentId));
-			//dispatch(addContent(contentId, outfit.id, contents[contentId].items));	
-			console.log('megered content = ', Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, contents[contentId]));
-			dispatch(addContent(Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, contents[contentId])));		
+			//dispatch(addContent(contentId, outfit.id, contents[contentId].items));
+			let content = Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, contents[contentId]);	
+			console.log('megered content = ', content);
+			dispatch(addContent(content));		
 			for(let itemId of contents[contentId].items){
 				//dispatch(updateItem(itemId));
 				dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.ITEM, itemId));

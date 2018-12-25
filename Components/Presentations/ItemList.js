@@ -44,9 +44,9 @@ export default class ItemList extends React.Component{
 		this.props.populateItemsMap(allFilteredItems);
 		//if(Object.keys(allFilteredItems).length > 0){
 			/*console.log('>>> this.props.visibleItemsMap = ', this.props.visibleItemsMap.visibleItemsByIds);
-			console.log('>>> allFilteredItems = ', allFilteredItems);*/
+			console.log('>>> allFilteredItems = ', allFilteredItems);
 			this.props.populateItemsMap(allFilteredItems);
-			/*if(Object.keys(this.props.visibleItemsMap.visibleItemsByIds).length !== Object.keys(allFilteredItems).length){
+			if(Object.keys(this.props.visibleItemsMap.visibleItemsByIds).length !== Object.keys(allFilteredItems).length){
 				//this.props.populateItemsMap(allFilteredItems);
 			}*/
 		//}
@@ -69,7 +69,17 @@ export default class ItemList extends React.Component{
 		    								onClick={() => console.log('bookmark clicked')}/> : 
 		    							<SvgIcon 
 		    								name="DeleteIcon"
-		    								onClick={() => this.props.deleteItem(this.props.multipleSelectedAllIds, this.props.selectedContent)}/>
+		    								onClick={() => {
+		    									this.props.deleteItem(this.props.multipleSelectedAllIds, this.props.selectedContent);
+		    									//preemptively remove the selected item ids from the item array property of this.props.selectedContent reference
+		    									let updatedItems = this.props.selectedContent.items.filter(id => {
+		    										for(let removedId of this.props.multipleSelectedAllIds){
+		    											if(removedId === id) return false;
+		    										}
+		    										return true;
+		    									});
+		    									//this.props.clientInvalidateItems(updatedItems);
+		    								}}/>
 		    					}
 		    				</div>
 		    			</div>

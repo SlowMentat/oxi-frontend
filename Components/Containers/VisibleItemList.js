@@ -7,6 +7,7 @@ import {
 	clientInvalidateEntities,
 	clearSelectMultipleEntity,
 	removeAddedEntities,
+	clientDeleteEntities,
 	modifyContent
 } from '../../Components/Actions/indexActions.js';
 import ItemList from '../../Components/Presentations/ItemList.js';
@@ -55,6 +56,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 }*/
 
 const getVisibleItems = (items, filter, contents, selectedContentId) => {
+	console.log('getVisibleItems: passed items = ', items);
 	let itemsById = items.byIds;
 	let result = {byIds:{}, allIds:[]};
 	//Only perform filter on non-empty items object
@@ -143,8 +145,9 @@ const mapDispatchToProps = dispatch => ({
 	createHandleMulSel: (id) => () => dispatch(selectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
 	createHandleMulDesel: (id) => () => dispatch(deselectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
 	deleteItem: (selectedAllIds, selectedContent) => {
+		dispatch(clientDeleteEntities(OxiAppConstants.EntityTypes.ITEM, selectedAllIds))
 		//add selected content to content.clientInvalidated
-		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [selectedContent.id]));
+		///dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [selectedContent.id]));
 		//remove items from addedEntitiesReducer corresponding to the id found in items.multipleSelected
 		dispatch(removeAddedEntities(OxiAppConstants.EntityTypes.ITEM, selectedAllIds));
 		//update content child items to reflect changes
@@ -159,7 +162,8 @@ const mapDispatchToProps = dispatch => ({
 		}));
 		//clear items.mulltipleSelected
 		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
-	}
+	},
+	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds))
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

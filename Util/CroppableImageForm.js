@@ -93,17 +93,19 @@ class CroppableImageForm extends React.Component{
 
 	_handleSubmit(e) {
 		e.preventDefault();
+		console.log('addedEntities from _handleSubmit in CroppableImageForm = ', this.props.addedEntities);
 		// TODO: do something with -> this.state.file 
 		//postAddedOutfit(this.state.file);
 		this.state.cropping ?  
 			console.log('please finish cropping before submiting image') : 
-			(this.props.entitiesStateReducer.pictures.clientInvalidated.length >= 0) ? //TODO:  should be ... > 0
+			(this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0) ? //TODO:  should be ... > 0
 				this.props.postAddedOutfit(this.state.src) :
 				this.props.postAddedOutfit(null);
 		//event.preventDefault();
 	}
 
 	_handleAcceptCrop(event){
+		console.log('addedEntities from _handleAcceptCrop in CroppableImageForm = ', this.props.addedEntities);
 		if(this.state.cropping){
 			getCroppedImg((this.state.src || this.props.src), this.state.crop, 'croppedResult', this.state.maxWidth, this.state.maxHeight)
 			.then(croppedFile => {				
@@ -117,6 +119,7 @@ class CroppableImageForm extends React.Component{
 				cropping: !this.state.cropping
 			})
 		}
+		console.log('addedEntities from _handleAcceptCrop in CroppableImageForm AFTER CROP = ', this.props.addedEntities);
 	}
 
 	_onSelectFile(e){
@@ -132,7 +135,9 @@ class CroppableImageForm extends React.Component{
 			reader.readAsDataURL(e.target.files[0]);
 			//invalidate the selected content once file data has been changed or added
 			console.log('calling clientInvalidateEntity() from CroppableImageForm.js');
+			//this.props.clientInvalidateEntity(this.props.addedEntities.contents[this.props.entitiesStateReducer.contents.selected].items),  OxiAppConstants.EntityTypes.ITEM)();
 			this.props.clientInvalidateEntity([this.props.entitiesStateReducer.contents.selected], OxiAppConstants.EntityTypes.CONTENT)();
+			this.props.clientInvalidateEntity([this.props.entitiesStateReducer.contents.selected], OxiAppConstants.EntityTypes.PICTURE)();
 		}
 	}
 
@@ -193,6 +198,7 @@ class CroppableImageForm extends React.Component{
 	}
 
 	render(){
+		console.log('addedEntities from CroppableImageForm render function = ', this.props.addedEntities);
 		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
 		let content = null;
 		if(this.state.cropping){
