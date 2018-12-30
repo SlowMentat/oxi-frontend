@@ -84,7 +84,7 @@ export class Outfit extends React.Component{
 	render(){
 		let outfitBlockHomeStyle = null;
 		if(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase()){
-			outfitBlockHomeStyle = {'display':'inline-block','margin':'20px'};
+			outfitBlockHomeStyle = {'display':'inline-block','margin':'40px 50px 0px 50px'};
 		}
 
 		return(
@@ -95,13 +95,15 @@ export class Outfit extends React.Component{
 				onMouseOver={this._handleOnMouseOver}
 				onMouseOut={this._handleOnMouseOut}
 			>
-			<OutfitSocialStatistics/>
+			<OutfitSocialStatistics webAppView={this.props.webAppView}/>
 				<img 
 					src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
 					style={{
 						width:'100%', 
 						'max-height':'inherit',
 						'border-radius':'3px',
+						'border-top-left-radius':'0px',
+						'border-bottom-left-radius':'0px',
 						position:'absolute'
 					}}
 				/>
