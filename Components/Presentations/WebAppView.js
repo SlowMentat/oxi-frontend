@@ -10,9 +10,10 @@ import ContentContainer from '../../Components/Containers/ContentContainer.js';
 import OutfitPanelContainer from '../../Components/Containers/OutfitPanelContainer.js'
 import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js'
 import MetricTitleContainer from '../../Components/Containers/MetricTitleContainer.js';
+import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
 
 //Presentation Component 
-import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js'
+import BodyDiagram from './BodyDiagram.js';
 
 //Constants
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -109,9 +110,9 @@ class OutfitNav extends React.Component{
 		return(
     		<div className={Styles.outfitBlock}>
     			<div className={OutfitNavStyles.outfitNavContainer}>
-	    			<div className={OutfitNavStyles.outfitCtrlContainer}>
+	    			{/*<div className={OutfitNavStyles.outfitCtrlContainer}>
 						<OutfitPanelContainer webAppView={this.props.webAppView}/>
-	    			</div>
+	    			</div>*/}
 	    			<div className={OutfitNavStyles.previewContainer}>
 	    				<VisibleOutfitList  webAppView={this.props.webAppView}/>
 	    			</div>
@@ -288,7 +289,27 @@ export default class webAppView extends React.Component {
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerBrowse}>
-								<MetricPanel />
+								<div className={Styles.metricsContainer_div}>
+									<div style={{
+										'height': '15%',
+    									'border-bottom-style': 'solid',
+    									'border-width': '20px',
+    									'border-color': '#dadada',
+									}}>
+										Filter Control
+									</div>
+									<MetricPanel />
+									<div style={{'height':'calc(38%)'}}>
+										<div style={{'height':'100%'}}>
+											<BodyDiagram 
+												bodyShape={this.props.hostProfile !== undefined ? 
+													this.props.hostProfile.bodyShape :
+													null} 
+												selectedField={null} 
+												orientation='left' />
+										</div>
+									</div>
+								</div>
 								<OutfitNav 	webAppView={this.props.webAppView}/>
 								<ModalContentSelection/>
 								<Admin/>

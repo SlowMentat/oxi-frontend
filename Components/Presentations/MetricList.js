@@ -3,6 +3,44 @@ import PropTypes from 'prop-types';
 import MetricStyles from '../../metric.css';
 import Metric from './Metric.js'
 
+
+
+
+const labelContainer_div = {
+	'border-top-style': 'solid',
+    'border-width': '1px',
+    'border-color': '#dadada',
+    'height': 'calc(100% - (5vh + 28px))',
+    'position': 'relative',
+}
+
+const upperBodySection_div = {
+	'width': '45%',
+    'margin': '0px auto 0px 0px',
+    'padding-top': '15px',
+    'margin-left': '0px',
+    'padding-bottom': '0%',
+    'border-right-style': 'solid',
+    'border-right-width': '1px',
+    'border-right-color': '#d4d4d4',
+}
+
+const lowerBodySection_div = {
+	'width': '45%',
+    'margin': '0px auto auto 0px',
+    'padding-top': '15px',
+    'margin-left': '0px',
+    'display': 'block',
+    'padding-bottom': '0%',
+    'border-right-style': 'solid',
+    'border-right-width': '1px',
+    'border-right-color': '#d4d4d4',
+}
+
+const labelFormating = {
+	'padding':'0px 0px 2px 0px',
+}
+
 const BodyFitProjection = (ownerX, hostX) => {
 	//-100 : 0%
 	// 100 : 100%
@@ -134,10 +172,10 @@ const Labels = (labelToPositionMap) => {
 				Object.keys(labelToPositionMap.labelToPositionMap).map((label, ind) => {
 					console.log('label = ', label)
 					return(
-						<div style={{
+						<div style={labelFormating/*{
 							'position':'absolute', 
 							'top':labelToPositionMap.labelToPositionMap[label]
-						}}>
+						}*/}>
 							{label}
 						</div>
 					);
@@ -146,7 +184,6 @@ const Labels = (labelToPositionMap) => {
 		</div>
 	);
 }
-
 
 class MetricList extends React.Component{
 	constructor(props){
@@ -276,64 +313,46 @@ class MetricList extends React.Component{
 		console.log('this.state.labels.upperBody = ', this.state.labels.upperBody)
 		console.log('this.state.labels.lowerBody = ', this.state.labels.lowerBody)
 		return (	
-			<div style={{height:'calc((100% - (5vh + 28px)))'}}>   
-				<div style={{
-				    'height':' calc((1/4)*(5vh + 28px + 15px))',
-				    'margin-left':' calc(25% + 5px)',
-				    'width':' 50%',
-				    'margin-bottom':' 10px',
-				}}>
-					<div style={{
-					    'display':' inline-block',
-					    'width':' 50%',
-					    'height':' 100%',
-					    'text-align':' center',
-					    'border-style':' solid',
-					    'border-width':' 1px',
-					}}>
-						Shape Fit
-					</div>
-					<div style={{
-					    'display':' inline-block',
-					    'width':' 50%',
-					    'height':' 100%',
-					    'text-align':' center',
-					    'border-style':' solid',
-					    'border-width':' 1px',
-					    'border-left-width':' 0px',
-					}}>
-						Size Fit
-					</div>
-				</div>
-				<div id='upperBodySection' style={{'height':'calc((100% - (5vh + 28px))/2)', 'width':'50%', 'margin':'auto', 'position':'relative','padding-bottom':'0%','margin-top':'15px', 'margin-bottom':'0px'}}>
+			<div style={labelContainer_div}>
+				<div id='upperBodySection' style={upperBodySection_div}>
 					<Labels labelToPositionMap={this.state.labels.upperBody}/>
-					<MetricGraph 
-						sourceMetricIds={this.props.ownerUpperBodyMetricIds} 
-						sourceMetrics={projectedUpperBodyXCoord === null ? this.props.ownerUpperBodyMetrics : projectedUpperBodyXCoord.ownerValues} 
-						updateLabelPositions={this.setUpperBodyLabelPosition}
-					/>
-					<MetricGraph 
-						sourceMetricIds={this.props.hostUpperBodyMetricIds} 
-						sourceMetrics={projectedUpperBodyXCoord === null ? this.props.hostUpperBodyMetrics : projectedUpperBodyXCoord.hostValues} 
-						host={true} 
-						lineColor="#212121"
-						updateLabelPositions={null}
-					/>
+					{
+						true ? null : 
+						(<React.Fragment>
+							<MetricGraph 
+								sourceMetricIds={this.props.ownerUpperBodyMetricIds} 
+								sourceMetrics={projectedUpperBodyXCoord === null ? this.props.ownerUpperBodyMetrics : projectedUpperBodyXCoord.ownerValues} 
+								updateLabelPositions={this.setUpperBodyLabelPosition}
+							/>
+							<MetricGraph 
+								sourceMetricIds={this.props.hostUpperBodyMetricIds} 
+								sourceMetrics={projectedUpperBodyXCoord === null ? this.props.hostUpperBodyMetrics : projectedUpperBodyXCoord.hostValues} 
+								host={true} 
+								lineColor="#212121"
+								updateLabelPositions={null}
+							/>
+						</React.Fragment>)
+					}
 				</div>    
-				<div id='lowerBodySecction' style={{'height':'calc((100% - (5vh + 28px))/2)', 'width':'50%', 'margin':'auto', 'position':'relative','padding-bottom':'0%', 'margin-top':'15px'}}>
+				<div id='lowerBodySecction' style={lowerBodySection_div}>
 					<Labels labelToPositionMap={this.state.labels.lowerBody}/>
-					<MetricGraph 
-						sourceMetricIds={this.props.ownerLowerBodyMetricIds} 
-						sourceMetrics={projectedLowerBodyXCoord === null ? this.props.ownerLowerBodyMetrics : projectedLowerBodyXCoord.ownerValues}
-						updateLabelPositions={this.setLowerBodyLabelPosition} 
-					/>
-					<MetricGraph 
-						sourceMetricIds={this.props.hostLowerBodyMetricIds} 
-						sourceMetrics={projectedLowerBodyXCoord === null ? this.props.hostLowerBodyMetrics : projectedLowerBodyXCoord.hostValues} 
-						host={true} 
-						lineColor="#212121"
-						updateLabelPositions={null}
-					/>
+					{
+						true ? null : 
+						(<React.Fragment>
+							<MetricGraph 
+								sourceMetricIds={this.props.ownerLowerBodyMetricIds} 
+								sourceMetrics={projectedLowerBodyXCoord === null ? this.props.ownerLowerBodyMetrics : projectedLowerBodyXCoord.ownerValues}
+								updateLabelPositions={this.setLowerBodyLabelPosition} 
+							/>
+							<MetricGraph 
+								sourceMetricIds={this.props.hostLowerBodyMetricIds} 
+								sourceMetrics={projectedLowerBodyXCoord === null ? this.props.hostLowerBodyMetrics : projectedLowerBodyXCoord.hostValues} 
+								host={true} 
+								lineColor="#212121"
+								updateLabelPositions={null}
+							/>
+						</React.Fragment>)
+					}
 				</div>
 			</div>
 		);

@@ -68,25 +68,35 @@ div{
 .containerProfile{
 	display: grid;
 	grid-template-columns: auto 250px 45% 20%;
-	/*grid-template-rows: .03fr 1.7fr 1fr .03fr */
 	grid-template-rows: calc(100vh - 80px - 40px) 40px;
-	/*grid-template-rows: 5fr, 3fr, .4fr;*/
 	grid-gap: 5px;
 	grid-template-areas: 
 		/*"nav nav nav nav"*/
 		"metric browse preview itemMenu"
-		"admin admin admin admin";
+		"admin admin admin admin";*/
 	height:100%;
 }
 
 .containerBrowse{
 	display: grid;
-	grid-template-columns: auto 80%;
+	grid-template-columns: auto;
+    grid-template-rows: calc(100vh - 80px - 40px) 40px;
+    grid-template-areas: "browse" "admin";
+	/*grid-template-columns: auto 80%;
 	grid-template-rows: calc(100vh - 80px - 40px) 40px;
 	grid-gap: 5px;
 	grid-template-areas:
 		"metric browse"
-		"admin admin";
+		"admin admin";*/
+}
+
+.metricsContainer_div{
+	position: absolute;
+    left: 0px;
+    height: calc(100vh - 80px - 40px);
+    width: 300px;
+    border-right-style: solid;
+    border-right-width: 1px;
 }
 
 :local(.headerBlock){

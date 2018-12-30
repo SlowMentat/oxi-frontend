@@ -6,16 +6,16 @@
 }
 
 :local(.axisLabelUpperBody){
-    position: absolute;
+    /*position: absolute;
     width: 50%;
     left: -50%;
     height: 100%;
-    background-color: #fdfdfd;
+    background-color: #fdfdfd;*/
     color: #212121;
-	border-right-style: solid;
+	/*border-right-style: solid;
     border-right-width: 2px;
-    border-right-color: #d4d4d4;
-    margin-left:5px;
+    border-right-color: #d4d4d4;*/
+    margin-left:10px;
 }
 
 :local(.axisLabelLowerBody){	

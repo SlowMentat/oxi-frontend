@@ -15,40 +15,51 @@ const OutfitList = ({items={}, outfitIds = [], outfits = {}, addedOutfitIds = []
 	}*/
 	return (
 		<TransitionGroup>
-	    	<div className={OutfitStyles.outfitMenuBlock} syle={{'margin-left':'50px'}}>
-	    		
-	    		{outfitIds.map((outfitId) => 
-	    			<Outfit 
-	    				key={outfitId} 
-	    				{...outfits[outfitId]} 
-	    				id={outfitId}
-	    				onClickContextProfile={onClickContextProfile} 
-	    				onClickContextHome={onClickContextHome}
-	    				isSelected={selectedId === outfitId}  
-	    				createContent={createContent} 
-	    				coverpicuri={outfits[outfitId].coverpicuri} 
-	    				getCoverPic={getCoverPic}
-	    				contentIds={outfits[outfitId]["contents"]}
-	    				webAppView={view.webAppView}
-	    				editOutfit={() => editOutfit(outfits[outfitId], selectedId, contents, selectedContentId, items)}
-	    				viewState={viewState}
-	    			/>
-	    		)}
-	    		{addedOutfitIds.map((outfitId) => 
-	    			<Outfit 
-	    				key={outfitId} 
-	    				{...addedOutfits[outfitId]} 
-	    				id={outfitId}
-	    				onClickContextProfile={null} 
-	    				isSelected={selectedId === outfitId}  
-	    				createContent={createContent} 
-	    				coverpicuri={addedOutfits[outfitId].coverpicuri} 
-	    				getCoverPic={getCoverPic}
-	    				contentIds={addedOutfits[outfitId]["contents"]}
-	    				webAppView={null}
-	    				viewState={viewState}
-	    			/>
-	    		)}
+	    	<div style={{
+	    		'height': '100%',
+    			'padding-left': '500px',
+    			'padding-right': '200px',
+	    	}}>
+	    		<div style={{
+	    			'width': '900px',
+    				'margin': 'auto',
+    				'height': '100%',
+	    		}}>
+	    			<div className={OutfitStyles.outfitMenuBlock} syle={{'height':'100%'}}>	  
+	    				{outfitIds.map((outfitId) => 
+	    					<Outfit 
+	    						key={outfitId} 
+	    						{...outfits[outfitId]} 
+	    						id={outfitId}
+	    						onClickContextProfile={onClickContextProfile} 
+	    						onClickContextHome={onClickContextHome}
+	    						isSelected={selectedId === outfitId}  
+	    						createContent={createContent} 
+	    						coverpicuri={outfits[outfitId].coverpicuri} 
+	    						getCoverPic={getCoverPic}
+	    						contentIds={outfits[outfitId]["contents"]}
+	    						webAppView={view.webAppView}
+	    						editOutfit={() => editOutfit(outfits[outfitId], selectedId, contents, selectedContentId, items)}
+	    						viewState={viewState}
+	    					/>
+	    				)}
+	    				{addedOutfitIds.map((outfitId) => 
+	    					<Outfit 
+	    						key={outfitId} 
+	    						{...addedOutfits[outfitId]} 
+	    						id={outfitId}
+	    						onClickContextProfile={null} 
+	    						isSelected={selectedId === outfitId}  
+	    						createContent={createContent} 
+	    						coverpicuri={addedOutfits[outfitId].coverpicuri} 
+	    						getCoverPic={getCoverPic}
+	    						contentIds={addedOutfits[outfitId]["contents"]}
+	    						webAppView={null}
+	    						viewState={viewState}
+	    					/>
+	    				)}
+	    			</div>
+	    		</div>
 	    	</div>
 	    </TransitionGroup>
 	);
