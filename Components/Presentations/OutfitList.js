@@ -2,6 +2,19 @@ import React from 'react';
 import OutfitStyles from '../../outfit.css';
 import Outfit from './Outfit.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+
+const container1_div = {
+	'height': '100%',
+    'padding-left': '500px',
+    'padding-right': '200px',	
+}
+
+const container2_div = {
+	'width': '900px',
+    'margin': 'auto',
+    'height': '100%',	
+}
 
 const OutfitList = ({items={}, outfitIds = [], outfits = {}, addedOutfitIds = [], addedOutfits = {}, selectedId = null, selectedAddedId = null, view,  onClickContextProfile, onClickContextHome, onControlClick, focusOnAddedOutift, createContent, controlDisabled, getCoverPic, editOutfit, viewState, contents, selectedContentId}) => {
 	//This seams sloppy but there should never be more than 1 outfit in the addedEntitiesReducer tree
@@ -15,16 +28,8 @@ const OutfitList = ({items={}, outfitIds = [], outfits = {}, addedOutfitIds = []
 	}*/
 	return (
 		<TransitionGroup>
-	    	<div style={{
-	    		'height': '100%',
-    			'padding-left': '500px',
-    			'padding-right': '200px',
-	    	}}>
-	    		<div style={{
-	    			'width': '900px',
-    				'margin': 'auto',
-    				'height': '100%',
-	    		}}>
+	    	<div style={view.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() ? container1_div : null}>
+	    		<div style={view.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() ? container2_div : null}>
 	    			<div className={OutfitStyles.outfitMenuBlock} syle={{'height':'100%'}}>	  
 	    				{outfitIds.map((outfitId) => 
 	    					<Outfit 
