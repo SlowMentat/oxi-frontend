@@ -91,6 +91,19 @@
 
 /*Social Statistics CSS*/
 
+:locacl(.SocialStatsContiainerHome){
+	position: absolute;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #00000042;
+    border-right-style: none;
+    background-color: #00000005;
+    padding: 10px 14px 10px 14px;
+    width: 50px;
+    height: calc(200px + 200px/2);
+    margin-left: -50px;
+}
+
 :local(.SocialStatsContainer){
 	position: absolute;
 	width: 23px;
