@@ -8,7 +8,9 @@ import {
 	clearSelectMultipleEntity,
 	removeAddedEntities,
 	clientDeleteEntities,
-	modifyContent
+	modifyContent,
+	postBookmarks,
+	postBookmark,
 } from '../../Components/Actions/indexActions.js';
 import ItemList from '../../Components/Presentations/ItemList.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
@@ -75,7 +77,7 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 					console.log("contents =");
 					console.log(contents)
 					if(selectedContentId != undefined && contents.allIds.length > 0){
-						if(selectedContentId != false){
+						if(selectedContentId != null){
 							//array of content ids
 							if(Object.keys(contents.byIds).length > 0) result.allIds = contents.byIds[selectedContentId]["items"].sort();
 							for(let itemId of result.allIds){
@@ -86,7 +88,7 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 							console.log(result);
 							return Object.assign({}, items, result);	
 						}else{
-							console.log("selectedContentId is false");
+							console.log("selectedContentId is null");
 						}				
 					}else{
 						console.log("selectedContentId is undefined");
@@ -97,7 +99,7 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 			default:
 				return Object.assign({}, items, result);
 		}
-	}else if(selectedContentId === false){
+	}else if(selectedContentId === null){
 		return
 	}
 	return items;
@@ -116,7 +118,7 @@ const mapStateToProps = (state, props) => {
 			state.entitiesReducer.items, 
 			'BY_CONTENT_ID', 
 			state.entitiesReducer.contents, 
-			state.entitiesStateReducer.contents.selected === 1 ? false : state.entitiesStateReducer.contents.selected), 
+			state.entitiesStateReducer.contents.selected === 1 ? null : state.entitiesStateReducer.contents.selected), 
 		state.entitiesReducer.items.allEditingIds);
 
 	let filteredAddedItems = getVisibleItems(
@@ -134,7 +136,8 @@ const mapStateToProps = (state, props) => {
 		retailers :  retailers,
 		viewState: state.contentViewState.viewState,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
-		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected]
+		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],
+		selectedItemCount: state.entitiesStateReducer.items.multipleSelected.length
 	});
 }
 
@@ -163,7 +166,19 @@ const mapDispatchToProps = dispatch => ({
 		//clear items.mulltipleSelected
 		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
 	},
-	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds))
+	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds)),
+	bookmarkItems: (itemIds) => {
+		postBookmarks(itemIds, (response) => {
+			console.log('postBookmarks:  response = ', response);
+			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
+		})();
+	},
+	bookmarkItem: (itemId) => {
+		postBookmark(itemId, (response) => {
+			console.log('postBookmark:  response = ', response);
+			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
+		})();
+	}
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

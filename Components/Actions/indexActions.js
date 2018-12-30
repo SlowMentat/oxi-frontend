@@ -524,12 +524,20 @@ export function navigateTo(location){
 		dispatch(requestNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
-		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && 
-			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
-			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
-		}else{
-			selectDestination(location, dispatch);
-			dispatch(requestNavigation(null));
+		switch(true){
+			case (getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW):
+				//dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS));
+				dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_EDITS, null, null));
+				break;
+
+			case (getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().entitiesStateReducer.items.multipleSelected.length > 0):
+				//dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_SELECTED_ITEMS))
+				dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_SELECTED_ITEMS, null, null));
+				break;
+
+			default:
+				selectDestination(location, dispatch);
+				dispatch(requestNavigation(null));		
 		}/*
 		}).then((response) => {
 			console.log('about to call select Navigation')
@@ -797,6 +805,7 @@ export function verifyIntent(intentTo){
 			case OxiAppConstants.Intent.DISCARD_EDITS:
 				dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_EDITS, null, null));
 				break;
+			//case Oxi
 			default:
 				break;
 		}
@@ -836,15 +845,15 @@ export function deselectAndPropogate(entityType){
 		console.log(entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
-				dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, null));
 				dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.CONTENT));
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
-				dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, null));
 				dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.ITEM));
 				break;
 			case OxiAppConstants.EntityTypes.ITEM:
-				dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+				dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, null));
 				break;
 			default:
 				console.log("no matching entity type");
@@ -909,7 +918,7 @@ export function removeAddedEntityAndPropogate(entityType, entity){
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
 				//Remove any child entities
-				dispatch(selectEntity(entityType, false));
+				dispatch(selectEntity(entityType, null));
 				if(entity.contents){
 					for(let content of entity.contents){
 						//console.log('removeAddedEntityAndPropogate(): content = ', content)
@@ -921,7 +930,7 @@ export function removeAddedEntityAndPropogate(entityType, entity){
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
 				//Remove any child entities
-				dispatch(selectEntity(entityType, false))
+				dispatch(selectEntity(entityType, null))
 				if(entity.items){
 					for(let item of entity.items){
 						//console.log('removeAddedEntityAndPropogate(): item = ', item)
@@ -1144,9 +1153,43 @@ export function putItems(payloadJson, outfitId, onSuccess){
 				onSuccess(response);
 			}
 			return response.status;
-		})
+		});
 	}
 }
+
+export function postBookmarks(itemIds, onSuccess){
+	return () => {
+		return axios.post(
+			OxiAppConstants.serviceUrl + '/bookmarks',
+			itemIds,
+			{})
+		.then(response => {
+			console.log('postBookmarks:  response = ', response)
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response);
+			}
+			return response.status;
+		});
+	}
+}
+
+export function postBookmark(itemId, onSuccess){
+	return () => {
+		let pathVariable = itemId !== '' ? ('/' + itemId) : '';
+		return axios.post(
+			OxiAppConstants.serviceUrl + '/bookmark' + pathVariable,
+			{},
+			{})
+		.then(response => {
+			console.log('postBookmark:  response = ', response)
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response);
+			}
+			return response.status;
+		});
+	}
+}
+
 //TODO:  implemented for redux-promise-middleware... get working
 export const batchRequestEntities = (entityType, promise) => {
 	return function(dispatch){

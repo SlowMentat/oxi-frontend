@@ -270,7 +270,7 @@ function allIds(state = [], action){
 	}
 }
 
-const entities = maxCount => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
+const entities = maxCount => (state = {controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
 	let byIdsRef = {};
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
@@ -385,7 +385,7 @@ function filterInvalidated(state=[], action){
 	return duplicatesFiltered;
 }
 
-const entitiesState = (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
+const entitiesState = (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: null, multipleSelected: []}, action) => {
 	switch(action.type){
 		case `RECEIVE_${action.typeSpecifier}`:
 			return Object.assign({}, state, {receivedAt: action.payload, isFetching: !state.isFetching, 'serverInvalidated': !state.serverInvalidated});
@@ -424,7 +424,7 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 
 		case `SELECT_${action.typeSpecifier}`:
 			//batch comment//console.log('entitiesState reducer: action = ', action)
-			return Object.assign({}, state, {...action.payload, multipleSelected: [action.payload.selected]});
+			return Object.assign({}, state, {...action.payload, multipleSelected: (action.payload.selected === null ? [] : [action.payload.selected]) });
 
 		case `SELECT_MUL_${action.typeSpecifier}`:
 			return Object.assign({}, state, {
@@ -438,12 +438,13 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 				}) :
 				Object.assign({}, state, {
 					multipleSelected: state.multipleSelected.filter(id => id !== action.payload.selected),
-					seleted: false
+					selected: null
 				});
 
 		case `CLEAR_SELECT_MUL_${action.typeSpecifier}`:
 			return Object.assign({}, state, {
-				multipleSelected: []
+				multipleSelected: [],
+				selected: null
 			});
 
 		default:
@@ -635,7 +636,7 @@ export const maxPictureCount = maxContentCount;
 export const maxItemCount = maxItemViewCount * maxContentCount;
 export const maxItemContentCount = maxContentCount * maxItemCount;
 
-let defualtStoreState = {selected: false, controlDisabled :  false, count: 0, byIds : {}, allIds : [], allEditingIds: []};
+let defualtStoreState = {selected: null, controlDisabled :  false, count: 0, byIds : {}, allIds : [], allEditingIds: []};
 
 const entitiesReducer = combineReducers({
 	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtStoreState),
@@ -662,7 +663,7 @@ defualtStoreState = {
 	clientInvalidated: [], 
 	clientDeleted: [],
 	receivedAt: null, 
-	selected: false, 
+	selected: null, 
 	multipleSelected: []
 }
 

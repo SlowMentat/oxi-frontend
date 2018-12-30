@@ -24,13 +24,16 @@
 }
 
 :local(.itemMenuHeader){
+	display: inline;
 	width: 35px;
     height: 100%;
 }
 
 :local(.itemMenuHeaderIconContainer){
 	height: 100%;
-    padding-top: 20px;
+    padding-top: 2.5vh;
+    display: inline-block;
+    width: 2vw;
 }
 
 

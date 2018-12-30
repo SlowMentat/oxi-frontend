@@ -266,7 +266,7 @@ export default class webAppView extends React.Component {
 	_handleItemHovered(itemId){
 		//if(itemId != this.state.itemIdHovered){
 			this.setState({
-				itemIdHovered: itemId
+				itemIdHovered: itemId 
 			})
 		//}
 	}

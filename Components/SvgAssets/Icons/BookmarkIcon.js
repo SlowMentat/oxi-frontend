@@ -19,7 +19,8 @@ export default class BookmarkIcon extends React.Component{
 				version="1.1" 
 				viewBox="0 0 50 50" 
 				xmlns="http://www.w3.org/2000/svg"				
-				style={{'width':'100%','height':'100%'}}>
+				style={{'width':'100%','height':'100%'}}
+				onClick={this.props.onClick}>
 				<g>
 					<path 
 						d="m37.5 43.75v-37.5h-25v37.5l12.5-8.3334 12.5 8.3334" 

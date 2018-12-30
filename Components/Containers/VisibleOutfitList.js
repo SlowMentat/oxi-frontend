@@ -62,6 +62,8 @@ const mapDispatchToProps = (dispatch, state) => ({
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 	editOutfit : (outfit, selectedOutfitId, contents, selectedContentId, items) => {
 		console.log('editOutfit:  outfit = ', outfit);
+		//make sure all items are unselected when transitioning to edit mode.
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, null));
 		dispatch(disableAddOutfit(true));
 		if(selectedOutfitId !== outfit.id){
 			//set the selected content to the first in the array.  Outfit should always have at least one content child entity.

@@ -34,9 +34,9 @@ const mapDispatchToProps = (dispatch, props) => ({
 			//Clear existing store
 
 			//Deselect everything
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, null));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, null));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, null));
 			//remove all entitiy data from entitiesReducer branch
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));

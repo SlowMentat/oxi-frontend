@@ -86,7 +86,8 @@ export const OxiAppConstants = Object.freeze({
 		}
 	},
 	Intent:{
-		DISCARD_EDITS: 'discardEdits'
+		DISCARD_EDITS: 'discardEdits',
+		DISCARD_SELECTED_ITEMS: 'discardSelectedItems',
 	},/*
 	NavigationException:{
 		USER_CANCELED: "User Canceled",

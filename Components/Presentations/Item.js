@@ -128,7 +128,8 @@ export const Item = (props) => {
 								</div>
 							</React.Fragment>
 						) :
-						(
+						null
+						/*(
 							<div style={{
 								position: 'relative',
    								'width': '45px',
@@ -137,7 +138,7 @@ export const Item = (props) => {
 							}}>
 								<SvgIcon name="WardrobeIcon" />
 							</div>
-						)
+						)*/
 					}
 				</div>
 			</CSSTransition>

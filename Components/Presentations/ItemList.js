@@ -12,6 +12,7 @@ export default class ItemList extends React.Component{
 			itemIds: [...props.itemIds],
 			addedItemIds: [...props.addedItemIds],
 		};
+		this._handleBookmarkClicked = this._handleBookmarkClicked.bind(this);
 	}
 
 	shouldComponentUpdate(nextProps) {
@@ -23,6 +24,16 @@ export default class ItemList extends React.Component{
         console.log('should ItemList component updated: ', shouldUpdate);
         return differentItems || differentItems || differentBrands || differentRetailers;
     }
+
+    _handleBookmarkClicked(itemIds){
+    	console.log('bookmark icon clicked!')
+    	itemIds.length > 1 ?
+    		this.props.bookmarkItems(itemIds) :
+    		itemIds.length > 0 ?
+    			this.props.bookmarkItem(itemIds) :
+    			console.log('select an item to bookmark');
+	}
+
 	/*let itemKeys = Object.keys(items)
 	let idArray = itemIds;
 	//modify the idArray to be in agreement with provided items object
@@ -61,26 +72,43 @@ export default class ItemList extends React.Component{
 		    		<div className={ItemStyles.itemMenuHeaderContainer}>
 		    			<div className={ItemStyles.itemMenuHeader}>
 		    				<div className={ItemStyles.itemMenuHeaderIconContainer}>
-		    					{this.props.multipleSelectedAllIds.length === 0 ? 
-		    						null : 
-		    						this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-		    							<SvgIcon 
-		    								name="BookmarkIcon"
-		    								onClick={() => console.log('bookmark clicked')}/> : 
-		    							<SvgIcon 
-		    								name="DeleteIcon"
-		    								onClick={() => {
-		    									this.props.deleteItem(this.props.multipleSelectedAllIds, this.props.selectedContent);
-		    									//preemptively remove the selected item ids from the item array property of this.props.selectedContent reference
-		    									let updatedItems = this.props.selectedContent.items.filter(id => {
-		    										for(let removedId of this.props.multipleSelectedAllIds){
-		    											if(removedId === id) return false;
-		    										}
-		    										return true;
-		    									});
-		    									//this.props.clientInvalidateItems(updatedItems);
-		    								}}/>
+		    					{
+		    						this.props.multipleSelectedAllIds.length === 0 ? 
+		    							null : 
+		    							this.props.viewState === OxiAppConstants.viewState.PREVIEW ?
+		    								<SvgIcon 
+		    									name="BookmarkIcon"
+		    									onClick={() => {
+		    										console.log('bookmark clicked');
+		    										this._handleBookmarkClicked(this.props.multipleSelectedAllIds);
+		    									}}/> : 
+		    								<SvgIcon 
+		    									name="DeleteIcon"
+		    									onClick={() => {
+		    										this.props.deleteItem(this.props.multipleSelectedAllIds, this.props.selectedContent);
+		    										//preemptively remove the selected item ids from the item array property of this.props.selectedContent reference
+		    										let updatedItems = this.props.selectedContent.items.filter(id => {
+		    											for(let removedId of this.props.multipleSelectedAllIds){
+		    												if(removedId === id) return false;
+		    											}
+		    											return true;
+		    										});
+		    										//this.props.clientInvalidateItems(updatedItems);
+		    									}}/>
 		    					}
+		    				</div>
+		    				<div style={{
+		    					'display':'inline-block',
+		    					'padding-top':'2.5vh',
+		    					'vertical-align':'top',
+		    				}}>
+		    					<div style={{
+		    						'font-size':'2vh', 
+		    						'width': '100%', 
+		    						'margin-left': '-15%',
+		    					}}>
+		    						{this.props.selectedItemCount === 0 ? null : '+' + this.props.selectedItemCount}
+		    					</div>
 		    				</div>
 		    			</div>
 		    		</div>

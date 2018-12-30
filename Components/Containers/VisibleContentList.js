@@ -31,7 +31,7 @@ const getVisibleContents = (contents, filter, outfits, /*addedOutfits,*/ selecte
 			case 'BY_OUTFIT_ID':
 				if(outfits != undefined){
 					if(selectedOutfitId !== undefined){
-						if(selectedOutfitId !== false){
+						if(selectedOutfitId !== null){
 							//array of content ids
 							//result.allIds = outfits.allEditingIds.includes(selectedOutfitId) ? addedOutfits.byIds[selectedOutfitId]["contents"].sort() : outfits.byIds[selectedOutfitId]["contents"].sort();
 							if(Object.keys(outfits.byIds).length > 0) result.allIds = outfits.byIds[selectedOutfitId]["contents"].sort();
@@ -42,7 +42,7 @@ const getVisibleContents = (contents, filter, outfits, /*addedOutfits,*/ selecte
 							console.log("returning filtered result = ", result);
 							return Object.assign({}, contents, result);	
 						}else{
-							console.log("selectedOutfitId is false");
+							console.log("selectedOutfitId is null");
 						}				
 					}else{
 						console.log("selectedOutfitId is undefined");
@@ -68,7 +68,7 @@ const mapStateToProps = state => {
 		'BY_OUTFIT_ID',
 		state.entitiesReducer.outfits,
 		/*state.addedEntitiesReducer.outfits,*/
-		state.entitiesStateReducer.outfits.selected === 1 ? false : state.entitiesStateReducer.outfits.selected
+		state.entitiesStateReducer.outfits.selected === 1 ? null : state.entitiesStateReducer.outfits.selected
 	), state.entitiesReducer.contents.allEditingIds);
 	let filteredAddedContents = state.addedEntitiesReducer.contents/*getVisibleContents(
 		state.addedEntitiesReducer.contents,
