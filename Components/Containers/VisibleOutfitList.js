@@ -25,11 +25,12 @@ import {maskEdits} from '../../Util/CommonSelectors.js';
 
 
 
-const mapStateToProps = (state, webAppView) => {
+const mapStateToProps = (state, props) => {
 	console.log('state before call to maskEdits: ', state);
 	let filteredOutfits = maskEdits(state.entitiesReducer.outfits, state.entitiesReducer.outfits.allEditingIds);
 	console.log('state after call to maskEdits: ', state);
 	console.log('filteredOutfits = ',filteredOutfits);
+	console.log('props = ', props);
 	return ({
 		outfits : filteredOutfits.byIds,
 		outfitIds : filteredOutfits.allIds,
@@ -39,7 +40,7 @@ const mapStateToProps = (state, webAppView) => {
 		controlDisabled: state.entitiesReducer.outfits.controlDisabled,
 		selectedId: state.entitiesStateReducer.outfits.selected,
 		//selectedAddedId: state.entitiesStateReducer.outfits.selected,
-		view: webAppView,
+		//view: props.view,
 		viewState: state.contentViewState.viewState,
 		contents : state.entitiesReducer.contents.byIds,
 		selectedContentId : state.entitiesStateReducer.contents.selected,

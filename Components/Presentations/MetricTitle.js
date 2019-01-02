@@ -6,8 +6,8 @@ const metricTitleContainer_div = {
 	'height': 'calc(5vh + 28px)',
     'height': '45px',
     'color': 'rgb(115, 115, 115)',
-    'margin': '8px 0px 20px 20px',
-    'font-size': '3em',
+    'margin': '10px 0px 40px 20px',
+    'font-size': '2em',
 }
 
 const MetricTitle = ({ownerName = '', hostName = ''}) => {

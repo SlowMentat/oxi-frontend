@@ -16,58 +16,63 @@ const container2_div = {
     'height': '100%',	
 }
 
-const OutfitList = ({items={}, outfitIds = [], outfits = {}, addedOutfitIds = [], addedOutfits = {}, selectedId = null, selectedAddedId = null, view,  onClickContextProfile, onClickContextHome, onControlClick, focusOnAddedOutift, createContent, controlDisabled, getCoverPic, editOutfit, viewState, contents, selectedContentId}) => {
-	//This seams sloppy but there should never be more than 1 outfit in the addedEntitiesReducer tree
-	let contentId = undefined;
-	/*if(addedOutfitIds != undefined){
-		if(addedOutfitIds.length > 0 ){
-			if(selectedAddedId != addedOutfitIds[0]){
-				focusOnAddedOutift(addedOutfitIds[0]);
-			}	
-		}
-	}*/
-	return (
-		<TransitionGroup>
-	    	<div style={view.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() ? container1_div : null}>
-	    		<div style={view.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() ? container2_div : null}>
-	    			<div className={OutfitStyles.outfitMenuBlock} syle={{'height':'100%'}}>	  
-	    				{outfitIds.map((outfitId) => 
-	    					<Outfit 
-	    						key={outfitId} 
-	    						{...outfits[outfitId]} 
-	    						id={outfitId}
-	    						onClickContextProfile={onClickContextProfile} 
-	    						onClickContextHome={onClickContextHome}
-	    						isSelected={selectedId === outfitId}  
-	    						createContent={createContent} 
-	    						coverpicuri={outfits[outfitId].coverpicuri} 
-	    						getCoverPic={getCoverPic}
-	    						contentIds={outfits[outfitId]["contents"]}
-	    						webAppView={view.webAppView}
-	    						editOutfit={() => editOutfit(outfits[outfitId], selectedId, contents, selectedContentId, items)}
-	    						viewState={viewState}
-	    					/>
-	    				)}
-	    				{addedOutfitIds.map((outfitId) => 
-	    					<Outfit 
-	    						key={outfitId} 
-	    						{...addedOutfits[outfitId]} 
-	    						id={outfitId}
-	    						onClickContextProfile={null} 
-	    						isSelected={selectedId === outfitId}  
-	    						createContent={createContent} 
-	    						coverpicuri={addedOutfits[outfitId].coverpicuri} 
-	    						getCoverPic={getCoverPic}
-	    						contentIds={addedOutfits[outfitId]["contents"]}
-	    						webAppView={null}
-	    						viewState={viewState}
-	    					/>
-	    				)}
-	    			</div>
-	    		</div>
-	    	</div>
-	    </TransitionGroup>
-	);
+class OutfitList extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		//This seams sloppy but there should never be more than 1 outfit in the addedEntitiesReducer tree
+		let contentId = undefined;
+		console.log('view = ', this.props.view);
+		return (
+			<TransitionGroup>
+		    	<div style={this.props.view === OxiAppConstants.navRequestMap.home.toLowerCase() ? container1_div : null}>
+		    		<div style={this.props.view === OxiAppConstants.navRequestMap.home.toLowerCase() ? container2_div : null}>
+		    			<div className={OutfitStyles.outfitMenuBlock}>	  
+		    				{this.props.outfitIds !== undefined ? this.props.outfitIds.map((outfitId) => 
+		    					<Outfit 
+		    						key={outfitId} 
+		    						{...this.props.outfits[outfitId]} 
+		    						id={outfitId}
+		    						onClickContextProfile={this.props.onClickContextProfile} 
+		    						onClickContextHome={this.props.onClickContextHome}
+		    						isSelected={this.props.selectedId === outfitId}  
+		    						createContent={this.props.createContent} 
+		    						coverpicuri={this.props.outfits[outfitId].coverpicuri} 
+		    						getCoverPic={this.props.getCoverPic}
+		    						contentIds={this.props.outfits[outfitId]["contents"]}
+		    						webAppView={this.props.view}
+		    						editOutfit={() => editOutfit(
+		    							this.props.outfits[outfitId], 
+		    							this.props.selectedId, 
+		    							this.props.contents, 
+		    							selectedContentId, 
+		    							this.props.items)}
+		    						viewState={this.props.viewState}
+		    					/>
+		    				) : null}
+		    				{this.props.addedOutfitIds !== undefined ? this.props.addedOutfitIds.map((outfitId) => 
+		    					<Outfit 
+		    						key={outfitId} 
+		    						{...this.props.addedOutfits[outfitId]} 
+		    						id={outfitId}
+		    						onClickContextProfile={null} 
+		    						isSelected={this.props.selectedId === outfitId}  
+		    						createContent={this.props.createContent} 
+		    						coverpicuri={this.props.addedOutfits[outfitId].coverpicuri} 
+		    						getCoverPic={this.props.getCoverPic}
+		    						contentIds={this.props.addedOutfits[outfitId]["contents"]}
+		    						webAppView={null}
+		    						viewState={this.props.viewState}
+		    					/>
+		    				) : null}
+		    			</div>
+		    		</div>
+		    	</div>
+		    </TransitionGroup>
+		);
+	}
 }
 
 export default OutfitList;

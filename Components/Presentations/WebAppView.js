@@ -11,9 +11,9 @@ import OutfitPanelContainer from '../../Components/Containers/OutfitPanelContain
 import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js'
 import MetricTitleContainer from '../../Components/Containers/MetricTitleContainer.js';
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
+import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
 
 //Presentation Component 
-import BodyDiagram from './BodyDiagram.js';
 
 //Constants
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -114,7 +114,7 @@ class OutfitNav extends React.Component{
 						<OutfitPanelContainer webAppView={this.props.webAppView}/>
 	    			</div>*/}
 	    			<div className={OutfitNavStyles.previewContainer}>
-	    				<VisibleOutfitList  webAppView={this.props.webAppView}/>
+	    				<VisibleOutfitList view={this.props.webAppView}/>
 	    			</div>
     			</div>
     		</div>
@@ -291,26 +291,20 @@ export default class webAppView extends React.Component {
 							<div className={Styles.containerBrowse}>
 								<div className={Styles.metricsContainer_div}>
 									<div style={{
-										'height': '15%',
+										'padding-top': '15px',
+    									'padding-bottom': '15px',
+    									'height': '165px',
     									'border-bottom-style': 'solid',
     									'border-width': '20px',
-    									'border-color': '#dadada',
+    									'border-color': '#6d6d6d',
+    									'margin-right':'-1px',
 									}}>
-										Filter Control
+										<BrowseControlContainer/>
+
 									</div>
 									<MetricPanel />
-									<div style={{'height':'calc(38%)'}}>
-										<div style={{'height':'100%'}}>
-											<BodyDiagram 
-												bodyShape={this.props.hostProfile !== undefined ? 
-													this.props.hostProfile.bodyShape :
-													null} 
-												selectedField={null} 
-												orientation='left' />
-										</div>
-									</div>
 								</div>
-								<OutfitNav 	webAppView={this.props.webAppView}/>
+								<OutfitNav webAppView={this.props.webAppView}/>
 								<ModalContentSelection/>
 								<Admin/>
 							</div>

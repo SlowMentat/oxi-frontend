@@ -1,32 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MetricStyles from '../../metric.css';
-import Metric from './Metric.js'
+import Metric from './Metric.js';
+import BodyDiagram from './BodyDiagram.js';
+
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 
 
 
 const labelContainer_div = {
-	'border-top-style': 'solid',
-    'border-width': '1px',
+	'border-top-style': 'none',
+    'border-width': '20px',
     'border-color': '#dadada',
-    'height': 'calc(100% - (5vh + 28px))',
     'position': 'relative',
 }
 
 const upperBodySection_div = {
-	'width': '45%',
     'margin': '0px auto 0px 0px',
     'padding-top': '15px',
     'margin-left': '0px',
-    'padding-bottom': '0%',
-    'border-right-style': 'solid',
-    'border-right-width': '1px',
-    'border-right-color': '#d4d4d4',
 }
 
 const lowerBodySection_div = {
-	'width': '45%',
     'margin': '0px auto auto 0px',
     'padding-top': '15px',
     'margin-left': '0px',
@@ -37,11 +33,8 @@ const lowerBodySection_div = {
     'border-right-color': '#d4d4d4',
 }
 
-const labelFormating = {
-	'padding':'0px 0px 2px 0px',
-}
 
-const BodyFitProjection = (ownerX, hostX) => {
+const BodyFitProjectionCentered = (ownerX, hostX) => {
 	//-100 : 0%
 	// 100 : 100%
 	let ownerAdjX = (((ownerX - hostX) / 2) + 50);
@@ -50,6 +43,15 @@ const BodyFitProjection = (ownerX, hostX) => {
 	console.log('hostAdjX', hostAdjX);
 	return({
 		'ownerValue': ownerAdjX,
+		'hostValue': hostAdjX
+	});
+}
+
+const BodyFitProjectionOwnerAlign = (ownerX, hostX) => {
+	let hostAdjX = ((hostX - ownerX));
+	console.log('hostAdjX', hostAdjX);
+	return({
+		'ownerValue': 0,
 		'hostValue': hostAdjX
 	});
 }
@@ -88,13 +90,22 @@ class MetricGraph extends React.Component{
 			//let labelPosYCss = `calc((${( yOffsetStart + ( ind * ( yPercentOffset )))} / 100) * (100vh))`
 			let labelPosYCss = `${( (yOffsetStart*2) + ( (ind) * ( yPercentOffset*2) ) )}%`;
 			labelPosMap[sourceMetricId] = labelPosYCss;
+
+
+			let xScale = 1.65;
+			let xOffset = this.props.sourceMetrics[sourceMetricId] >= 0 ? 0 : this.props.sourceMetrics[sourceMetricId];
 			return(
 				<React.Fragment>
-					<line 
-					/*x1 = {`${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius/2}%`}
-					y1 = {`${ind === 0 ? `${yOffsetStart*2 + pointRadius/2}%` : ( (yOffsetStart*2) + ( (ind - 1) * ( yPercentOffset*2 + pointRadius/2 )))}%`}
-					x2 = {`${this.props.sourceMetrics[sourceMetricId]+ pointRadius/2}%`}
-					y2 = {`${( (yOffsetStart*2) + (ind*( yPercentOffset*2 + pointRadius/2)))}%`}*/
+						<div className={MetricStyles.barGraphContainer_div}>
+							<div style={{'margin-left':'calc(50% + (' + `${xScale * xOffset}` + '/100)*(300px - 13vh - 31px)/2)'}}>
+								<div 
+									className={this.props.labelHovered === sourceMetricId ? MetricStyles['graphBar_div--highlight'] : MetricStyles['graphBar_div']} 
+									style={{'width':'calc((' + `${xScale * Math.abs(this.props.sourceMetrics[sourceMetricId])}` + '/100)*(300px - 13vh - 30px)/2)'}}>
+								</div>
+							</div>
+						</div>
+
+					{/*<line 
 					x1 = {(ind != 0) ? `${this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]] + pointRadius}%` : 0}
 					y1 = {(ind != 0) ? `${( (yOffsetStart*2) + ( (ind - 1) * ( yPercentOffset*2 + pointRadius/2 ) ) )}%` : 0}
 					x2 = {(ind != 0) ? `${this.props.sourceMetrics[sourceMetricId]+ pointRadius}%` : 0}
@@ -122,7 +133,7 @@ class MetricGraph extends React.Component{
 							stroke="black" 
 							stroke-width="0.5%"
 						/>) : null			    					
-					}
+					}*/}
 				</React.Fragment>
 			);
 		});
@@ -135,60 +146,67 @@ class MetricGraph extends React.Component{
 		}
 
 		return(
-			<div>
-				<svg viewBox='0 0 100 auto'  
-					preserveAspectRatio="none" 
-					style={{
-						'position':'absolute', 
-						'height':'100%', 
-						'width':'100%', 
-						'left':'0', 
-						'top':'0',
-						'padding-top':`${pointRadius*2}%`,
-						'padding-bottom':`${pointRadius*2}%`,
-						'padding-left':`${pointRadius*2}%`,
-						'padding-right':`${pointRadius*2}%`
-						/*'border-color': 'black',
-	    				'border-style': 'solid',
-	    				'border-width': '1px'*/
-						/*'padding-top':`calc(${pointRadius}% / 2)`,
-						'padding-left':`calc(${pointRadius}% / 2)`*/
-					}}>
-					{
-						output
-					}
-				</svg>
+			<div className={MetricStyles.metricGraphContainer_div}>
+				{output}
+				{/*
+					true ? null :
+					<svg viewBox='0 0 100 auto'  
+						preserveAspectRatio="none" 
+						style={{
+							'position':'absolute', 
+							'height':'100%', 
+							'width':'100%', 
+							'left':'0', 
+							'top':'0',
+							'padding-top':`${pointRadius*2}%`,
+							'padding-bottom':`${pointRadius*2}%`,
+							'padding-left':`${pointRadius*2}%`,
+							'padding-right':`${pointRadius*2}%`
+						}}>
+						{
+							output
+						}
+					</svg>
+				*/}
 			</div>
 		);
 	}
 }
 
-const Labels = (labelToPositionMap) => {
-	console.log('labelToPositionMap = ', labelToPositionMap.labelToPositionMap)
-	console.log('keys of labelToPositionMap = ', Object.keys(labelToPositionMap.labelToPositionMap))
-	return(
-		<div className={MetricStyles.axisLabelUpperBody}>
-			{
-				Object.keys(labelToPositionMap.labelToPositionMap).map((label, ind) => {
-					console.log('label = ', label)
-					return(
-						<div style={labelFormating/*{
-							'position':'absolute', 
-							'top':labelToPositionMap.labelToPositionMap[label]
-						}*/}>
-							{label}
-						</div>
-					);
-				})
-			}
-		</div>
-	);
+class Labels extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		console.log('this.props.labelToPositionMap = ', this.props.labelToPositionMap)
+		console.log('keys of this.props.labelToPositionMap = ', Object.keys(this.props.labelToPositionMap))
+		return(
+			<div 
+				className={MetricStyles.axisLabelUpperBody}
+				onMouseLeave={() => this.props._handleOnHover(null)}>
+					{
+						Object.keys(this.props.labelToPositionMap).map((label, ind) => {
+							console.log('label = ', label)
+							return(
+										<div 
+											className={label === this.props.labelHovered ? MetricStyles['labelFormatting_div--hovered'] : MetricStyles['labelFormatting_div']}
+											onMouseEnter={() => this.props._handleOnHover(label)}>
+											{label}
+										</div>
+							);
+						})
+					}
+			</div>
+		);
+	}
 }
 
 class MetricList extends React.Component{
 	constructor(props){
 		super(props)
 		this.state = {
+			labelHovered: '',
 			ownerValues: {},
 			hostValues: {},
 			labels:{
@@ -200,6 +218,7 @@ class MetricList extends React.Component{
 		this.setUpperBodyLabelPosition = this.setUpperBodyLabelPosition.bind(this);
 		this.setLowerBodyLabelPosition = this.setLowerBodyLabelPosition.bind(this);
 		this.areObjectsDifferent = this.areObjectsDifferent.bind(this);
+		this._handleOnHover = this._handleOnHover.bind(this);
 	}
 
 	areObjectsDifferent(objectA, objectB){
@@ -212,7 +231,7 @@ class MetricList extends React.Component{
 
 	//Only call render if 
 	shouldComponentUpdate(nextProps, nextState){
-		let stateDifferent = false;
+		let labelHoveredDiff = nextState.labelHovered !== this.state.labelHovered;
 		//Owner
 		let ownerUpperBodyMetricsDiff = this.areObjectsDifferent(nextProps.ownerUpperBodyMetrics, this.props.ownerUpperBodyMetrics);
 		let ownerLowerBodyMetricsDiff = this.areObjectsDifferent(nextProps.ownerLowerBodyMetrics, this.props.ownerLowerBodyMetrics);
@@ -223,7 +242,7 @@ class MetricList extends React.Component{
 		let upperBodyState = this.areObjectsDifferent(nextState.labels.upperBody, this.state.labels.upperBody);		
 		let lowerBodyState = this.areObjectsDifferent(nextState.labels.lowerBody, this.state.labels.lowerBody);
 
-		let shouldUpdate = upperBodyState | lowerBodyState | ownerUpperBodyMetricsDiff | ownerLowerBodyMetricsDiff | hostUpperBodyMetricsDiff | hostLowerBodyMetricsDiff
+		let shouldUpdate = upperBodyState | lowerBodyState | ownerUpperBodyMetricsDiff | ownerLowerBodyMetricsDiff | hostUpperBodyMetricsDiff | hostLowerBodyMetricsDiff | labelHoveredDiff;
 		console.log('shouldUpdate = ', shouldUpdate);
 		return shouldUpdate;
 	}
@@ -286,6 +305,13 @@ class MetricList extends React.Component{
 		}))
 	}
 
+	_handleOnHover(label, event){
+		this.setState(prevState => ({
+			...prevState,
+			labelHovered: label,
+		}))
+	}
+
 	render(){
 		/*
 		console.log('ownerMetrics');
@@ -295,8 +321,12 @@ class MetricList extends React.Component{
 		*/
 		//let projectedXCoord = this.projectGraphState(BodyFitProjection);
 
-		let projectedUpperBodyXCoord = this.projectGraphState(BodyFitProjection, this.props.ownerUpperBodyMetrics, this.props.hostUpperBodyMetrics);
-		let projectedLowerBodyXCoord = this.projectGraphState(BodyFitProjection, this.props.ownerLowerBodyMetrics, this.props.hostLowerBodyMetrics);
+		//let projectedUpperBodyXCoord = this.projectGraphState(BodyFitProjectionCentered, this.props.ownerUpperBodyMetrics, this.props.hostUpperBodyMetrics);
+		//let projectedLowerBodyXCoord = this.projectGraphState(BodyFitProjectionCentered, this.props.ownerLowerBodyMetrics, this.props.hostLowerBodyMetrics);
+
+		let projectedUpperBodyXCoord = this.projectGraphState(BodyFitProjectionOwnerAlign, this.props.ownerUpperBodyMetrics, this.props.hostUpperBodyMetrics);
+		let projectedLowerBodyXCoord = this.projectGraphState(BodyFitProjectionOwnerAlign, this.props.ownerLowerBodyMetrics, this.props.hostLowerBodyMetrics);
+
 		/*console.log('projectedUpperBodyXCoord = ',projectedUpperBodyXCoord)
 		console.log('projectedLowerBodyXCoord = ',projectedLowerBodyXCoord)
 		console.log('this.props.ownerLowerBodyMetricIds = ', this.props.ownerLowerBodyMetricIds)
@@ -312,49 +342,66 @@ class MetricList extends React.Component{
 		let absYOffsetLow = (true ? absYOffset = (this.props.ownerLowerBodyMetricIds.length * 13) : 0);
 		console.log('this.state.labels.upperBody = ', this.state.labels.upperBody)
 		console.log('this.state.labels.lowerBody = ', this.state.labels.lowerBody)
-		return (	
-			<div style={labelContainer_div}>
-				<div id='upperBodySection' style={upperBodySection_div}>
-					<Labels labelToPositionMap={this.state.labels.upperBody}/>
-					{
-						true ? null : 
-						(<React.Fragment>
-							<MetricGraph 
-								sourceMetricIds={this.props.ownerUpperBodyMetricIds} 
-								sourceMetrics={projectedUpperBodyXCoord === null ? this.props.ownerUpperBodyMetrics : projectedUpperBodyXCoord.ownerValues} 
-								updateLabelPositions={this.setUpperBodyLabelPosition}
-							/>
-							<MetricGraph 
-								sourceMetricIds={this.props.hostUpperBodyMetricIds} 
-								sourceMetrics={projectedUpperBodyXCoord === null ? this.props.hostUpperBodyMetrics : projectedUpperBodyXCoord.hostValues} 
-								host={true} 
-								lineColor="#212121"
-								updateLabelPositions={null}
-							/>
-						</React.Fragment>)
-					}
-				</div>    
-				<div id='lowerBodySecction' style={lowerBodySection_div}>
-					<Labels labelToPositionMap={this.state.labels.lowerBody}/>
-					{
-						true ? null : 
-						(<React.Fragment>
-							<MetricGraph 
-								sourceMetricIds={this.props.ownerLowerBodyMetricIds} 
-								sourceMetrics={projectedLowerBodyXCoord === null ? this.props.ownerLowerBodyMetrics : projectedLowerBodyXCoord.ownerValues}
-								updateLabelPositions={this.setLowerBodyLabelPosition} 
-							/>
-							<MetricGraph 
-								sourceMetricIds={this.props.hostLowerBodyMetricIds} 
-								sourceMetrics={projectedLowerBodyXCoord === null ? this.props.hostLowerBodyMetrics : projectedLowerBodyXCoord.hostValues} 
-								host={true} 
-								lineColor="#212121"
-								updateLabelPositions={null}
-							/>
-						</React.Fragment>)
-					}
+		return (
+			<React.Fragment>	
+				<div style={labelContainer_div}>
+					<div id='upperBodySection' style={upperBodySection_div}>
+						<div>
+							<Labels 
+								labelToPositionMap={this.state.labels.upperBody} 
+								_handleOnHover={(label, event) => this._handleOnHover(label, event)}
+								labelHovered={this.state.labelHovered}/>
+							<React.Fragment>
+								<MetricGraph 
+									sourceMetricIds={this.props.ownerUpperBodyMetricIds} 
+									sourceMetrics={projectedUpperBodyXCoord === null ? this.props.ownerUpperBodyMetrics : projectedUpperBodyXCoord.hostValues} 
+									updateLabelPositions={this.setUpperBodyLabelPosition}
+									labelHovered={this.state.labelHovered}
+								/>
+								{/*<MetricGraph 
+									sourceMetricIds={this.props.hostUpperBodyMetricIds} 
+									sourceMetrics={projectedUpperBodyXCoord === null ? this.props.hostUpperBodyMetrics : projectedUpperBodyXCoord.hostValues} 
+									host={true} 
+									lineColor="#212121"
+									updateLabelPositions={null}
+								/>*/}
+							</React.Fragment>
+						</div>
+					</div>
+					<div id='lowerBodySecction' style={upperBodySection_div}>
+						<div> 
+							<Labels 
+								labelToPositionMap={this.state.labels.lowerBody} 
+								_handleOnHover={(label, event) => this._handleOnHover(label, event)}
+								labelHovered={this.state.labelHovered}/>
+							<React.Fragment>
+								<MetricGraph 
+									sourceMetricIds={this.props.ownerLowerBodyMetricIds} 
+									sourceMetrics={projectedLowerBodyXCoord === null ? this.props.ownerLowerBodyMetrics : projectedLowerBodyXCoord.hostValues}
+									updateLabelPositions={this.setLowerBodyLabelPosition} 
+									labelHovered={this.state.labelHovered}
+								/>
+								{/*<MetricGraph 
+									sourceMetricIds={this.props.hostLowerBodyMetricIds} 
+									sourceMetrics={projectedLowerBodyXCoord === null ? this.props.hostLowerBodyMetrics : projectedLowerBodyXCoord.hostValues} 
+									host={true} 
+									lineColor="#212121"
+									updateLabelPositions={null}
+								/>*/}
+							</React.Fragment>
+						</div>
+					</div>
 				</div>
-			</div>
+	
+				<div>
+					<div style={{'height':'100%'}}>
+						<BodyDiagram 
+							bodyShape={this.props.hostBodyShape === null ? this.props.ownerBodyShape : this.props.hostBodyShape} 
+							selectedField={this.state.labelHovered} 
+							orientation='left' />
+					</div>
+				</div>
+			</React.Fragment>
 		);
 	}
 }

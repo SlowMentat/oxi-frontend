@@ -51,7 +51,12 @@ import {
 			SHOW_MODAL, 
 			SHOW_CONTENT_VIEW,	
 			UPDATE_ITEM,
-			UPDATE_CONTENT
+			UPDATE_CONTENT,
+			SET_BROWSER_SELECTION,
+			SET_POSITION_HELP,
+			SET_POSITION_FILTER,
+			SET_VISIBLE_HELP,
+			SET_VISIBLE_FILTER
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -131,6 +136,16 @@ const saveToken = (state = iniTokenState, action) => {
 			return state;
 	}
 }*/
+
+
+const browseState = (state = {'browserSelection' : 'outfits'}, action) => {
+	switch(action.type){
+		case SET_BROWSER_SELECTION:
+			return Object.assign({}, state, action.payload);
+		default:
+			return state;
+	}
+}
 
 const appView = (state = {"webAppView": "landing"}, action) => {
 	switch(action.type){
@@ -567,26 +582,6 @@ function contentViewState(state = {'shownContentId' : null, 'viewState' : OxiApp
 	}
 }
 
-/*function editableContentView(state = {'isEditingContent' : false}, action){
-	switch(action.type){
-		case EDIT_CONTENT_VIEW:
-			return Object.assign({}, state, action.payload);
-		default:
-			return state;
-	}
-}*/
-
-/*const contentViewState = (state = {isEditingContent: false, isContentViewVisible : true}, action) => {
-	switch(action.type){
-		case EDIT_CONTENT_VIEW:
-			return Object.assign({}, state, action.payload)
-		case SHOW_CONTENT_VIEW:
-			return {isContentViewVisible : action.payload}
-		default:
-			return state;
-	}
-}*/
-
 //maybe find better naming
 function entitiesModified(state = {isFetching:false, serverInvalidated: false, clientInvalidated: false, entities:[]}, action){
 	switch(action.type){
@@ -603,23 +598,23 @@ function entitiesModified(state = {isFetching:false, serverInvalidated: false, c
 	}
 }
 
-/*function entitiesState(state = {}, action){
-	switch(action.type){
-		case INVALIDATE_ENTITIES:
-		case RECEIVE_ENTITIES:
-		case REQUEST_ENTITIES:
-			return Object.assign({}, state, {[action.payload.entityType]: entitiesModified([action.payload], action)});
-		default:
-			return state;
-	}
-}*/
-
 function buttonState(state = iniButtonState, action){
 	switch(action.type){
 		case DISABLE_BUTTON:
 			return Object.assign({}, state, {'addOutfit': action.payload});
 		case DISABLE_CONTENT_BUTTON:
 			return Object.assign({}, state, {'addContent' : action.payload});
+		default:
+			return state;
+	}
+}
+
+const popupMenus = (state = {}, action) => {
+	switch(action.type){
+		case `SET_VISIBLE_${action.typeSpecifier}`:
+			return Object.assign({}, state, {...action.payload});
+		case `SET_POSITION_${action.typeSpecifier}`:
+			return Object.assign({}, state, {...action.payload});
 		default:
 			return state;
 	}
@@ -635,51 +630,51 @@ export const maxPictureCount = maxContentCount;
 export const maxItemCount = maxItemViewCount * maxContentCount;
 export const maxItemContentCount = maxContentCount * maxItemCount;
 
-let defualtStoreState = {selected: false, controlDisabled :  false, count: 0, byIds : {}, allIds : [], allEditingIds: []};
+
+let defualtEntitiesStore = {selected: false, controlDisabled :  false, count: 0, byIds : {}, allIds : [], allEditingIds: []};
+let defualtMenuStoreState = {positionx: 0, positiony: 0, isVisible: false,};
+let defualtEntitiesState = {isFetching:false, serverInvalidated: [], clientInvalidated: [], clientDeleted: [],receivedAt: null, selected: false, multipleSelected: []};
 
 const entitiesReducer = combineReducers({
-	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtStoreState),
-	items : entityReducerFactory(entities(maxItemCount), OxiAppConstants.EntityTypes.ITEM, defualtStoreState),//itemsReducer,
-	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT, defualtStoreState),
-	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtStoreState),
-	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtStoreState),
-	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtStoreState),
-	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtStoreState),
-	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtStoreState)
+	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
+	items : entityReducerFactory(entities(maxItemCount), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),//itemsReducer,
+	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
+	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
+	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
+	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
+	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
+	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
 });
 
 const addedEntitiesReducer = combineReducers({
-	profile : entityReducerFactory(localEntities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtStoreState),
-	items : entityReducerFactory(localEntities(maxItemViewCount), OxiAppConstants.EntityTypes.ITEM, defualtStoreState),
-	contents : entityReducerFactory(localEntities(maxContentViewCount), OxiAppConstants.EntityTypes.CONTENT, defualtStoreState),
-	itemContent : entityReducerFactory(localEntities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtStoreState),
-	outfits : entityReducerFactory(localEntities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtStoreState)
+	profile : entityReducerFactory(localEntities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
+	items : entityReducerFactory(localEntities(maxItemViewCount), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),
+	contents : entityReducerFactory(localEntities(maxContentViewCount), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
+	itemContent : entityReducerFactory(localEntities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
+	outfits : entityReducerFactory(localEntities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore)
 })
 
-defualtStoreState = {
-	isFetching:false, 
-	serverInvalidated: [], 
-	clientInvalidated: [], 
-	clientDeleted: [],
-	receivedAt: null, 
-	selected: false, 
-	multipleSelected: []
-}
-
 const entitiesStateReducer = combineReducers({
-	profile : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PROFILE, defualtStoreState),
-	items : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.ITEM, defualtStoreState),
-	pictures : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PICTURE, defualtStoreState),
-	contents : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.CONTENT, defualtStoreState),
-	outfits : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.OUTFIT, defualtStoreState)
+	profile : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesState),
+	items : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.ITEM, defualtEntitiesState),
+	pictures : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesState),
+	contents : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesState),
+	outfits : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesState)
+})
+
+const popupMenusReducer = combineReducers({
+	filter : entityReducerFactory(popupMenus, OxiAppConstants.MenuTypes.FILTER, defualtMenuStoreState),
+	help: entityReducerFactory(popupMenus, OxiAppConstants.MenuTypes.HELP, defualtMenuStoreState),
 })
 
 
 const _OxiApp = combineReducers({
 	//add reducers for combining here
 	buttonState,
+	browseState,
 	appView,
 	landingPage,
+	popupMenusReducer,
 	toggleModal,
 	saveToken,
 	contentViewState,

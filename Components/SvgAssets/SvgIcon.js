@@ -21,6 +21,10 @@ import WardrobeIcon from './Icons/WardrobeIcon.js';
 import CommojiIcon from './Icons/CommojiIcon.js';
 import TypeUnknown from './Icons/TypeUnknown.js';
 import BookmarkIcon from './Icons/BookmarkIcon.js';
+import MenuPointer from './Icons/MenuPointer.js';
+import ApparelIcon from './Icons/ApparelIcon.js';
+import OutfitsIcon from './Icons/OutfitsIcon.js';
+import FilterIcon from './Icons/FilterIcon.js';
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -45,6 +49,10 @@ export const SvgIcon = (props) => {
 		case 'CommojiIcon': return(<CommojiIcon {...props}/>); break;
 		case 'WardrobeIcon': return(<WardrobeIcon {...props}/>); break;
 		case 'BookmarkIcon': return(<BookmarkIcon {...props}/>); break;
+		case 'MenuPointer': return(<MenuPointer {...props}/>); break;
+		case 'ApparelIcon': return(<ApparelIcon {...props}/>); break;
+		case 'OutfitsIcon': return(<OutfitsIcon {...props}/>); break;
+		case 'FilterIcon': return(<FilterIcon {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

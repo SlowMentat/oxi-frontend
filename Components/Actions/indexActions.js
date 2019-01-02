@@ -39,6 +39,7 @@ export const REPLACE_OUTFIT 		= "REPLACE_" 	+ OxiAppConstants.EntityTypes.OUTFIT
 export const DELETE_OUTFIT			= "DELETE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const SELECT_PAGE 			= "SELECT_PAGE";
 export const CREATE_PICTURE			= "CREATE_"		+ OxiAppConstants.EntityTypes.PICTURE;
+export const SET_BROWSER_SELECTION   = "SET_BROWSER_SELECTION";
 
 //Action on for entities added to client
 export const ADD_ITEM				= 'ADD_'				+ OxiAppConstants.EntityTypes.ITEM;
@@ -86,6 +87,12 @@ export const DISABLE_CONTENT_BUTTON = 'DISABLE_CONTENT_BUTTON';
 export const REQUEST_NAVIGATION		= 'REQUEST_NAVIGATION';
 
 export const UPDATE_PROFILE 		= 'UPDATE_' + OxiAppConstants.EntityTypes.PROFILE;
+
+export const SET_POSITION_FILTER	= 'SET_POSITION_' + OxiAppConstants.MenuTypes.FILTER;
+export const SET_POSITION_HELP		= 'SET_POSITION_' + OxiAppConstants.MenuTypes.FILTER;
+export const SET_VISIBLE_HELP		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
+export const SET_VISIBLE_FILTER		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
+
 //global variables
 let nextItemId = 0;
 let nextOutfitId = 0;
@@ -112,6 +119,8 @@ const defaultProfileData = {
 	'calf':''	
 };
 
+
+export const setBrowserSelection= makeActionCreator(SET_BROWSER_SELECTION, null, 'browserSelection');
 
 export const setFormVisibility	= makeActionCreator(SET_VISIBLE_FORM, null, 'modal', 'prevRequestUrl', 'prevRequestType', 'otherData');
 export const editContentView 	= makeActionCreator(EDIT_CONTENT_VIEW, null, 'viewState');
@@ -281,6 +290,7 @@ export const receiveRetailer = makeActionCreator(RECEIVED_RETAILER, OxiAppConsta
 export const receiveBrand = makeActionCreator(RECEIVED_BRAND, OxiAppConstants.EntityTypes.BRAND, '' );*/
 
 
+
 export const receiveEntitiesTest = (entityType, data) => {
 	dispatch(makeActionCreator(`RECEIVED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'receivedAt')(data));
 }
@@ -306,6 +316,21 @@ export const deselectMultipleEntity = (entityType, entityId) => {
 export const clearSelectMultipleEntity = (entityType) => {
 	return function(dispatch){
 		dispatch(makeActionCreator(`CLEAR_SELECT_MUL_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+}
+
+
+//======== Popup Menu Actions ======== 
+
+export const showMenu = (menuType, isVisible) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_VISIBLE_${menuType.toUpperCase()}`, menuType.toUpperCase(), 'isVisible')(isVisible));
+	}
+}
+
+export const placeMenu = (menuType, positionx, positiony) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_POSITION_${menuType.toUpperCase()}`, menuType.toUpperCase(), 'positionx', 'positiony')(positionx, positiony));
 	}
 }
 

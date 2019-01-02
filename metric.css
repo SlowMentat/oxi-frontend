@@ -6,30 +6,38 @@
 }
 
 :local(.axisLabelUpperBody){
-    /*position: absolute;
-    width: 50%;
-    left: -50%;
-    height: 100%;
-    background-color: #fdfdfd;*/
-    color: #212121;
-	/*border-right-style: solid;
-    border-right-width: 2px;
-    border-right-color: #d4d4d4;*/
-    margin-left:10px;
+	padding-top: 15px;
+    margin-top: -15px;
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 10px;
+    padding-right: 10px;
+    border-right: 1px solid rgb(212, 212, 212);
+    width: 13vh
 }
 
 :local(.axisLabelLowerBody){	
 	composes:axisLabelUpperBody;
 }
 
+:local(.barGraphContainer_div){
+	width: 100%;
+	height: calc(1.5vh + 4px);
+    padding-top: 2px;
+}
 
+:local(.metricGraphContainer_div){
+	display: inline-block;
+    vertical-align: top;
+	width: calc(300px - 13vh - 30px);
+}
 
 :local(#leftBodyDiagramContainer, #rightBodyDiagramContainer) {
-		height:calc(100vh - 80px); 
-		display:inline-block;
-		width:42.5%;
-		margin-top:80px;
-		vertical-align:top
+	height:calc(100vh - 80px); 
+	display:inline-block;
+	width:42.5%;
+	margin-top:80px;
+	vertical-align:top
 }
 
 :local(#fieldList) {
@@ -82,4 +90,69 @@
 
 :local(#apparelInterest){
 
+}
+
+
+
+
+:local(.graphBar_div){
+	height:1.5vh;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 2px;
+    border-color: black;
+    position: absolute;
+    background-color: #70ccf44d;
+    border-color: #70ccf4;
+}
+
+:local(.graphBar_div--highlight){
+	composes:graphBar_div;
+	background-color: #70ccf4c9;
+	transition: background-color 300ms ease-in-out, color 300ms ease-in-out;	
+}
+
+
+:local(.labelFormatting_div){
+	cursor:default;
+	background-color: #0000;
+	color: black;
+	padding-top: 2px;
+	padding-bottom: 2px;
+    font-size: 1.5vh;
+    line-height: 1.5vh;
+    height: calc(1.5vh + 4px);
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+:local(.labelFormatting_div--hovered){
+	composes:labelFormatting_div;
+	background-color: #212121b5;
+    color: white;
+	transition: background-color 300ms ease-in-out, color 300ms ease-in-out;
+}
+
+.labelFormatting_div-enter{
+	background: #21212100;
+	color: black;
+}
+
+.labelFormatting_div-enter-active{
+	background-color: #212121b5;
+    color: white;
+	transition: opacity 200ms ease-in;
+}
+
+.labelFormatting_div-exit{
+	/*opacity : 1;*/
+	/*margin-left: -50px;*/
+}
+
+.labelFormatting_div-exit-active{
+	background-color: none;
+	color: black;
+	transition: opacity background-color ease-out;
 }

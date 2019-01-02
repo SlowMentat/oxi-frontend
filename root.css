@@ -111,8 +111,14 @@ div{
 }
 
 :local(.metricBlock){
-	compose: stdBlock;
-	grid-area: metric;
+	/*composes: stdBlock;*/
+	border-bottom-style: none;
+    border-width: 20px;
+    border-color: #dadada;
+    /*height: calc((100vh - 80px - 40px - 100px - 10px)/2);*/
+    height: calc(.47*(100vh - 80px -165px));
+    /*background-color: white;*/
+	/*grid-area: metric;*/
 }
 
 :local(.previewBlock){

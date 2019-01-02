@@ -15,7 +15,9 @@ import axios from 'axios';
 
 const mapStateToProps = state => {
 	return {
-		webAppView: state.appView.webAppView
+		webAppView: state.appView.webAppView,
+		/*hostProfile: state.entitiesReducer.profile.byIds.host,
+		ownerProfile: state.entitiesReducer.profile.byIds.owner*/
 	};
 }
 

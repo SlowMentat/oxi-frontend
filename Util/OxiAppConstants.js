@@ -46,6 +46,10 @@ export const OxiAppConstants = Object.freeze({
 		BRAND: "BRAND",
 		RETAILER: "RETAILER"
 	},
+	MenuTypes : {
+		FILTER: "FILTER",
+		HELP: "HELP",
+	},
 	EmbeddedEntityPropertyNames : {	
 		PROFILE : "profileDto",
 		OUTFIT : "outfitDtoes",
