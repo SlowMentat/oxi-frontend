@@ -138,7 +138,7 @@ const saveToken = (state = iniTokenState, action) => {
 }*/
 
 
-const browseState = (state = {'browserSelection' : 'outfits'}, action) => {
+const browseState = (state = {'browseSelection' : 'outfits'}, action) => {
 	switch(action.type){
 		case SET_BROWSER_SELECTION:
 			return Object.assign({}, state, action.payload);

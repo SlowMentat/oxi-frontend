@@ -120,7 +120,7 @@ const defaultProfileData = {
 };
 
 
-export const setBrowserSelection= makeActionCreator(SET_BROWSER_SELECTION, null, 'browserSelection');
+export const setBrowserSelection= makeActionCreator(SET_BROWSER_SELECTION, null, 'browseSelection');
 
 export const setFormVisibility	= makeActionCreator(SET_VISIBLE_FORM, null, 'modal', 'prevRequestUrl', 'prevRequestType', 'otherData');
 export const editContentView 	= makeActionCreator(EDIT_CONTENT_VIEW, null, 'viewState');

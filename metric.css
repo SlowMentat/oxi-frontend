@@ -104,12 +104,13 @@
     position: absolute;
     background-color: #70ccf44d;
     border-color: #70ccf4;
+	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;	
 }
 
 :local(.graphBar_div--highlight){
 	composes:graphBar_div;
 	background-color: #70ccf4c9;
-	transition: background-color 300ms ease-in-out, color 300ms ease-in-out;	
+	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;	
 }
 
 
@@ -126,13 +127,14 @@
     margin-right: -10px;
     padding-left: 10px;
     padding-right: 10px;
+	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;	
 }
 
 :local(.labelFormatting_div--hovered){
 	composes:labelFormatting_div;
 	background-color: #212121b5;
     color: white;
-	transition: background-color 300ms ease-in-out, color 300ms ease-in-out;
+	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
 }
 
 .labelFormatting_div-enter{
