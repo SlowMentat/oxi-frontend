@@ -47,7 +47,7 @@
     border-radius:0px;
 	height:100%;
 	font-size: 80%;
-	background-color: #000000;
+	background-color: #4a4547;
 	display: inline-flex;
 }
 
@@ -55,30 +55,38 @@
 	composes: stdItemBlock;
 	grid-area: size;
 	width:50px;
-	border-top-left-radius: 15px;
-	border-bottom-left-radius: 15px;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
 }
 
 :local(.itemTypeBlock) {
 	composes: stdItemBlock;
 	grid-area: type;
 	width: 50px;
+	position: relative;
+	vertical-align: top;
 }
 
 :local(.itemRetailerBlock) {
 	composes: stdItemBlock;
-	grid-area: retailer;
-	width: calc((100% - 100px)/2);
+	color: #d3effb;
+	height: 50%;
+    display: block;
 	padding-left: 8px;
-	border-left-style: solid;
-    border-left-width: 2px;
 }
 
 :local(.itemBrandBlock) {
 	composes: stdItemBlock;
-	grid-area: brand;
-	width: calc((100% - 100px)/2);
+	height: 50%;
+    display: block;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+	font-size: 24px;
+    height: 50%;
+    color: #BDBDBD;
+    position: relative;
 	padding-left: 8px;
+
 	/*background-image: linear-gradient(to right, black, black, #616161);*/
 }
 
@@ -131,7 +139,7 @@
 	/*z-index:1;*/
 	opacity : 1; 
 	margin-left: -50px;
-	transition: all 200ms ease-in, border-radius 0;
+	transition: all 200ms ease-in,;
 }
 
 .itemMenuContainer-exit{
@@ -144,4 +152,36 @@
 	opacity: 0;
 	margin-left: 25px;
 	transition: margin-left 100ms, opacity 100ms;
+}
+
+:local(.itemContainer_div){
+	composes:itemBrowseInitialize-enter-active from './itemBrowse.css';
+	/*height: 100px;
+	width: 500px
+	margin-auto;
+	margin-bottom: 12px;
+	border-radius: 3px;*/
+};
+
+:local(.itemContainerEdit_div--selected){
+	composes:itemContainer_div;
+    border-style: solid;
+    border-color: #6dd7b4;
+    border-width: 3px;
+    border-top-left-radius: 18px;
+    border-bottom-left-radius: 18px;
+    border-right: none;
+    margin-left: -3px;
+}
+
+:local(.itemContainerPreview_div--selected){
+	composes:itemContainerEdit_div--selected;
+	border-color: red;
+}
+
+:local(.itemContainerBrowse_div--selected){
+	composes:itemContainer_div;
+    margin-bottom: 312px;
+	border:none;
+
 }

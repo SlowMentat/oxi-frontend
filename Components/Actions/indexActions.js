@@ -429,6 +429,52 @@ export const clearClientInvalidation = (entityType) => {
 };
 
 
+//========CLIENT PAGING ACTIONS========
+
+//add specified entityIds to the clientInvalidated Leaf of entitiesStateReducer
+export const setEntityCurrentPage = (entityType, pageNumber) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_CURRENT_PAGE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'currentPage')(pageNumber));
+	}
+};
+//Remove specified entityIds from the clientInvalidated Leaf of entitiesStateReducer
+export const setEntityLastPage = (entityType, pageNumber) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_LAST_PAGE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'lastPage')(pageNumber));
+	}
+};
+//add {page:ids} to tail of pages object
+export const pageEntityDown = (entityType, ids) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`PAGE_BUFFER_DOWN_${entityType.toUpperCase()}`, entityType.toUpperCase('ids'))(ids));
+	}
+};
+//remove {page:ids} from tail of pages object
+export const pageEntityUp = (entityType, ids) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`PAGE_BUFFER_UP_${entityType.toUpperCase()}`, entityType.toUpperCase('ids'))(ids));
+	}
+};
+//Set maxBufferedPages
+export const setPageBuffer = (entityType, pages) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_PAGE_BUFFER_SIZE_${entityType.toUpperCase()}`, entityType.toUpperCase('pageBufferSize'))(pages));
+	}
+};
+
+export const receiveEntities = (entityType, error) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`RECEIVE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'receivedAt', 'error')(Date.now(), error));
+	}
+}
+
+export const requestEntities = (entityType) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REQUEST_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+	}
+}
+
+
 //========CLIENT INVALIDATION ACTIONS========
 
 //add specified entityIds to the clientInvalidated Leaf of entitiesStateReducer
@@ -473,34 +519,38 @@ export const clearServerInvalidation = (entityType) => {
 };
 
 
-/*export const primeClientInvalidation = (entitytype, entityIds) => {
-	return () => clientInvalidateEntities(entitytype, entityIds);
-}
-
-export const primeServerInvalidation = (entitytype, entityIds) => {
-	return () => clientInvalidateEntities(entitytype, entityIds);
-}*/
-
-export const receiveEntities = (entityType, json) => {
-	return({
+/*export const receiveEntities = (entityType, json, error) => {
+	return(error ? {
 		type: RECEIVE_ENTITIES,
 		payload:{
 			entityType: entityType.toLowerCase(),
 			entities: json.entities,
-			receivedAt: Date.now()
-		}
-
+			receivedAt: Date.now(),
+			isFetching: false,
+			error: true,
+		} :
+		{
+			type: RECEIVE_ENTITIES,
+			payload:{
+				entityType: entityType.toLowerCase(),
+				entities: json.entities,
+				receivedAt: Date.now(),
+				isFetching: false,
+				error: false,
+			}
+		} 
 	});
-};
-
+};*/
+/*
 export const requestEntities = (entityType) => {
 	return({
 		type: REQUEST_ENTITIES,
 		payload:{
-			entityType: entityType.toLowerCase()
+			entityType: entityType.toLowerCase(),
+			isFetching: true,
 		} 
 	});
-};
+};*/
 
 export const showProfileMenu = (shown) => {
 	return({
@@ -646,7 +696,7 @@ export function fetchMetrics(outfitId){
 		.then((response) => {
 			if(response.status === OxiAppConstants.HttpStatus.OK){
 				//The return entity is not nested so we do not need to make calls to normalizr before dropping into redux tree
-				dispatch(receiveEntities(OxiAppConstants.EntityTypes.PROFILE.toLowerCase(), response.data));
+				dispatch(receiveEntities(OxiAppConstants.EntityTypes.PROFILE.toLowerCase(), null));
 				dispatch(replaceProfile({'host' : response.data}));
 
 			}
@@ -672,9 +722,14 @@ export function fetchEntities(entityType, username, filter){
 	return function(dispatch){
 		dispatch(requestEntities(entityType));
 		let pathVariable = '';
+		let requestParams = '';
+		let pageStart = 0;
+		let pageSize = 50;
+		let pageBufferSize = 2;
+
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.BRAND:
-				return axios.get(OxiAppConstants.serviceUrl + "/brands?page=0&size=50")
+				return axios.get(OxiAppConstants.serviceUrl + `/brands?page=${pageStart}&size=${pageSize}`)
 				.then(response => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let normalizedJson = response.data._embedded.brandDtoes.reduce((accumulator, currentObject) => {
@@ -690,7 +745,7 @@ export function fetchEntities(entityType, username, filter){
 							}));
 						},{});
 						console.log('normalizedJson Brand:  ', normalizedJson);
-						dispatch(receiveEntities(entityType.toLowerCase(), normalizedJson));
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						dispatch(replaceBrands(normalizedJson));
 					}else{
 						throw 'Unexpected response status received when fetching brands:  ' + response.status; 
@@ -698,7 +753,7 @@ export function fetchEntities(entityType, username, filter){
 				})
 				break;
 			case OxiAppConstants.EntityTypes.RETAILER:
-				return axios.get(OxiAppConstants.serviceUrl + "/retailers?page=0&size=50")
+				return axios.get(OxiAppConstants.serviceUrl + `/retailers?page=${pageStart}&size=${pageSize}`)
 				.then(response => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let normalizedJson = response.data._embedded.retailerDtoes.reduce((accumulator, currentObject) => {
@@ -711,7 +766,7 @@ export function fetchEntities(entityType, username, filter){
 							}));
 						},{});
 						console.log('normalizedJson Retailer:  ', normalizedJson);
-						dispatch(receiveEntities(entityType.toLowerCase(), normalizedJson));
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						dispatch(replaceRetailers(normalizedJson));
 					}else{
 						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
@@ -724,22 +779,22 @@ export function fetchEntities(entityType, username, filter){
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						//The return entity is not nested so we do not need to make calls to normalizr before dropping into redux tree
-						dispatch(receiveEntities(entityType.toLowerCase(), response.data));
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						dispatch(replaceProfile({'owner' : response.data}));
 
 					}
 				});
 				break;
 			case OxiAppConstants.EntityTypes.OUTFIT:
-				let requestParams = 'filter=' + filter;
+				requestParams = 'filter=' + filter;
 				pathVariable = '/outfits';
-				return axios.get(OxiAppConstants.serviceUrl + pathVariable + username + "?" + requestParams + "&page=0&size=20")
+				return axios.get(`${OxiAppConstants.serviceUrl}${pathVariable}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
 						console.log("json");
 						console.log(json);
-						dispatch(receiveEntities(entityType.toLowerCase(), json));
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						//normalize received json payload
 						let normalizedJson = normalize(json, outfitsSchema);
 						
@@ -777,6 +832,102 @@ export function fetchEntities(entityType, username, filter){
 					}
 					console.log(error.config);
 				});
+				break;
+			case OxiAppConstants.EntityTypes.CONTENT:
+				requestParams = 'filter=' + filter;
+				pathVariable = '/outfits';
+				return axios.get(`${OxiAppConstants.serviceUrl}${pathVariable}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				.then((response) => {
+					if(response.status === OxiAppConstants.HttpStatus.OK){
+						let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
+						console.log("json");
+						console.log(json);
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
+						//normalize received json payload
+						let normalizedJson = normalize(json, outfitsSchema);
+						
+						console.log('entitiesStateReducer', normalizedJson); 
+						
+						//Manually build itemContents join table
+						let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
+						dispatch(createItemContent(itemContentJson));							
+
+						mergeResponseEntities(dispatch, normalizedJson);
+						let outfitKeys = Object.keys(normalizedJson.entities.outfits);
+						//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
+					}else{
+						//handleUnauthorizedRequest(response);
+					}
+				})
+				.catch(error => {
+					console.log(error);
+					if (error.response) {
+						// The request was made and the server responded with a status code
+						// that falls out of the range of 2xx
+						console.log(error.response.data);
+						console.log(error.response.status);
+						console.log(error.response.headers);
+						//Check if error is due to forbidden response staatus
+						dispatch(handleUnauthorizedRequest(error.response));
+					} else if (error.request) {
+						// The request was made but no response was received
+						// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+						// http.ClientRequest in node.js
+						console.log(error.request);
+					} else {
+						// Something happened in setting up the request that triggered an Error
+						console.log('Error', error.message);
+					}
+					console.log(error.config);
+				});
+				break;
+			case OxiAppConstants.EntityTypes.ITEM:
+				requestParams = 'filter=' + filter;
+				pathVariable = '/items';
+
+				return axios.get(`${OxiAppConstants.serviceUrl}${pathVariable}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				//return axios.get(OxiAppConstants.serviceUrl + pathVariable + "?" + requestParams + "&page=0&size=20")
+				.then((response) => {
+					if(response.status === OxiAppConstants.HttpStatus.OK){
+						let normalizedJson = response.data._embedded.itemDtoes.reduce((accumulator, currentObject) => {
+							return(Object.assign(accumulator, {
+								[currentObject.id]: {
+									'id': currentObject.id, 
+									'type': currentObject.type,
+									'size': currentObject.size,
+									'retailer': currentObject.retailer,
+									'brand': currentObject.brand,
+								}
+							}));
+						},{});
+						console.log('normalizedJson Items:  ', normalizedJson);
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
+						dispatch(replaceItems(normalizedJson));
+					}else{
+						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
+					}
+				})
+				.catch(error => {
+					console.log(error);
+					if (error.response) {
+						// The request was made and the server responded with a status code
+						// that falls out of the range of 2xx
+						console.log(error.response.data);
+						console.log(error.response.status);
+						console.log(error.response.headers);
+						//Check if error is due to forbidden response staatus
+						dispatch(handleUnauthorizedRequest(error.response));
+					} else if (error.request) {
+						// The request was made but no response was received
+						// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+						// http.ClientRequest in node.js
+						console.log(error.request);
+					} else {
+						// Something happened in setting up the request that triggered an Error
+						console.log('Error', error.message);
+					}
+					console.log(error.config);
+				});				
 				break;
 			default:
 				break;

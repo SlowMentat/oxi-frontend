@@ -41,7 +41,7 @@ export default class ItemList extends React.Component{
 		let allFilteredItems = Object.assign({}, this.props.items, this.props.addedItems);
 		console.log('allFilteredItems = ', allFilteredItems);
 		console.log('this.props.populateItemsMap = ', this.props.populateItemsMap);
-		this.props.populateItemsMap(allFilteredItems);
+		this.props.populateItemsMap ? this.props.populateItemsMap(allFilteredItems) : null;
 		//if(Object.keys(allFilteredItems).length > 0){
 			/*console.log('>>> this.props.visibleItemsMap = ', this.props.visibleItemsMap.visibleItemsByIds);
 			console.log('>>> allFilteredItems = ', allFilteredItems);
@@ -88,7 +88,7 @@ export default class ItemList extends React.Component{
 		    	<div>
 		    		<TransitionGroup>
 			    		{
-			    			this.props.itemIds.map((itemId) => {
+			    			this.props.itemIds.map((itemId, ind) => {
 			    			//this.state.itemIds.map((itemId) => {
 			    				//console.log("itemId [from ItemList] = ", itemId);
 			    				return (this.props.items[itemId] === undefined ?
@@ -103,6 +103,7 @@ export default class ItemList extends React.Component{
 			    							{
 			    								(state) => (state === 'unmounted' ? null : (<Item 
 			    									key={itemId}
+			    									index={ind}
 			    									item={this.props.items[itemId]} 
 			    									selectedAllIds={this.props.multipleSelectedAllIds}
 			    									onSelect={this.props.createHandleMulSel(itemId)} 

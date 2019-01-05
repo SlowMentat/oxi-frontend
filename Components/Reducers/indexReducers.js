@@ -56,7 +56,7 @@ import {
 			SET_POSITION_HELP,
 			SET_POSITION_FILTER,
 			SET_VISIBLE_HELP,
-			SET_VISIBLE_FILTER
+			SET_VISIBLE_FILTER,
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -401,11 +401,15 @@ function filterInvalidated(state=[], action){
 }
 
 const entitiesState = (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
+	let pageNumbers = null;
+	let length = null;
+
 	switch(action.type){
 		case `RECEIVE_${action.typeSpecifier}`:
-			return Object.assign({}, state, {receivedAt: action.payload, isFetching: !state.isFetching, 'serverInvalidated': !state.serverInvalidated});
+			return Object.assign({}, state, {receivedAt: action.payload.receivedAt, isFetching: false, 'error': action.payload.error});
+
 		case `REQUEST_${action.typeSpecifier}`:
-			return Object.assign({}, state, action.payload);
+			return Object.assign({}, state, {isFetching: true, 'error': false});
 
 		case `SERVER_INVALIDATE_${action.typeSpecifier}`:
 			let serverInvData = filterInvalidated(state.serverInvalidated, action);
@@ -439,7 +443,7 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 
 		case `SELECT_${action.typeSpecifier}`:
 			//batch comment//console.log('entitiesState reducer: action = ', action)
-			return Object.assign({}, state, {...action.payload, multipleSelected: [action.payload.selected]});
+			return Object.assign({}, state, {...action.payload, multipleSelected: (action.payload.selected ? [action.payload.selected] : []) });
 
 		case `SELECT_MUL_${action.typeSpecifier}`:
 			return Object.assign({}, state, {
@@ -460,6 +464,49 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 			return Object.assign({}, state, {
 				multipleSelected: []
 			});
+
+		case `SET_CURRENT_PAGE_${action.typeSpecifier}`:
+			return Object.assing({}, state, action.payload);
+
+		case `SET_LAST_PAGE_${action.typeSpecifier}`:
+			return Object.assign({}, state, action.payload);
+
+		case `PAGE_BUFFER_DOWN_${action.typeSpecifier}`:
+			pageNumbers = Object.keys(state.pages);
+			length = pagesNumbers.length;
+			return length >= state.pageBufferSize ? 
+				({
+					'pages': {
+						...state.pages.slice(1, length), 
+						...{ [pageNumbers[length-1] < state.lastPage ? length : state.lastPage]: action.payload.ids }
+					}
+				}): 
+				({
+					'pages': {
+						...state.pages, 
+						...{ [length+1] : action.payload.ids } 
+					} 
+				})
+
+		case `PAGE_BUFFER_UP_${action.typeSpecifier}`:
+			pageNumbers = Object.keys(state.pages);
+			length = pagesNumbers.length;
+			return length > state.pageBufferSize ?
+				({
+					'pages': { 
+						...{ [pageNumbers[0] > 0 ? pageNumber - 1 : 0]: action.payload.ids }, 
+						...state.pages.slice(0, length - 1) 
+					} 
+				} ) : // !This case should never happen!
+				({ 
+					'pages': { 
+						...{ [state.pages[0]-1]: action.payload.ids}, 
+						...state.pages 
+					} 
+				}) 
+
+		case `SET_PAGE_BUFFER_SIZE_${action.typeSpecifier}`:
+			return Object.assign({}, state, action.payload);
 
 		default:
 			////batch comment//console.log("no matching case in entities()")
@@ -631,9 +678,32 @@ export const maxItemCount = maxItemViewCount * maxContentCount;
 export const maxItemContentCount = maxContentCount * maxItemCount;
 
 
-let defualtEntitiesStore = {selected: false, controlDisabled :  false, count: 0, byIds : {}, allIds : [], allEditingIds: []};
-let defualtMenuStoreState = {positionx: 0, positiony: 0, isVisible: false,};
-let defualtEntitiesState = {isFetching:false, serverInvalidated: [], clientInvalidated: [], clientDeleted: [],receivedAt: null, selected: false, multipleSelected: []};
+let defualtEntitiesStore = {
+	selected: false, 
+	controlDisabled :  false, 
+	count: 0, 
+	byIds : {}, 
+	allIds : [], 
+	allEditingIds: [],
+	pages: {}
+};
+let defualtMenuStoreState = {
+	positionx: 0, 
+	positiony: 0, 
+	isVisible: false,
+};
+let defualtEntitiesState = {
+	isFetching:false, 
+	currentPage: 0,
+	lastPage: 0,
+	pageBufferSize: 0,
+	serverInvalidated: [], 
+	clientInvalidated: [], 
+	clientDeleted: [],
+	receivedAt: null, 
+	selected: false, 
+	multipleSelected: []
+};
 
 const entitiesReducer = combineReducers({
 	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),

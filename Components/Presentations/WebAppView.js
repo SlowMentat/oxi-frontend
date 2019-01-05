@@ -3,8 +3,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 //Container Components
-import ModalContentSelection from '../../Components/Containers/SelectModalContent.js'
+import ModalContentSelection from '../../Components/Containers/SelectModalContent.js';
 import VisibleItemList from '../../Components/Containers/VisibleItemList.js';
+import VisibleItemListBrowse from '../../Components/Containers/VisibleItemListBrowse.js';
 import VisibleOutfitList from '../../Components/Containers/VisibleOutfitList.js';
 import ContentContainer from '../../Components/Containers/ContentContainer.js';
 import OutfitPanelContainer from '../../Components/Containers/OutfitPanelContainer.js'
@@ -107,14 +108,29 @@ class OutfitNav extends React.Component{
 	}
 
 	render(){
+		let browseContent = null
+		let browseNavStyle = null
+		switch(this.props.browseSelection){
+			case 'outfits':
+				browseContent = (<VisibleOutfitList view={this.props.webAppView} />);
+				break;
+			case 'apparel':
+				browseContent = (<VisibleItemListBrowse changeItemHovered={()=>{}}/>);
+				browseNavStyle = {    
+					'width': 'calc(100vw - 300px)',
+					'margin-left': '300px'
+				}
+				break
+			default:
+				browseContent = null;
+				break;
+		}
+		console.log('browseContent = ', browseContent);
 		return(
     		<div className={Styles.outfitBlock}>
-    			<div className={OutfitNavStyles.outfitNavContainer}>
-	    			{/*<div className={OutfitNavStyles.outfitCtrlContainer}>
-						<OutfitPanelContainer webAppView={this.props.webAppView}/>
-	    			</div>*/}
+    			<div className={OutfitNavStyles.outfitNavContainer} style={browseNavStyle}>
 	    			<div className={OutfitNavStyles.previewContainer}>
-	    				<VisibleOutfitList view={this.props.webAppView}/>
+	    				{browseContent}
 	    			</div>
     			</div>
     		</div>
@@ -304,7 +320,9 @@ export default class webAppView extends React.Component {
 									</div>
 									<MetricPanel />
 								</div>
-								<OutfitNav webAppView={this.props.webAppView}/>
+								<OutfitNav 
+									webAppView={this.props.webAppView}
+									browseSelection={this.props.browseSelection}/>
 								<ModalContentSelection/>
 								<Admin/>
 							</div>
@@ -323,12 +341,12 @@ export default class webAppView extends React.Component {
 									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
 									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
 									itemIdHovered={this.state.itemIdHovered}
-									changeItemHovered={(itemId) => this._handleItemHovered(itemId)}/>
+									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
 								<VisibleItemList 
 									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
 									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
 									itemIdHovered={this.state.itemIdHovered}
-									changeItemHovered={(itemId) => this._handleItemHovered(itemId)}/>
+									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
 								<Admin/>
 							</div>
 						</div>

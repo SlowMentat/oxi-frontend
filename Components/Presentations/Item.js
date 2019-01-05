@@ -2,6 +2,7 @@ import React from 'react';
 import ItemStyles from '../../item.css';
 //import DeleteIcon from '../SvgAssets/Icons/DeleteIcon.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js';
+import VisibleItemAsSeenOnList from '../../Components/Containers/VisibleItemAsSeenOnList.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -19,12 +20,13 @@ const itemContainerHovered = {
 };
 
 const itemContainer = {
-	'height': '75px',
+	'height': '100px',
 	'margin-bottom':'8px',	
+	'border-radius': '3px',
 };
 
 const itemContainerSelected = {
-	'height': '75px',
+	'height': '100px',
 	'margin-bottom':'8px',
     'border-style':'solid',
     'border-color':'#6dd7b4',
@@ -42,7 +44,7 @@ const defualtItemMenuContainer = {
 }
 
 const itemCellContainer = {
-	position: 'absolute',
+	//position: 'absolute',
 }
 const itemCellContentContainer = {
 	position: 'relative',
@@ -57,18 +59,9 @@ export const Item = (props) => {
 	let brandLink = null;
 	let retailerName = null;
 	let retailerLink = null;
-	/*
-	console.log('+++++++++++++++++++++++++++++++++');
-	console.log('props.brands', props.brands);
-	console.log('props.retailers', props.retailers);
-	console.log('++++++++++++++++++++++++++++++++++');
-	console.log('props.item', props.item);
-	*/
+
 	if(props.item !== undefined){
 		if(props.brands !== undefined && props.brands !== null && props.item.brand){
-			/*console.log("brand id = ", props.brands)
-			console.log('props.item.brand = ', props.item.brand)
-			console.log('brand[props.item.brand] = ', props.brands[`${props.item.brand}`])*/
 			brandName = props.brands[props.item.brand].name;
 			brandLink = props.brands[props.item.brand].link;
 			brandColorStyle = {
@@ -76,31 +69,47 @@ export const Item = (props) => {
 			};
 		}
 		if(props.retailers !== undefined && props.retailers !== null && props.item.retailer){
-			/*console.log("brand id = ", Object.keys(props.brands))
-			console.log('props.item.brand = ', props.item.brand)*/
 			retailerName = props.retailers[props.item.retailer].name;
 			retailerLink = props.retailers[props.item.retailer].link
 		}
 	}else{
 		return null;
 	}
-	/*
-	console.log('brandName = ', brandName);
-	console.log('brandLink = ', brandLink);
-	console.log('retailerName = ', retailerName);
-	console.log('retailerLink = ', retailerLink);
-	*/
-	//console.log('itemContainer = ', itemContainer);
+
 	let fill = "#FFF";
 	let stroke = "#FFF";
 	let isSelected = props.selectedAllIds.includes(props.item.id);
+	let itemContainerStyles = null;
+
+	switch(true){
+		case props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase():
+			itemContainerStyles = !isSelected ?
+							ItemStyles.itemContainer_div :
+							props.viewState === OxiAppConstants.viewState.PREVIEW ? 
+								ItemStyles['itemContainerPreview_div--selected'] : 
+								ItemStyles['itemContainerEdit_div--selected'];
+			break;
+		case props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase():
+			itemContainerStyles = !isSelected ? 
+							ItemStyles.itemContainer_div :
+							props.browseSelection === 'apparel' ?
+								ItemStyles['itemContainerBrowse_div--selected'] :
+								null;
+			break;
+		default:
+			break;
+	}
+	console.log('itemContainerStyles = ', itemContainerStyles);
+
 	return(			
 		<div 
-			//style={props.item.id === props.itemIdHovered ? itemContainerHovered : itemContainer}
-			style={!isSelected ? itemContainer : props.viewState === OxiAppConstants.viewState.PREVIEW ? itemContainerSelectedPrev : itemContainerSelected }
+			className={itemContainerStyles}
 			onMouseOver={props._handleMouseOver.bind(this)}
 			onMouseLeave={props._handleMouseLeave.bind(null)} 
-			onClick={(isSelected === true) ? props.onDeselect : props.onSelect} >
+			onClick={() => {
+				if(props.webAppView === 'home' && props.browseSelection === 'apparel') props.getContentsByItemId();
+				(isSelected === true) ? props.onDeselect() : props.onSelect();
+			}} >
 			<CSSTransition
 			    tiemout={200}
 			    classNames="itemMenuContainer"
@@ -154,24 +163,42 @@ export const Item = (props) => {
 					</div>
 				</div>
 			</a>
-			<a className={ItemStyles.itemRetailerBlock} href={retailerLink} target="_blank">
-				<div style={itemCellContainer}>
-					<div>	
-						{retailerName}
+
+			<div style={{
+				'display': 'inline-block',
+    			'width': 'calc((100% - 100px))',
+    			'vertical-align': 'top',
+    			'height': '100%',
+    			'border-left-style': 'solid',
+    			'border-left-color': '#fdfdfd',
+    			'border-left-width': '8px',
+			}}>
+				<div className={ItemStyles.itemBrandBlock} href={brandLink} target="_blank">
+					<div style={itemCellContainer}>
+						<div style={{'font-family': '\'Archivo Black\', sans-serif'}}>	
+							{brandName}
+						</div>
 					</div>
 				</div>
-			</a>
-			<a 
-				className={ItemStyles.itemBrandBlock} 
-				//style={brandColorStyle} 
-				href={brandLink} 
-				target="_blank" >
-				<div style={itemCellContainer}>
-					<div>	
-						{brandName}
+				<div className={ItemStyles.itemRetailerBlock} href={retailerLink} target="_blank">
+					<div style={itemCellContainer}>
+						<div>	
+							{retailerName}
+						</div>
 					</div>
 				</div>
-			</a>
+			</div>
+			{
+				props.webAppView !== 'home' ?
+					null :
+					props.browseSelection !== 'apparel' ?
+						null : 
+						isSelected ?
+							(
+								<VisibleItemAsSeenOnList selectedItemId={props.item.id} />
+							) :
+							null
+			}
 		</div>		
 	);	
 }

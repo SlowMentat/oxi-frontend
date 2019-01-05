@@ -14,46 +14,6 @@ import ItemList from '../../Components/Presentations/ItemList.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
-/*const getVisibleItems = (items, joinTable, filter, selectedContentId) => {
-	let result = {byIds:{}, allIds:[]};
-	//Only perform filter on non-empty items object
-	if(!(Object.keys(items).length === 0 && items.constructor === Object)){
-		switch(filter){
-			case 'SHOW_ALL':
-			case 'BY_TYPE':
-				return items.filter(item => item.type = data);
-			case 'BY_SIZE':
-				return items.filter(items => item.size = data);
-			//case 'BY_SOURCE':
-			//	return items.filter(items => item. = data);
-			case 'BY_CONTENT_ID':
-				let itemIds = [];
-				let joinTableKeys = Object.keys(joinTable);
-				//only filter by content id if joinTable is not and EMPTY object
-				if(!(joinTableKeys.length === 0 && joinTable.constructor === Object)){
-					for(let key of joinTableKeys){
-						//get all item ids from join table where content ids = contentId
-						if(joinTable[key]["contentId"] == selectedContentId) itemIds.push(joinTable[key]["itemId"]);
-					}
-					//filter items that match ids in itemIds
-					let filteredItems = {};
-					for(let id of itemIds){
-						filteredItems[id] = items[id];
-					}
-					console.log("filteredItems = ");
-					console.log(filteredItems);
-					return filteredItems;
-				}else{
-					return items;
-				}
-			default:
-				return items;
-		}
-	}else if(selectedContentId === false){
-		return
-	}
-	return items;
-}*/
 
 const getVisibleItems = (items, filter, contents, selectedContentId) => {
 	console.log('getVisibleItems: passed items = ', items);
@@ -106,12 +66,6 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 const mapStateToProps = (state, props) => {
 	let brands = state.entitiesReducer.brands.byIds;
 	let retailers = state.entitiesReducer.retailers.byIds;
-	/*
-	console.log('==================================');
-	console.log('brands', brands);
-	console.log('retailers', retailers);
-	console.log('==================================');
-	*/
 	let filteredItems = maskEdits(getVisibleItems(
 			state.entitiesReducer.items, 
 			'BY_CONTENT_ID', 
@@ -127,7 +81,7 @@ const mapStateToProps = (state, props) => {
 
 	return ({
 		items : filteredItems.byIds,
-		itemIds : filteredItems.allIds,//state.entitiesReducer.items.allIds 
+		itemIds : filteredItems.allIds,
 		addedItems : filteredAddedItems.byIds,
 		addedItemIds : filteredAddedItems.allIds,
 		brands : brands,
