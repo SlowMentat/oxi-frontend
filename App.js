@@ -133,7 +133,7 @@ function uploadImage(imageFile){
 					headers, 
 					imageFormData, 
 					'POST', 
-					OxiAppConstants.apiBaseUrl+'/upload',
+					OxiAppConstants.apiBaseURL+'/upload',
 					null);	
 }
 

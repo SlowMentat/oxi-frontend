@@ -356,6 +356,46 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 			return Object.assign({}, state, {byIds:{}, allIds:[], count: 0});
 		/*case `SELECT_${action.typeSpecifier}`:
 			return Object.assign({}, state, {"selected": action.payload.id});*/
+
+		case `MODIFY_PAGED_${action.typeSpecifier}`:
+			let pageNumbers = Object.keys(state.pages);
+			let currentPage = Object.keys(action.payload);
+			let pageCount = pageNumbers.length;
+			let headPageNumber = pageNumbers[0];
+			let tailPageNumber = pageNumbers[pageCount-1];
+
+			if(pageCount >= state.pageBufferSize){
+				switch(true){
+					case (currentPage = headPageNumber - 1): //Paging up
+						return Object.assign({}, state, {
+							'pages': { 
+								...action.payload, 
+								...Object.assign({}, state.pages, {[tailPageNumber] : undefined })
+							} 
+						} );	
+
+					case (currentPage = tailPageNumber + 1 ): //Paging down
+						return Object.assign({}, state, {
+							'pages': {
+								...Object.assign({}, state.pages, {[headPageNumber]: undefined}), 
+								...action.payload
+							} 
+						} );
+
+					default:
+						// do nada
+						return state
+				}
+			}else{
+				//In this case the buffer isn't full and the start of the buffer is at page 0.  So we can assume that this is a page-down action
+				return Object.assign({}, state, {
+					'pages': {
+						...state.pages, 
+						...action.payload
+					}
+				} );
+			}
+
 		default:
 			////batch comment//console.log("no matching case in entities()")
 			return state;
@@ -400,7 +440,7 @@ function filterInvalidated(state=[], action){
 	return duplicatesFiltered;
 }
 
-const entitiesState = (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
+const entitiesState = pageBufferSize => (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
 	let pageNumbers = null;
 	let length = null;
 
@@ -466,46 +506,18 @@ const entitiesState = (state = {isFetching: false, serverInvalidated: [], client
 			});
 
 		case `SET_CURRENT_PAGE_${action.typeSpecifier}`:
-			return Object.assing({}, state, action.payload);
+			return Object.assign({}, state, action.payload);
 
 		case `SET_LAST_PAGE_${action.typeSpecifier}`:
 			return Object.assign({}, state, action.payload);
 
-		case `PAGE_BUFFER_DOWN_${action.typeSpecifier}`:
-			pageNumbers = Object.keys(state.pages);
-			length = pagesNumbers.length;
-			return length >= state.pageBufferSize ? 
-				({
-					'pages': {
-						...state.pages.slice(1, length), 
-						...{ [pageNumbers[length-1] < state.lastPage ? length : state.lastPage]: action.payload.ids }
-					}
-				}): 
-				({
-					'pages': {
-						...state.pages, 
-						...{ [length+1] : action.payload.ids } 
-					} 
-				})
-
-		case `PAGE_BUFFER_UP_${action.typeSpecifier}`:
-			pageNumbers = Object.keys(state.pages);
-			length = pagesNumbers.length;
-			return length > state.pageBufferSize ?
-				({
-					'pages': { 
-						...{ [pageNumbers[0] > 0 ? pageNumber - 1 : 0]: action.payload.ids }, 
-						...state.pages.slice(0, length - 1) 
-					} 
-				} ) : // !This case should never happen!
-				({ 
-					'pages': { 
-						...{ [state.pages[0]-1]: action.payload.ids}, 
-						...state.pages 
-					} 
-				}) 
-
 		case `SET_PAGE_BUFFER_SIZE_${action.typeSpecifier}`:
+			return Object.assign({}, state, action.payload);
+
+		case `SET_NEXT_${action.typeSpecifier}_PAGE_URL`:
+			return Object.assign({}, state, action.payload);
+
+		case `SET_PREV_${action.typeSpecifier}_PAGE_URL`:
 			return Object.assign({}, state, action.payload);
 
 		default:
@@ -677,6 +689,10 @@ export const maxPictureCount = maxContentCount;
 export const maxItemCount = maxItemViewCount * maxContentCount;
 export const maxItemContentCount = maxContentCount * maxItemCount;
 
+export const maxOutfitPageBufferSize = 2;
+export const maxContentPageBufferSize = 2;
+export const maxItemPageBufferSize = 2;
+export const maxPicturePageBufferSize = 2;
 
 let defualtEntitiesStore = {
 	selected: false, 
@@ -697,6 +713,8 @@ let defualtEntitiesState = {
 	currentPage: 0,
 	lastPage: 0,
 	pageBufferSize: 0,
+	prevPageURL:null,
+	nextPageURL:null,
 	serverInvalidated: [], 
 	clientInvalidated: [], 
 	clientDeleted: [],
@@ -725,11 +743,11 @@ const addedEntitiesReducer = combineReducers({
 })
 
 const entitiesStateReducer = combineReducers({
-	profile : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesState),
-	items : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.ITEM, defualtEntitiesState),
-	pictures : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesState),
-	contents : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesState),
-	outfits : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesState)
+	profile : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesState),
+	items : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesState),
+	pictures : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesState),
+	contents : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesState),
+	outfits : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesState)
 })
 
 const popupMenusReducer = combineReducers({

@@ -124,7 +124,7 @@ const mapDispatchToProps = (dispatch) => ({
 				'items':itemAllIds
 			}));
 		},
-		afterLoginSuccess:  (requestUrl, requestType) => OxiAppConstants.requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceUrl+'/', "").split('?')[0]][requestType](dispatch),
+		afterLoginSuccess:  (requestUrl, requestType) => OxiAppConstants.requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceURL+'/', "").split('?')[0]][requestType](dispatch),
 		clearUpdates: () => {
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.OUTFIT));
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.CONTENT));

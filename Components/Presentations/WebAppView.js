@@ -15,7 +15,6 @@ import LandingPageContainer from '../../Components/Containers/LandingPageContain
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
 
 //Presentation Component 
-
 //Constants
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
@@ -112,14 +111,10 @@ class OutfitNav extends React.Component{
 		let browseNavStyle = null
 		switch(this.props.browseSelection){
 			case 'outfits':
-				browseContent = (<VisibleOutfitList view={this.props.webAppView} />);
+				browseContent = () => (<VisibleOutfitList view={this.props.webAppView} scrollContainerStyle={OutfitNavStyles.previewContainer} />);
 				break;
 			case 'apparel':
-				browseContent = (<VisibleItemListBrowse changeItemHovered={()=>{}}/>);
-				browseNavStyle = {    
-					'width': 'calc(100vw - 300px)',
-					'margin-left': '300px'
-				}
+				browseContent = () => (<VisibleItemListBrowse changeItemHovered={()=>{}} scrollContainerStyle={OutfitNavStyles.previewContainer} />);
 				break
 			default:
 				browseContent = null;
@@ -128,11 +123,7 @@ class OutfitNav extends React.Component{
 		console.log('browseContent = ', browseContent);
 		return(
     		<div className={Styles.outfitBlock}>
-    			<div className={OutfitNavStyles.outfitNavContainer} style={browseNavStyle}>
-	    			<div className={OutfitNavStyles.previewContainer}>
-	    				{browseContent}
-	    			</div>
-    			</div>
+    			{browseContent !== null ? browseContent() : null}
     		</div>
 		);
 	}

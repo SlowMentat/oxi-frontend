@@ -238,7 +238,7 @@ const postConfig = (url, data) => {
 }
 export const loginConfig = (username, password) => {
 	return postConfig(
-		OxiAppConstants.apiBaseUrl + '/login',
+		OxiAppConstants.apiBaseURL + '/login',
 		{
 			'X-CSRF-TOKEN' : cookies.get('csrf_token'),
 			'username' : username,
@@ -444,7 +444,7 @@ export const setEntityLastPage = (entityType, pageNumber) => {
 	}
 };
 //add {page:ids} to tail of pages object
-export const pageEntityDown = (entityType, ids) => {
+/*export const pageEntityDown = (entityType, ids) => {
 	return function(dispatch){
 		dispatch(makeActionCreator(`PAGE_BUFFER_DOWN_${entityType.toUpperCase()}`, entityType.toUpperCase('ids'))(ids));
 	}
@@ -454,11 +454,16 @@ export const pageEntityUp = (entityType, ids) => {
 	return function(dispatch){
 		dispatch(makeActionCreator(`PAGE_BUFFER_UP_${entityType.toUpperCase()}`, entityType.toUpperCase('ids'))(ids));
 	}
-};
+};*/
+export const modifyPagedEntityIds = (entityType, page, ids) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`MODIFY_PAGED_${entityType.toUpperCase()}`, entityType.toUpperCase(), `${page}`)(ids));
+	}
+}
 //Set maxBufferedPages
 export const setPageBuffer = (entityType, pages) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`SET_PAGE_BUFFER_SIZE_${entityType.toUpperCase()}`, entityType.toUpperCase('pageBufferSize'))(pages));
+		dispatch(makeActionCreator(`SET_PAGE_BUFFER_SIZE_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'pageBufferSize')(pages));
 	}
 };
 
@@ -474,6 +479,17 @@ export const requestEntities = (entityType) => {
 	}
 }
 
+export const setNextPageURL = (entityType, URL) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_NEXT_${entityType.toUpperCase()}_PAGE_URL`, entityType.toUpperCase(), 'nextPageURL')(URL));
+	}
+}
+
+export const setPrevPageURL = (entityType, URL) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_PREV_${entityType.toUpperCase()}_PAGE_URL`, entityType.toUpperCase(), 'prevPageURL')(URL));
+	}
+}
 
 //========CLIENT INVALIDATION ACTIONS========
 
@@ -517,6 +533,10 @@ export const clearServerInvalidation = (entityType) => {
 		dispatch(makeActionCreator(`CLEAR_SERVER_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase())());
 	}
 };
+
+
+//========ENTITY PAGED IDS MODIFICATION ACTIONS========
+
 
 
 /*export const receiveEntities = (entityType, json, error) => {
@@ -630,7 +650,7 @@ export function navigateTo(location){
 //TODO:  this should be replaced with an email verification login on initial account creation.
 export function createUser(email, password, username){
 	return function(dispatch){
-		return axios.post(OxiAppConstants.serviceUrl + '/createUser', {			
+		return axios.post(OxiAppConstants.serviceURL + '/createUser', {			
 			'email': email,
 			'password': password,
 			'username': username			
@@ -668,7 +688,7 @@ export function postProfile(profile){
 		
 		//strip local ids from all profile entities
 		profile.id = '';
-		return axios.put(OxiAppConstants.serviceUrl + '/profile',
+		return axios.put(OxiAppConstants.serviceURL + '/profile',
 			//denormalize(profile, profileSchema, {});
 			profile
 		).then(response => {
@@ -692,7 +712,7 @@ export function fetchMetrics(outfitId){
 	return function(dispatch){
 		dispatch(requestEntities(OxiAppConstants.EntityTypes.PROFILE));
 		//Check outfit Id is valid
-		return axios.get(OxiAppConstants.serviceUrl + '/profile?filter=' + outfitId)
+		return axios.get(OxiAppConstants.serviceURL + '/profile?filter=' + outfitId)
 		.then((response) => {
 			if(response.status === OxiAppConstants.HttpStatus.OK){
 				//The return entity is not nested so we do not need to make calls to normalizr before dropping into redux tree
@@ -718,18 +738,16 @@ export function fetchItemMenus(){
 	}
 }
 
-export function fetchEntities(entityType, username, filter){
+export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=9){
 	return function(dispatch){
 		dispatch(requestEntities(entityType));
-		let pathVariable = '';
+		let URI = '';
 		let requestParams = '';
-		let pageStart = 0;
-		let pageSize = 50;
 		let pageBufferSize = 2;
 
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.BRAND:
-				return axios.get(OxiAppConstants.serviceUrl + `/brands?page=${pageStart}&size=${pageSize}`)
+				return axios.get(OxiAppConstants.serviceURL + `/brands?page=${0}&size=${50}`)
 				.then(response => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let normalizedJson = response.data._embedded.brandDtoes.reduce((accumulator, currentObject) => {
@@ -753,7 +771,7 @@ export function fetchEntities(entityType, username, filter){
 				})
 				break;
 			case OxiAppConstants.EntityTypes.RETAILER:
-				return axios.get(OxiAppConstants.serviceUrl + `/retailers?page=${pageStart}&size=${pageSize}`)
+				return axios.get(OxiAppConstants.serviceURL + `/retailers?page=${0}&size=${50}`)
 				.then(response => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let normalizedJson = response.data._embedded.retailerDtoes.reduce((accumulator, currentObject) => {
@@ -774,8 +792,8 @@ export function fetchEntities(entityType, username, filter){
 				})
 				break;				
 			case OxiAppConstants.EntityTypes.PROFILE:
-				pathVariable = '/profile';
-				return axios.get(OxiAppConstants.serviceUrl + pathVariable + username)
+				URI = linkURL ? '' : '/profile';
+				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}${username}`)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						//The return entity is not nested so we do not need to make calls to normalizr before dropping into redux tree
@@ -787,8 +805,10 @@ export function fetchEntities(entityType, username, filter){
 				break;
 			case OxiAppConstants.EntityTypes.OUTFIT:
 				requestParams = 'filter=' + filter;
-				pathVariable = '/outfits';
-				return axios.get(`${OxiAppConstants.serviceUrl}${pathVariable}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				URI = linkURL ? '' : '/outfits';
+				username = linkURL ? '' : username;
+				console.log(`requestParams = ${requestParams}, URI = ${URI}, username = ${username}, linkURL = ${linkURL}`)
+				return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
@@ -835,8 +855,9 @@ export function fetchEntities(entityType, username, filter){
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
 				requestParams = 'filter=' + filter;
-				pathVariable = '/outfits';
-				return axios.get(`${OxiAppConstants.serviceUrl}${pathVariable}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				URI = linkURL ? '' : '/contents';
+
+				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?${requestParams}&page=${pageStart}&size=${pageSize}`)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
@@ -883,10 +904,10 @@ export function fetchEntities(entityType, username, filter){
 				break;
 			case OxiAppConstants.EntityTypes.ITEM:
 				requestParams = 'filter=' + filter;
-				pathVariable = '/items';
+				URI = linkURL ? '' : '/items';
 
-				return axios.get(`${OxiAppConstants.serviceUrl}${pathVariable}?${requestParams}&page=${pageStart}&size=${pageSize}`)
-				//return axios.get(OxiAppConstants.serviceUrl + pathVariable + "?" + requestParams + "&page=0&size=20")
+				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				//return axios.get(OxiAppConstants.serviceURL + pathVariable + "?" + requestParams + "&page=0&size=20")
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let normalizedJson = response.data._embedded.itemDtoes.reduce((accumulator, currentObject) => {
@@ -902,6 +923,19 @@ export function fetchEntities(entityType, username, filter){
 						},{});
 						console.log('normalizedJson Items:  ', normalizedJson);
 						dispatch(receiveEntities(entityType.toLowerCase(), null));
+						//dispatch(replaceItems(normalizedJson));
+						if(response.data.page !== undefined){
+							console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`)
+							const {size, totalElements, totalPages, number} = response.data.page;
+							dispatch(setEntityCurrentPage(OxiAppConstants.EntityTypes.ITEM, number));
+							dispatch(setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages));
+							dispatch(modifyPagedEntityIds(OxiAppConstants.EntityTypes.ITEM, number, Object.keys(normalizedJson)));
+							if(response.data._links !== undefined){
+								response.data._links.next ? dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.next.href)) : dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
+								response.data._links.prev ? dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) : dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null));
+							}
+						}
+						//mergeResponseEntities(dispatch, {'entities': {'items': normalizedJson}}); //TODO clean this up.  Use schema
 						dispatch(replaceItems(normalizedJson));
 					}else{
 						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
@@ -932,6 +966,61 @@ export function fetchEntities(entityType, username, filter){
 			default:
 				break;
 		}
+	}
+}
+
+export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSize=50) => {
+	return function(dispatch){
+		dispatch(requestEntities(OxiAppConstants.EntityTypes.CONTENT));
+		let pageStart = 0;
+		let pageSize = 9;
+		let pageBufferSize = 2;
+		let UR = linkURL ? '' : `/contents/items/${itemId}`;
+		return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?page=${pageStart}&size=${pageSize}`)
+		.then((response) => {
+			if(response.status === OxiAppConstants.HttpStatus.OK){
+				let json = response.data._embedded.contentDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
+				console.log("json");
+				console.log(json);
+				dispatch(receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
+				//normalize received json payload
+				let normalizedJson = normalize(json, contents);
+				
+				console.log('entitiesStateReducer', normalizedJson); 
+				
+				//Manually build itemContents join table
+				//let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.CONTENT, json);
+				//dispatch(createItemContent(itemContentJson));							
+	
+				mergeResponseEntities(dispatch, normalizedJson);
+				let contentKeys = Object.keys(normalizedJson.entities.contents);
+				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null
+				//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
+			}else{
+				//handleUnauthorizedRequest(response);
+			}
+		})
+		.catch(error => {
+			console.log(error);
+			if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				console.log(error.response.data);
+				console.log(error.response.status);
+				console.log(error.response.headers);
+				//Check if error is due to forbidden response staatus
+				dispatch(handleUnauthorizedRequest(error.response));
+			} else if (error.request) {
+				// The request was made but no response was received
+				// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+				// http.ClientRequest in node.js
+				console.log(error.request);
+			} else {
+				// Something happened in setting up the request that triggered an Error
+				console.log('Error', error.message);
+			}
+			console.log(error.config);
+		});
 	}
 }
 
@@ -1149,7 +1238,7 @@ export function fetchImage(filename, callback, picture){
 			}
 		})
 
-		request.get(OxiAppConstants.serviceUrl + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
+		request.get(OxiAppConstants.serviceURL + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
 		//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
 		.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
 		.then(response => callback(null, response, picture));
@@ -1165,7 +1254,7 @@ export function postImage(imageFile, onSuccess){
 	//return function(dispatch){
 		//dispatch(postEntities(json));
 		axios.post(
-			OxiAppConstants.serviceUrl + '/uploadPhoto', 
+			OxiAppConstants.serviceURL + '/uploadPhoto', 
 			imageFormData,
 			{
 				headers:{
@@ -1190,7 +1279,7 @@ export function putImage(imageFile, contentId, onSuccess){
 	imageFormData.append('imageFile', imageFile);
 	//Currently server does not handle Multipart PUT requests
 	axios.post(
-		OxiAppConstants.serviceUrl + '/updatePhoto/' + contentId, 
+		OxiAppConstants.serviceURL + '/updatePhoto/' + contentId, 
 		imageFormData,
 		{
 			headers:{
@@ -1213,7 +1302,7 @@ export function postOutfit(outfitJson, onSuccess){
 	return (pictureJson) => {
 		//TODO:  this will need to handle multiple content entites for multi-file upload
 		axios.post(
-			OxiAppConstants.serviceUrl + '/outfit',
+			OxiAppConstants.serviceURL + '/outfit',
 			Object.assign( {}, outfitJson,  {coverpicuri: pictureJson.smalluri, contents: Object.values( Object.assign( {}, graftPictureJson(outfitJson.contents, [pictureJson] ) ) ) } ),
 			{})
 		.then(response => {
@@ -1229,7 +1318,7 @@ export function postContent(contentJson, outfitId, onSuccess){
 	return (pictureJson) => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		axios.post(
-			OxiAppConstants.serviceUrl + '/contents' + pathVariable, 
+			OxiAppConstants.serviceURL + '/contents' + pathVariable, 
 			[ Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]) ], 
 			{})
 		.then(response => {
@@ -1248,7 +1337,7 @@ export function putContent(contentJson, outfitId, onSuccess){
 			console.log('picturejson != null');
 			console.log('contentJson = ', contentJson);
 			axios.put(
-				OxiAppConstants.serviceUrl + '/content' + pathVariable, 
+				OxiAppConstants.serviceURL + '/content' + pathVariable, 
 				Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]), 
 				{})
 			.then(response => {
@@ -1261,7 +1350,7 @@ export function putContent(contentJson, outfitId, onSuccess){
 			console.log('picturejson == null');
 			console.log('contentJson = ', contentJson);
 			axios.put(
-				OxiAppConstants.serviceUrl + '/content' + pathVariable, 
+				OxiAppConstants.serviceURL + '/content' + pathVariable, 
 				contentJson, 
 				{})
 			.then(response => {
@@ -1279,7 +1368,7 @@ export function putRemoveItems(payloadJson, outfitId, onSuccess){
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		console.log('putRemoveItems:  payloadJson = ', payloadJson);
 		axios.put(
-			OxiAppConstants.serviceUrl + '/removeItems' + pathVariable,
+			OxiAppConstants.serviceURL + '/removeItems' + pathVariable,
 			payloadJson,
 			{})
 		.then(response => {
@@ -1295,7 +1384,7 @@ export function postItems(payloadJson, outfitId, onSuccess){
 	return () => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		return axios.post(
-			OxiAppConstants.serviceUrl + '/items' + pathVariable,
+			OxiAppConstants.serviceURL + '/items' + pathVariable,
 			payloadJson,
 			{})
 		.then(response => {
@@ -1311,7 +1400,7 @@ export function putItems(payloadJson, outfitId, onSuccess){
 	return () => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		return axios.put(
-			OxiAppConstants.serviceUrl + '/items' + pathVariable,
+			OxiAppConstants.serviceURL + '/items' + pathVariable,
 			payloadJson,
 			{})
 		.then(response => {
@@ -1367,7 +1456,7 @@ export const batchRequestEntities = (entityType, promise) => {
 		if(requestTarget !== ''){
 			console.log("denormalized json data = ", json);
 			axios.post(
-				OxiAppConstants.serviceUrl + requestTarget,
+				OxiAppConstants.serviceURL + requestTarget,
 				json,
 				{}
 			)
@@ -1435,7 +1524,7 @@ export function putEntities(outfitJson, picturesJson, enityType, onSuccess){
 	if(requestTarget !== ''){
 		console.log("finalJson data = ", finalJson);
 		axios.post(
-			OxiAppConstants.serviceUrl + requestTarget,
+			OxiAppConstants.serviceURL + requestTarget,
 			finalJson,
 			{}
 		)

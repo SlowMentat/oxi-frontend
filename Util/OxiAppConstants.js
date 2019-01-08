@@ -17,8 +17,8 @@ export const OxiAppConstants = Object.freeze({
 	},
 	outfitFormRoot : document.getElementById('outfitForm'),
 	modalRoot : document.getElementById('modalRoot'),
-	serviceUrl : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/consumer',
-	apiBaseUrl : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
+	serviceURL : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/consumer',
+	apiBaseURL : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
 	aspectRatio : (2 / 3),
 	/*ContenViewStates: {
 		edit: {
@@ -49,6 +49,10 @@ export const OxiAppConstants = Object.freeze({
 	MenuTypes : {
 		FILTER: "FILTER",
 		HELP: "HELP",
+	},
+	PageListIds:{
+		ITEM_LIST_BROWSE: 'itemListBrowse',
+		ITEM_AS_SEEN_ON_LIST: 'itemAsSeenOnList',
 	},
 	EmbeddedEntityPropertyNames : {	
 		PROFILE : "profileDto",

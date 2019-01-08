@@ -195,7 +195,7 @@ export const Item = (props) => {
 						null : 
 						isSelected ?
 							(
-								<VisibleItemAsSeenOnList selectedItemId={props.item.id} />
+								<VisibleItemAsSeenOnList selectedItemId={props.item.id}/>
 							) :
 							null
 			}

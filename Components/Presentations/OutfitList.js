@@ -4,9 +4,12 @@ import Outfit from './Outfit.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
+//Presentation Component 
+import PagedList from './PagedList.js';
+
 const container1_div = {
 	'height': '100%',
-    'padding-left': '500px',
+    'padding-left': '200px',
     'padding-right': '200px',	
 }
 

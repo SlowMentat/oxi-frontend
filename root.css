@@ -134,6 +134,7 @@ div{
 
 :local(.outfitBlock){
 	composes: stdBlock;
+	margin-left: 300px;
 	grid-area: browse;
 }
 

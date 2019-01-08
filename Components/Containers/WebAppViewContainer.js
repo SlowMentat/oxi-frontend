@@ -26,6 +26,15 @@ const mapDispatchToProps = (dispatch, props) => ({
 	navEventCallbacks : {
 		home : () => {
 			//dispatch(setWebAppView("home"))
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
+			
 			dispatch(navigateTo(OxiAppConstants.navRequestMap.home.toLowerCase()));
 		},
 		profile : (profileId) => {
@@ -57,7 +66,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 			dispatch(setWebAppView("search"))
 		},
 		logout : () => {
-			axios.post(OxiAppConstants.apiBaseUrl + '/logout', null, {
+			axios.post(OxiAppConstants.apiBaseURL + '/logout', null, {
 				headers: {
 					'X-Requested-With': 'XMLHttpRequest',
 					'conentType': 'application/x-www-form-urlencoded; charset=UTF-8'
