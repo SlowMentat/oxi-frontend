@@ -285,7 +285,7 @@ function allIds(state = [], action){
 	}
 }
 
-const entities = maxCount => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
+const entities = (maxCount, pageBufferSize) => (state = {pageBufferSize: pageBufferSize, selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
 	let byIdsRef = {};
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
@@ -359,34 +359,57 @@ const entities = maxCount => (state = {selected: false, controlDisabled : false,
 
 		case `MODIFY_PAGED_${action.typeSpecifier}`:
 			let pageNumbers = Object.keys(state.pages);
-			let currentPage = Object.keys(action.payload);
-			let pageCount = pageNumbers.length;
-			let headPageNumber = pageNumbers[0];
-			let tailPageNumber = pageNumbers[pageCount-1];
-
+			let currentPage = parseInt(Object.keys(action.payload)[0], 10);
+			let pageCount = parseInt(pageNumbers.length, 10);
+			let headPageNumber = parseInt(pageNumbers[0], 10);
+			let tailPageNumber = parseInt(pageNumbers[pageCount-1], 10);
+			console.log('pageCount = ', pageCount);
+			console.log('pageBufferSize = ', state.pageBufferSize);
+			console.log('currentPage = ', currentPage);
 			if(pageCount >= state.pageBufferSize){
+				let subsetPages = {}
+				let a
+				let allIdsFiltered = [];
+				console.log('headPageNumber = ', headPageNumber);
+				console.log('tailPageNumber = ', tailPageNumber);
+				console.log('typeof curentPage', (typeof currentPage));
+				console.log('typeof tailPageNumber = ', (typeof tailPageNumber));
+				console.log('currentPage == \'(tailPageNumber + 1)\' : ', (currentPage == `${(tailPageNumber + 1)}`))
+				//let {[headPageNumber]:a, ...subsetPages}
 				switch(true){
-					case (currentPage = headPageNumber - 1): //Paging up
+					//Paging up
+					case (currentPage == (headPageNumber - 1)): 
+						const {[`${tailPageNumber}`]:removedIds_A, ...subsetPagesA} = Object.assign({}, state.pages);
+						console.log('removedIds_A = ', removedIds_A)
+						allIdsFiltered = state.allIds.filter(id => !removedIds_A.includes(id));
 						return Object.assign({}, state, {
+							'byIds': allIdsFiltered.reduce((obj, key) => ({ ...obj, [key]: state.byIds[key] }), {}),
+							'allIds': allIdsFiltered,
 							'pages': { 
 								...action.payload, 
-								...Object.assign({}, state.pages, {[tailPageNumber] : undefined })
+								...subsetPagesA
 							} 
 						} );	
-
-					case (currentPage = tailPageNumber + 1 ): //Paging down
+					//Paging down
+					case (currentPage == (tailPageNumber + 1) ):
+						const {[`${tailPageNumber}`]:removedIds_B, ...subsetPagesB} = Object.assign({}, state.pages);
+						allIdsFiltered = state.allIds.filter(id => !removedIds_B.includes(id));
 						return Object.assign({}, state, {
+							'byIds': allIdsFiltered.reduce((obj, key) => ({ ...obj, [key]: state.byIds[key] }), {}),
+							'allIds': allIdsFiltered,
 							'pages': {
-								...Object.assign({}, state.pages, {[headPageNumber]: undefined}), 
+								...subsetPagesB,
 								...action.payload
 							} 
 						} );
 
 					default:
 						// do nada
+						console.log('doing nothing')
 						return state
 				}
 			}else{
+				console.log('mark')
 				//In this case the buffer isn't full and the start of the buffer is at page 0.  So we can assume that this is a page-down action
 				return Object.assign({}, state, {
 					'pages': {
@@ -440,7 +463,7 @@ function filterInvalidated(state=[], action){
 	return duplicatesFiltered;
 }
 
-const entitiesState = pageBufferSize => (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
+const entitiesState =  (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
 	let pageNumbers = null;
 	let length = null;
 
@@ -505,7 +528,7 @@ const entitiesState = pageBufferSize => (state = {isFetching: false, serverInval
 				multipleSelected: []
 			});
 
-		case `SET_CURRENT_PAGE_${action.typeSpecifier}`:
+		case `SET_CURRENT_${action.typeSpecifier}_PAGE`:
 			return Object.assign({}, state, action.payload);
 
 		case `SET_LAST_PAGE_${action.typeSpecifier}`:
@@ -518,6 +541,9 @@ const entitiesState = pageBufferSize => (state = {isFetching: false, serverInval
 			return Object.assign({}, state, action.payload);
 
 		case `SET_PREV_${action.typeSpecifier}_PAGE_URL`:
+			return Object.assign({}, state, action.payload);
+
+		case `SET_${action.typeSpecifier}_SCROLL_PAGE_HEIGHT`:
 			return Object.assign({}, state, action.payload);
 
 		default:
@@ -701,7 +727,8 @@ let defualtEntitiesStore = {
 	byIds : {}, 
 	allIds : [], 
 	allEditingIds: [],
-	pages: {}
+	pages: {},
+	pageBufferSize: 2,
 };
 let defualtMenuStoreState = {
 	positionx: 0, 
@@ -710,9 +737,9 @@ let defualtMenuStoreState = {
 };
 let defualtEntitiesState = {
 	isFetching:false, 
+	scrollPageHeight: 0,
 	currentPage: 0,
 	lastPage: 0,
-	pageBufferSize: 0,
 	prevPageURL:null,
 	nextPageURL:null,
 	serverInvalidated: [], 
@@ -724,14 +751,14 @@ let defualtEntitiesState = {
 };
 
 const entitiesReducer = combineReducers({
-	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
-	items : entityReducerFactory(entities(maxItemCount), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),//itemsReducer,
-	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
-	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
-	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
-	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
-	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
-	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
+	profile : entityReducerFactory(entities(maxProfileCount, 1), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
+	items : entityReducerFactory(entities(maxItemCount, maxItemPageBufferSize), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),//itemsReducer,
+	contents : entityReducerFactory(entities(maxContentCount, maxContentPageBufferSize), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
+	pictures : entityReducerFactory(entities(maxPictureCount, maxPicturePageBufferSize), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
+	itemContent : entityReducerFactory(entities(maxItemContentCount, 1), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
+	outfits : entityReducerFactory(entities(maxOutfitCount, maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
+	brands : entityReducerFactory(entities(1000, 1), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
+	retailers : entityReducerFactory(entities(1000, 1), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
 });
 
 const addedEntitiesReducer = combineReducers({
@@ -743,11 +770,11 @@ const addedEntitiesReducer = combineReducers({
 })
 
 const entitiesStateReducer = combineReducers({
-	profile : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesState),
-	items : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesState),
-	pictures : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesState),
-	contents : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesState),
-	outfits : entityReducerFactory(entitiesState(maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesState)
+	profile : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesState),
+	items : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.ITEM, defualtEntitiesState),
+	pictures : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesState),
+	contents : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesState),
+	outfits : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesState)
 })
 
 const popupMenusReducer = combineReducers({

@@ -491,6 +491,20 @@ export const setPrevPageURL = (entityType, URL) => {
 	}
 }
 
+export const setCurrentEntityPage = (entityType, page) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_CURRENT_${entityType.toUpperCase()}_PAGE`, entityType.toUpperCase(), 'currentPage')(page));
+	}
+}
+
+export const setEntityScrollPageHeight = (entityType, scrollPageHeight) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`SET_${entityType.toUpperCase()}_SCROLL_PAGE_HEIGHT`, entityType.toUpperCase(), 'scrollPageHeight')(scrollPageHeight));
+	}
+}
+
+
+
 //========CLIENT INVALIDATION ACTIONS========
 
 //add specified entityIds to the clientInvalidated Leaf of entitiesStateReducer
@@ -738,11 +752,12 @@ export function fetchItemMenus(){
 	}
 }
 
-export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=9){
+export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=4){
 	return function(dispatch){
 		dispatch(requestEntities(entityType));
 		let URI = '';
 		let requestParams = '';
+		let customReqParams = '';
 		let pageBufferSize = 2;
 
 		switch(entityType){
@@ -903,10 +918,9 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				});
 				break;
 			case OxiAppConstants.EntityTypes.ITEM:
-				requestParams = 'filter=' + filter;
 				URI = linkURL ? '' : '/items';
-
-				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				customReqParams = (URI === '') ? '' : `?filter=${filter}&page=${pageStart}&size=${pageSize}`
+				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`)
 				//return axios.get(OxiAppConstants.serviceURL + pathVariable + "?" + requestParams + "&page=0&size=20")
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
@@ -925,11 +939,13 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						//dispatch(replaceItems(normalizedJson));
 						if(response.data.page !== undefined){
-							console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`)
 							const {size, totalElements, totalPages, number} = response.data.page;
+							console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
+
 							dispatch(setEntityCurrentPage(OxiAppConstants.EntityTypes.ITEM, number));
-							dispatch(setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages));
+							dispatch(setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages - 1));
 							dispatch(modifyPagedEntityIds(OxiAppConstants.EntityTypes.ITEM, number, Object.keys(normalizedJson)));
+							dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
 							if(response.data._links !== undefined){
 								response.data._links.next ? dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.next.href)) : dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
 								response.data._links.prev ? dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) : dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null));
