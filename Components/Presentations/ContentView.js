@@ -27,32 +27,25 @@ import ItemLocationMap from './ItemLocationMap.js';
 import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js';
 
 const imgStyle = {
-	//width: 'calc((2 / 3) * (100vh - 40px - 80px))',
 	height: '100%',
 	'max-height': 'calc(100vh - 200px * (3/2))',
-	//width: '100%',
     'max-width': 'calc((100vh - 200px) * 2/3)',
 	display: 'block',
 	'border-radius': '4px',
 	'object-fit': 'cover',
-	margin:'auto'
-    /*'margin-top': '31%'		/*This is the heigt of the previes row (55%) divided by 2 and added to the height of the header (5%)*/
+	'float':'right',
+	'border-top-right-radius':'0px',
+	'border-bottom-right-radius':'0px',
 }
 
 const imgFormStyle = {
-	//display:'inline-block',
 	margin:'auto',
 	height:'100%', 
-	//'max-width': '50%',
-	//height: 'calc(100% - 80px)'
-	padding: '0px 5% 0px 5%',
-	//'background-color':'#ececec',
 	overflow: 'hidden'
 }
 
 const controlContainerStyle = {
 	display: 'inline-flex',
-	//'text-align':'center',
 	padding: '0 10% 0 10%',
     height: 'calc(5vh + 25px)',
 	width:'75%'

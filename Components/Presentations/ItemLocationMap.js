@@ -25,7 +25,8 @@ const svgContainerStyle = {
     /*'width': 'calc((100vw - 250px)*.45)',
     'width': 'calc((100vh - 200px - 7vh - 25px - 6px)*2/3)',*/
     'margin': 'auto',
-    'background-color': '#e91e6300'
+    'background-color': '#e91e6300',
+    'float':'right'
 }
 
 export default class ItemLocationMap extends React.Component{

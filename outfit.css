@@ -10,21 +10,15 @@
 
 :local(.stdOutfitBlock){
 	composes:stdBlock from './root.css';
-	/*display:inline-block;*/
-	/*margin-bottom: 2px;*/
 	position:relative;
 	width:200px;
 	height:calc(200px * 3/2);
 	margin:auto;
 	margin-top: 25px;
-	/*margin-right: 20px;*/
-	/*margin-left: 20px;*/
 	border-radius: 2px;
     border-width: 1px;
     border-color: #212121;
-    /*border-style: solid;*/
 	font-size: 80%;
-	/*background-color: #171717;*/
 	vertical-align: top;
 	padding:0px;
 }

@@ -53,6 +53,7 @@ input::placeholder {
 	composes: stdFormBlk;
 	display: block;
 	height: 100%;
+    padding: 0px;
 	/*grid-area: addOutfit;
 	border-radius: 0px;
 	border-left-style: solid;

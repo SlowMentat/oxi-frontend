@@ -44,7 +44,17 @@ const mapStateToProps = (state, props) => {
 		viewState: state.contentViewState.viewState,
 		contents : state.entitiesReducer.contents.byIds,
 		selectedContentId : state.entitiesStateReducer.contents.selected,
-		items : state.entitiesReducer.items.byIds
+		items : state.entitiesReducer.items.byIds,
+
+
+		currentPage: state.entitiesStateReducer.outfits.currentPage,
+		lastPage: state.entitiesStateReducer.outfits.lastPage,
+		isFetching: state.entitiesStateReducer.outfits.isFetching,
+
+		prevPageURL: state.entitiesStateReducer.outfits.prevPageURL,
+		nextPageURL: state.entitiesStateReducer.outfits.nextPageURL,
+		scrollPageHeight: state.entitiesStateReducer.outfits.scrollPageHeight,
+		pages: state.entitiesReducer.outfits.pages,
 	});
 }
 
@@ -93,7 +103,11 @@ const mapDispatchToProps = (dispatch, state) => ({
 		//select the first child content.  There should always exist at least 1 content child per outfit
 		//dispatch(selectContent(outfit.contents[0]));
 		dispatch(editContentView(OxiAppConstants.viewState.EDIT));
-	}
+	},	
+	setScrollPageHeight: (scrollPageHeight) => dispatch(setEntityScrollPageHeight(OxiAppConstants.EntityTypes.OUTFIT, scrollPageHeight)),
+	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.OUTFIT, page)),
+	setNextPageURL: (URL) => dispatch(setNextPageURL(OxiAppConstants.EntityTypes.OUTFIT, URL)),
+	setPrevPageURL: (URL) => dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.OUTFIT, URL)),
 })
 
 const VisibleOutfitList = connect(mapStateToProps, mapDispatchToProps)(OutfitList);

@@ -101,24 +101,28 @@
 .itemInitialize-enter{
 	height: 0px;
 	opacity: 0;
+	margin-bottom: 12px
 }
 
 .itemInitialize-enter-active{
 	opacity: 1;
-	height: 75px;
+	height: 100px;
 	transition: opacity 200ms ease-in, height 200ms ease-in;
+	margin-bottom: 12px
 
 }
 
 .itemInitialize-exit{
 	opacity: 1;
-	height: 75px;	
+	height: 100px;	
+	margin-bottom: 12px
 }
 
 .itemInitialize-exit-active{
 	opacity: 0;
 	height: 0px;
 	transition: opacity 100ms, height 100ms;
+	margin-bottom: 12px
 }
 
 
@@ -127,7 +131,7 @@
 .itemMenuContainer{
 	z-index:-1;
 	position: absolute;
-	height:75px;
+	height:100px;
 }
 
 .itemMenuContainer-enter{

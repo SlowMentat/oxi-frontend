@@ -120,9 +120,9 @@ class OutfitNav extends React.Component{
 				browseContent = null;
 				break;
 		}
-		console.log('browseContent = ', browseContent);
+
 		return(
-    		<div className={Styles.outfitBlock}>
+    		<div className={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock}>
     			{browseContent !== null ? browseContent() : null}
     		</div>
 		);
@@ -137,6 +137,18 @@ class MetricPanel extends React.Component{
 	render(){
 		return(
 			<div className={Styles.metricBlock}>
+				<div style={{
+					'padding-top': '15px',
+    				'padding-bottom': '15px',
+    				'height': '165px',
+    				'border-bottom-style': 'solid',
+    				'border-width': '20px',
+    				'border-color': '#6d6d6d',
+    				'margin-right':'-1px',
+				}}>
+					<BrowseControlContainer/>
+
+				</div>
 				<MetricTitleContainer />
 				<VisibleMetricList />
 			</div>
@@ -297,18 +309,7 @@ export default class webAppView extends React.Component {
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerBrowse}>
 								<div className={Styles.metricsContainer_div}>
-									<div style={{
-										'padding-top': '15px',
-    									'padding-bottom': '15px',
-    									'height': '165px',
-    									'border-bottom-style': 'solid',
-    									'border-width': '20px',
-    									'border-color': '#6d6d6d',
-    									'margin-right':'-1px',
-									}}>
-										<BrowseControlContainer/>
 
-									</div>
 									<MetricPanel />
 								</div>
 								<OutfitNav 
@@ -327,17 +328,19 @@ export default class webAppView extends React.Component {
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerProfile}>								
 								<MetricPanel />
-								<OutfitNav 	webAppView={this.props.webAppView}/>
-								<ContentContainer 
-									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
-									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
-									itemIdHovered={this.state.itemIdHovered}
-									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
 								<VisibleItemList 
 									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
 									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
 									itemIdHovered={this.state.itemIdHovered}
 									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
+								<ContentContainer 
+									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
+									itemIdHovered={this.state.itemIdHovered}
+									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
+								<OutfitNav 	
+									webAppView={this.props.webAppView}
+									browseSelection="outfits"/> />
 								<Admin/>
 							</div>
 						</div>

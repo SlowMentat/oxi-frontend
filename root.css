@@ -67,13 +67,13 @@ div{
 
 .containerProfile{
 	display: grid;
-	grid-template-columns: auto 250px 45% 20%;
-	grid-template-rows: calc(100vh - 80px - 40px) 40px;
-	grid-gap: 5px;
-	grid-template-areas: 
-		/*"nav nav nav nav"*/
-		"metric browse preview itemMenu"
-		"admin admin admin admin";*/
+	/*grid-template-columns: auto 250px 45% 20%;*/
+	grid-template-columns: 300px 24.579% 27% auto;
+    grid-template-rows: calc(100vh - 80px - 40px) 40px;
+    grid-gap: 0px;
+    grid-template-areas: 
+    	"metric itemMenu preview browse"
+ 		"admin admin admin admin";
 	height:100%;
 }
 
@@ -124,6 +124,7 @@ div{
 :local(.previewBlock){
 	composes: stdBlock;
 	grid-area: preview;
+	padding: 0px;
 	/*background-color: rgba(28, 32, 35, 0);*/
 }
 
@@ -136,6 +137,25 @@ div{
 	composes: stdBlock;
 	margin-left: 300px;
 	grid-area: browse;
+}
+
+:local(.outfitBlock_div--profileView){
+	composes: outfitBlock;    
+	/*overflow-y: scroll;
+    overflow-x: hidden;*/
+    padding: 0px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-left: 0px;
+    margin-top: calc(5vh + 25px);
+    height: calc(786px - (5vh + 25px));
+    width: 400px;
+    border-style: solid;
+    border-color: #bdbcbc;
+    border-left: none;
+    border-width: 2px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
 
 :local(.footerBlock){
