@@ -20,15 +20,7 @@ export const OxiAppConstants = Object.freeze({
 	serviceURL : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseURL : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
 	aspectRatio : (2 / 3),
-	/*ContenViewStates: {
-		edit: {
-			CROPPING: 'PREVIEWING',
-			TAGGING: 'PREVIEWING'
-		},
-		preview: {
-			PREVIEWING: 'PREVIEWING'
-		}
-	}*/
+	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1
 	navRequestMap : {
 		home : "Home",
 		profile : "Profile",

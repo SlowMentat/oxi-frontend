@@ -285,7 +285,7 @@ function allIds(state = [], action){
 	}
 }
 
-const entities = (maxCount, pageBufferSize) => (state = {pageBufferSize: pageBufferSize, selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
+const entities = (maxCount) => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
 	let byIdsRef = {};
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
@@ -364,9 +364,9 @@ const entities = (maxCount, pageBufferSize) => (state = {pageBufferSize: pageBuf
 			let headPageNumber = parseInt(pageNumbers[0], 10);
 			let tailPageNumber = parseInt(pageNumbers[pageCount-1], 10);
 			console.log('pageCount = ', pageCount);
-			console.log('pageBufferSize = ', state.pageBufferSize);
+			console.log('pageBufferSize = ', OxiAppConstants.scrollBufferSize);
 			console.log('currentPage = ', currentPage);
-			if(pageCount >= state.pageBufferSize){
+			if(pageCount >= OxiAppConstants.scrollBufferSize){
 				let subsetPages = {}
 				let a
 				let allIdsFiltered = [];
@@ -392,7 +392,7 @@ const entities = (maxCount, pageBufferSize) => (state = {pageBufferSize: pageBuf
 						} );	
 					//Paging down
 					case (currentPage == (tailPageNumber + 1) ):
-						const {[`${tailPageNumber}`]:removedIds_B, ...subsetPagesB} = Object.assign({}, state.pages);
+						const {[`${headPageNumber}`]:removedIds_B, ...subsetPagesB} = Object.assign({}, state.pages);
 						allIdsFiltered = state.allIds.filter(id => !removedIds_B.includes(id));
 						return Object.assign({}, state, {
 							'byIds': allIdsFiltered.reduce((obj, key) => ({ ...obj, [key]: state.byIds[key] }), {}),
@@ -715,10 +715,10 @@ export const maxPictureCount = maxContentCount;
 export const maxItemCount = maxItemViewCount * maxContentCount;
 export const maxItemContentCount = maxContentCount * maxItemCount;
 
-export const maxOutfitPageBufferSize = 2;
+/*export const maxOutfitPageBufferSize = 2;
 export const maxContentPageBufferSize = 2;
 export const maxItemPageBufferSize = 2;
-export const maxPicturePageBufferSize = 2;
+export const maxPicturePageBufferSize = 2;*/
 
 let defualtEntitiesStore = {
 	selected: false, 
@@ -728,7 +728,6 @@ let defualtEntitiesStore = {
 	allIds : [], 
 	allEditingIds: [],
 	pages: {},
-	pageBufferSize: 2,
 };
 let defualtMenuStoreState = {
 	positionx: 0, 
@@ -751,14 +750,14 @@ let defualtEntitiesState = {
 };
 
 const entitiesReducer = combineReducers({
-	profile : entityReducerFactory(entities(maxProfileCount, 1), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
-	items : entityReducerFactory(entities(maxItemCount, maxItemPageBufferSize), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),//itemsReducer,
-	contents : entityReducerFactory(entities(maxContentCount, maxContentPageBufferSize), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
-	pictures : entityReducerFactory(entities(maxPictureCount, maxPicturePageBufferSize), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
-	itemContent : entityReducerFactory(entities(maxItemContentCount, 1), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
-	outfits : entityReducerFactory(entities(maxOutfitCount, maxOutfitPageBufferSize), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
-	brands : entityReducerFactory(entities(1000, 1), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
-	retailers : entityReducerFactory(entities(1000, 1), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
+	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
+	items : entityReducerFactory(entities(maxItemCount), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),//itemsReducer,
+	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
+	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
+	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
+	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
+	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
+	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
 });
 
 const addedEntitiesReducer = combineReducers({

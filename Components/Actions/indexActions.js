@@ -759,6 +759,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 		let requestParams = '';
 		let customReqParams = '';
 		let pageBufferSize = 2;
+		let reqResponse = null;
 
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.BRAND:
@@ -919,9 +920,9 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				break;
 			case OxiAppConstants.EntityTypes.ITEM:
 				URI = linkURL ? '' : '/items';
-				customReqParams = (URI === '') ? '' : `?filter=${filter}&page=${pageStart}&size=${pageSize}`
+				customReqParams = (URI === '') ? '' : `?filter=${filter}&page=${pageStart}&size=${pageSize}`;
+
 				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`)
-				//return axios.get(OxiAppConstants.serviceURL + pathVariable + "?" + requestParams + "&page=0&size=20")
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let normalizedJson = response.data._embedded.itemDtoes.reduce((accumulator, currentObject) => {
@@ -945,17 +946,29 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 							dispatch(setEntityCurrentPage(OxiAppConstants.EntityTypes.ITEM, number));
 							dispatch(setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages - 1));
 							dispatch(modifyPagedEntityIds(OxiAppConstants.EntityTypes.ITEM, number, Object.keys(normalizedJson)));
-							dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
+							//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
+						}
+
+						//TODO: this is makes unecessary calls to redux store.  setting page URL should be handled in the PageList component, but Im not sure how to extract 
+						//		response data from the dispatch call in PageListContainer.  quick fix is to set the values here then reset them with the corred page number in
+						//		PageList component :(
+						if(linkURL === null){
 							if(response.data._links !== undefined){
-								response.data._links.next ? dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.next.href)) : dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
-								response.data._links.prev ? dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) : dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null));
+								response.data._links.next ? 
+									dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.next.href)) : 
+									dispatch(setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
+								!response.data._links.prev ? 
+									dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null)) :
+									dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) 
 							}
 						}
+							
 						//mergeResponseEntities(dispatch, {'entities': {'items': normalizedJson}}); //TODO clean this up.  Use schema
 						dispatch(replaceItems(normalizedJson));
 					}else{
 						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
 					}
+					return response;
 				})
 				.catch(error => {
 					console.log(error);
@@ -977,7 +990,8 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						console.log('Error', error.message);
 					}
 					console.log(error.config);
-				});				
+				});
+				//console.log('response in thunk = ',getPromise);
 				break;
 			default:
 				break;
