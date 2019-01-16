@@ -1,0 +1,91 @@
+:local(.browseSelection_div){
+	width: 75%;
+	margin: auto;
+	margin-top: 15px;
+	margin-left: 12px;
+}
+
+:local(.browseButton_div){
+	display: inline-block;
+	vertical-align: top;
+}
+
+:local(.browseButtonIcon_div){
+	position: absolute;
+	width: 35px;
+	height: 35px;
+}
+
+:local(.browseSelectionName_div){
+	font-family: 'Archivo Black', sans-serif;	
+	display: inline-block;
+	vertical-align: top;
+	padding-left: 10px;
+	margin-left: 35px;
+	height: 35px;
+	line-height: 35px;
+	width:75px;
+	transition: font-weight 100ms;
+}
+
+:local(.browseButtonIcon_div):hover{
+	cursor:pointer;
+}
+
+:local(.browseSelectionName_div):hover{
+	cursor:pointer;
+	font-weight: bold;
+	transition: font-weight 200ms;
+}
+
+:local(.browseSelectionName_div--selected){
+	composes:browseSelectionName_div;
+	font-weight: bold;
+}
+
+:local(.filterTextContainer_div){
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 19px;
+}
+
+:local(.filterText_div){	
+	position: absolute;
+	width: 25px;
+	height: 35px;
+	border-left-style: solid;
+	border-width: 2px;
+	border-color: #6d6d6d;
+	line-height: 35px;
+	padding-left: 10px;
+	font-size: 12px;
+}
+
+:local(.filterButtonContainer_div){
+	display: inline-block;
+	vertical-align: top;
+}
+
+:local(.filterButton_div){
+	position: absolute;
+	margin-top: 7px;
+	width: 21px;
+	height: 21px;
+	right: 10px;
+}
+
+:local(.browseSelected_div){
+    pointer-events: none;
+	position: absolute;
+    height: 35px;
+    width: 0px;
+    margin-top: 15px;
+	transition: background-color 100ms ease-in-out, width 100ms ease-in-out;
+}
+
+:local(.browseSelected_div--selected){
+	composes:browseSelected_div;
+    width: calc(.75*165px + 19px);
+    background: #70ccf44d;
+	transition: background-color 100ms ease-in-out, width 100ms ease-in-out;
+}

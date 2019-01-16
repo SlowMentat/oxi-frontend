@@ -1,0 +1,17 @@
+:local(.contentContainer_div){
+	overflow-y: scroll;
+    overflow-x: hidden;
+    position: relative;
+    height: 300px;
+    background: #fdfdfd;
+    width: 500px;
+    border-style: solid;
+    border-width: 1px;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    padding-top: 15px;
+    border-color: #6d6d6d;
+    border-top-style: none;
+    margin-top: -1px;
+    background-color: #fdfdfd;
+}

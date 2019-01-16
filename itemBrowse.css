@@ -1,0 +1,108 @@
+:local(.itemContainer) {
+	height: 75px;
+	margin-bottom:8px;	
+	/*display: grid;
+    grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: auto;
+	grid-gap: 5px;
+	grid-template-areas: 
+		"type size retailer brand"*/
+}
+
+.itemPin:hover{
+	cursor: grab;
+}
+
+:local(.itemPin){
+
+}
+
+
+
+:local(.itemMenuHeaderContainer){
+    height: 100%;
+}
+
+:local(.itemMenuHeader){
+	width: 35px;
+    height: 100%;
+}
+
+:local(.itemMenuHeaderIconContainer){
+	height: 100%;
+    padding-top: 20px;
+}
+
+
+/*==========TRANSITION GROUP CLASSES==========*/
+
+
+/*All Items*/
+
+.itemBrowseInitialize-enter{
+    height: 100px;
+	opacity: 0;
+    width: 500px;
+    margin: auto;
+    margin-bottom: 12px;
+}
+
+.itemBrowseInitialize-enter-active{
+	opacity: 1;
+    width: 500px;
+    margin: auto;
+    margin-bottom: 12px;
+    height: 100px;
+	transition: opacity 200ms ease-in, height 200ms ease-in;
+
+}
+
+.itemBrowseInitialize-exit{
+	opacity: 1;
+	height: 100px;	
+    width: 500px;
+    margin: auto;
+    margin-bottom: 12px;
+}
+
+.itemBrowseInitialize-exit-active{
+	opacity: 0;
+	height: 0px;
+    width: 500px;
+    margin: auto;
+    margin-bottom: 12px;
+	transition: opacity 100ms, height 100ms;
+}
+
+
+/*Item Menu Icons*/
+
+.itemMenuContainer{
+	z-index:-1;
+	position: absolute;
+	height:75px;
+}
+
+.itemMenuContainer-enter{
+	opacity: 0;
+	margin-left: 25px;
+}
+
+.itemMenuContainer-enter-active{
+	/*z-index:1;*/
+	opacity : 1; 
+	margin-left: -50px;
+	transition: all 200ms ease-in, border-radius 0;
+}
+
+.itemMenuContainer-exit{
+	/*opacity : 1;*/
+	/*margin-left: -50px;*/
+}
+
+.itemMenuContainer-exit-active{
+	/*z-index:-1;*/
+	opacity: 0;
+	margin-left: 25px;
+	transition: margin-left 100ms, opacity 100ms;
+}
