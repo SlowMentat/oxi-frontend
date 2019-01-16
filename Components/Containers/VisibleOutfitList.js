@@ -99,6 +99,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 				dispatch(addItem(Object.assign({}, OxiAppConstants.EntityTemplates.ITEM, items[itemId])));
 				dispatch(addItemContent({id: null, itemId: itemId, contentId: contentId}));
 			}
+			console.log('megered content after adding items = ', content);
 		}
 		//select the first child content.  There should always exist at least 1 content child per outfit
 		//dispatch(selectContent(outfit.contents[0]));

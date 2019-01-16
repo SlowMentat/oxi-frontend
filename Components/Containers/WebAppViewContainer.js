@@ -17,6 +17,7 @@ const mapStateToProps = state => {
 	return {
 		webAppView: state.appView.webAppView,
 		browseSelection: state.browseState.browseSelection,
+		viewState: state.contentViewState.viewState
 		/*hostProfile: state.entitiesReducer.profile.byIds.host,
 		ownerProfile: state.entitiesReducer.profile.byIds.owner*/
 	};
@@ -26,14 +27,14 @@ const mapDispatchToProps = (dispatch, props) => ({
 	navEventCallbacks : {
 		home : () => {
 			//dispatch(setWebAppView("home"))
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+			/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
 			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
 			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
 
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
 			
 			dispatch(navigateTo(OxiAppConstants.navRequestMap.home.toLowerCase()));
 		},

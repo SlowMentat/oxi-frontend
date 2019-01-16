@@ -37,14 +37,19 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 					if(selectedContentId != undefined && contents.allIds.length > 0){
 						if(selectedContentId != false){
 							//array of content ids
-							if(Object.keys(contents.byIds).length > 0) result.allIds = contents.byIds[selectedContentId]["items"].sort();
+							if(Object.keys(contents.byIds).length > 0){
+								console.log('contents.byIds[selectedContentId]["items"] = ',contents.byIds[selectedContentId]["items"])
+								console.log('contents.byIds[selectedContentId]["items"].sort() = ',contents.byIds[selectedContentId]["items"].sort())
+								result.allIds = contents.byIds[selectedContentId]["items"].sort();
+							}
 							for(let itemId of result.allIds){
 								result.byIds[itemId] =  itemsById[itemId];
 							}
 							//result.allIds = Object.keys(result.byIds);
-							console.log("result");
-							console.log(result);
-							return Object.assign({}, items, result);	
+							console.log('result', result);
+							let mergedItems = Object.assign({},items, result);	
+							console.log('mergedItems = ', mergedItems);
+							return mergedItems
 						}else{
 							console.log("selectedContentId is false");
 						}				
@@ -66,12 +71,6 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 const mapStateToProps = (state, props) => {
 	let brands = state.entitiesReducer.brands.byIds;
 	let retailers = state.entitiesReducer.retailers.byIds;
-	let filteredItems = maskEdits(getVisibleItems(
-			state.entitiesReducer.items, 
-			'BY_CONTENT_ID', 
-			state.entitiesReducer.contents, 
-			state.entitiesStateReducer.contents.selected === 1 ? false : state.entitiesStateReducer.contents.selected), 
-		state.entitiesReducer.items.allEditingIds);
 
 	let filteredAddedItems = getVisibleItems(
 		state.addedEntitiesReducer.items, 
@@ -79,13 +78,21 @@ const mapStateToProps = (state, props) => {
 		state.addedEntitiesReducer.contents,
 		state.entitiesStateReducer.contents.selected);
 
+	let filteredItems = maskEdits(getVisibleItems(
+			state.entitiesReducer.items, 
+			'BY_CONTENT_ID', 
+			state.entitiesReducer.contents, 
+			state.entitiesStateReducer.contents.selected === 1 ? false : state.entitiesStateReducer.contents.selected), 
+		state.entitiesReducer.items.allEditingIds);
+
+
 	return ({
 		items : filteredItems.byIds,
 		itemIds : filteredItems.allIds,
 		addedItems : filteredAddedItems.byIds,
 		addedItemIds : filteredAddedItems.allIds,
 		brands : brands,
-		retailers :  retailers,
+		retailers : retailers,
 		viewState: state.contentViewState.viewState,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
 		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected]

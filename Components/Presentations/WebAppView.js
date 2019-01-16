@@ -107,11 +107,34 @@ class OutfitNav extends React.Component{
 	}
 
 	render(){
-		let browseContent = null
-		let browseNavStyle = null
+		let browseContent = null;
+		let browseNavStyle = null;
+		let containerHeight = this.props.imageHeight;
+		let containerWidth = this.props.imageWidth*(2/3);
+		let browseWrapper = (wrappedStuff) => (
+			this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ?			
+				( <div style={{'grid-area':'browse'}}>
+					<OutfitPanelContainer 
+						style={{
+							width:`calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`,
+							'padding-top':'5px',
+							'padding-bottom':'5px',
+							'margin-left': '0px',
+    						'background-color': '#ffffff00',
+						}} />
+					{wrappedStuff}
+				</div>) :
+				wrappedStuff 
+		);
+
 		switch(this.props.browseSelection){
 			case 'outfits':
-				browseContent = () => (<VisibleOutfitList view={this.props.webAppView} scrollContainerStyle={OutfitNavStyles.previewContainer} />);
+				browseContent = () => (
+						<VisibleOutfitList 
+							view={this.props.webAppView} 
+							scrollContainerStyle={OutfitNavStyles.previewContainer}
+							containerHeight={containerHeight !== 0 ? containerHeight : null}
+							containerWidth={containerWidth !== 0 ? containerWidth : null} />);
 				break;
 			case 'apparel':
 				browseContent = () => (<VisibleItemListBrowse changeItemHovered={()=>{}} scrollContainerStyle={OutfitNavStyles.previewContainer} />);
@@ -122,9 +145,21 @@ class OutfitNav extends React.Component{
 		}
 
 		return(
-    		<div className={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock}>
-    			{browseContent !== null ? browseContent() : null}
-    		</div>
+			<React.Fragment>
+				{
+					browseWrapper(
+    					(<div 
+    						className={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock} 
+    						style={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
+    							({
+    								height:`calc(${this.props.imageHeight}px)`,
+    								width: `calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`
+    							}) : ({})
+    						}>
+    						{browseContent !== null ? browseContent() : null}
+    					</div>) )
+				}
+    		</React.Fragment>
 		);
 	}
 }
@@ -160,6 +195,8 @@ export default class webAppView extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
+			imageHeight:0,
+			imageWidth:0,
 			enableAddOutfitButton: true,
 			visibleItems: {
 				visibleItemsByIds: {}
@@ -169,6 +206,7 @@ export default class webAppView extends React.Component {
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
 		this._handleItemHovered = this._handleItemHovered.bind(this);
+		this._handleImageResized = this._handleImageResized.bind(this);
 	}
 
 	/*shouldComponentUpdate(nextProps, nextState) {
@@ -178,6 +216,14 @@ export default class webAppView extends React.Component {
     }*/
 
 	_removeOutfitForm(){
+	}
+
+	_handleImageResized(width, height){
+		this.setState(prevState => ({
+			...prevState,
+			imageWidth: width,
+			imageHeight: height
+		}))
 	}
 
 	_handleItemsListUpdated(visibleItemsByIds){
@@ -326,7 +372,14 @@ export default class webAppView extends React.Component {
 					<div>
 						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
-							<div className={Styles.containerProfile}>								
+							<div 
+								className={Styles.containerProfile} 
+								style={
+									(this.state.imageWidth !== 0 && this.state.imageHeight !== 0) ? 
+										({'grid-template-columns': `300px 24.579% ${this.state.imageWidth + 50}px auto`}) : 
+										null
+								}
+							>								
 								<MetricPanel />
 								<VisibleItemList 
 									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
@@ -334,11 +387,16 @@ export default class webAppView extends React.Component {
 									itemIdHovered={this.state.itemIdHovered}
 									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
 								<ContentContainer 
+									imageWidth={this.state.imageWidth}
+									imageHeight={this.state.imageHeight}									
+									imageResized={this._handleImageResized}
 									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
 									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
 									itemIdHovered={this.state.itemIdHovered}
 									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
 								<OutfitNav 	
+									imageWidth={this.state.imageWidth}
+									imageHeight={this.state.imageHeight}
 									webAppView={this.props.webAppView}
 									browseSelection="outfits"/> />
 								<Admin/>

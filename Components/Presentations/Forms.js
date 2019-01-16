@@ -459,7 +459,7 @@ export class DiscardForm extends React.Component{
 		//build denormalized outfit object
 		let denormOutfit = Object.assign({}, this.props.outfits['1'], {contents: denormContents});*/
 		let denormOutfit = null;
-		denormOutfit = denormalizeOutfit(this.props.outfits, this.props.contents, this.props.items);
+		//denormOutfit = denormalizeOutfit(this.props.outfits, this.props.contents, this.props.items);
 		console.log('denormOutfit = ', denormOutfit)
 		return(
 			<div className={Styles.modal}>
@@ -474,14 +474,22 @@ export class DiscardForm extends React.Component{
 							className={FormStyles.submitButton} 
 							style={{'margin-right': 'calc(100% - 250px)', 'display':'inline-block'}} 
 							onClick={() => {
-								this.props.submitAction(denormOutfit, this.props.requestedNav);
+								this.props.submitAction(this.props.requestedNav/*, denormOutfit*/);
 								this.props.clearUpdates();
 								this.props.clearInvalidations();
 							}
 						}>
 							Continue
 						</div>
-						<div className={FormStyles.submitButton} style={{'display':'inline-block'}} onClick={() => this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS)}>Cancel</div>
+						<div 
+							className={FormStyles.submitButton} 
+							style={{'display':'inline-block'}} 
+							onClick={(event) => {
+								event.stopPropagation();
+								this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS);
+							}}>
+							Cancel
+						</div>
 					</div>
 				</div>
 			</div>

@@ -107,7 +107,14 @@ const mapDispatchToProps = dispatch => ({
 	},
 	onControlClick : () => {
 		dispatch(disableAddContentButton(true));
-		dispatch(addContent(Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {})));
+		new Promise((resolve, reject) => {
+			resolve( dispatch( addContent( Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {}) ) ) );
+		})
+		.then(response => {
+			//ids of created content entities in store have incrementing ids starting at 1.
+			//Assuming here that there will only ever be one created content in the addedEntitiesReducer node of the redux store
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, 1));
+		});
 	},
 	modifyAddedOutfitContents : (selectedOutfitId, addedContentIds) => {
 		if(selectedOutfitId !== false ){

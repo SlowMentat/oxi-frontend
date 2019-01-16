@@ -2,23 +2,31 @@ import React from 'react';
 import {OxiAppConstants} from './OxiAppConstants.js';
 
 
+
 /*export const maskEdits = (entities, idsEditting) => {
-	let filteredByIds = {};
+	let filteredEntities = Object.assign({}, entities, {byIds: {...entities.byIds}});
+	console.log('maskEdits:  entities = ', entities);
 	if(idsEditting.length > 0){
-		filteredByIds = Object.keys(entities.byIds).reduce((result, value, key) => {
+		let keptObjs = {};
+		const result = filteredEntities.allIds.filter(entityKey => {
 			for(let id of idsEditting){
-				console.log('id: ', id, ', key: ', key);
-				if(key !== id){
-					result[key] = entities.byIds[key];
+				if(entityKey == id){
+					//delete filteredEntities.byIds[id];
+					const {[id]:removedObj, ...keptObjs} = Object.assign({}, filteredEntities.byIds);
+					console.log('removing object: ', removedObj);
+					console.log('kept objects: ', keptObjs);
+					return false;
 				}
 			}
-			return result;
-		}, {});
-	}else{
-		filteredByIds = entities.byIds;
+			return true;
+		});
+		console.log('result before assignment = ', result);
+		console.log('final keptObjs = ', keptObjs);
+		filteredEntities.allIds = result;
+		filteredEntities.byIds = keptObjs;
 	}
-	console.log('filteredByIds = ', filteredByIds);
-	return Object.assign({}, entities, {byIds:filteredByIds, allIds:Object.keys(filteredByIds)});
+	console.log('filteredEntities = ', filteredEntities);
+	return filteredEntities;
 }*/
 
 export const maskEdits = (entities, idsEditting) => {

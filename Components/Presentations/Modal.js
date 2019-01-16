@@ -11,7 +11,7 @@ function Modal(props){
 				formType={props.formType} 
 				cancelAction={props.closeModal} 
 				submitAction={props.submitAction} 
-				confirmDiscardSubmitAction = {() => props.confirmDiscardSubmitAction(null, props.addedEntitiesReducer)}
+				confirmDiscardSubmitAction = {(location) => props.confirmDiscardSubmitAction(location, props.addedEntitiesReducer)}
 				outfits={props.outfits}
 				contents={props.contents} 
 				items={props.items}

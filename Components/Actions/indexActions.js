@@ -377,7 +377,7 @@ export const removeAddedEntities = (entityType, entityIds) => {
 //Remove all entities from the addedEntitiesReducer state tree
 export const removeAllAddedEntities = (entityType) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`REMOVE_ALL_${entityType.toUpperCase()}`, entityType.toUpperCase())());
+		dispatch(makeActionCreator(`REMOVE_ALL_ADDED_${entityType.toUpperCase()}`, entityType.toUpperCase())());
 	}
 }
 
@@ -637,6 +637,15 @@ export function navigateTo(location){
 			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
 			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
 		}else{
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
+			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
+			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
+
 			selectDestination(location, dispatch);
 			dispatch(requestNavigation(null));
 		}/*
@@ -752,7 +761,7 @@ export function fetchItemMenus(){
 	}
 }
 
-export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=4){
+export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=10){
 	return function(dispatch){
 		dispatch(requestEntities(entityType));
 		let URI = '';
@@ -1005,7 +1014,7 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 		let pageStart = 0;
 		let pageSize = 9;
 		let pageBufferSize = 2;
-		let UR = linkURL ? '' : `/contents/items/${itemId}`;
+		let URI = linkURL ? '' : `/contents/items/${itemId}`;
 		return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?page=${pageStart}&size=${pageSize}`)
 		.then((response) => {
 			if(response.status === OxiAppConstants.HttpStatus.OK){
@@ -1022,9 +1031,23 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 				//let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.CONTENT, json);
 				//dispatch(createItemContent(itemContentJson));							
 	
-				mergeResponseEntities(dispatch, normalizedJson);
-				let contentKeys = Object.keys(normalizedJson.entities.contents);
-				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null
+
+				if(response.data.page !== undefined){
+					const {size, totalElements, totalPages, number} = response.data.page;
+					console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
+
+					dispatch(setEntityCurrentPage(OxiAppConstants.EntityTypes.CONTENT, number));
+					dispatch(setEntityLastPage(OxiAppConstants.EntityTypes.CONTENT, totalPages - 1));
+					dispatch(modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, number, Object.keys(normalizedJson.entities.contents)));
+					//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
+				}
+
+
+				//mergeResponseEntities(dispatch, normalizedJson);
+				//dispatch(replaceContents(normalizedJson.entities.contents));
+				dispatch(createContent(normalizedJson.entities.contents));
+				/*let contentKeys = Object.keys(normalizedJson.entities.contents);
+				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null*/
 				//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
 			}else{
 				//handleUnauthorizedRequest(response);

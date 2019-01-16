@@ -84,12 +84,14 @@ export default class ItemLocationMap extends React.Component{
 			this.props.clientInvalidateItem(itemId);
 		}
 
-		this.props.populateItemsMap(Object.assign({}, this.props.visibleItemsMap.visibleItemsByIds, {
-			...this.props.visibleItemsMap.visibleItemsByIds,
-			[itemId]: {
-				...this.props.visibleItemsMap.visibleItemsByIds[itemId],
-				positionx: xCoordPercentUpdate, 
-				positiony: yCoordPercentUpdate
+		this.props.populateItemsMap(Object.assign({}, this.props.visibleItemsMap, {
+			visibleItemsByIds:{
+				...this.props.visibleItemsMap.visibleItemsByIds,
+				[itemId]: {
+					...this.props.visibleItemsMap.visibleItemsByIds[itemId],
+					positionx: xCoordPercentUpdate, 
+					positiony: yCoordPercentUpdate
+				}
 			}
 		}));
 		this.setState({

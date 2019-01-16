@@ -107,8 +107,11 @@ export const Item = (props) => {
 			onMouseOver={props._handleMouseOver.bind(this)}
 			onMouseLeave={props._handleMouseLeave.bind(null)} 
 			onClick={() => {
-				if(props.webAppView === 'home' && props.browseSelection === 'apparel') props.getContentsByItemId();
-				(isSelected === true) ? props.onDeselect() : props.onSelect();
+				if(props.webAppView === 'home' && props.browseSelection === 'apparel'){
+					props.getContentsByItemId();
+					props.onDeselect(props.selectedAllIds.filter(id => id != props.item.id)[0]);
+				}
+				(isSelected === true) ? props.onDeselect(props.item.id) : props.onSelect(props.item.id);
 			}} >
 			<CSSTransition
 			    tiemout={200}

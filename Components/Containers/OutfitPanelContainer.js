@@ -13,10 +13,10 @@ import OutfitCtrlAndInd from '../../Components/Presentations/OutfitCtrlAndInd.js
 
 
 
-const mapStateToProps = (state, webAppView) => {
+const mapStateToProps = (state, props) => {
 	return ({
 		buttonDisabled: state.buttonState.addOutfit.disabled,
-		webAppView: webAppView
+		webAppView: state.appView.webAppView
 	});
 }
 

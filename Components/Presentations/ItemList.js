@@ -41,7 +41,9 @@ export default class ItemList extends React.Component{
 		let allFilteredItems = Object.assign({}, this.props.items, this.props.addedItems);
 		console.log('allFilteredItems = ', allFilteredItems);
 		console.log('this.props.populateItemsMap = ', this.props.populateItemsMap);
-		this.props.populateItemsMap ? this.props.populateItemsMap(allFilteredItems) : null;
+		console.log('Object.keys(allFilteredItems) = ', Object.keys(allFilteredItems))
+		console.log('Object.keys(allFilteredItems).length = ', Object.keys(allFilteredItems).length)
+		if(Object.keys(allFilteredItems).length > 0) this.props.populateItemsMap ? this.props.populateItemsMap(allFilteredItems) : null;
 		//if(Object.keys(allFilteredItems).length > 0){
 			/*console.log('>>> this.props.visibleItemsMap = ', this.props.visibleItemsMap.visibleItemsByIds);
 			console.log('>>> allFilteredItems = ', allFilteredItems);

@@ -115,10 +115,14 @@ div{
 	border-bottom-style: none;
     border-width: 20px;
     border-color: #dadada;
+    height:100%;
     /*height: calc((100vh - 80px - 40px - 100px - 10px)/2);*/
-    height: calc(.47*(100vh - 80px -165px));
+    /*height: calc(.47*(100vh - 80px -165px));*/
     /*background-color: white;*/
 	/*grid-area: metric;*/
+	border-right-width: 1px;
+    border-right-color: black;
+    border-right-style: solid;
 }
 
 :local(.previewBlock){
@@ -147,8 +151,8 @@ div{
     padding-top: 4px;
     padding-bottom: 4px;
     margin-left: 0px;
-    margin-top: calc(5vh + 25px);
-    height: calc(786px - (5vh + 25px));
+    /*margin-top: calc(5vh + 25px);*/
+    /*height: calc(786px - (5vh + 25px));*/
     width: 400px;
     border-style: solid;
     border-color: #bdbcbc;

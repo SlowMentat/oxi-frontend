@@ -82,15 +82,25 @@ export class Outfit extends React.Component{
 	}
 
 	render(){
-		let outfitBlockHomeStyle = null;
-		if(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase()){
-			outfitBlockHomeStyle = {'display':'inline-block','margin':'40px 50px 0px 50px'};
-		}
+		let contextualStyles = null;
+		let outfitHeight = this.props.containerHeight/3;
+		let outfitWidth = outfitHeight*(2/3);
+		contextualStyles = this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() ?
+			contextualStyles = {
+				'display':'inline-block',
+				'margin':'40px 50px 0px 50px'
+			} :
+			this.props.containerHeight !== null ? 
+				contextualStyles ={
+					height:`calc(${outfitHeight}px)`,
+					width:`calc(${outfitWidth}px)`
+				} :
+				null;
 
 		return(
 			<div 
 				className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
-				style={outfitBlockHomeStyle} 
+				style={contextualStyles} 
 				onClick={this._handleOnClick}
 				onMouseOver={this._handleOnMouseOver}
 				onMouseOut={this._handleOnMouseOut}
@@ -115,7 +125,7 @@ export class Outfit extends React.Component{
 				    unmountOnExit >
 					<div 
 						className={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
-							OutfitStyles.outfitMenuContainer : 
+							Object.assign({}, OutfitStyles.outfitMenuContainer, {'top':`calc(${outfitHeight} - 70px)`}) : 
 							(!this.props.isSelected) ? 
 								OutfitStyles.outfitTileMask : 
 								null} 

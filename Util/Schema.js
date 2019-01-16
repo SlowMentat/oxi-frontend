@@ -30,12 +30,15 @@ export const items = new schema.Array(item);
 //@param {outfits} 	normalized outfits entity.  There shoul only be one.  
 //@param {contents}	normalized array of contents associated with outfit,
 //@param {items}	normalized array of items associated to each content.
-export function denormalizeOutfit(outfits, contents, items){
+export function denormalizeOutfit(outfitsOrig, contentsOrig, itemsOrig){
 	let denormContents = [];
+	let outfits = Object.assign({}, outfitsOrig);
+	let contents = Object.assign({}, contentsOrig);
+	let items = Object.assign({}, itemsOrig);
 	//Build denormalized contents object array
 	console.log('contents = ', contents)
 	console.log('Object.values(contents) = ', Object.values(contents))
-	for(let content of Object.values(contents)){
+	for(let content of [...Object.values(contents)] ){
 		let denormItems = [];
 		//Build denormalized items object array
 		console.log('denormalizeOutfit:  items = ', items);

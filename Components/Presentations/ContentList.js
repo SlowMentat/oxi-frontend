@@ -113,7 +113,7 @@ class ContentList extends React.Component {
 				}
 				break;
 			case (itemIdsLengthDiff <= 2):
-				console.log('Unexpected de-sync between item id arrays:  ContetList component state, addedItemIds more than 1 less elements than redux state.addedEntitiesReducer.items.allIds!');
+				//console.log('Unexpected de-sync between item id arrays:  ContetList component state, addedItemIds more than 1 less elements than redux state.addedEntitiesReducer.items.allIds!');
 				break;
 			default:
 				break;
@@ -139,13 +139,16 @@ class ContentList extends React.Component {
 				console.log(this.props.selectedId);
 				console.log('addedContentIds[0]:');
 				console.log(this.props.addedContentIds[0])
-				if(this.props.selectedId != this.props.addedContentIds[0]){
-					console.log("calling this.props.focusOnAddedContent");this.props.focusOnAddedContent(this.props.addedContentIds[0]);
-				}
+
+				//TODO:  need to fix this to handle multiple file upload eventually
+				/*if(this.props.selectedId != this.props.addedContentIds[0]){
+					//console.log("calling this.props.focusOnAddedContent");this.props.focusOnAddedContent(this.props.addedContentIds[0]);
+					console.log("calling this.props.focusOnAddedContent");this.props.focusOnAddedContent(1);
+				}*/
 				//if add Contents button was just pressed and the selected content Id is not the last element in this.props.addedContentIds array
-				if(this.props.controlDisabled && this.props.selectedId != this.props.addedContentIds[this.props.addedContentIds.length-1]){
+				/*if(this.props.controlDisabled && this.props.selectedId != this.props.addedContentIds[this.props.addedContentIds.length-1]){
 					this.props.selectAfterAdd(this.props.addedContentIds[this.props.addedContentIds.length-1])
-				}
+				}*/
 			}
 		}
 

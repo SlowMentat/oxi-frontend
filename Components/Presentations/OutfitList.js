@@ -49,7 +49,7 @@ class OutfitList extends React.Component{
 		    				<div style={container2_div}>
 								<div className={OutfitStyles.outfitMenuBlock}>	  
 									{this.props.outfitIds !== undefined ? this.props.outfitIds.map((outfitId) => 
-										<Outfit 
+										(this.props.outfits[outfitId] !== undefined ? <Outfit 
 											key={outfitId} 
 											{...this.props.outfits[outfitId]} 
 											id={outfitId}
@@ -65,10 +65,13 @@ class OutfitList extends React.Component{
 												this.props.outfits[outfitId], 
 												this.props.selectedId, 
 												this.props.contents, 
-												selectedContentId, 
+												this.props.selectedContentId, 
 												this.props.items)}
 											viewState={this.props.viewState}
-										/>
+											containerHeight={this.props.containerHeight}
+											containerWidth={this.props.containerWidth}
+										/> :
+										null)
 									) : null}
 									{this.props.addedOutfitIds !== undefined ? this.props.addedOutfitIds.map((outfitId) => 
 										<Outfit 
@@ -83,6 +86,8 @@ class OutfitList extends React.Component{
 											contentIds={this.props.addedOutfits[outfitId]["contents"]}
 											webAppView={null}
 											viewState={this.props.viewState}
+											containerHeight={this.props.containerHeight}
+											containerWidth={this.props.containerWidth}
 										/>
 									) : null}
 								</div>

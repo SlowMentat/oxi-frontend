@@ -136,7 +136,7 @@ const mapDispatchToProps = (dispatch) => ({
 			dispatch(updateProfile(null));*/
 		},
 		clearInvalidations: (entitiesStateReducer) => {
-			console.log('clearInvalidations: beforswitch');
+			console.log('clearInvalidations: before switch');
 			switch(true){
 				case entitiesStateReducer.profile.clientInvalidated.length > 0:
 					dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PROFILE));

@@ -32,7 +32,7 @@ const imgStyle = {
     'max-width': 'calc((100vh - 200px) * 2/3)',
 	display: 'block',
 	'border-radius': '4px',
-	'object-fit': 'cover',
+	'object-fit': 'contain',
 	'float':'right',
 	'border-top-right-radius':'0px',
 	'border-bottom-right-radius':'0px',
@@ -86,6 +86,7 @@ const ShowContentView = (props) => {
 				createResponseHandler={props.createResponseHandler}
 				exitEditMode={props.exitEditMode}
 				itemContent={props.itemContent}
+				setupContentViewRef={props.setupContentViewRef}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
@@ -105,6 +106,7 @@ const ShowContentView = (props) => {
 				simulateImageClick={props.simulateImageClick}
 				itemIdHovered={props.itemIdHovered}
 				changeItemHovered={props.changeItemHovered}
+				setupContentViewRef={props.setupContentViewRef}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.EDIT){
@@ -144,6 +146,7 @@ const ShowContentView = (props) => {
 				createResponseHandler={props.createResponseHandler}
 				exitEditMode={props.exitEditMode}
 				itemContent={props.itemContent}
+				setupContentViewRef={props.setupContentViewRef}
 			/>
 		);
 	}else{
@@ -151,8 +154,12 @@ const ShowContentView = (props) => {
 	}
 	
 	return(
-		<div style={{'height':'calc(100vh - 200px)'}}>
-			<div className={FormStyles.imageUploadPreview}>
+		<div style={{
+			//'height':'calc(100vh - 200px)'
+			//'height':'calc(100vh - 275px + 3vh)'
+			'height':'100%'
+		}}>
+			<div className={FormStyles.imageUploadPreview} >
 				{contentView}
 			</div>			
 		</div>
@@ -180,6 +187,7 @@ class ImagePreview extends React.Component{
 
 	_handleImgLoad(event){
 		this.props.updateImageDimension(event.target.width, event.target.height);
+
 	}
 
 	_handleImgMouseOver(event){
@@ -219,7 +227,15 @@ class ImagePreview extends React.Component{
 		}
 		return (
 			<div style={imgFormStyle}>
-				<div style={{'position':'relative','width':'auto','padding':'5% 0% 2vh 0%', 'padding-top':'calc(5vh + 25px)', /*'background-color':'#ececec',*/'max-height':'100%', 'height':'100%'}}>
+				<div ref={this.props.setupContentViewRef} style={{
+						'position':'relative',
+						'width':'auto',
+						//'padding':'5% 0% 2vh 0%', 
+						'padding-top':'calc(5vh + 25px)', 
+						/*'background-color':'#ececec',*/
+						'max-height':'100%', 
+						'height':'100%'
+					}}>
 					<img src={this.state.base64Image} style={imgStyle} ref={this.props.setupImageRef} onLoad={() => this._handleImgLoad(event)}/>
 					<ItemLocationMap 
 						visibleItemsMap={this.props.visibleItemsMap} 
@@ -354,7 +370,6 @@ class ImageAdd extends React.Component{
 				postAddedOutfit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
-				//itemLocationMap ={<ItemLocationMap visibleItemsMap={this.props.visibleItemsMap} viewState={this.props.viewContext} populateItemsMap={this.props.populateItemsMap}/>}
 				itemLocationMap={
 					(itemMapDimension) => (
 						<ItemLocationMapContainer 
@@ -374,6 +389,7 @@ class ImageAdd extends React.Component{
 				itemMapDimensions={this.props.itemMapDimensions}
 				itemMapDimension={this.props.itemMapDimension}
 				addedEntities={this.props.addedEntities}
+				updateImageDimension={this.props.updateImageDimension}
 			/>
 		)
 	}
@@ -389,6 +405,7 @@ class ImageEdit extends React.Component{
 		};
 		//this._handleImgChange = this._handleImgChange.bind(this);
 		this._handleSubmit = this._handleSubmit.bind(this);
+		this._handleImgLoad = this._handleImgLoad.bind(this);
 		this._handleImgMouseOver = this._handleImgMouseOver.bind(this);
 		this._handleImgClick = this._handleImgClick.bind(this);
 		this._handleChangesDiscarded = this._handleChangesDiscarded.bind(this);
@@ -838,6 +855,12 @@ class ImageEdit extends React.Component{
 
 	}
 
+
+	_handleImgLoad(event){
+		this.props.updateImageDimension(event.target.width, event.target.height);
+
+	}
+
 	_handleImgClick(event) {
 		console.log("image clicked!!");
 		//store clicked location
@@ -907,7 +930,7 @@ class ImageEdit extends React.Component{
 							visibleItemsMap={this.props.visibleItemsMap} 
 							viewState={this.props.viewContext} 
 							populateItemsMap={this.props.populateItemsMap}
-							itemMapDimension={itemMapDimension}	
+							itemMapDimension={this.props.itemMapDimension}	
 							onImageClick={this._handleImgClick}
 							simulateImageClick={this.props.simulateImageClick}
 
@@ -919,6 +942,7 @@ class ImageEdit extends React.Component{
 				setupImageRef={this.props.setupImageRef}
 				itemMapDimension={this.props.itemMapDimension}
 				addedEntities={this.props.addedEntities}
+				updateImageDimension={this.props.updateImageDimension}
 			/>
 		)
 	}
@@ -929,8 +953,8 @@ class ContentView extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			imageWidth: 0,
-			imageHeight: 0,
+			/*imageWidth: 0,
+			imageHeight: 0,*/
 		};
 		//this.image = React.createRef();
 		this.updateImageDimension = this.updateImageDimension.bind(this);
@@ -944,6 +968,7 @@ class ContentView extends React.Component{
 	setupImageRef(img){
 		this.image = img;
 		this.simulateImageClick = this.simulateImageClickFactory(img).bind(this);
+		//this.props.imageResized(image.width, image.height);
 		this.forceUpdate();
 	}
 
@@ -963,18 +988,24 @@ class ContentView extends React.Component{
 	}
 
 	updateImageDimension(width, height){
-		this.setState({
+		this.props.imageResized(width, height);
+		/*this.setState({
 			imageWidth: width,
 			imageHeight: height,
-		});		
+		});	*/	
 	}
 
 	_handleResize(event){
-		this.updateImageDimension(this.image.clientWidth, this.image.clientHeight);
+		console.log('RESIZED')
+		//this.updateImageDimension(this.image.clientWidth, this.image.clientHeight);
+		this.props.imageResized(this.image.clientWidth, this.image.clientHeight);
+		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);
 	}
 
 	componentDidMount(){
 		window.addEventListener('resize', this._handleResize);
+		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);
+
 	}
 
 	componentDidUnmount(){
@@ -1042,15 +1073,16 @@ class ContentView extends React.Component{
 					postAddedItems={this.props.postAddedItems}
 					populateItemsMap={this.props.populateItemsMap}
 					setupImageRef={this.setupImageRef}
+					setupContentViewRef={this.setupContentViewRef}
 					imageElement={this.image}
-					itemMapDimension={{width: this.state.imageWidth, height: this.state.imageHeight}}
+					itemMapDimension={{width: this.props.imageWidth, height: this.props.imageHeight}}
 					updateImageDimension={this.updateImageDimension}
 					simulateImageClick={this.simulateImageClick}
 					itemIdHovered={this.props.itemIdHovered}
 					changeItemHovered={this.props.changeItemHovered}
 					createResponseHandler={this.props.createResponseHandler}
 					exitEditMode={this.props.exitEditMode}
-					itemContent={this.props.itemContent}/>
+					itemContent={this.props.itemContent} />
 				<VisibleContentList />
     		</div>
 		);
