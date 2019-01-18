@@ -50,158 +50,197 @@ const itemCellContentContainer = {
 	position: 'relative',
 }
 
-export const Item = (props) => {
+export class Item extends React.Component{
+	constructor(props){
+		super(props)		
+		this.state = {
+			coverpicuri: null,
+			base64Image:null
+		};
+
+		this._handleImageReceived = this._handleImageReceived.bind(this);
+	}
 	//const linkFavicon = "https://www.google.com/s2/favicons?domain=" + link;
 	//console.log(linkFavicon);
+
+
+	componentDidMount(){
+		//if coverpicuri filename exists, call get request for content coverpic data
+		console.log("coverpicuri = ", this.props.item.coverpicuri)
+		if(this.props.item.coverpicuri !== null && this.props.item.coverpicuri !== undefined) this.props.getCoverPic(this.props.item.coverpicuri, this._handleImageReceived);
+	}
+
+	_handleImageReceived(event, data){
+		this.setState({
+			base64Image: 'data:image/jpeg;base64,' + data
+		});
+	}
+
+	render(){
+		let brandColorStyle = null;
+		let brandName = null;
+		let brandLink = null;
+		let retailerName = null;
+		let retailerLink = null;
+
+		if(this.props.item !== undefined){
+			if(this.props.brands !== undefined && this.props.brands !== null && this.props.item.brand){
+				brandName = this.props.brands[this.props.item.brand].name;
+				brandLink = this.props.brands[this.props.item.brand].link;
+				brandColorStyle = {
+					'background-image': `linear-gradient(to right, black, black, rgb(${this.props.brands[this.props.item.brand].red},${this.props.brands[this.props.item.brand].green},${this.props.brands[this.props.item.brand].blue}))`
+				};
+			}
+			if(this.props.retailers !== undefined && this.props.retailers !== null && this.props.item.retailer){
+				retailerName = this.props.retailers[this.props.item.retailer].name;
+				retailerLink = this.props.retailers[this.props.item.retailer].link
+			}
+		}else{
+			return null;
+		}
 	
-	let brandColorStyle = null;
-	let brandName = null;
-	let brandLink = null;
-	let retailerName = null;
-	let retailerLink = null;
-
-	if(props.item !== undefined){
-		if(props.brands !== undefined && props.brands !== null && props.item.brand){
-			brandName = props.brands[props.item.brand].name;
-			brandLink = props.brands[props.item.brand].link;
-			brandColorStyle = {
-				'background-image': `linear-gradient(to right, black, black, rgb(${props.brands[props.item.brand].red},${props.brands[props.item.brand].green},${props.brands[props.item.brand].blue}))`
-			};
+		let fill = "#FFF";
+		let stroke = "#FFF";
+		let isSelected = this.props.selectedAllIds.includes(this.props.item.id);
+		let itemContainerStyles = null;
+	
+		switch(true){
+			case this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase():
+				itemContainerStyles = !isSelected ?
+								ItemStyles.itemContainer_div :
+								this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
+									ItemStyles['itemContainerPreview_div--selected'] : 
+									ItemStyles['itemContainerEdit_div--selected'];
+				break;
+			case this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase():
+				itemContainerStyles = !isSelected ? 
+								ItemStyles.itemContainer_div :
+								this.props.browseSelection === 'apparel' ?
+									ItemStyles['itemContainerBrowse_div--selected'] :
+									null;
+				break;
+			default:
+				break;
 		}
-		if(props.retailers !== undefined && props.retailers !== null && props.item.retailer){
-			retailerName = props.retailers[props.item.retailer].name;
-			retailerLink = props.retailers[props.item.retailer].link
-		}
-	}else{
-		return null;
-	}
+		console.log('itemContainerStyles = ', itemContainerStyles);
 
-	let fill = "#FFF";
-	let stroke = "#FFF";
-	let isSelected = props.selectedAllIds.includes(props.item.id);
-	let itemContainerStyles = null;
-
-	switch(true){
-		case props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase():
-			itemContainerStyles = !isSelected ?
-							ItemStyles.itemContainer_div :
-							props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-								ItemStyles['itemContainerPreview_div--selected'] : 
-								ItemStyles['itemContainerEdit_div--selected'];
-			break;
-		case props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase():
-			itemContainerStyles = !isSelected ? 
-							ItemStyles.itemContainer_div :
-							props.browseSelection === 'apparel' ?
-								ItemStyles['itemContainerBrowse_div--selected'] :
-								null;
-			break;
-		default:
-			break;
-	}
-	console.log('itemContainerStyles = ', itemContainerStyles);
-
-	return(			
-		<div 
-			className={itemContainerStyles}
-			onMouseOver={props._handleMouseOver.bind(this)}
-			onMouseLeave={props._handleMouseLeave.bind(null)} 
-			onClick={() => {
-				if(props.webAppView === 'home' && props.browseSelection === 'apparel'){
-					props.getContentsByItemId();
-					props.onDeselect(props.selectedAllIds.filter(id => id != props.item.id)[0]);
-				}
-				(isSelected === true) ? props.onDeselect(props.item.id) : props.onSelect(props.item.id);
-			}} >
-			<CSSTransition
-			    tiemout={200}
-			    classNames="itemMenuContainer"
-			    in={props.itemIdHovered === props.item.id}
-			    unmountOnExit >
-				<div id="itemMenuContainer" className="itemMenuContainer">
-					{
-						props.viewState !== OxiAppConstants.viewState.PREVIEW ? 
-						(
-							<React.Fragment>
-								<div style={{
-									'margin-top':'5px',
-   									'margin-left': '-20px',
-   									'width': '15px',
-   									'position': 'absolute',
-								}}>
-									<SvgIcon name="DeleteIcon" />
-								</div>
+		return(			
+			<div 
+				className={itemContainerStyles}
+				onMouseOver={this.props._handleMouseOver.bind(this)}
+				onMouseLeave={this.props._handleMouseLeave.bind(null)} 
+				onClick={() => {
+					if(this.props.webAppView === 'home' && this.props.browseSelection === 'apparel'){
+						this.props.removeContentEntities();
+						this.props.getContentsByItemId();
+						this.props.onDeselect(this.props.selectedAllIds.filter(id => id != this.props.item.id)[0]);
+					}
+					(isSelected === true) ? this.props.onDeselect(this.props.item.id) : this.props.onSelect(this.props.item.id);
+				}} >
+				<CSSTransition
+				    tiemout={200}
+				    classNames="itemMenuContainer"
+				    in={this.props.itemIdHovered === this.props.item.id}
+				    unmountOnExit >
+					<div id="itemMenuContainer" className="itemMenuContainer">
+						{
+							this.props.viewState !== OxiAppConstants.viewState.PREVIEW ? 
+							(
+								<React.Fragment>
+									<div style={{
+										'margin-top':'5px',
+   										'margin-left': '-20px',
+   										'width': '15px',
+   										'position': 'absolute',
+									}}>
+										<SvgIcon name="DeleteIcon" />
+									</div>
+									<div style={{
+										position: 'relative',
+   										'width': '30px',
+   										'top': '32.5%',
+									}}>
+										<SvgIcon name="EditIcon" />
+									</div>
+								</React.Fragment>
+							) :
+							(
 								<div style={{
 									position: 'relative',
-   									'width': '30px',
-   									'top': '32.5%',
+   									'width': '45px',
+   									'top': '15px',
+   									'margin-left': '-12px',
 								}}>
-									<SvgIcon name="EditIcon" />
+									<SvgIcon name="WardrobeIcon" />
 								</div>
-							</React.Fragment>
-						) :
-						(
-							<div style={{
-								position: 'relative',
-   								'width': '45px',
-   								'top': '15px',
-   								'margin-left': '-12px',
-							}}>
-								<SvgIcon name="WardrobeIcon" />
-							</div>
-						)
-					}
-				</div>
-			</CSSTransition>
-			<a className={ItemStyles.itemSizeBlock}>
-				<SvgIcon 
-					name={OxiAppConstants.ItemTypesByLabel[props.item.type] !== undefined ? OxiAppConstants.ItemTypesByLabel[props.item.type].iconName : null}
-					fill={fill}
-					stroke={stroke}/>
-			</a>
-			<a className={ItemStyles.itemTypeBlock}>
-				<div style={itemCellContainer}>
-					<div>	
-						{props.item.size}
+							)
+						}
 					</div>
-				</div>
-			</a>
-
-			<div style={{
-				'display': 'inline-block',
-    			'width': 'calc((100% - 100px))',
-    			'vertical-align': 'top',
-    			'height': '100%',
-    			'border-left-style': 'solid',
-    			'border-left-color': '#fdfdfd',
-    			'border-left-width': '8px',
-			}}>
-				<div className={ItemStyles.itemBrandBlock} href={brandLink} target="_blank">
-					<div style={itemCellContainer}>
-						<div style={{'font-family': '\'Archivo Black\', sans-serif'}}>	
-							{brandName}
-						</div>
-					</div>
-				</div>
-				<div className={ItemStyles.itemRetailerBlock} href={retailerLink} target="_blank">
+				</CSSTransition>
+				<a className={ItemStyles.itemSizeBlock}>
+					<SvgIcon 
+						name={OxiAppConstants.ItemTypesByLabel[this.props.item.type] !== undefined ? OxiAppConstants.ItemTypesByLabel[this.props.item.type].iconName : null}
+						fill={fill}
+						stroke={stroke}/>
+				</a>
+				<a className={ItemStyles.itemTypeBlock}>
 					<div style={itemCellContainer}>
 						<div>	
-							{retailerName}
+							{this.props.item.size}
+						</div>
+					</div>
+				</a>
+				{
+					(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() && this.props.browseSelection === 'apparel') ?
+						(
+							<div style={{
+								display: 'inline-block',
+								'vertical-align':'top',
+								width:'75px',
+								'border-left':'6px solid #fdfdfd',
+							}}>
+								<img src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} style={{width:'75px',height:'112.5px'}}/>
+							</div>
+						) : 
+						null
+				}
+
+				<div style={{
+					'display': 'inline-block',
+    				'width': 'calc((100% - 175px))',
+    				'vertical-align': 'top',
+    				'height': '100%',
+    				'border-left-style': 'solid',
+    				'border-left-color': '#fdfdfd',
+    				'border-left-width': '6px',
+				}}>
+					<div className={ItemStyles.itemBrandBlock} href={brandLink} target="_blank">
+						<div style={itemCellContainer}>
+							<div style={{'font-family': '\'Archivo Black\', sans-serif'}}>	
+								{brandName}
+							</div>
+						</div>
+					</div>
+					<div className={ItemStyles.itemRetailerBlock} href={retailerLink} target="_blank">
+						<div style={itemCellContainer}>
+							<div>	
+								{retailerName}
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			{
-				props.webAppView !== 'home' ?
-					null :
-					props.browseSelection !== 'apparel' ?
-						null : 
-						isSelected ?
-							(
-								<VisibleItemAsSeenOnList selectedItemId={props.item.id}/>
-							) :
-							null
-			}
-		</div>		
-	);	
+				{
+					this.props.webAppView !== 'home' ?
+						null :
+						this.props.browseSelection !== 'apparel' ?
+							null : 
+							isSelected ?
+								(
+									<VisibleItemAsSeenOnList selectedItemId={this.props.item.id}/>
+								) :
+								null
+				}
+			</div>		
+		);	
+	}
 }

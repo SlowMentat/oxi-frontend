@@ -106,7 +106,7 @@
 
 .itemInitialize-enter-active{
 	opacity: 1;
-	height: 100px;
+	height: 112.5px;
 	transition: opacity 200ms ease-in, height 200ms ease-in;
 	margin-bottom: 12px
 
@@ -114,7 +114,7 @@
 
 .itemInitialize-exit{
 	opacity: 1;
-	height: 100px;	
+	height: 112.5px;	
 	margin-bottom: 12px
 }
 
@@ -131,7 +131,7 @@
 .itemMenuContainer{
 	z-index:-1;
 	position: absolute;
-	height:100px;
+	height:112.5px;
 }
 
 .itemMenuContainer-enter{

@@ -103,7 +103,9 @@ export default class ItemListBrowse extends React.Component{
 					   									browseSelection={this.props.browseSelection}
 					   									_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
 					   									_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
-					   									getContentsByItemId={() => this.props.getContentsByItemId(itemId)} />))
+					   									getContentsByItemId={() => this.props.getContentsByItemId(itemId)}
+					   									removeContentEntities={this.props.removeContentEntities}
+					   									getCoverPic={this.props.getCoverPic} />))
 					   							}
 					   						</CSSTransition>
 					   					)

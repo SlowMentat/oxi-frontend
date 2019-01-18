@@ -15,7 +15,8 @@ import {
 	setEntityScrollPageHeight,
 	setCurrentEntityPage,
 	setNextPageURL,
-	setPrevPageURL
+	setPrevPageURL,
+	fetchImage
 } from '../../Components/Actions/indexActions.js';
 import ItemListBrowse from '../../Components/Presentations/ItemListBrowse.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
@@ -86,7 +87,9 @@ const mapDispatchToProps = dispatch => ({
 		.then((response) => {
 
 		});	
-	}
+	},	
+	removeContentEntities: () => dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT)),
+	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 })
 
 const VisibleItemListBrowse = connect(mapStateToProps, mapDispatchToProps)(ItemListBrowse);

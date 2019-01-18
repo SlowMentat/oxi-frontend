@@ -942,6 +942,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 									'size': currentObject.size,
 									'retailer': currentObject.retailer,
 									'brand': currentObject.brand,
+									'coverpicuri':currentObject.coverpicuri,
 								}
 							}));
 						},{});
