@@ -40,29 +40,29 @@
 /*All Items*/
 
 .itemBrowseInitialize-enter{
-    height: 100px;
+    height: 112.5px;
 	opacity: 0;
     width: 500px;
     margin: auto;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
 }
 
 .itemBrowseInitialize-enter-active{
 	opacity: 1;
     width: 575px;
     margin: auto;
-    margin-bottom: 12px;
-    height: 100px;
+    margin-bottom: 18px;
+    height: 112.5px;
 	transition: opacity 200ms ease-in, height 200ms ease-in;
 
 }
 
 .itemBrowseInitialize-exit{
 	opacity: 1;
-	height: 100px;	
+	height: 112.5px;	
     width: 500px;
     margin: auto;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
 }
 
 .itemBrowseInitialize-exit-active{
@@ -70,7 +70,7 @@
 	height: 0px;
     width: 500px;
     margin: auto;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
 	transition: opacity 100ms, height 100ms;
 }
 

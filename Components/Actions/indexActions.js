@@ -93,6 +93,8 @@ export const SET_POSITION_HELP		= 'SET_POSITION_' + OxiAppConstants.MenuTypes.FI
 export const SET_VISIBLE_HELP		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
 export const SET_VISIBLE_FILTER		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
 
+export const UPDATE_OUTFIT_COVERPICURI = 'UPDATE_OUTFIT_COVERPICURI';
+
 //global variables
 let nextItemId = 0;
 let nextOutfitId = 0;
@@ -195,6 +197,9 @@ export const removeAddedItem	= makeActionCreator(REMOVE_ITEM, OxiAppConstants.En
 
 export const disableAddOutfit 	= makeActionCreator(DISABLE_BUTTON, null, 'disabled');
 export const disableAddContentButton = makeActionCreator(DISABLE_CONTENT_BUTTON, null, 'disabled');
+
+export const updateOutfitCoverpicuri = makeActionCreator(UPDATE_OUTFIT_COVERPICURI, OxiAppConstants.EntityTypes.OUTFIT, 'entity');
+
 
 /*export const updateItemContent 	= (id, itemId, contentId) => {
 	return({
@@ -547,6 +552,16 @@ export const clearServerInvalidation = (entityType) => {
 		dispatch(makeActionCreator(`CLEAR_SERVER_INVALIDATION_${entityType.toUpperCase()}`, entityType.toUpperCase())());
 	}
 };
+
+
+//========ENTITY PROPERTIES MODIFICATION ACTIONS========
+
+//modifiedProperties is of the form {[targetEntityId]:{ ...<properties modified> }}
+export const modifyEntityProperties = (entityType, modifiedProperties={} ) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`MODIFY_${entityType.toUpperCase()}_PROPERITIES`, entityType.toUpperCase(), 'modifiedProperties')(modifiedProperties));
+	}
+} 
 
 
 //========ENTITY PAGED IDS MODIFICATION ACTIONS========
@@ -1025,7 +1040,7 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 				dispatch(receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
 				//normalize received json payload
 				let normalizedJson = normalize(json, contents);
-				
+
 				console.log('entitiesStateReducer', normalizedJson); 
 				
 				//Manually build itemContents join table
@@ -1047,6 +1062,7 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 				//mergeResponseEntities(dispatch, normalizedJson);
 				//dispatch(replaceContents(normalizedJson.entities.contents));
 				dispatch(createContent(normalizedJson.entities.contents));
+				dispatch(createPictures(normalizedJson.entities.picture))
 				/*let contentKeys = Object.keys(normalizedJson.entities.contents);
 				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null*/
 				//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
@@ -1075,6 +1091,54 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 			}
 			console.log(error.config);
 		});
+	}
+}
+
+export const patchEntity = (entityType, payload) => {
+		return function(dispatch){
+			dispatch(requestEntities(entityType));
+			let URI = '';
+			let requestParams = '';
+			let customReqParams = '';
+			let pageBufferSize = 2;
+			let reqResponse = null;
+	
+			switch(entityType){
+				case OxiAppConstants.EntityTypes.OUTFIT:
+					URI = '/outfit' + `/${payload.id}`;
+					return axios.patch(`${(OxiAppConstants.serviceURL)}${URI}`, payload)
+					.then((response) => {
+						if(response.status === OxiAppConstants.HttpStatus.OK){
+							dispatch(receiveEntities(entityType.toLowerCase(), null));
+						}else{
+							//handleUnauthorizedRequest(response);
+						}
+					})
+					.catch(error => {
+						console.log(error);
+						if (error.response) {
+							// The request was made and the server responded with a status code
+							// that falls out of the range of 2xx
+							console.log(error.response.data);
+							console.log(error.response.status);
+							console.log(error.response.headers);
+							//Check if error is due to forbidden response staatus
+							dispatch(handleUnauthorizedRequest(error.response));
+						} else if (error.request) {
+							// The request was made but no response was received
+							// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+							// http.ClientRequest in node.js
+							console.log(error.request);
+						} else {
+							// Something happened in setting up the request that triggered an Error
+							console.log('Error', error.message);
+						}
+						console.log(error.config);
+					});
+					break;				
+				default:
+					break;
+		}
 	}
 }
 

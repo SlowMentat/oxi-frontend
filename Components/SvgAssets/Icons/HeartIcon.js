@@ -12,6 +12,7 @@ export default class HeartIcon extends React.Component{
 	render(){
 		let stroke = this.props.stroke || "#000";
 		let fill = this.props.fill || "none";
+		let strokeWidth = this.props.strokeWidth || 15;
 		return(
 			<svg 
 				width="50mm" 
@@ -27,7 +28,7 @@ export default class HeartIcon extends React.Component{
 						stroke={stroke}
 						stroke-linecap="round" 
 						stroke-linejoin="round" 
-						stroke-width="15"/>
+						stroke-width={strokeWidth}/>
 				</g>
 			</svg>
 		);

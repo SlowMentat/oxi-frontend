@@ -5,7 +5,8 @@ import {
 	selectMultipleEntity, 
 	deselectMultipleEntity,
 	setCurrentEntityPage,
-	setEntityScrollPageHeight
+	setEntityScrollPageHeight,
+	fetchImage, 
 } from '../../Components/Actions/indexActions.js';
 import ItemAsSeenOnList from '../../Components/Presentations/ItemAsSeenOnList.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -33,6 +34,7 @@ const mapStateToProps = (state, props) => {
 		pages: state.entitiesReducer.contents.pages,
 
 		contents : state.entitiesReducer.contents.byIds,
+		pictures : state.entitiesReducer.pictures.byIds,
 		contentIds : state.entitiesReducer.contents.allIds,
 	});
 }
@@ -43,6 +45,7 @@ const mapDispatchToProps = dispatch => ({
 	},
 	setScrollPageHeight: (scrollPageHeight) => dispatch(setEntityScrollPageHeight(OxiAppConstants.EntityTypes.CONTENT, scrollPageHeight)),
 	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.CONTENT, page)),
+	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 })
 
 const VisibleItemAsSeenOnList = connect(mapStateToProps, mapDispatchToProps)(ItemAsSeenOnList);

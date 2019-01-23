@@ -25,6 +25,8 @@ import MenuPointer from './Icons/MenuPointer.js';
 import ApparelIcon from './Icons/ApparelIcon.js';
 import OutfitsIcon from './Icons/OutfitsIcon.js';
 import FilterIcon from './Icons/FilterIcon.js';
+import LogoIcon from './Icons/LogoIcon.js';
+import OutfitCoverIcon from './Icons/OutfitCoverIcon.js'
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -53,6 +55,8 @@ export const SvgIcon = (props) => {
 		case 'ApparelIcon': return(<ApparelIcon {...props}/>); break;
 		case 'OutfitsIcon': return(<OutfitsIcon {...props}/>); break;
 		case 'FilterIcon': return(<FilterIcon {...props}/>); break;
+		case 'LogoIcon': return(<LogoIcon {...props}/>); break;
+		case 'OutfitCoverIcon': return(<OutfitCoverIcon {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

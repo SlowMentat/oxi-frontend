@@ -1,9 +1,11 @@
 import React from 'react';
 import OutfitStyles from '../../outfit.css';
+import outfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 import Outfit from './Outfit.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import PagedListContainer from '../../Components/Containers/PagedListContainer.js';
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 //Presentation Component 
 import PagedList from './PagedList.js';
@@ -21,17 +23,16 @@ const container2_div = {
 }
 
 
-class OutfitList extends React.Component{
+
+class PagedOutfitList extends React.Component{
 	constructor(props){
 		super(props);
 	}
 
 	render(){
-		let outfits = (container1_div, container2_div) => (
+		return(
 			<PagedListContainer
-    			id="outfitListProfile"
     			scrollContainerStyle={this.props.scrollContainerStyle}
-    			//pageBufferSize={this.props.pageBufferSize}
     			currentPage={this.props.currentPage}
     			lastPage={this.props.lastPage}
     			isFetching={this.props.isFetching}
@@ -45,8 +46,8 @@ class OutfitList extends React.Component{
 				setPrevPageURL={this.props.setPrevPageURL}
     			list={
     				<React.Fragment>
-						<div style={container1_div}>
-		    				<div style={container2_div}>
+						<div style={this.props.container1_div}>
+		    				<div style={this.props.container2_div}>
 								<div className={OutfitStyles.outfitMenuBlock}>	  
 									{this.props.outfitIds !== undefined ? this.props.outfitIds.map((outfitId) => 
 										(this.props.outfits[outfitId] !== undefined ? <Outfit 
@@ -96,18 +97,51 @@ class OutfitList extends React.Component{
     				</React.Fragment>
 				}
 			/>
-		);
+		)		
+	}
+}
+
+
+class OutfitList extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
 		//This seams sloppy but there should never be more than 1 outfit in the addedEntitiesReducer tree
 		let contentId = undefined;
 		console.log('view = ', this.props.view);
 		return (
-			<TransitionGroup style={{'height':'100%'}}>
-				{(
-					this.props.view === OxiAppConstants.navRequestMap.home.toLowerCase() ?
-		    			outfits(container1_div, container2_div) :
-		    			outfits({'height':'100%'},{'height':'100%'})
-		    	)}
-		    </TransitionGroup>
+			<React.Fragment>
+				<TransitionGroup style={{'height':'100%'}}>
+					{(
+						this.props.view === OxiAppConstants.navRequestMap.home.toLowerCase() ?
+		    				(<PagedOutfitList container1_div={container1_div} container2_div={container2_div} {...this.props} />) :
+		    				(<PagedOutfitList container1_div={{'height':'100%'}} container2_div={{'height':'100%'}} {...this.props} />)
+		    		)}
+		    	</TransitionGroup>
+		    	<div id='makeOutfitCoverBtnContiner' className={outfitCoverBtnStyle.makeOutfitCoverBtnContainer_div}>
+		    		<div 
+		    			id='makeOutfitCoverBtn' 
+		    			className={outfitCoverBtnStyle.makeOutfitCoverBtn_div}		    			
+						onClick={() => {
+							new Promise((resolve, reject) => {
+								resolve( this.props.changeOutfitCoverPic({ 
+									id: this.props.selectedId,
+									coverpicuri: this.props.pictures[this.props.contents[this.props.selectedContentId].picture].smalluri 
+								}) );
+							});
+						}}
+					>
+		    			<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
+		    			<div className={outfitCoverBtnStyle.makeOutfitCoverTextCtnr_div}>
+		    				<div className={outfitCoverBtnStyle.makeOutfitCoverText_div}>
+		    					Make outfit cover
+		    				</div>
+		    			</div>
+		    		</div>
+		    	</div>
+		    </React.Fragment>
 		);
 	}
 }

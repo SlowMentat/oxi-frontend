@@ -144,7 +144,7 @@ export class Item extends React.Component{
 				    unmountOnExit >
 					<div id="itemMenuContainer" className="itemMenuContainer">
 						{
-							this.props.viewState !== OxiAppConstants.viewState.PREVIEW ? 
+							/*this.props.viewState !== OxiAppConstants.viewState.PREVIEW ? 
 							(
 								<React.Fragment>
 									<div style={{
@@ -173,7 +173,7 @@ export class Item extends React.Component{
 								}}>
 									<SvgIcon name="WardrobeIcon" />
 								</div>
-							)
+							)*/
 						}
 					</div>
 				</CSSTransition>
@@ -196,7 +196,7 @@ export class Item extends React.Component{
 							<div style={{
 								display: 'inline-block',
 								'vertical-align':'top',
-								width:'75px',
+								width:'calc(75px + 6px)',
 								'border-left':'6px solid #fdfdfd',
 							}}>
 								<img src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} style={{width:'75px',height:'112.5px'}}/>
@@ -205,15 +205,13 @@ export class Item extends React.Component{
 						null
 				}
 
-				<div style={{
-					'display': 'inline-block',
-    				'width': 'calc((100% - 175px))',
-    				'vertical-align': 'top',
-    				'height': '100%',
-    				'border-left-style': 'solid',
-    				'border-left-color': '#fdfdfd',
-    				'border-left-width': '6px',
-				}}>
+				<div 
+					className={ItemStyles.sourceInfo} 
+					style={
+						this.props.webAppView !== OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
+								({'width': 'calc((100% - 181px))'}) : 
+								({})
+					}>
 					<div className={ItemStyles.itemBrandBlock} href={brandLink} target="_blank">
 						<div style={itemCellContainer}>
 							<div style={{'font-family': '\'Archivo Black\', sans-serif'}}>	

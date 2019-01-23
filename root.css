@@ -110,6 +110,16 @@ div{
 	font-size: 100%;
 }
 
+:local(.logo_svg){
+	position: absolute;
+    /* display: inline-block; */
+    width: auto;
+    height: 100%;
+    margin-left: 300px;
+    padding-top: 12.5px;
+    padding-bottom: 12.5px;
+}
+
 :local(.metricBlock){
 	/*composes: stdBlock;*/
 	border-bottom-style: none;
@@ -129,6 +139,7 @@ div{
 	composes: stdBlock;
 	grid-area: preview;
 	padding: 0px;
+	height: calc(100% - 80px);
 	/*background-color: rgba(28, 32, 35, 0);*/
 }
 

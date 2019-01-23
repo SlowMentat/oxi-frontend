@@ -31,6 +31,14 @@ export class Outfit extends React.Component{
 		if(this.props.coverpicuri !== null  && this.props.coverpicuri !== undefined) this.props.getCoverPic(this.props.coverpicuri, this._handleImageReceived, 'small');
 	}
 
+	componentDidUpdate(prevProps){
+		console.log('this.prosp.coverpicuri = ', this.props.coverpicuri);
+		console.log('prevProps.coverpicuri = ', prevProps.coverpicuri);
+		if(this.props.coverpicuri !== prevProps.coverpicuri){
+			this.props.getCoverPic(this.props.coverpicuri, this._handleImageReceived, 'small');
+		}
+	}
+
 	_handleOnClick(event){
 		switch(this.props.webAppView){
 			case OxiAppConstants.navRequestMap.home.toLowerCase():
@@ -82,6 +90,13 @@ export class Outfit extends React.Component{
 	}
 
 	render(){
+		console.log('Outfit(id = ', this.props.id, ')')
+		/*if(this.props.id === this.props.modifiedOutfitProperites.id){
+			console.log(`modifiedOutfitProperites.coverpicuri = ${this.props.modifiedOutfitProperites.coverpicuri}, \n this.props.coverpicuri = ${this.props.coverpicuri}`);
+			if(this.props.modifiedOutfitProperites.coverpicuri !== this.props.coverpicuri){
+				this.props.getCoverPic(this.props.modifiedOutfitProperites.coverpicuri, this._handleImageReceived, 'small')
+			}
+		}*/
 		let contextualStyles = null;
 		let outfitHeight = this.props.containerHeight/3;
 		let outfitWidth = outfitHeight*(2/3);

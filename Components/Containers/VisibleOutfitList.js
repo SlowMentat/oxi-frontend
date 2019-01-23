@@ -17,7 +17,9 @@ import {
 	selectContent,
 	addItem,
 	clientInvalidateEntities,
-	addItemContent
+	addItemContent,
+	patchEntity,
+	updateOutfitCoverpicuri,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -46,7 +48,6 @@ const mapStateToProps = (state, props) => {
 		selectedContentId : state.entitiesStateReducer.contents.selected,
 		items : state.entitiesReducer.items.byIds,
 
-
 		currentPage: state.entitiesStateReducer.outfits.currentPage,
 		lastPage: state.entitiesStateReducer.outfits.lastPage,
 		isFetching: state.entitiesStateReducer.outfits.isFetching,
@@ -55,6 +56,7 @@ const mapStateToProps = (state, props) => {
 		nextPageURL: state.entitiesStateReducer.outfits.nextPageURL,
 		scrollPageHeight: state.entitiesStateReducer.outfits.scrollPageHeight,
 		pages: state.entitiesReducer.outfits.pages,
+		pictures: state.entitiesReducer.pictures.byIds,
 	});
 }
 
@@ -109,6 +111,14 @@ const mapDispatchToProps = (dispatch, state) => ({
 	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.OUTFIT, page)),
 	setNextPageURL: (URL) => dispatch(setNextPageURL(OxiAppConstants.EntityTypes.OUTFIT, URL)),
 	setPrevPageURL: (URL) => dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.OUTFIT, URL)),
+	changeOutfitCoverPic: (modifiedProperties) => {
+		return new Promise((resolve, reject) => {
+			resolve(dispatch(patchEntity(OxiAppConstants.EntityTypes.OUTFIT, modifiedProperties)));
+		})
+		.then(response => {
+			dispatch(updateOutfitCoverpicuri(modifiedProperties));
+		});
+	}
 })
 
 const VisibleOutfitList = connect(mapStateToProps, mapDispatchToProps)(OutfitList);

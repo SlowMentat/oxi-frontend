@@ -67,7 +67,7 @@ export function buildItemContentsObject(rootEntityType, jsonEntity, currentCount
 		//If joinItemContnet is called to append to the existing itemContents in entitiesReducer, then currentCoutn is set to the count of entitiesReducer.itmeContents
 		//let nextId = currentCount;
 		for(let item of itemsJson){
-			console.log("", currentCount);
+			console.log("currentCount = ", currentCount);
 			if(item != null && item != undefined){
 				result[currentCount] = {
 					id: currentCount, 

@@ -28,7 +28,7 @@ import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js'
 
 const imgStyle = {
 	height: '100%',
-	'max-height': 'calc(100vh - 200px * (3/2))',
+	//'max-height': 'calc(100vh - 200px * (3/2))',
     'max-width': 'calc((100vh - 200px) * 2/3)',
 	display: 'block',
 	'border-radius': '4px',
@@ -48,7 +48,8 @@ const controlContainerStyle = {
 	display: 'inline-flex',
 	padding: '0 10% 0 10%',
     height: 'calc(5vh + 25px)',
-	width:'75%'
+	width:'75%',
+	float: 'right'
 }
 
 
@@ -64,7 +65,7 @@ const ShowContentView = (props) => {
 				addedEntities={props.addedEntities}
 				entitiesStateReducer={props.entitiesStateReducer}
 				contentSelected={props.contentSelected} 
-				outfitSelected={props.outfitSelected} 
+				outfitIdSelected={props.outfitIdSelected} 
 				brands={props.brands} 
 				retailers={props.retailers} 
 				getItemForm={props.getItemForm} 
@@ -86,7 +87,8 @@ const ShowContentView = (props) => {
 				createResponseHandler={props.createResponseHandler}
 				exitEditMode={props.exitEditMode}
 				itemContent={props.itemContent}
-				setupContentViewRef={props.setupContentViewRef}
+				//setupContentViewRef={props.setupContentViewRef}
+				imageElement={props.imageElement}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
@@ -106,7 +108,8 @@ const ShowContentView = (props) => {
 				simulateImageClick={props.simulateImageClick}
 				itemIdHovered={props.itemIdHovered}
 				changeItemHovered={props.changeItemHovered}
-				setupContentViewRef={props.setupContentViewRef}
+				//setupContentViewRef={props.setupContentViewRef}
+				imageElement={props.imageElement}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.EDIT){
@@ -119,7 +122,7 @@ const ShowContentView = (props) => {
 				contents={props.contents} 
 				addedContents={props.addedContents}
 				contentSelected={props.contentSelected} 
-				outfitSelected={props.outfitSelected}
+				outfitIdSelected={props.outfitIdSelected}
 				brands={props.brands}
 				retailers={props.retailers} 
 				getItemForm={props.getItemForm}  
@@ -146,7 +149,8 @@ const ShowContentView = (props) => {
 				createResponseHandler={props.createResponseHandler}
 				exitEditMode={props.exitEditMode}
 				itemContent={props.itemContent}
-				setupContentViewRef={props.setupContentViewRef}
+				//setupContentViewRef={props.setupContentViewRef}
+				imageElement={props.imageElement}
 			/>
 		);
 	}else{
@@ -227,7 +231,7 @@ class ImagePreview extends React.Component{
 		}
 		return (
 			<div style={imgFormStyle}>
-				<div ref={this.props.setupContentViewRef} style={{
+				<div  style={{
 						'position':'relative',
 						'width':'auto',
 						//'padding':'5% 0% 2vh 0%', 
@@ -386,10 +390,12 @@ class ImageAdd extends React.Component{
 				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
 				setupImageRef={this.props.setupImageRef}
+				//setupContentViewRef={this.props.setupContentViewRef}
 				itemMapDimensions={this.props.itemMapDimensions}
 				itemMapDimension={this.props.itemMapDimension}
 				addedEntities={this.props.addedEntities}
 				updateImageDimension={this.props.updateImageDimension}
+				imageElement={this.props.imageElement}
 			/>
 		)
 	}
@@ -910,7 +916,7 @@ class ImageEdit extends React.Component{
 
 		return (
 			<CroppableImageForm 
-				src={this.state.base64Image}
+				src={this.state.base64Image === null ? null : this.state.base64Image.split(',')[1] ? this.state.base64Image : null}
 				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
 
 				/*clientInvalidatedContents={props.invalidatedContents}
@@ -939,10 +945,14 @@ class ImageEdit extends React.Component{
 					)
 				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
+
 				setupImageRef={this.props.setupImageRef}
+				//setupContentViewRef={this.props.setupContentViewRef}
+
 				itemMapDimension={this.props.itemMapDimension}
 				addedEntities={this.props.addedEntities}
 				updateImageDimension={this.props.updateImageDimension}
+				imageElement={this.props.imageElement}
 			/>
 		)
 	}
@@ -1054,7 +1064,7 @@ class ContentView extends React.Component{
 					contents={this.props.contents} 
 					addedContents={this.props.addedContents}
 					contentSelected={this.props.contentSelected} 
-					outfitSelected={this.props.outfitSelected}
+					outfitIdSelected={this.props.outfitIdSelected}
 					getPreviewPic={this.props.getPreviewPic}
 					getItemForm={this.props.getItemForm}
 					getGestureForm={this.props.getGestureForm} 
@@ -1072,8 +1082,10 @@ class ContentView extends React.Component{
 					//putModifiedItems={this.props.putModifiedItems}
 					postAddedItems={this.props.postAddedItems}
 					populateItemsMap={this.props.populateItemsMap}
+
 					setupImageRef={this.setupImageRef}
-					setupContentViewRef={this.setupContentViewRef}
+					//setupContentViewRef={this.setupContentViewRef}
+
 					imageElement={this.image}
 					itemMapDimension={{width: this.props.imageWidth, height: this.props.imageHeight}}
 					updateImageDimension={this.updateImageDimension}
@@ -1083,7 +1095,15 @@ class ContentView extends React.Component{
 					createResponseHandler={this.props.createResponseHandler}
 					exitEditMode={this.props.exitEditMode}
 					itemContent={this.props.itemContent} />
-				<VisibleContentList />
+					<div 
+						style={{
+							width: this.image === undefined ? '0px' : `${this.image.clientWidth}px`,
+							display: this.image === undefined ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
+							float: 'right',
+						}}
+					>
+						<VisibleContentList contentViewImage={this.image}/>
+					</div>
     		</div>
 		);
 	}

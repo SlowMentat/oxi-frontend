@@ -187,6 +187,7 @@ class PagedList extends React.Component{
 	}
 
 	render(){
+		console.log('PagedList')
 		let elementHeight = this.props.id === OxiAppConstants.PageListIds.ITEM_LIST_BROWSE ? 
 								112 :
 								this.props.id === OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST ? 

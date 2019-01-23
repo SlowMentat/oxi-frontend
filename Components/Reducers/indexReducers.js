@@ -57,6 +57,7 @@ import {
 			SET_POSITION_FILTER,
 			SET_VISIBLE_HELP,
 			SET_VISIBLE_FILTER,
+			UPDATE_OUTFIT_COVERPICURI
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -182,6 +183,7 @@ function outfit(state={}, action){
 			return state;
 	}
 }
+
 function byId(state = {}, action){
 	switch(action.type){
 		//action typed performed on "entitiesReducer"
@@ -215,6 +217,19 @@ function byId(state = {}, action){
 				}
 			}
 			return result;
+
+		case `MODIFY_${action.typeSpecifier}_PROPERITIES`:
+			let modifiedObjects = {};
+			for(let targetObjectId of Object.keys(action.payload.modifiedProperties)){
+				modifiedObjects = Object.assign({}, state, {
+					[targetObjectId]: {
+						...state[targetObjectId],
+						...action.payload.modifiedProperties[targetObjectId]
+					}
+				});
+			}
+			console.log(`MODIFY_${action.typeSpecifier}_PROPERITIES:  targetObjectId = `, modifiedObjects);
+			return modifiedObjects;
 
 		default:
 			return state;
@@ -304,9 +319,10 @@ const entities = (maxCount) => (state = {selected: false, controlDisabled : fals
 		allIdsRef = state.allIds;
 	}
 	//Handle action
+	console.log('action.type = ', action.type);
 	switch(action.type){
 		case `CREATE_${action.typeSpecifier}`:
-			let nextCount = state.count + 1;
+			let nextCount = action.typeSpecifier === 'ITEMCONTENT' ? state.count = Object.keys(action.payload.entities).length : state.count + 1;
 			////batch comment//console.log('maxCount' + maxCount);
 			////batch comment//console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
@@ -379,11 +395,17 @@ const entities = (maxCount) => (state = {selected: false, controlDisabled : fals
 				switch(true){
 					//Paging up
 					case (currentPage == (headPageNumber - 1)): 
+					//use object deconstruction to remove deleted page from entitiesReducer.items store
 						const {[`${tailPageNumber}`]:removedIds_A, ...subsetPagesA} = Object.assign({}, state.pages);
 						console.log('removedIds_A = ', removedIds_A)
 						allIdsFiltered = state.allIds.filter(id => !removedIds_A.includes(id));
+						//To preserve previous order of objects in byIds, we need to preemptively set the keys of the expected json payload in the desired order here.
+						let expectedEntities = action.payload[0].reduce((obj, key) => ({ ...obj, [key]: {} }), {});
 						return Object.assign({}, state, {
-							'byIds': allIdsFiltered.reduce((obj, key) => ({ ...obj, [key]: state.byIds[key] }), {}),
+							'byIds': {
+								...expectedEntities, 
+								...allIdsFiltered.reduce((obj, key) => ({ ...obj, [key]: state.byIds[key] }), {})
+							},
 							'allIds': allIdsFiltered,
 							'pages': { 
 								...action.payload, 
@@ -418,6 +440,27 @@ const entities = (maxCount) => (state = {selected: false, controlDisabled : fals
 					}
 				} );
 			}
+
+		case UPDATE_OUTFIT_COVERPICURI:
+			console.log('shalom')
+			return Object.assign({}, state, {
+				'byIds':{
+					...state.byIds,
+					[action.payload.entity.id]: {
+						...state.byIds[action.payload.entity.id],
+						coverpicuri: action.payload.entity.coverpicuri
+					}
+				}
+			});
+
+		case `MODIFY_${action.typeSpecifier}_PROPERITIES`:
+			/*let modifiedEntities = {};
+			for(let modification of action.payload.modifiedProperties){
+				if(state.byIds[modification.targetEntityId]){
+					modifiedEntities[targetEntityId] = Object.assign({}, ...state.byIds[targetEntityId], ...action.payload.modifiedProperties);
+				}
+			}*/
+			return Object.assign( {}, state, {byIds: byId(byIdsRef, action)} );
 
 		default:
 			////batch comment//console.log("no matching case in entities()")

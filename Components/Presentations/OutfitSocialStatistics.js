@@ -12,10 +12,10 @@ import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 export const OutfitSocialStatistics = (props) => (
 	<div className={props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? OutfitStyles.SocialStatsContainer : OutfitStyles.SocialStatsContainerHome} >
 		<div className={OutfitStyles.socialStatsIconContainer} >
-				<SvgIcon className={OutfitStyles.socialStatsIcon} name="HeartIcon" fill="none" stroke="#AAA" />
+				<SvgIcon className={OutfitStyles.socialStatsIcon} name="HeartIcon" fill="none" stroke="#888" strokWidth="13"/>
 		</div>
 		<div className={OutfitStyles.socialStatsIconContainer} >
-				<SvgIcon className={OutfitStyles.socialStatsIcon} name="CommojiIcon" fill="none" stroke="#AAA" />
+				<SvgIcon className={OutfitStyles.socialStatsIcon} name="CommojiIcon" fill="none" stroke="#888"/>
 		</div>
 	</div>
 );

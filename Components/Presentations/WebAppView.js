@@ -13,6 +13,8 @@ import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js'
 import MetricTitleContainer from '../../Components/Containers/MetricTitleContainer.js';
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
+import ProfileControlContainer from '../../Components/Containers/ProfileControlContainer.js';
+import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 
 //Presentation Component 
 //Constants
@@ -34,11 +36,23 @@ const bannerTitleImg = {
     'margin-top': '10px'
 }
 
-function SiteNav(navEventCallbacks){		
+const logo_svg = {
+	'position':' absolute',
+    'width':' auto',
+    'height':' 100%',
+    'margin-left':' 300px',
+    'padding-top':' 12.5px',
+    'padding-bottom':' 12.5px',
+}
+
+function SiteNav(navEventCallbacks, webAppView){		
     return(
     	<div className={Styles.headerBlock}>
-    		<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>
-    		<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} callBacks={navEventCallbacks}/>
+    		<SvgIcon name='LogoIcon' style={logo_svg}/>
+    		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
+    		<div className={NavStyles.navBanner_div}>
+    			<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} callBacks={navEventCallbacks} webAppView={webAppView}/>
+    		</div>
     	</div>
 	);
 }
@@ -48,19 +62,39 @@ class Nav extends React.Component{
 		super(props);
 		const blocks = this.props.blocks;
 		this.state = {
-			blockList: []
+			blockList: [],
+			selected: null
 		};
 
 		this.__handleClick  = this.__handleClick.bind(this);
 
 		let percentWidth = 100 / this.state.blockList.length;
-		this.state.blockList = blocks.map((block) => {
-			return(
-				<div key={block.toString()} className={NavStyles.stdNavButtonBlock} style={{width:'20%','padding-top':'45px'}} onClick={this.props.callBacks.navEventCallbacks[block.toString()]}>
-					{OxiAppConstants.navRequestMap[block.toString()]} 
-				</div>
-			)
-		});
+		this.state.blockList = (
+			<div className={NavStyles.stdNavButtonContiner_div}>
+				{
+					blocks.map((block) => {
+					console.log('block = ', block);
+					return(
+							<div 
+								key={block.toString()} 
+								className={NavStyles.stdNavButtonBlock} 
+								onClick={() => {
+									this.setState(prevState => ({
+										selected: block.toString()
+									}));
+									this.props.callBacks.navEventCallbacks[block.toString()]();
+								}}
+							>
+								<div 
+									className={this.props.webAppView != this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']} 
+								>
+									{ OxiAppConstants.navRequestMap[block.toString()] } 
+								</div>
+							</div>)
+					})
+				}
+			</div>
+		);
 	}
 
 	componentDidMount(){
@@ -84,8 +118,8 @@ class Nav extends React.Component{
 		console.log("navEventCallbacks");
 		console.log(this.props.callBacks);
 		return(
-			<div className={NavStyles.navContainer}>
-				<div className={NavStyles.center}>
+			<div style={{height:'100%'}}>
+				<div style={{height:'100%'}}>
 					{this.state.blockList}
 				</div>
 			</div>			
@@ -181,7 +215,10 @@ class MetricPanel extends React.Component{
     				'border-color': '#6d6d6d',
     				'margin-right':'-1px',
 				}}>
-					<BrowseControlContainer/>
+					{this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
+						<ProfileControlContainer /> :
+						<BrowseControlContainer />
+					}
 
 				</div>
 				<MetricTitleContainer />
@@ -344,14 +381,14 @@ export default class webAppView extends React.Component {
 			case "landing":
 				return(
 					<div>
-						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
+						<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
 						<LandingPageContainer/>
 					</div>
 				);
 			case "home":
 				return(
 					<div>
-						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
+						<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div className={Styles.containerBrowse}>
 								<div className={Styles.metricsContainer_div}>
@@ -370,7 +407,7 @@ export default class webAppView extends React.Component {
 			case "profile":
 				return(
 					<div>
-						<SiteNav navEventCallbacks={this.props.navEventCallbacks}/>
+						<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
 						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 							<div 
 								className={Styles.containerProfile} 
@@ -380,7 +417,7 @@ export default class webAppView extends React.Component {
 										null
 								}
 							>								
-								<MetricPanel />
+								<MetricPanel webAppView={this.props.webAppView}/>
 								<VisibleItemList 
 									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
 									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 

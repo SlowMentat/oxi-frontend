@@ -1,6 +1,6 @@
 :local(.contentContainer) {
 	composes:stdBlock from './root.css';
-	/*display:inline-block;*/
+	display:inline-block;
 	/*border-radius: 2px;*/
 	height:80px;
 	/*width:50%;*/
@@ -9,12 +9,34 @@
 	vertical-align: top;
     text-align: center;
 
-    width: 60%;
+    width: 100%;
     margin: auto;
     /*border-style: solid;
     border-width: 2px;
     border-radius: 5px;
     border-color: #212121;*/
+}
+
+:local(.stdCotnentBulletContainer_div){
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: 20%;
+}
+
+:local(.stdContentBullet_div){
+    height: 10px;
+    width: 10px;
+    background-color: #a1a1a1;
+    border-radius:2px;
+    margin-top: calc(34px - 5px);
+}
+
+:local(.contentBullet_div--selected){
+    composes:stdContentBullet_div;
+    height:15px;
+    width:15px;
+    margin-top: calc(34px - 7.5px);
 }
 
 :local(.stdContentBlock){

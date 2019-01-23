@@ -34,7 +34,11 @@ import {
 	clearClientInvalidation,
 	batchRequestEntities,
 	clearSelectMultipleEntity,
-	putRemoveItems
+	putRemoveItems,
+	modifyOutfit,
+	patchEntity,
+	updateOutfitCoverpicuri,
+	modifyEntityProperties
 	
 } from '../../Components/Actions/indexActions.js';
 import {
@@ -61,7 +65,8 @@ const mapStateToProps = (state, props) => {
 		itemContent: state.entitiesReducer.itemContent,
 		//contentSelected : state.viewState.shownContentId
 		contentSelected : state.entitiesStateReducer.contents.selected,
-		outfitSelected : state.entitiesStateReducer.outfits.selected,
+		outfitIdSelected : state.entitiesStateReducer.outfits.selected,
+		outfitEditting:  state.addedEntitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected],
 		//isVisible: state.shownContentView.shownContentView
 		addedEntities : state.addedEntitiesReducer,
 		entitiesStateReducer : state.entitiesStateReducer,
@@ -327,7 +332,7 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 		let normalizedJson = normalize(responseData, schema);
 		console.log('ContentContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
 		const selectAddedContentId = (dispatch, schemaType) => {
-			let addedContentIds = [];
+			let createdContentIds = [];
 			let entityType = "";
 			switch(schemaType){
 				//response data is of type outfit
@@ -337,19 +342,38 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 						for(let existingContentId of addedEntities.contents.allIds){
 							if(content.id === existingContentId) break;
 						}
-						addedContentIds = [...addedContentIds, content.id];
+						createdContentIds = [...createdContentIds, content.id];
 					}
 					entityType = OxiAppConstants.EntityTypes.OUTFIT;
 					break;
 				//response data is of type content
-				case OxiAppConstants.JsonPropertyNames.CONTENT:	
+				case OxiAppConstants.JsonPropertyNames.CONTENT:						
 					//find the new content id
+					let prevOutfitId = null;
+					let outfitModifications = {};
+					let existingContentIds = addedEntities.contents.allIds.filter(id => typeof id === 'string');
 					for(let content of responseData){
-						for(let existingContentId of addedEntities.contents.allIds){
+						for(let existingContentId of existingContentIds){
 							if(content.id === existingContentId) break;
+							//Add the new content id to its parent outfit's contents property
+							/*if(content.outfitId !== prevOutfitId){
+								dispatch(replaceOutfits( [Object.assign( {}, addedEntities.outfits.byIds[content.outfitId], {
+									contents: [...addedEntities.outfits.byIds[content.outfitId].contents, content.id]
+								} )] ));
+								prevOutfitId = content.outfitId;
+							}*/
 						}
-						addedContentIds = [...addedContentIds, content.id];
+
+						createdContentIds = [...createdContentIds, content.id];
+						//build action payload to modify entitiesReducer.outfits contents property to include new content id
+						outfitModifications = Object.assign({}, outfitModifications, {
+							[content.outfitId]:{
+								contents:[...existingContentIds, ...createdContentIds]
+							}
+						});
 					}
+
+					dispatch(modifyEntityProperties(OxiAppConstants.EntityTypes.OUTFIT, outfitModifications));
 					entityType = OxiAppConstants.EntityTypes.CONTENT;
 					break;
 				default:
@@ -358,8 +382,8 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 			dispatch(selectAndPropogate(
 				OxiAppConstants.EntityTypes.OUTFIT, 
 				(/*response.data.id || */entitiesStateReducer.outfits.selected),
-				(addedContentIds.length > 0 ? addedContentIds[0] :  null)));
-			return addedContentIds;
+				(createdContentIds.length > 0 ? createdContentIds[0] :  null)));
+			return createdContentIds;
 		}
 
 		//Remove all entities from addedEntitiesReducer

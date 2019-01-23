@@ -124,7 +124,7 @@ const mapDispatchToProps = dispatch => ({
 		//clear items.mulltipleSelected
 		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
 	},
-	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds))
+	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds)),
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

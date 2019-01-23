@@ -1,8 +1,10 @@
 import React from 'react';
 import ContentStyles from '../../content.css';
+import outfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 import Content from './Content.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {AddContentButton} from './AddContentButton.js';
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 class ContentList extends React.Component {
 	constructor(props) {
@@ -174,42 +176,44 @@ class ContentList extends React.Component {
 			}
 		}
 
-		return (
-		    <div className={ContentStyles.contentContainer}>
-		    	<AddContentButton shown={this.props.viewState != OxiAppConstants.PREVIEW} enabled={!this.props.controlDisabled} handleClick={this.props.onControlClick}/>
-		    	{this.props.contentIds.map((contentId) => 
-		    		<Content 
-			    		key = {contentId}
-			    		{...this.props.contents[contentId]} 
-		    			id={contentId}
-			    		onClick={this.props.onClick} 
-			    		isControl={false} 
-			    		selectedId={this.props.selectedId}
-			    		thumbnail={this.props.pictureIds[this.props.contents[contentId].picture].thumbnailuri} 
-			    		getCoverPic={this.props.getCoverPic}
-		    		/>
-		    	)}
-		    	{this.props.addedContentIds.map((contentId) => 
-		    		<Content 
-			    		key = {contentId}
-			    		{...this.props.addedContents[contentId]} 
-		    			id={contentId}
-			    		//onClick={onClickAddedContent}		    		
-			    		onClick={this.props.onClick} 
-			    		isControl={false} 
-			    		thumbnail={//TODO: this may not be necessary
-			    			(this.props.addedContents[contentId] === undefined) ? undefined : 
-			    				(this.props.addedContents[contentId].coverpicuri === null) ? this.props.pictureIds[this.props.addedContents[contentId].picture].thumbnailuri : 
-			    					this.props.addedContents[contentId].coverpicuri
-			    		} 
-			    		getCoverPic={this.props.getCoverPic}
-			    		selectedId={this.props.selectedId}
-			    		addedItemIds={this.props.addedItemIds}
-			    		modifyContentItems={this.props.modifyContentItems}
-			    		addedContents = {this.props.addedContents}
-		    		/>
-		    	)}
-		    </div>
+		return (			
+		    <React.Fragment>
+		    	<div className={ContentStyles.contentContainer}>
+		    		<AddContentButton shown={this.props.viewState != OxiAppConstants.PREVIEW} enabled={!this.props.controlDisabled} handleClick={this.props.onControlClick}/>
+		    		{this.props.contentIds.map((contentId) => 
+		    			<Content 
+				    		key = {contentId}
+				    		{...this.props.contents[contentId]} 
+		    				id={contentId}
+				    		onClick={this.props.onClick} 
+				    		isControl={false} 
+				    		selectedId={this.props.selectedId}
+				    		thumbnail={this.props.pictureIds[this.props.contents[contentId].picture].thumbnailuri} 
+				    		getCoverPic={this.props.getCoverPic}
+		    			/>
+		    		)}
+		    		{this.props.addedContentIds.map((contentId) => 
+		    			<Content 
+				    		key = {contentId}
+				    		{...this.props.addedContents[contentId]} 
+		    				id={contentId}
+				    		//onClick={onClickAddedContent}		    		
+				    		onClick={this.props.onClick} 
+				    		isControl={false} 
+				    		thumbnail={//TODO: this may not be necessary
+				    			(this.props.addedContents[contentId] === undefined) ? undefined : 
+				    				(this.props.addedContents[contentId].coverpicuri === null) ? this.props.pictureIds[this.props.addedContents[contentId].picture].thumbnailuri : 
+				    					this.props.addedContents[contentId].coverpicuri
+				    		} 
+				    		getCoverPic={this.props.getCoverPic}
+				    		selectedId={this.props.selectedId}
+				    		addedItemIds={this.props.addedItemIds}
+				    		modifyContentItems={this.props.modifyContentItems}
+				    		addedContents = {this.props.addedContents}
+		    			/>
+		    		)}
+		    	</div>
+		    </React.Fragment>
 		);
 	}
 }
