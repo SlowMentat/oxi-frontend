@@ -44,13 +44,6 @@ const imgFormStyle = {
 	overflow: 'hidden'
 }
 
-const controlContainerStyle = {
-	display: 'inline-flex',
-	padding: '0 10% 0 10%',
-    height: 'calc(5vh + 25px)',
-	width:'75%',
-	float: 'right'
-}
 
 
 const ShowContentView = (props) => {
@@ -240,7 +233,7 @@ class ImagePreview extends React.Component{
 						'max-height':'100%', 
 						'height':'100%'
 					}}>
-					<img src={this.state.base64Image} style={imgStyle} ref={this.props.setupImageRef} onLoad={() => this._handleImgLoad(event)}/>
+					<img src={this.state.base64Image} style={imgStyle} ref={this.props.setupImageRef} onLoad={(event) => this._handleImgLoad(event)}/>
 					<ItemLocationMap 
 						visibleItemsMap={this.props.visibleItemsMap} 
 						viewState={this.props.viewContext} 
@@ -249,7 +242,7 @@ class ImagePreview extends React.Component{
 
 						itemIdHovered={this.props.itemIdHovered}
 						changeItemHovered={this.props.changeItemHovered}/>	
-					/>
+					
 				</div>
 			</div>
 		)
@@ -369,7 +362,6 @@ class ImageAdd extends React.Component{
 				imgStyle={imgStyle}
 				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
 				imgFormStyle={imgFormStyle}
-				controlContainerStyle={controlContainerStyle}
 				imgFormControlStyle={FormStyles.imgFormControlStyle}
 				postAddedOutfit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
@@ -925,7 +917,6 @@ class ImageEdit extends React.Component{
 
 				imgStyle={imgStyle}
 				imgFormStyle={imgFormStyle}
-				controlContainerStyle={controlContainerStyle}
 				imgFormControlStyle={FormStyles.imgFormControlStyle}
 				postAddedOutfit={this._handleSubmit}
 				onImageClick={this._handleImgClick}

@@ -5,6 +5,7 @@ import Media from "react-media";
 
 //Presentation Components
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js'
+import { SiteNav } from '../../Components/Presentations/WebAppView.js'
 
 //SVG Assets
 import FemaleFront from '../../Components/SvgAssets/FemaleFront.js'
@@ -17,40 +18,31 @@ import FemaleSideVertMirrored from '../../Components/SvgAssets/FemaleSideVertMir
 //Third Party
 import fetch from 'cross-fetch'
 import axios from 'axios';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 //CSS Styles
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
 import FormStyles from '../../forms.css';
+import CreateAccountStyles from '../../createAccount.css';
+import ProfileMenuStyles from '../../profileMenu.css';
 
 //Constants
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //SVG
 import {stepOne} from '../../Content/SvgLandingPage'
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 const descriptionContainerStyle = {
 	'font-family': 'Comfortaa, cursive',
 	'text-align':'center',
-	'width':'600px',
+	'width':'800px',
 	'margin':'auto',
 	'padding-top':'110px',
-	'padding-bottom':'50px',
+	//'padding-bottom':'50px',
 	'color':'#fdfdfd',
 	'background-color':'#212121'
-}
-
-const getStartedContainerStyle = {
-	'font-family': 'Comfortaa, cursive',
-	'width':'550px',
-	'margin':'auto',
-	'margin-top':'160px',
-    'padding': '20px',
-    'border-width': '2px',
-    'border-color': '#d8d8d8',
-    'border-style': 'solid',
-    'border-radius':'6px',
-    'height': '360px'
 }
 
 const getStartedStyle = {
@@ -66,40 +58,12 @@ const getStartedStyle = {
     'width':'120px'
 }
 
-const formContentStyle = {
-    'margin': 'auto'
-}
-
 const inputTextProfileStyle = {
 	'font-size':'30px'
 }
 
-const inputTextContainer = {
-	'text-align':'center',
-	'margin':'auto',
-	'margin-top':'15px',
-	'border-radius': '4px',
-    'border-width': '1px',
-    'border-color': '#434343',
-    'border-style': 'solid',
-    'width':'60%'
-}
-
 const inputTextProfileForm = {
 
-}
-
-const inputTextContainerProfileFrm = {
-	'text-align':'center',
-	'display':'inline-block',
-	'margin':'auto',
-	'margin-top':'8px',
-	'margin-right':'10px',
-	'border-radius': '3px',
-    'border-width': '1px',
-    'border-color': '#434343',
-    'border-style': 'solid',
-    'width':'25%'	
 }
 
 const submitBtnStyle = {
@@ -128,40 +92,48 @@ const Description = (props) => (
 	<div style={descriptionContainerStyle}>
 		<div>  </div>
 		<div>
-			<div style={{'margin-top':'65px','margin-bottom':'25px','font-size':'30px'}}> Shop your style that fits your body </div>
-			<div style={{'font-size':'20px'}}> Upload • Discover • Compare • Buy </div>
+			<div style={{
+				'margin-bottom':'2.5em',
+				'font-size':'30px',
+				'font-family': 'sans-serif'
+			}}>  
+				Join the community of shoppers, designers, and retailers. 
+			</div>
 		</div>
 	</div>
 );
 
-const InputTextField = ({containerStyle, inputStyle, type, name, onChange, placeholder, value, onSelect}) => (
-	<div style={containerStyle}>
-		{type} <input 
-			value={value}
-			type="text" 
-			name={name} 
-			placeholder={placeholder} 
-			onChange={onChange} 
-			style={inputStyle}
-			onFocus={onSelect}
-		/>
-	</div>	
-);
+const InputTextField = ({props}) => {
+	return(
+		<div className={props.containerStyle}>
+			{props.type} <input 
+				//pattern={props.name === 'password' ? "(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" : null}
+				value={props.value}
+				type="text" 
+				name={props.name} 
+				placeholder={props.placeholder} 
+				onChange={props.onChange} 
+				className={props.inputStyle}
+				style={props.selectedFieldName === props.name ? ({'border-color':'white'}) : ({})}
+				onFocus={props.onSelect} />
+		</div>	
+	);
+};
 
-const InputNumberField = ({containerStyle, inputStyle, type, name, onChange, placeholder, value, onSelect}) => (
-	<div style={containerStyle}>
-		{type} <input 
+const InputNumberField = ({props}) => (
+	<div className={props.containerStyle}>
+		{props.type} <input 
 			id="measurementField"
-			value={value}
+			value={props.value}
 			type="number"
 			step="0.01"
 			min="0"
 			max="999.99" 
-			name={name} 
-			placeholder={placeholder} 
-			onChange={onChange} 
-			style={inputStyle}
-			onFocus={onSelect}
+			name={props.name} 
+			placeholder={props.placeholder} 
+			onChange={props.onChange} 
+			className={props.inputStyle}
+			onFocus={props.onSelect}
 		/>
 	</div>	
 );
@@ -179,11 +151,97 @@ const CheckBox = (props) => (
 //make sure to perfom server side validation
 function validateEmail(email) {
     //var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
+    console.log('hello')
     //regular expression that accepts unicode
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return re.test(String(email).toLowerCase());
 }
+
+
+
+function validateUsername(email) {
+	//make a GET request with username to server to verify uniqueness
+}
+
+const CreateAccountField = ({props}) => (
+	<div className={CreateAccountStyles.inputContainer_div}>
+		<InputTextField props={{
+			containerStyle: CreateAccountStyles.inputTextContainer_div, 
+			inputStyle: CreateAccountStyles.inputText_input, 
+			name: props.name, 
+			placeholder: props.placeholder, 
+			onChange: props.onChange,
+			onSelect: props.onSelect,
+			selectedFieldName: props.selectedFieldName
+		}}/>
+		<div className={CreateAccountStyles.validatorIconContainer_div}>
+			<div className={CreateAccountStyles.validatorIcon_div}>
+				{
+					props.isValid ? 
+						<SvgIcon name='OkIcon' fill='#6dd7b4'/> :
+						<div style={{
+							width:'10px', 
+							height:'10px', 
+							'border-radius':'5px', 
+							'background-color':'#b46262', 
+							position:'absolute', 
+							top: '10px',
+							left: 't0px'
+						}} />
+				}
+			</div>
+		</div>
+	</div>
+);
+
+const InvalidPasswordPrompt = ({props}) => (
+	<div className={CreateAccountStyles.invalidInputPrompt_div}>
+		{
+			!props.validPasswordLength ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 10 characters
+						</div>
+					</div>
+				) : 
+				null
+		}
+		{
+			!props.validPasswordUppercase ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 1 uppercase character
+						</div>
+					</div>
+				) : 
+				null
+		}
+		{
+			!props.validPasswordLowercase ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 1 lowercase character
+						</div>
+					</div>
+				) : 
+				null
+		}
+		{
+			!props.validPasswordNumber ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 1 number
+						</div>
+					</div>
+				) : 
+				null
+		}
+	</div>
+)
 
 class GetStarted extends React.Component{
 	constructor(props){
@@ -192,15 +250,25 @@ class GetStarted extends React.Component{
 			'email':'',
 			'password':'',
 			'username':'',
-			'validEmailSyntax':false
+			'validEmailSyntax': false,
+			'validPasswordLength': false,
+			'validPasswordUppercase': false,
+			'validPasswordNumber': false,
+			'validPasswordLowercase': false,
+			'validUsername': true,
+			'selectedFieldName': ''
 		};
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
+		this._handleInputSelect = this._handleInputSelect.bind(this);
+		this.validatePassword = this.validatePassword.bind(this);
 	}
 
 	_handleOnSubmit(){
 		console.log("\"Creat Profile\" clicked");
-		if(this.state.validEmailSyntax) this.props.createUser(this.state.email, this.state.password, this.state.username);
+		if(this.state.validEmailSyntax && 
+			(this.state.validPasswordLength && this.state.validPasswordLowercase && this.state.validPasswordNumber && this.state.validPasswordUppercase) && 
+			this.state.validUsername) this.props.createUser(this.state.email, this.state.password, this.state.username);
 		//Clear email password and username from react state
 		this.setState({
 			'email':'',
@@ -209,47 +277,140 @@ class GetStarted extends React.Component{
 		});
 	}
 
-	_handleInputFieldChange(e, field){
+	validatePassword(password) {
+		let validPasswordLength = false;
+		let validPasswordUppercase = false;
+		let validPasswordNumber = false;
+		let validPasswordLowercase = false;
+		//At least one lowercase character
+		if ((/[a-z]/g).test(password)){
+			validPasswordLowercase = true
+		}
+		//At least one uppercase character
+		if ((/[A-Z]/g).test(password)){
+			validPasswordUppercase = true;
+		}
+		//At least one digit in password
+		if ((/[0-9]/g).test(password)){
+			validPasswordNumber = true
+		}
+		//At least 10 characters long
+		if (password.length >= 10){
+			validPasswordLength = true;
+		}
+
+		this.setState(prevState => ({
+			'validPasswordLength': validPasswordLength,
+			'validPasswordUppercase': validPasswordUppercase,
+			'validPasswordNumber': validPasswordNumber,
+			'validPasswordLowercase': validPasswordLowercase,			
+		}));
+	}
+
+	_handleInputFieldChange(field, e){
 		this.setState({
 			[field]:e.target.value
 		});
-		if(validateEmail(e.target.value)){
-			this.setState({'validEmailSyntax':true});
+		console.log('type = ', typeof e.target.value);
+		switch(field){
+			case 'email':
+				if(validateEmail(e.target.value)){
+					this.setState({'validEmailSyntax': true})
+				} else {
+					console.log('unsuccess')
+					this.setState({'validEmailSyntax': false})
+				}
+				break;
+			case 'password':
+				this.validatePassword(e.target.value);
+				break;
+			case 'username':
+				/*if(validateUsername(e.target.value)){
+					this.setState({'validUsername': true})
+				} else {
+					this.setState({'validUsername': false})
+				}*/
+				break;
+			default:
+				break
 		}
+	}
+
+	_handleInputSelect(name, e){
+		console.log('_handleInputSelect triggered')
+		this.setState(prevState => ({
+			selectedFieldName: name
+		}))
 	}
 
 	render(){
 		return(
 			<div>
-				<div style={getStartedContainerStyle}>
-					<div style={getStartedStyle}> Get Started </div>
+				<div className={CreateAccountStyles.accountFormContainer_div}>
 					<div>
 						<form action="" method="POST">
-							<div style={formContentStyle}>
-								<InputTextField 
-									containerStyle={inputTextContainer} 
-									inputStyle={{'width':'90%','text-align':'center','font-size':'20px','outline':'none'}} 
-									name="email" 
-									placeholder="Email" 
-									onChange={() => {this._handleInputFieldChange(event, 'email')}}
-								/>
-								<InputTextField 
-									containerStyle={inputTextContainer} 
-									inputStyle={{'width':'90%','text-align':'center','font-size':'20px','outline':'none'}} 
-									name="password" 
-									placeholder="Password" 
-									onChange={() => {this._handleInputFieldChange(event, 'password')}}
-								/>
-								<InputTextField 
-									containerStyle={inputTextContainer} 
-									inputStyle={{'width':'90%','text-align':'center','font-size':'20px','outline':'none'}} 
-									name="username" 
-									placeholder="Username" 
-									onChange={() => {this._handleInputFieldChange(event, 'username')}}
-								/>
-								<div style={submitBtnStyle}>
-									<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-										Create Account
+							<div className={CreateAccountStyles.formContent_div}>
+								<CreateAccountField 
+									props={{
+										name:'email', 
+										placeholder:'Email', 
+										onChange: (e) => this._handleInputFieldChange('email', e),
+										selectedFieldName: this.state.selectedFieldName,
+										onSelect: (e) => this._handleInputSelect('email', e),
+										isValid: this.state.validEmailSyntax
+									}}/>
+								<CreateAccountField 
+									props={{
+										name:'password', 
+										placeholder:'Password', 
+										onChange: (e) => this._handleInputFieldChange('password', e),
+										selectedFieldName: this.state.selectedFieldName,
+										onSelect: (e) => this._handleInputSelect('password', e),
+										isValid: (this.state.validPasswordLength && this.state.validPasswordLowercase && this.state.validPasswordNumber && this.state.validPasswordUppercase)
+									}}/>
+								<div style={{height:'68px', 'padding-top':'10px'}}>
+									{
+										!(this.state.validPasswordLength && this.state.validPasswordLowercase && this.state.validPasswordNumber && this.state.validPasswordUppercase) ?
+											<InvalidPasswordPrompt props={{
+												validPasswordLength: this.state.validPasswordLength,
+												validPasswordUppercase: this.state.validPasswordUppercase,
+												validPasswordLowercase: this.state.validPasswordLowercase,
+												validPasswordNumber: this.state.validPasswordNumber
+											}}/> :
+											null
+									}
+								</div>
+								<CreateAccountField 
+									props={{
+										name:'username', 
+										placeholder:'Username', 
+										onChange: (e) => this._handleInputFieldChange('username',e),
+										selectedFieldName: this.state.selectedFieldName,
+										onSelect: (e) => this._handleInputSelect('username', e),
+										isValid: this.state.validUsername
+									}}/>
+								<div className={CreateAccountStyles.inputContainer_div} style={{'margin-top':'35px', 'height':'30px'}}>
+									<div className={CreateAccountStyles.inputTextContainer_div}>
+										<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
+											<div className={CreateAccountStyles.inputAcceptTerms_div}>
+												<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
+												</input>
+											</div>
+										</div>
+										<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
+											<div className={CreateAccountStyles.textAcceptTerms_div}>
+												I agree to the Wearsit Terms of Service
+											</div>
+										</div>
+									</div>
+									<div className={CreateAccountStyles.validatorIconContainer_div}>										
+										<div className={CreateAccountStyles.submitBtnContainer_div}>
+											<div
+												className={CreateAccountStyles.submitBtn_div} 
+												onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
+												Continue
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -275,24 +436,17 @@ class ProfileFieldWrapper extends React.Component{
 	render(){
 		return(
 			<div>
-				<div style={{'width':'100%','margin':'auto','text-align':'left','display':'inline-block'}}>
-					<InputNumberField 
-						containerStyle={inputTextContainerProfileFrm} 
-						inputStyle={{
-							'width':'80%',
-							'text-align':'center',
-							'font-size':'15px',
-							'outline':'none',
-							'color': '#212121',
-							'background-color': '#fdfdfd',
-						}} 
-						name={this.props.field}
-						placeholder="" 
-						value={this.props.value}
-						onChange={() => {this.props.callback()}}
-						onSelect={this.props.onSelect}
-					/>
-					<div style={{'display':'inline-block'}}>
+				<div className={ProfileMenuStyles.inputNumberContainer_div} style={this.props.style || {}}>
+					<InputNumberField props={{
+						containerStyle: ProfileMenuStyles.inputNumber_div,
+						inputStyle: ProfileMenuStyles.inputNumber_input,
+						name: this.props.field,
+						placeholder: "",
+						value: this.props.value,
+						onChange:() => this.props.callback(),
+						onSelect:this.props.onSelect,
+					}}/>
+					<div className={ProfileMenuStyles.inputNumberLabel_div}>
 						{this.props.field}
 					</div>
 				</div>
@@ -366,6 +520,9 @@ class ProfileMenu extends React.Component{
 	constructor(props){
 		super(props);
 		console.log(this.props.test);
+		this.menuPage1 = 'Measurements';
+		this.menuPage2 = 'Tolerance';
+
 		if(!this.props.test){
 			this.state = {
 				'profileData':{
@@ -377,6 +534,7 @@ class ProfileMenu extends React.Component{
 				}
 			}
 		}
+
 		//Hydrate all profile fields with a random float.  Used for creating test profiles.
 		//Generated values in inches :)
 		else{
@@ -386,6 +544,7 @@ class ProfileMenu extends React.Component{
 			this.state = {
 				'prevSelectedField':'',
 				'selectedField':'',
+				'fieldListTitle':this.menuPage1,
 				'profileData':{
 					'username':this.props.profile.username,
 					'bodyShape': 'female',
@@ -405,15 +564,18 @@ class ProfileMenu extends React.Component{
 					'pantOutseam':(Math.random() * height),
 					'thigh':(Math.random() * height),
 					'calf':(Math.random() * height)
-				}				
+				}			
 			}
 		}
+
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
 		this._handleRadioToggled = this._handleRadioToggled.bind(this);
 		this._handleBoxChecked = this._handleBoxChecked.bind(this);
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
 		this._handleFieldFocus = this._handleFieldFocus.bind(this);
 		this._handleFieldBlur = this._handleFieldBlur.bind(this);
+		this._goToMeasurments = this._goToMeasurments.bind(this);
+		this._goToTolerance = this._goToTolerance.bind(this);
 	}
 
 	_handleInputFieldChange(e, field){
@@ -463,6 +625,18 @@ class ProfileMenu extends React.Component{
 		this.props.postProfile(this.state.profileData);
 	}
 
+	_goToMeasurments(){
+		this.setState(prevState => ({
+			fieldListTitle: this.menuPage1
+		}))
+	}
+
+	_goToTolerance(){
+		this.setState(prevState => ({
+			fieldListTitle: this.menuPage2
+		}))
+	}
+
 	render(){
 		//TODO:  push this to the select in LandingPageConnector.js
 		//This filters what properties to display on the Profile Creation page
@@ -483,148 +657,38 @@ class ProfileMenu extends React.Component{
 				<ProfileFieldWrapper key={field} field={field} value={this.state.profileData[field]} callback={()=>{this._handleInputFieldChange(event, field)}} onSelect={() => this._handleFieldFocus(event)}/>
 			);
 		});
-		let bodyShapeContainer = (this.state.profileData.bodyShape === 'female') ? femaleContainer : maleContainer
+		let bodyShapeContainer = (this.state.profileData.bodyShape === 'female') ? femaleContainer : maleContainer;
 		console.log('bodyShapeContainer = ', bodyShapeContainer);
 		console.log('fieldSet');
 		console.log(fieldSet);
 		return(
-			<Media query="(max-aspect-ratio: 16/9)">
-				{matches => 
-					matches ? (
-						<div>
-							<div id='leftBodyDiagramContainer'>
-								<div style={bodySvgContianerStyles}>
-									{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
-								</div>
-								<div style={bodySvgContianerStyles}>
-									{this.state.profileData.bodyShape === 'male' ? <MaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
-								</div>
-							</div>
-							<div id='fieldList' 
-								style={{
-									'width':'100%',
-									'display':' block',
-									'text-align':'center',
-									'vertical-align':'top',
-									'padding':' 10px',
-									'padding-top':' 30px',
-									'padding-bottom':' 30p',
-									'border-style':'none'
-								}}>
-								<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
-								<div style={{'margin-bottom':'10px'}} >
-									<div>
-										<div>
-											<div id="bodyShape" 
-												style={{
-													'display':'inline-block',
-													'text-align':'left',
-													'margin-right':'10p',
-													'width':'100%'
-												}}>
-												<div id="bodyShapeRadioList" 
-													style={{
-														'display': 'inline-block',
-													  	'text-align': 'center',
-													  	'margin-right': '10px',
-													  	'width': '100%'
-													}}>
-													<div id="female" 
-														style={{																
-														    'display':' inline-block',
-														    'width':'40px',
-														    'margin-right':'10p'
-														}}>
-														<div id='bodyShapeTitle' style={{'font-size': '2em'}}>Female</div>
-														<div id='bodyShapeRadio' 
-															style={
-																this.state.profileData.bodyShape === 'female' 
-																? Object.assign({}, selectedRadioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'}) 
-																: Object.assign({}, radioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'})
-															} 
-															onClick={() => this._handleRadioToggled('female')}></div>
-													</div>
-													<div id="male" 
-														style={{																
-														    'display':' inline-block',
-														    'width':'40px',
-														    'margin-left':'45%'
-														}}>>
-														<div id='bodyShapeTitle' style={{'font-size': '2em'}}>Male</div>
-														<div id='bodyShapeRadio' 
-															style={
-																this.state.profileData.bodyShape === 'male' 
-																? Object.assign({}, selectedRadioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'}) 
-																: Object.assign({}, radioStyle, {'width':'75px','height':'75px','border-radius':'37.5px'})
-															} 
-															onClick={() => this._handleRadioToggled('male')}></div>										
-													</div>
-												</div>
-												<div id="bodyShapeTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
-													Body Shape
-												</div>								
-											</div>
-											<div id="apparelInterest" style={{'text-align':'left','margin-top':'10px'}} >
-												<div id="apperelInterestRadioList" style={radioListStyle}>
-													<div id="womens" style={radioAndCheckContainerStyle}>
-														<div style={radioTitleStyle}>Womens</div>
-														<div style={this.state.profileData.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} ></div>
-													</div>
-													<div id="mens" style={{'display':'inline-block'}}>
-														<div style={radioTitleStyle}>Mens</div>
-														<div style={this.state.profileData.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}></div>
-													</div>
-												</div>
-												<div id="apparelInterestTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
-													Apperel Interest
-												</div>			
-											</div>								
-										</div>
-									</div>
-								</div>
-								<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
-								{fieldSet}
-								<div style={submitBtnStyle}>
-									<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-										Create Profile
-									</div>
-								</div>					
-							</div>
-							<div  id='rightBodyContainer' /*style={{
-								'height':'calc(100vh - 80px)', 
-								'display':'inline-block',
-								'width':'42.5%',
-								'margin-top':'80px',
-								'vertical-align':'top'
-							}}*/>
-								<div style={bodySvgContianerStyles}>
-									{this.state.profileData.bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
-								</div>
-								<div style={bodySvgContianerStyles}>
-									{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.8px"/>}
-								</div>
+			<div>
+				<div style={{							
+    				'display': 'inline-block',
+    				'width': '42.5%',
+    				'vertical-align':'top'
+    			}}>
+					<div id='leftBodyDiagramContainer' style={bodyShapeContainer}>
+						<div style={bodySvgContianerStyles}>
+							{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+						</div>
+						<div style={bodySvgContianerStyles}>
+							{this.state.profileData.bodyShape === 'male' ? <MaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+						</div>
+					</div>
+				</div>
+				<div 
+					//id='fieldList'
+					className={ProfileMenuStyles.fieldList_div}>
+					<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
+						<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
+							<div className={ProfileMenuStyles.fieldListTitle_div} >
+								{ this.state.fieldListTitle }
 							</div>
 						</div>
-					) 
-					: (
-						<div>
-							<div style={{							
-    							'display': 'inline-block',
-    							'width': '42.5%',
-    							'vertical-align':'top'
-    						}}>
-								<div id='leftBodyDiagramContainer' style={bodyShapeContainer}>
-									<div style={bodySvgContianerStyles}>
-										{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
-									</div>
-									<div style={bodySvgContianerStyles}>
-										{this.state.profileData.bodyShape === 'male' ? <MaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSide allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
-									</div>
-								</div>
-							</div>
-							<div id='fieldList'>
-								<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
-								<div style={{'margin-bottom':'10px'}} >
+					</div>
+					<ProfileFieldWrapper field='country' value={this.state.profileData['USA']} callback={()=>{this._handleInputFieldChange(event, 'country')}}/>
+					<div style={{'margin-bottom':'10px'}} >
 									<div>
 										<div>
 											<div id="bodyShape" style={{'text-align':'left', 'margin-top':'10px'}} >
@@ -659,32 +723,45 @@ class ProfileMenu extends React.Component{
 											</div>								
 										</div>
 									</div>
-								</div>
-								<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
-								{fieldSet}
-								<div style={submitBtnStyle}>
-									<div onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-										Create Profile
-									</div>
-								</div>					
-							</div>
-							<div style={{							
-    							'display': 'inline-block',
-    							'width': '42.5%',
-    							'vertical-align':'top'
-							}}>
-								<div  id='rightBodyContainer' style={bodyShapeContainer}>
-									<div style={bodySvgContianerStyles}>
-										{this.state.profileData.bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
-									</div>
-									<div style={bodySvgContianerStyles}>
-										{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
-									</div>
-								</div>
+					</div>
+					<ProfileFieldWrapper field='height' value={this.state.profileData['height']} callback={()=>{this._handleInputFieldChange(event, 'height')}}/>
+					{fieldSet}
+					<div className={ProfileMenuStyles.btnsContainer_div}>
+						<div className={ProfileMenuStyles.btns_div}>
+							{
+								this.state.fieldListTitle === this.menuPage2 ?
+									(
+										<div 
+											onClick={() => {this._goToMeasurments()}} 
+											className={ProfileMenuStyles.goBackBtnText_div}>
+											Back
+										</div>
+									) :
+									null
+							}
+							<div 
+								onClick={() => {this.state.fieldListTitle === this.menuPage1 ? this._goToTolerance() : this._handleOnSubmit()}} 
+								className={ProfileMenuStyles.submitBtnText_div} >
+								{this.state.fieldListTitle === this.menuPage1 ? ('Next') : ('Submit')}
 							</div>
 						</div>
-					)}
-			</Media>
+					</div>					
+				</div>
+				<div style={{							
+    				'display': 'inline-block',
+    				'width': '42.5%',
+    				'vertical-align':'top'
+				}}>
+					<div  id='rightBodyContainer' style={bodyShapeContainer}>
+						<div style={bodySvgContianerStyles}>
+							{this.state.profileData.bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+						</div>
+						<div style={bodySvgContianerStyles}>
+							{this.state.profileData.bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+						</div>
+					</div>
+				</div>
+			</div>
 		);
 	}
 }
@@ -772,6 +849,124 @@ class HowItWorks extends React.Component{
 	}
 }
 
+class CreateAccount extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		return(
+			<div>
+				<div 
+					style={{
+						height: '100vh', 
+						'background-color':'#212121',
+						'padding-top':'200px'
+					}}>
+					<div>
+						<div style={{
+							'width': '800px',
+    						'margin': 'auto',
+    						'padding-left': '50px',
+						}}>
+							<div>
+								<GetStarted style={getStartedStyle} createUser={this.props.createUser}/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
+class Portal extends React.Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			isMouseOver: false
+		}
+
+		this._handleMouseEnter = this._handleMouseEnter.bind(this);
+		this._handleMouseLeave = this._handleMouseLeave.bind(this);
+	}
+
+	_handleMouseEnter(event){
+		this.setState(prevState => ({
+			isMouseOver: true,
+		}))
+	}
+
+	_handleMouseLeave(event){
+		this.setState(prevState => ({
+			isMouseOver: false,
+		}))
+	}
+
+	render(){
+		return(
+			<div
+				onMouseEnter={(event) => this._handleMouseEnter(event)}
+				onMouseLeave={(event) => this._handleMouseLeave(event)} 
+				className={Styles.portalContainer_div}
+				onClick={this.props.enterPortal}
+			>
+				<div 
+					className={Styles.portalMask_div}
+					style={!this.state.isMouseOver ? ({display: 'block'}) : ({display:'none'})}>
+				</div>
+				<div 
+					className={Styles.portalGraphicContainer_div}
+					style={this.state.isMouseOver ? ({'border-color': this.props.highlight}) : ({})}
+				>
+					<div>
+					</div>
+				</div>
+				<div 
+					className={Styles.portalContentContainer_div}
+				>
+					<div>
+						<div 
+							className={Styles.portalHeader_div} 
+							style={this.state.isMouseOver ? ({color: this.props.highlight}) : ({})}
+						>
+							<h2>{this.props.title}</h2>
+						</div>
+						<div className={Styles.portalDescription_div}>
+							<p>{this.props.description}</p>
+						</div>
+						<div 
+							className={Styles.signUpBtnContainer_div} 
+							style={{    
+								'text-align':'right',
+								'font-size':'18px',
+								'position':'relative',
+								'height':'calc(200px - (36px + 69px + 5px))',
+							}} >
+							<div 
+								className={Styles.signupBtn_div} 
+								style={this.state.isMouseOver ? ({'display': 'block'}) :  ({'display':'none'}) }
+								onClick={(event) => {
+									event.stopPropagation();
+									this.props.navToCreatAccount(this.props.title.toLowerCase())
+								}}>
+								<div className={Styles.signupBtnText_div} >
+									{this.props.actionIndicator}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div className={Styles.infoLinkContainer_div}>
+					<div className={Styles.infoLink_div}>
+						►
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
 export default class LandingPage extends React.Component{
 	constructor(props){
 		super(props);
@@ -779,23 +974,73 @@ export default class LandingPage extends React.Component{
 
 	render() {
 		return(
-			<div>				
-				{this.props.profileMenu ? (<ProfileMenu 
-														profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
-														test={true}
-														toggleRadio={this.props.toggleRadio} 
-														postProfile={this.props.postProfile} 
-														modifyProfile={this.props.modifyProfile}
-														profileId={this.props.addedProfileId} />) : (
-					<div>
-						<div style={{'background-color':'#212121'}}>
-							<Description/>
-						</div>
-						<GetStarted style={getStartedStyle} createUser={this.props.createUser}/> 
-						<HowItWorks/>
-					</div>
-				)}								
-			</div>
+			<React.Fragment>
+				<SiteNav webAppView={!this.props.profileMenu ? 'landing' : ''}/>
+				<div>				
+					{
+						this.props.profileMenu ? (
+								<ProfileMenu 
+									profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
+									test={true}
+									toggleRadio={this.props.toggleRadio} 
+									postProfile={this.props.postProfile} 
+									modifyProfile={this.props.modifyProfile}
+									profileId={this.props.addedProfileId} />
+							) : 
+							(this.props.createAccountView === 'none' || this.props.createAccountView === '') ? (
+									<div>
+										<div 
+											style={{
+												height: '100vh', 
+												'background-color':'#212121',
+												'padding-top':'200px'
+											}}
+										>
+											{/*<Description/>*/}
+											<div style={{height: '100%', 'width':'900px', margin:'auto', 'margin-top': '25px'}}>
+												<Portal 
+													title="Shopper"
+													description="Join the community of shoppers, designers, and retailers to streamline your online shopping experience.  Discover new apparel styles, be confident in the fit, and get rewarded while you're at it."
+													infoLink={null}
+													highlight='#6dd7b4'
+													actionIndicator="create account"
+													enterPortal={() => this.props.navStateToBrowse(this.props.handlePortalSelect)}
+													navToCreatAccount={this.props.navToCreatAccount}
+												/>
+												<Portal 
+													title="Designer"
+													description="Curate your creative works, get inspired, and get connected"
+													infoLink={null}
+													highlight='#70ccf4'
+													actionIndicator="create account"
+													enterPortal={() => console.log('Designer portal clicked')}
+													navToCreatAccount={this.props.navToCreatAccount}
+												/>
+												<Portal 
+													title="E-Retailer"
+													description="Get your apparel noticed!  Leverage our community affiliate program to increase exposure and gain insights on what's trending."
+													infoLink={null}
+													highlight='#e0c570'
+													actionIndicator="create account"
+													enterPortal={() => console.log('E-Retailer portal clicked')}
+													navToCreatAccount={this.props.navToCreatAccount}
+												/>
+											</div>
+										</div>
+										<GetStarted style={getStartedStyle} createUser={this.props.createUser}/> 
+										<HowItWorks/>
+									</div>
+								) : 
+								this.props.createAccountView === 'shopper' ? (
+										<React.Fragment>
+											<Redirect to='/account-shopper' />
+											<Route path='/account-shopper' render={props => <CreateAccount accountType="shopper" createUser={this.props.createUser}/>} /> 
+										</React.Fragment>
+									) : 
+									null
+					}								
+				</div>
+			</React.Fragment>
 		);
 	}
 }

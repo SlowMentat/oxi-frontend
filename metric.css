@@ -115,6 +115,7 @@
 
 
 :local(.labelFormatting_div){
+	composes:defaultCursor from "./root.css";
 	cursor:default;
 	background-color: #0000;
 	color: black;

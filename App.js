@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import Cookies from 'universal-cookie';
 import fetch from 'cross-fetch';
 import axios from 'axios';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 //CSS Components
 import Styles from './root.css';
@@ -28,6 +29,8 @@ import VisibleItemList from './Components/Containers/VisibleItemList.js'
 import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js'
 import ContentContainer from './Components/Containers/ContentContainer.js'
 import WebAppView from './Components/Containers/WebAppViewContainer.js'
+import { SiteNav } from './Components/Presentations/WebAppView.js'
+import LandingPageContainer from './Components/Containers/LandingPageContainer.js';
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
@@ -36,6 +39,9 @@ import {showModal, setFormVisibility, setXcsrfToken, fetchEntities, handleUnauth
 //See instructions when adding enhancers and middlewares
 import { devToolsEnhancer } from 'redux-devtools-extension';
 import { composeWithDevTools } from 'redux-devtools-extension';
+
+import {OxiAppConstants} from './Util/OxiAppConstants.js';
+
 
 const loggerMiddleware = createLogger();
 const middleware = [thunkMiddleware, loggerMiddleware];
@@ -66,7 +72,7 @@ const cookies = new Cookies();
 
 //Constant global variables
 //TODO:  Thios was moved to .../Util/OxiAppConstants.  Replace references to this definition in other modules with new location.
-export const OxiAppConstants = Object.freeze({	
+/*export const OxiAppConstants = Object.freeze({	
 	debug : false,
 	HttpStatus : {
 		OK: 200,
@@ -78,13 +84,13 @@ export const OxiAppConstants = Object.freeze({
 	},
 	outfitFormRoot : document.getElementById('outfitForm'),
 	modalRoot : document.getElementById('modalRoot'),
-	apiBaseUrl : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
+	apiBaseUrl : 'https://72.14.177.220/gs-convert-jar-to-war-0.1.0',
 	navRequestMap : {
 		home : () => store.dispatch(setWebAppView("home")),
 		profile : () => store.dispatch(setWebAppView("home")),
 		settings : () => store.dispatch(setWebAppView("home")),
 		search : () => store.dispatch(setWebAppView("home")),
-		logout : () => sendAsyncRequest({}, {}, 'POST', 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/logout', null)
+		logout : () => sendAsyncRequest({}, {}, 'POST', 'https://72.14.177.220/gs-convert-jar-to-war-0.1.0/logout', null)
 	},
 	EntityTypes : {
 		PROFILE : "PROFILE",
@@ -94,11 +100,12 @@ export const OxiAppConstants = Object.freeze({
 		ITEM_CONTENT : "ITEMCONTENT",
 		PICTURE : "PICTURE"
 	}
-});
+});*/
 
 //set axios defult headers
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+//axios.defaults.headers.common['Origin'] = 'https://'
 
 //Set interceptor for responses with unauthorized status.
 //This will save the provided csrf token dispatch the login Form for authentication.
@@ -125,7 +132,7 @@ function OutfitFormContent(props){
 	);
 }
 
-function uploadImage(imageFile){
+/*function uploadImage(imageFile){
 	let headers = {};
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
@@ -170,9 +177,6 @@ export function sendAsyncRequest(headers,
 		//set onload event handler if provided.
 
 		xhr.onload = function(e, _handleOnSuccess){
-			/*
-			Handle SUCCESS status with custom function 
-			*/
 			if(this.status === OxiAppConstants.HttpStatus.OK ||
 				this.status === OxiAppConstants.HttpStatus.CREATED){
 				//custom event handler on success
@@ -187,11 +191,11 @@ export function sendAsyncRequest(headers,
 				}
 				resolve(this);
 			}				
-			/*
-			*handle custom redirect here.  Custom redirect used to prevent browser from navigating
-			*to the redirect url in the same async request.  This allows for the client to do its necessary
-			*house work for establishing a token with the server.  
-			*/
+			
+			//*handle custom redirect here.  Custom redirect used to prevent browser from navigating
+			//*to the redirect url in the same async request.  This allows for the client to do its necessary
+			//*house work for establishing a token with the server.  
+			
 			else if(this.status === OxiAppConstants.HttpStatus.UNAUTHORIZED){
 				//Save X-CSRF-TOKEN returned by server to the application store
 				//store.dispatch(setXcsrfToken(xhr.getResponseHeader('X-CSRF-TOKEN')));
@@ -349,7 +353,7 @@ class ContentNav extends React.Component{
     		</div>
 		);
 	}
-}
+}*/
 
 
 
@@ -357,21 +361,54 @@ class App extends React.Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			enableAddOutfitButton: true
+			enableAddOutfitButton: true,
+			toPortal: '',
 		};
+
+		this._handlePortalSelect = this._handlePortalSelect.bind(this);
+	}
+
+	_handlePortalSelect(portal){
+		this.setState(prevState => ({
+			toPortal: portal,
+		}));
 	}
 
 	render() {
 		//const formContent = this.state.showModal ? <Child actionUrl="" handleSubmit={this._hideModal}/> : null;
-	    return(
-	    	<WebAppView />
-		);
+		switch(this.state.toPortal){
+			case OxiAppConstants.toPortals.consumer:
+				return (
+					<React.Fragment>
+						<Redirect push={true} to='/shop/profile'/>
+	    				<Route path={this.props.match.url + 'shop'} component={ WebAppView }/>
+	    			</React.Fragment>
+				);
+				break;
+			case OxiAppConstants.toPortals.retailer:
+				return <Redirect to='/retailer'/>;
+				break;
+			case OxiAppConstants.toPortals.designer:
+				return <Redirect to='/designer'/>;
+				break;
+			default:
+				return(					
+					<Route path={this.props.match.url} render={({match, location, history}) => (
+						<div id="LandingPageContainer_div">
+							{/*<SiteNav webAppView='landing'/>*/}
+							<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
+						</div>
+					)} />
+				);
+		}
 	}
 }
 
 ReactDOM.render(
 	<Provider store={store}>
-		<App name="item menu"/>
+		<BrowserRouter>
+			<Route path="/" component={App} />
+		</BrowserRouter>
 	</Provider>,
 	document.getElementById('root')
 );

@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 import {OxiAppConstants} from '../../../Util/OxiAppConstants.js'
 
 
-export default class SubmitIcon extends React.Component{
+export default class OkIcon extends React.Component{
 	constructor(props){
 		super(props);
 	}
 
 	render(){
 		let folderCorner = this.props.hovered ? "16.25 268.25" : "6.25 258.25"
-		let fill = this.props.hovered ? "#6dd7b4" : "#6dd7b400";
+		let fill = this.props.hovered ? "#6dd7b4" : (this.props.fill || "#6dd7b400");
 		return(
 			<svg 
 				width="50mm" 

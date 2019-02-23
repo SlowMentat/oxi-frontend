@@ -100,10 +100,11 @@ export class Outfit extends React.Component{
 		let contextualStyles = null;
 		let outfitHeight = this.props.containerHeight/3;
 		let outfitWidth = outfitHeight*(2/3);
-		contextualStyles = this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() ?
+		let isHome = this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase()
+		contextualStyles = isHome ?
 			contextualStyles = {
 				'display':'inline-block',
-				'margin':'40px 50px 0px 50px'
+				'margin':'80px 50px 0px 50px'
 			} :
 			this.props.containerHeight !== null ? 
 				contextualStyles ={
@@ -120,7 +121,15 @@ export class Outfit extends React.Component{
 				onMouseOver={this._handleOnMouseOver}
 				onMouseOut={this._handleOnMouseOut}
 			>
-			<OutfitSocialStatistics webAppView={this.props.webAppView}/>
+				{
+					isHome ? 
+						(<div className={OutfitStyles.outfitUsernameContainer_div} style={{'padding':'0px'}}>
+							<div className={OutfitStyles.outfitUsername_div}>
+								{this.props.username !== undefined ? this.props.username.toUpperCase() : null}
+							</div>
+						</div>) :
+						null
+				}
 				<img 
 					src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
 					style={{
@@ -140,14 +149,17 @@ export class Outfit extends React.Component{
 				    unmountOnExit >
 					<div 
 						className={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
-							Object.assign({}, OutfitStyles.outfitMenuContainer, {'top':`calc(${outfitHeight} - 70px)`}) : 
-							(!this.props.isSelected) ? 
-								OutfitStyles.outfitTileMask : 
-								null} 
+							OutfitStyles.outfitMenuContainer : 
+								!this.props.isSelected ? 
+									OutfitStyles.outfitTileMask : 
+									null } 
 						style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
 							showOutfitTileControls : 
-							{'display':'block'}} >
-	
+							({
+								'display':'block', 
+								'top':`calc(${outfitHeight} - 70px`
+							})} 
+					>	
 						{
 							(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) 
 							? (<OutfitAddDelete editOutfit={this.props.editOutfit}/>)
@@ -155,6 +167,7 @@ export class Outfit extends React.Component{
 						}
 					</div>
 				</CSSTransition>
+				<OutfitSocialStatistics webAppView={this.props.webAppView}/>
 			</div>
 		);
 	}

@@ -13,7 +13,7 @@ import TypeSkirt from './Icons/TypeSkirt.js';
 import DeleteIcon from './Icons/DeleteIcon.js';
 import EditIcon from './Icons/EditIcon.js';
 import {FileUploadIcon} from './Icons/FileUploadIcon.js';
-import SubmitIcon from './Icons/SubmitIcon.js';
+import OkIcon from './Icons/OkIcon.js';
 import CropIcon from './Icons/CropIcon.js';
 import DiscardIcon from './Icons/DiscardIcon.js';
 import HeartIcon from './Icons/HeartIcon.js';
@@ -26,7 +26,13 @@ import ApparelIcon from './Icons/ApparelIcon.js';
 import OutfitsIcon from './Icons/OutfitsIcon.js';
 import FilterIcon from './Icons/FilterIcon.js';
 import LogoIcon from './Icons/LogoIcon.js';
-import OutfitCoverIcon from './Icons/OutfitCoverIcon.js'
+import OutfitCoverIcon from './Icons/OutfitCoverIcon.js';
+import AddContentIcon from './Icons/AddContentIcon.js';
+import DeleteContentIcon from './Icons/DeleteContentIcon.js';
+import SpreadIcon from './Icons/SpreadIcon.js';
+import StatsIcon from './Icons/StatsIcon.js';
+import ShopIcon from './Icons/ShopIcon.js';
+import FollowIcon from './Icons/FollowIcon.js'
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -44,7 +50,7 @@ export const SvgIcon = (props) => {
 		case 'DeleteIcon': return(<DeleteIcon {...props}/>); break;
 		case 'EditIcon': return(<EditIcon {...props}/>); break;
 		case 'FileUploadIcon': return(<FileUploadIcon {...props}/>); break;
-		case 'SubmitIcon': return(<SubmitIcon {...props}/>); break;
+		case 'OkIcon': return(<OkIcon {...props}/>); break;
 		case 'CropIcon': return(<CropIcon {...props}/>); break;
 		case 'DiscardIcon': return(<DiscardIcon {...props}/>); break;
 		case 'HeartIcon': return(<HeartIcon {...props}/>); break;
@@ -57,6 +63,12 @@ export const SvgIcon = (props) => {
 		case 'FilterIcon': return(<FilterIcon {...props}/>); break;
 		case 'LogoIcon': return(<LogoIcon {...props}/>); break;
 		case 'OutfitCoverIcon': return(<OutfitCoverIcon {...props}/>); break;
+		case 'AddContentIcon': return(<AddContentIcon {...props}/>); break;
+		case 'DeleteContentIcon': return(<AddContentIcon {...props}/>); break;
+		case 'SpreadIcon': return(<SpreadIcon {...props}/>); break;
+		case 'StatsIcon': return(<StatsIcon {...props}/>); break;		
+		case 'ShopIcon' : return(<ShopIcon {...props}/>); break;	
+		case 'FollowIcon' : return(<FollowIcon {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

@@ -17,16 +17,21 @@ export const OxiAppConstants = Object.freeze({
 	},
 	outfitFormRoot : document.getElementById('outfitForm'),
 	modalRoot : document.getElementById('modalRoot'),
-	serviceURL : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/consumer',
-	apiBaseURL : 'http://72.14.177.220/gs-convert-jar-to-war-0.1.0',
+	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
+	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
 	aspectRatio : (2 / 3),
 	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1
 	navRequestMap : {
-		home : "Home",
+		home : "Browse",
 		profile : "Profile",
 		settings : "Settings",
 		search : "Search",
 		logout : "Logout"
+	},
+	toPortals:{
+		consumer: '/shop/browse',
+		retailer: '/retailer',
+		designer: '/designer'
 	},
 	EntityTypes : {
 		PROFILE : "PROFILE",
@@ -76,7 +81,7 @@ export const OxiAppConstants = Object.freeze({
 		ADD_ITEM: 'AddItem',
 		UPDATE_ITEM: 'UpdateItem',
 		LOGIN: 'Login',
-		DISCARD_EDITS:'DiscardEdits'
+		DISCARD_EDITS:'DiscardEdits',
 	},
 	requestToBatchedDispatchMap : {
 		outfits: {

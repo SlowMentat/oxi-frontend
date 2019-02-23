@@ -21,6 +21,7 @@ export const SHOW_MODAL 			= 'SHOW_MODAL';
 export const SET_XCSRF_TOKEN 		= 'SET_XCSRF_TOKEN';
 export const SET_REQUEST_BODY 		= 'SET_REQUEST_BODY';
 export const SET_LP_PROFILE_MENU	= 'SET_LP_PROFILE_MENU';
+export const SET_LP_CREATE_ACCOUNT_VIEW			= 'SET_LP_CREATE_ACCOUNT_VIEW';
 export const CREATE_ITEM 			= 'CREATE_' 	+ OxiAppConstants.EntityTypes.ITEM;
 export const UPDATE_ITEM 			= 'UPDATE_' 	+ OxiAppConstants.EntityTypes.ITEM;
 export const REPLACE_ITEM 			= 'REPLACE_' 	+ OxiAppConstants.EntityTypes.ITEM;
@@ -94,6 +95,7 @@ export const SET_VISIBLE_HELP		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP
 export const SET_VISIBLE_FILTER		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
 
 export const UPDATE_OUTFIT_COVERPICURI = 'UPDATE_OUTFIT_COVERPICURI';
+
 
 //global variables
 let nextItemId = 0;
@@ -608,6 +610,15 @@ export const showProfileMenu = (shown) => {
 			'profileMenu':shown
 		}
 	})
+}
+
+export const setCreateAccountView = (accountType) => {
+	return({
+		type: SET_LP_CREATE_ACCOUNT_VIEW,
+		payload: {
+			'createAccountView': accountType
+		}
+	});
 }
 
 function selectDestination(location, dispatch){

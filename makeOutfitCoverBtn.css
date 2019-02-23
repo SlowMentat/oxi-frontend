@@ -1,29 +1,31 @@
 :local(.makeOutfitCoverBtnContainer_div) {    
     display: inline-block;
     position: relative;
-    height: 50px;
     vertical-align: top;
-    padding-top: 12.5px;
-}
 
-:local(.makeOutfitCoverBtn_div):hover{
-    cusor:pointer;
+    width: 100%;
+    height: calc(5vh + 25px + 6px);
+    margin: auto;
+    /* margin-bottom: calc((5vh + 25px - 8px)*.25); */
+    margin-top: 6px;
 }
 
 :local(.makeOutfitCoverBtn_div){
+    composes: pressable from "./root.css";
     padding-bottom: 7px;
     padding-top: 7px;
-    position: absolute;
     background-color: #fdfdfd;
     width: 50px;
     height: 50px;
+    margin: auto;
+    margin-top: 12.5px;
     border: 2px solid #4a4547;
     border-radius: 25px;
 }
 
 :local(.makeOutfitCoverTextCtnr_div){
     position: relative;
-    padding-top: 12.5px;
+    margin-top: calc(12.5px - 16px/4);
     display: inline-block;
     vertical-align: top;
 }
@@ -31,9 +33,9 @@
 :local(.makeOutfitCoverText_div){
     position: absolute;
     width: 300px;
-    height: 18px;
-    color: black;
-    font-size: 18px;
-    margin-left: 50px;
-    line-height: 18px;
+    height: 16px;    
+    color: #a1a1a1;
+    font-size: 16px;
+    margin-left: 10px;
+    line-height: 16px;
 }

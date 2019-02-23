@@ -60,13 +60,22 @@ export class Content extends React.Component{
 
 		let contentBulletStyle = null;
 		if(this.props.selectedId === this.props.id){
-			contentBulletStyle = ContentStyles['contentBullet_div--selected'];
+			if(this.props.isOutfitCoverpic){
+				contentBulletStyle = ContentStyles['contentBulletCover_div--selected'];
+			}else{
+				contentBulletStyle = ContentStyles['contentBullet_div--selected'];
+			}
 		}else{
-			contentBulletStyle = ContentStyles.stdContentBullet_div;
+			if(this.props.isOutfitCoverpic){
+				contentBulletStyle = ContentStyles.stdContentBulletCover_div;
+			}else{
+				contentBulletStyle = ContentStyles.stdContentBullet_div;
+			}
 		}
+
 		return(		
-			<div className={ContentStyles.stdCotnentBulletContainer_div} onClick={this._handleOnClick}>
-				<div className={contentBulletStyle}>
+			<div className={ContentStyles.stdCotnentBulletContainer_div}>
+				<div className={contentBulletStyle} onClick={this._handleOnClick}>
 				</div>
 			</div>		
 		);

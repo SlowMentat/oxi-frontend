@@ -2,6 +2,7 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+
 //Container Components
 import ModalContentSelection from '../../Components/Containers/SelectModalContent.js';
 import VisibleItemList from '../../Components/Containers/VisibleItemList.js';
@@ -27,6 +28,7 @@ import NavStyles from '../../nav.css';
 
 //Third pary
 import isEqual from 'lodash.isequal';
+import { Route, Switch, Redirect } from 'react-router-dom';
 
 
 const bannerTitleImg = {
@@ -45,14 +47,51 @@ const logo_svg = {
     'padding-bottom':' 12.5px',
 }
 
-function SiteNav(navEventCallbacks, webAppView){		
+export function SiteNav(props){		
     return(
     	<div className={Styles.headerBlock}>
-    		<SvgIcon name='LogoIcon' style={logo_svg}/>
     		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
-    		<div className={NavStyles.navBanner_div}>
-    			<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} callBacks={navEventCallbacks} webAppView={webAppView}/>
-    		</div>
+    		{
+    			props.webAppView !== 'landing' ?
+    				(
+    					<React.Fragment>
+    						<SvgIcon 
+    							name='LogoIcon' 
+    							style={logo_svg}
+    						/>
+    						<div className={NavStyles.navBanner_div}>
+    							<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} callBacks={props.navEventCallbacks} webAppView={props.webAppView} match={props.match}/>
+    						</div>
+    					</React.Fragment>
+    				) : (
+    					<React.Fragment>
+    						<div className={NavStyles.landingLogoContainer_div}>
+    							<div className={NavStyles.landingLogo_div}>
+    								<SvgIcon 
+    									name='LogoIcon' 
+    									style={Object.assign( {}, logo_svg, {
+    										width:'100%', 
+    										height:'75%', 
+    										position:'absolute', 
+    										'margin-left':'0px',
+    										'padding-top':'0px',
+    										'padding-bottom':'0px'
+    									})}
+    								/>
+    							</div>
+    						</div>
+    						<div style={{float:'right', width:'0px'}}>
+    							<div className={NavStyles.landingCtrl_div}>
+    								<div className={NavStyles.landingBtnContainer_div}>
+    									<div className={NavStyles.landingBtn_div}>
+    										Login
+    									</div>
+    								</div>
+    							</div>
+    						</div>    						
+    					</React.Fragment>
+    				)
+    		}
     	</div>
 	);
 }
@@ -60,41 +99,12 @@ function SiteNav(navEventCallbacks, webAppView){
 class Nav extends React.Component{
 	constructor(props){
 		super(props);
-		const blocks = this.props.blocks;
 		this.state = {
 			blockList: [],
 			selected: null
 		};
 
 		this.__handleClick  = this.__handleClick.bind(this);
-
-		let percentWidth = 100 / this.state.blockList.length;
-		this.state.blockList = (
-			<div className={NavStyles.stdNavButtonContiner_div}>
-				{
-					blocks.map((block) => {
-					console.log('block = ', block);
-					return(
-							<div 
-								key={block.toString()} 
-								className={NavStyles.stdNavButtonBlock} 
-								onClick={() => {
-									this.setState(prevState => ({
-										selected: block.toString()
-									}));
-									this.props.callBacks.navEventCallbacks[block.toString()]();
-								}}
-							>
-								<div 
-									className={this.props.webAppView != this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']} 
-								>
-									{ OxiAppConstants.navRequestMap[block.toString()] } 
-								</div>
-							</div>)
-					})
-				}
-			</div>
-		);
 	}
 
 	componentDidMount(){
@@ -115,12 +125,43 @@ class Nav extends React.Component{
     			<BlockList blocks={['home', 'profile', 'settings', 'search', 'logout']} containerClass={NavStyles.navContainer}/>
 			</div>
 		);*/
+		let blockList = [];
+		blockList = (
+			<div className={NavStyles.stdNavButtonContiner_div}>
+				{
+					this.props.blocks.map((block) => {
+					console.log('block = ', block);
+					return(
+							<div 
+								key={block.toString()} 
+								className={NavStyles.stdNavButtonBlock} 
+								onClick={() => {
+									this.setState(prevState => ({
+										selected: block.toString()
+									}));
+									this.props.callBacks[block.toString()]();
+								}}
+							>
+								{ 
+									this.state.selected === block.toString() ? 
+										<Redirect to={`${this.props.match.url}/${OxiAppConstants.navRequestMap[block.toString()].toLowerCase()}`} /> : 
+										null 
+								}
+								<div className={this.props.webAppView !== this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']}>
+									{ OxiAppConstants.navRequestMap[block.toString()] } 
+								</div>
+							</div>)
+					})
+				}
+			</div>
+		);
+		let percentWidth = 100 / blockList.length;
 		console.log("navEventCallbacks");
 		console.log(this.props.callBacks);
 		return(
 			<div style={{height:'100%'}}>
 				<div style={{height:'100%'}}>
-					{this.state.blockList}
+					{blockList}
 				</div>
 			</div>			
 		);
@@ -151,6 +192,8 @@ class OutfitNav extends React.Component{
 					<OutfitPanelContainer 
 						style={{
 							width:`calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`,
+							height:'calc(5vh + 25px)',
+							'text-align':'center',
 							'padding-top':'5px',
 							'padding-bottom':'5px',
 							'margin-left': '0px',
@@ -239,11 +282,13 @@ export default class webAppView extends React.Component {
 				visibleItemsByIds: {}
 			},
 			itemIdHovered: null,
-		};
+		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
 		this._handleItemHovered = this._handleItemHovered.bind(this);
 		this._handleImageResized = this._handleImageResized.bind(this);
+
+		this.previousLocation = props.location;
 	}
 
 	/*shouldComponentUpdate(nextProps, nextState) {
@@ -251,6 +296,10 @@ export default class webAppView extends React.Component {
         console.log('differentView = ',differentView);
         return differentView;
     }*/
+
+    _handleNavChange(destination){
+
+    }
 
 	_removeOutfitForm(){
 	}
@@ -374,77 +423,124 @@ export default class webAppView extends React.Component {
 		//}
 	}
 
-	render() {
-		console.log("webAppView = ")
-		console.log(this.props.webAppView)
-		switch(this.props.webAppView){
-			case "landing":
-				return(
-					<div>
-						<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
-						<LandingPageContainer/>
-					</div>
-				);
-			case "home":
-				return(
-					<div>
-						<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
-						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
-							<div className={Styles.containerBrowse}>
-								<div className={Styles.metricsContainer_div}>
-
-									<MetricPanel />
-								</div>
-								<OutfitNav 
-									webAppView={this.props.webAppView}
-									browseSelection={this.props.browseSelection}/>
-								<ModalContentSelection/>
-								<Admin/>
-							</div>
-						</div>
-					</div>
-				);
-			case "profile":
-				return(
-					<div>
-						<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
-						<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
-							<div 
-								className={Styles.containerProfile} 
-								style={
-									(this.state.imageWidth !== 0 && this.state.imageHeight !== 0) ? 
-										({'grid-template-columns': `300px 24.579% ${this.state.imageWidth + 50}px auto`}) : 
-										null
-								}
-							>								
-								<MetricPanel webAppView={this.props.webAppView}/>
-								<VisibleItemList 
-									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
-									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
-									itemIdHovered={this.state.itemIdHovered}
-									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
-								<ContentContainer 
-									imageWidth={this.state.imageWidth}
-									imageHeight={this.state.imageHeight}									
-									imageResized={this._handleImageResized}
-									visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
-									populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
-									itemIdHovered={this.state.itemIdHovered}
-									changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
-								<OutfitNav 	
-									imageWidth={this.state.imageWidth}
-									imageHeight={this.state.imageHeight}
-									webAppView={this.props.webAppView}
-									browseSelection="outfits"/> />
-								<Admin/>
-							</div>
-						</div>
-						<ModalContentSelection/>
-					</div>
-				);
-			default:
-				console.log("returning null view satat")
-				return null;
+	componentWillUpdate(nextProps){
+		// set previousLocation if props.location is not modal
+		if(nextProps.history.action !== "POP" && (!location.state || !location.state.modal)){
+			this.previousLocation = this.props.location;
 		}
+	}
+
+	render() {
+		const { location } =  this.props;
+		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
+		console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
+		let modalContent = null;
+
+		const createModalFragment = (pathname) => (
+			<React.Fragment>
+				<Redirect push={true} to={{
+					pathname:pathname, 
+					state:{modal: true}
+				}}/>
+				<Route path={pathname} component={ModalContentSelection} />
+			</React.Fragment>
+		);
+
+		switch(true){
+			case this.props.formType === OxiAppConstants.FormType.LOGIN:
+				modalContent = createModalFragment(`${this.props.match.url}/login`);
+				break;
+			case this.props.formType === OxiAppConstants.FormType.ADD_ITEM:
+				modalContent = createModalFragment(`${this.props.match.url}/add-item`);
+				break;
+			case this.props.formType === OxiAppConstants.FormType.UPDATE_ITEM:
+				modalContent = createModalFragment(`${this.props.match.url}/edit-item`);
+				break;
+			case this.props.formType === OxiAppConstants.FormType.DISCARD_EDITS:
+				modalContent = createModalFragment(`${this.props.match.url}/discard-edits`);
+				break;
+			default:
+				break;
+		}
+		console.log('this.previousLocation = ', this.previousLocation);
+		console.log('this.props.location = ', location);
+		return(
+			<React.Fragment>
+				<Switch location={isModal ? this.previousLocation :  location}>
+					{/*<Route 
+						path="/"
+						render={() => (
+							<div id="LandingPageContainer_div">
+								<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView}/>
+								<LandingPageContainer navEventCallbacks={this.props.navEventCallbacks}/>
+							</div>
+						)} 
+					/>*/}
+					{/*<Redirect to={`${this.props.match.url}/${this.props.webAppView}`}/>*/}
+					<Route
+						path={this.props.match.url + "/browse"}
+						render={() => (	
+							<div>
+								<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView} match={this.props.match}/>
+								<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
+									<div className={Styles.containerBrowse}>
+										<div className={Styles.metricsContainer_div}>
+											<MetricPanel />
+										</div>
+										<OutfitNav 
+											webAppView={this.props.webAppView}
+											browseSelection={this.props.browseSelection}/>
+										{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
+										<Admin/>
+									</div>
+								</div>
+							</div>
+						)}
+					/>
+					<Route
+						path={this.props.match.url + "/profile"}
+						render={() => (
+							<div>
+								<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView} match={this.props.match}/>
+								<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
+									<div 
+										className={Styles.containerProfile} 
+										style={
+											(this.state.imageWidth !== 0 && this.state.imageHeight !== 0) ? 
+												({'grid-template-columns': `300px 24.579% ${this.state.imageWidth + 50}px auto`}) : 
+												null
+										}
+									>								
+										<MetricPanel webAppView={this.props.webAppView}/>
+										<VisibleItemList 
+											visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+											populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
+											itemIdHovered={this.state.itemIdHovered}
+											changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
+										<ContentContainer 
+											imageWidth={this.state.imageWidth}
+											imageHeight={this.state.imageHeight}									
+											imageResized={this._handleImageResized}
+											visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+											populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
+											itemIdHovered={this.state.itemIdHovered}
+											changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
+										<OutfitNav 	
+											imageWidth={this.state.imageWidth}
+											imageHeight={this.state.imageHeight}
+											webAppView={this.props.webAppView}
+											browseSelection="outfits"/> />
+										<Admin/>
+									</div>
+								</div>
+								{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
+							</div>
+						)}
+					/>
+					<Route component={null} />
+				</Switch>
+				{this.props.formType !== 'HIDDEN' ? modalContent : null}
+			</React.Fragment>
+		)
 	}
 }

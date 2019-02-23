@@ -57,7 +57,8 @@ import {
 			SET_POSITION_FILTER,
 			SET_VISIBLE_HELP,
 			SET_VISIBLE_FILTER,
-			UPDATE_OUTFIT_COVERPICURI
+			UPDATE_OUTFIT_COVERPICURI,
+			SET_LP_CREATE_ACCOUNT_VIEW
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -166,9 +167,11 @@ const requestedNavigation = (state= {'location':null}, action) => {
 	}
 }
 
-const landingPage = (state = {'profileMenu': false}, action) => {
+const landingPage = (state = {'profileMenu': false, 'createAccountView': 'none'}, action) => {
 	switch(action.type){
 		case SET_LP_PROFILE_MENU:
+			return Object.assign({}, state, action.payload);
+		case SET_LP_CREATE_ACCOUNT_VIEW:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;

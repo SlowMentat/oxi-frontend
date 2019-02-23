@@ -103,6 +103,7 @@ export class Item extends React.Component{
 		let stroke = "#FFF";
 		let isSelected = this.props.selectedAllIds.includes(this.props.item.id);
 		let itemContainerStyles = null;
+		let isProfileView = (this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase());
 	
 		switch(true){
 			case this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase():
@@ -129,8 +130,9 @@ export class Item extends React.Component{
 				className={itemContainerStyles}
 				onMouseOver={this.props._handleMouseOver.bind(this)}
 				onMouseLeave={this.props._handleMouseLeave.bind(null)} 
+				style={isProfileView ? {width: '100%', 'height':'calc(((100vh - 40px - 40px - 80px - 80px - 25px - 5vh - 12px)/6) - 1px)'} : {}}
 				onClick={() => {
-					if(this.props.webAppView === 'home' && this.props.browseSelection === 'apparel'){
+					if(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() && this.props.browseSelection === 'apparel'){
 						this.props.removeContentEntities();
 						this.props.getContentsByItemId();
 						this.props.onDeselect(this.props.selectedAllIds.filter(id => id != this.props.item.id)[0]);
@@ -205,17 +207,26 @@ export class Item extends React.Component{
 						null
 				}
 
-				<div 
-					className={ItemStyles.sourceInfo} 
-					style={
-						this.props.webAppView !== OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
-								({'width': 'calc((100% - 181px))'}) : 
-								({})
-					}>
+				<div className={isProfileView ? ItemStyles.sourceInforProfile_div : ItemStyles.sourceInfo}>
 					<div className={ItemStyles.itemBrandBlock} href={brandLink} target="_blank">
 						<div style={itemCellContainer}>
-							<div style={{'font-family': '\'Archivo Black\', sans-serif'}}>	
+							<div className={ItemStyles.itemBrandHomeGradientContainer_div}>
+								<div className={ItemStyles.itemBrandHomeGradient_div}>
+								</div>
+							</div>
+							<div className={ItemStyles.brandName_div}>	
 								{brandName}
+							</div>
+							<div className={ItemStyles.itemBrandEndGradientContainer_div}>
+								<div 
+									className={ItemStyles.itemBrandEndGradient_div}
+									style={isProfileView ? ({width:'65px'}) : ({})}>
+									<div className={ItemStyles.ellipsisContainer_div}>
+										<div className={ItemStyles.ellipsis_div}>
+											...
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -228,13 +239,24 @@ export class Item extends React.Component{
 					</div>
 				</div>
 				{
-					this.props.webAppView !== 'home' ?
+					isProfileView ?
+						(<div className={ItemStyles.shopBtnContainer_div}>
+							<div className={ItemStyles.shopBtn_div}>
+								<SvgIcon name="ShopIcon" strokWidth='1.5'/>
+								<div className={ItemStyles.shopMask_div}>
+								</div>
+							</div>
+						</div>) : 
+						null
+				}
+				{
+					this.props.webAppView !== OxiAppConstants.navRequestMap.home.toLowerCase() ?
 						null :
 						this.props.browseSelection !== 'apparel' ?
 							null : 
 							isSelected ?
 								(
-									<VisibleItemAsSeenOnList selectedItemId={this.props.item.id}/>
+									<VisibleItemAsSeenOnList selectedItemId={this.props.item.id} />
 								) :
 								null
 				}

@@ -60,6 +60,7 @@ class PagedOutfitList extends React.Component{
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.outfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
+											username={this.props.outfits[outfitId].username}
 											contentIds={this.props.outfits[outfitId]["contents"]}
 											webAppView={this.props.view}
 											editOutfit={() => this.props.editOutfit(
@@ -120,27 +121,31 @@ class OutfitList extends React.Component{
 		    				(<PagedOutfitList container1_div={{'height':'100%'}} container2_div={{'height':'100%'}} {...this.props} />)
 		    		)}
 		    	</TransitionGroup>
-		    	<div id='makeOutfitCoverBtnContiner' className={outfitCoverBtnStyle.makeOutfitCoverBtnContainer_div}>
-		    		<div 
-		    			id='makeOutfitCoverBtn' 
-		    			className={outfitCoverBtnStyle.makeOutfitCoverBtn_div}		    			
-						onClick={() => {
-							new Promise((resolve, reject) => {
-								resolve( this.props.changeOutfitCoverPic({ 
-									id: this.props.selectedId,
-									coverpicuri: this.props.pictures[this.props.contents[this.props.selectedContentId].picture].smalluri 
-								}) );
-							});
-						}}
-					>
-		    			<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
-		    			<div className={outfitCoverBtnStyle.makeOutfitCoverTextCtnr_div}>
-		    				<div className={outfitCoverBtnStyle.makeOutfitCoverText_div}>
-		    					Make outfit cover
+		    	{
+		    		this.props.viewState !== OxiAppConstants.viewState.PREVEIW ? 
+		    			(<div id='makeOutfitCoverBtnContiner' className={outfitCoverBtnStyle.makeOutfitCoverBtnContainer_div}>
+		    				<div 
+		    					id='makeOutfitCoverBtn' 
+		    					className={outfitCoverBtnStyle.makeOutfitCoverBtn_div}		    			
+								onClick={() => {
+									new Promise((resolve, reject) => {
+										resolve( this.props.changeOutfitCoverPic({ 
+											id: this.props.selectedId,
+											coverpicuri: this.props.pictures[this.props.contents[this.props.selectedContentId].picture].smalluri 
+										}) );
+									});
+								}}
+							>
+		    					<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
+		    					<div className={outfitCoverBtnStyle.makeOutfitCoverTextCtnr_div}>
+		    						<div className={outfitCoverBtnStyle.makeOutfitCoverText_div}>
+		    							Make outfit cover
+		    						</div>
+		    					</div>
 		    				</div>
-		    			</div>
-		    		</div>
-		    	</div>
+		    			</div>) :
+		    			null
+		    	}
 		    </React.Fragment>
 		);
 	}

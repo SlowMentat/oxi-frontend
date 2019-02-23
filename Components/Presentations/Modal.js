@@ -29,7 +29,8 @@ function Modal(props){
 				editingItem={props.editingItem}
 				clearUpdates={props.clearUpdates}
 				clearInvalidations={() => props.clearInvalidations(props.entitiesStateReducer)}
-
+				math={props.match}
+				history={props.history}
 			/>
 		</ModalContainer>
 	);

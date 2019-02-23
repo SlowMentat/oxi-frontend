@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import OutfitNavStyles from '../../outfitNav.css';
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
+import OutfitStyles from '../../outfit.css';
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
@@ -41,8 +42,8 @@ export class OutfitAddDelete extends React.Component{
 
 	render(){
 		return(
-			<div style={{overflow:'hidden', height:'50%'}}>
-				<div style={ButtonContainer}>
+			<div className={OutfitStyles.editOutfitBtnContainer4_div}>
+				{/*<div style={ButtonContainer}>
 					<div style={Object.assign({}, Button, {left:'10px'})} onClick={this.props.deleteOutfit}>
 						<div style={{'text-align':'center'}}>
 							<div style={{
@@ -53,14 +54,11 @@ export class OutfitAddDelete extends React.Component{
 							</div>
 						</div>
 					</div>
-				</div>
-				<div style={ButtonContainer}>
-					<div style={Object.assign({}, Button, {right:'10px'})} onClick={this.props.editOutfit}>
-						<div style={{'text-align':'center'}}>
-							<div style={{
-								width:'100%',
-								position:'absolute',
-							}}>
+				</div>*/}
+				<div className={OutfitStyles.editOutfitBtnContainer3_div}>
+					<div className={OutfitStyles.editOutfitBtnContainer2_div} onClick={this.props.editOutfit}>
+						<div className={OutfitStyles.editOutfitBtnContainer_div}>
+							<div className={OutfitStyles.editOutfitBtn_div}>
 								<SvgIcon name={'EditIcon'} penColor="#FFF" writingColor="#FFF" borderColor="#FFF"/>
 							</div>
 						</div>
@@ -70,39 +68,3 @@ export class OutfitAddDelete extends React.Component{
 		);
 	}
 }
-
-/*
-
-			<div style={{overflow:'hidden', height:'50%'}}>
-				<div style={ButtonContainer}>
-					<div style={Object.assign({}, Button, {left:'10px'})} onClick={this.props.deleteOutfit}>
-						<div style={{'text-align':'center'}}>
-							<div style={{
-								width:'100%',
-								height:'10px',
-								top:'50%',
-								position:'absolute',
-								'margin-top':'-7px'
-							}}>
-								<DeleteIcon/>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div style={ButtonContainer}>
-					<div style={Object.assign({}, Button, {right:'10px'})} onClick={this.props.editOutfit}>
-						<div style={{'text-align':'center'}}>
-							<div style={{
-								width:'100%',
-								height:'10px',
-								top:'50%',
-								position:'absolute',
-								'margin-top':'-7px'
-							}}>
-								<EditIcon/>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-*/

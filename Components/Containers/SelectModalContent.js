@@ -22,6 +22,7 @@ import {
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
+import { withRouter } from 'react-router-dom';
 /*const selectModalContent = (selectedForm) => {
 	console.log("entering switch statement if selectModalContent container")
 	//(selectedForm === 'NONE') ? null : <FromDeck selection={selectedForm}/>;
@@ -36,7 +37,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 	}*/
 //}
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
 	console.log("state = " + state.toggleModal.modal)
 	let outfits = null;
 	let contents = null;
@@ -155,4 +156,4 @@ const mapDispatchToProps = (dispatch) => ({
 })
 
 const ModalContentSelection = connect(mapStateToProps, mapDispatchToProps)(Modal);
-export default ModalContentSelection;
+export default withRouter(ModalContentSelection);

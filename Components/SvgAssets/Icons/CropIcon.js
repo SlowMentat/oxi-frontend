@@ -21,14 +21,9 @@ export default class CropIcon extends React.Component{
 				viewBox="0 0 50 50" 
 				xmlns="http://www.w3.org/2000/svg"				
 				style={{'width':'100%','height':'100%'}} >
-				<g opacity=".827">
-					<path d="m5 5h40v40h-40z" fill="none" stroke="#000" stroke-width="1.7"/>
-				</g>
-				<g opacity=".74679">
-					<path transform="scale(.26458)" d="m18.898 18.898v151.18h151.18v-151.18h-151.18zm66.141 37.795h61.418v94.488h-61.418v-94.488z" fill="#7a7878" opacity=".657" stroke-width="0"/>
-				</g>
-				<g transform="translate(0 -247)" opacity=".984">
-					<path d="m22.5 262h16.25v25h-16.25z" fill="none" stroke="#000" stroke-dasharray="1.59999999,0.8" stroke-width=".8"/>
+				<g transform="translate(0 -247)" fill="none" opacity=".984" stroke="#000">
+					<path d="m0 263.31h35v33.698" opacity=".827" stroke-width="5.3825"/>
+					<path d="m17.548 247v33.75h32.452" opacity=".827" stroke-dasharray="5.19230762,5.19230762" stroke-dashoffset="10.385" stroke-width="5.1923"/>
 				</g>
 			</svg>
 		);

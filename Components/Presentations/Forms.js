@@ -14,6 +14,8 @@ import TypeShirtT from '../SvgAssets/Icons/TypeShirtT.js';
 import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
+import { Route, Switch, Redirect } from 'react-router-dom';
+
 
 //=========Form selection switch block//=========
 
@@ -27,6 +29,9 @@ function FormDeck(props){
 					requestUrl={props.requestUrl}
 					requestType={props.requestType}
 					afterLoginSuccess={props.afterLoginSuccess}
+
+					math={props.match}
+					history={props.history}
 				/>
 			)
 		case OxiAppConstants.FormType.ADD_ITEM:
@@ -44,6 +49,9 @@ function FormDeck(props){
 					retailers={props.retailers}
 					itemLocation={props.itemLocation}
 					editingItem={props.editingItem}
+
+					math={props.match}
+					history={props.history}
 				/>
 			)
 		case OxiAppConstants.FormType.UPDATE_ITEM:
@@ -52,6 +60,9 @@ function FormDeck(props){
 					cancelAction={props.cancelAction} 
 					submitAction={props.submitAction} 
 					submitContext="Update"
+
+					math={props.match}
+					history={props.history}
 				/>
 			)
 		case OxiAppConstants.FormType.DISCARD_EDITS:
@@ -65,6 +76,9 @@ function FormDeck(props){
 					items={props.items}
 					clearUpdates={props.clearUpdates}
 					clearInvalidations={props.clearInvalidations}
+
+					math={props.match}
+					history={props.history}
 				/>
 			)
 		default:
@@ -191,7 +205,6 @@ class DropDownField extends React.Component{
 	}
 }
 
-//=========Add Item Form
 
 export class ItemForm extends React.Component{
 	constructor(props){
@@ -356,11 +369,7 @@ export class ItemForm extends React.Component{
 	}
 }
 
-/*AddItem.propTypes = {
-	onClick: propTypes.func.isRequried
-}*/
 
-//=========Login Form=========
 export class LoginForm extends React.Component{
 	constructor(props){
 		super(props);
@@ -397,6 +406,7 @@ export class LoginForm extends React.Component{
 		.then(response => {
 			if(response.status == OxiAppConstants.HttpStatus.OK){
 				this.props.cancelAction();
+				this.props.history.goBack();
 				this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
 			}else{
 				//handleUnauthorizedRequest(response);
@@ -404,15 +414,7 @@ export class LoginForm extends React.Component{
 		}).catch((error) => {
 			console.log('error caught from login form: ',error);
 		});
-		/*sendAsyncRequest(
-					{},
-					formData,
-					'POST',
-					'http://72.14.177.220/gs-convert-jar-to-war-0.1.0/login',
-					this.props.cancelAction()
-		);*/
 		e.preventDefault();
-		//throw OxiAppConstants.NavigationException.USER_SUBMITTED
 	}
 
 	render(){
@@ -434,6 +436,7 @@ export class LoginForm extends React.Component{
 		);
 	}
 }
+
 
 export class DiscardForm extends React.Component{
 	constructor(props){
@@ -496,11 +499,5 @@ export class DiscardForm extends React.Component{
 		);
 	}
 }
-/*Login.propTypes = {
-	onClick: propTypes.func.isRequired
-}*/
 
 export default FormDeck
-//export default Login
-//export default Login
-//export default FormDeck

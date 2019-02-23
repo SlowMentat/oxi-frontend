@@ -2,11 +2,13 @@ import React from 'react';
 import ReactCrop, { makeAspectCrop } from 'react-image-crop';
 //import {ReactCropStyles} from 'react-image-crop/dist/ReactCrop.css';
 import {ReactCropStyles} from '../reactCrop.css';
+import FormStyles from '../forms.css';
+
 import {OxiAppConstants} from './OxiAppConstants.js';
 import {FileUploadIcon} from '../Components/SvgAssets/Icons/FileUploadIcon.js';
 //import DiscardIcon from '../Components/SvgAssets/Icons/DiscardIcon.js';
 //import CropIcon from '../Components/SvgAssets/Icons/CropIcon.js';
-//import SubmitIcon from '../Components/SvgAssets/Icons/SubmitIcon.js';
+//import OkIcon from '../Components/SvgAssets/Icons/OkIcon.js';
 import {SvgIcon} from '../Components/SvgAssets/SvgIcon.js';
 
 /**
@@ -243,11 +245,18 @@ class CroppableImageForm extends React.Component{
 		}
 		return (
 			<div style={this.props.imgFormStyle}>
-				<div style={Object.assign({}, this.props.controlContainerStyle, {
+				<div
+					className={FormStyles.controlContainerStyle} 
+					style={{
 						width:`${this.props.imageElement.clientWidth}px`,
 						display: this.props.imageElement.clientWidth > 0 ? 'inline-flex' :  'none'
-					})}>
-					<label for="fileInput" style={{'margin-left':'5%','margin-right':'5%','width':'20%'}}>
+					}} >
+					<label 
+						for="fileInput" 
+						style={{
+							'margin-right':'5%',
+							'width':'7%'
+						}}>
 						<div 
 							className={this.props.imgFormControlStyle} 
 							style={{width:'100%'}}
@@ -256,20 +265,16 @@ class CroppableImageForm extends React.Component{
 								<SvgIcon name={'FileUploadIcon'} hovered={this.state.fileUploadHovering}/>
 						</div>
 					</label>				
-					<div className={this.props.imgFormControlStyle} onClick={this._handleAcceptCrop}>
-						
+					<div 
+						className={this.props.imgFormControlStyle} 
+						style={{
+							//width:'5%',
+							'padding-left':'1%',
+							'padding-right':'1%',
+						}}
+						onClick={this._handleAcceptCrop}>						
 						<SvgIcon name={'CropIcon'} />
 					</div>
-					<label for="submitButton" style={{'margin-left':'5%','margin-right':'5%','width':'20%'}}>
-						<div 
-							className={this.props.imgFormControlStyle}
-							style={{width:'100%'}}
-							onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
-							onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>
-							
-							<SvgIcon name={'SubmitIcon'} hovered={this.state.submitHovering}/>
-						</div>	
-					</label>
 					<div 
 						className={this.props.imgFormControlStyle} 
 						onClick={this.props.discardChanges}
@@ -277,6 +282,21 @@ class CroppableImageForm extends React.Component{
 						onMouseLeave={(event) => this._handleIconHover(event, 'discard', false)}>							
 						<SvgIcon name={'DiscardIcon'} hovered={this.state.discardHovering}/>
 					</div>
+					<label 
+						for="submitButton" 
+						style={{
+							'width':'20%',
+							position: 'absolute',
+							right: '0px'
+						}}>
+						<div 
+							className={this.props.imgFormControlStyle}
+							style={{width:'100%'}}
+							onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
+							onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>							
+							<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
+						</div>	
+					</label>
 				</div>
 
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>

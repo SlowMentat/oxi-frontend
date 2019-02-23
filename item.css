@@ -69,10 +69,13 @@
 
 :local(.itemRetailerBlock) {
 	composes: stdItemBlock;
-	color: #d3effb;
+	background-color: none;
+	color: #e0c570;
 	height: 50%;
     display: block;
 	padding-left: 8px;
+	background-color: #0000;
+	font-size:1.5em; 
 }
 
 :local(.itemBrandBlock) {
@@ -86,6 +89,7 @@
     color: #BDBDBD;
     position: relative;
 	padding-left: 8px;
+	background-color: #0000;
 
 	/*background-image: linear-gradient(to right, black, black, #616161);*/
 }
@@ -192,8 +196,97 @@
 
 :local(.sourceInfo){
 	display: inline-block;
-    width: calc(100% - 100px);
+    width: calc(100% - 181px);
     vertical-align: top;
     height: 100%;
     border-left: 6px solid rgb(253, 253, 253);
+    background-color: #4a4547
+}
+
+:local(.sourceInforProfile_div){
+	composes:sourceInfo;	
+    width: calc(100% - 100px);
+    padding-right: 15px;
+    background-color: #4a4547;
+}
+
+:local(.shopBtnContainer_div){
+
+	position: relative;
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+}
+
+:local(.shopBtn_div){
+	composes:pressable from "./root.css";
+	position: absolute;
+    width: 35px;
+    height: 35px;
+    margin-left: -50px;
+    bottom:0px;
+}
+
+.shopMask_div:hover{
+	display:none;
+}
+
+.shopMask_div{
+	display: block;
+	width: 100%;
+    height: 100%;
+    background-color: #4a45477d;
+    position: absolute;
+    top: 0px;
+}
+
+:local(.itemBrandHomeGradientContainer_div){
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    width: 0px;
+}
+
+:local(.itemBrandHomeGradient_div){
+	position: absolute;
+    width: 10px;
+    height: 50px;
+    background: linear-gradient(to left, #4a454700, #4a4547);
+    margin-left: -8px;
+}
+
+:local(.brandName_div){
+	overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+    width: calc(100% - 11px);
+    font-family: "Archivo Black", sans-serif;
+    font-size: 2.5rem;
+    line-height: 3.5rem;
+}
+
+:local(.itemBrandEndGradientContainer_div){
+	composes:itemBrandHomeGradientContainer_div;
+}
+
+:local(.itemBrandEndGradient_div){
+	composes:itemBrandHomeGradient_div;
+    width: 50px;
+    background: linear-gradient(to right, #4a454700, #4a4547);
+    margin-left: -39px;
+}
+
+:local(.ellipsisContainer_div){
+	color: #bdbdbd;
+    width: 15px;
+    height: 3.5rem;
+    float: right;
+    position: relative;
+}
+
+:local(.ellipsis_div){
+	position: absolute;
+    height: 100%;
+    line-height: 3.5rem;
+    font-size: 2.5rem;
 }

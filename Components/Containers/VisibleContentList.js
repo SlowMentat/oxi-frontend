@@ -78,6 +78,7 @@ const mapStateToProps = state => {
 	);*/
 	return ({
 		selectedOutfitId :  state.entitiesStateReducer.outfits.selected,
+		selectedOutfit : state.entitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected],
 		addedOutfitEntity : state.addedEntitiesReducer.outfits,
 		contents : filteredContents.byIds,
 		//contents : state.entitiesReducer.contents.byIds,
@@ -89,7 +90,7 @@ const mapStateToProps = state => {
 		addedContentIds : filteredAddedContents.allIds,
 		selectedId :  state.entitiesStateReducer.contents.selected,
 		addedItemIds : state.addedEntitiesReducer.items.allIds,
-		pictureIds : state.entitiesReducer.pictures.byIds,
+		pictures : state.entitiesReducer.pictures.byIds,
 		invalidatedItemIds: state.entitiesStateReducer.items.clientInvalidated,
 		invalidatedContentIds:  state.entitiesStateReducer.contents.clientInvalidated
 	});

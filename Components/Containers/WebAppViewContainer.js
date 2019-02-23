@@ -12,14 +12,18 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
 import fetch from 'cross-fetch'
 import axios from 'axios';
+import { withRouter } from 'react-router-dom';
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props ) => {
 	return {
 		webAppView: state.appView.webAppView,
 		browseSelection: state.browseState.browseSelection,
-		viewState: state.contentViewState.viewState
+		viewState: state.contentViewState.viewState,
 		/*hostProfile: state.entitiesReducer.profile.byIds.host,
 		ownerProfile: state.entitiesReducer.profile.byIds.owner*/
+		formType: state.toggleModal.modal,
+		requestUrl: state.toggleModal.prevRequestUrl,
+		requestType: state.toggleModal.prevRequestType,
 	};
 }
 
@@ -78,4 +82,4 @@ const mapDispatchToProps = (dispatch, props) => ({
 })
 
 const AppView = connect(mapStateToProps, mapDispatchToProps)(WebAppView);
-export default AppView;
+export default withRouter(AppView);
