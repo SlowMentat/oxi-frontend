@@ -159,3 +159,91 @@
 	color: black;
 	transition: opacity background-color ease-out;
 }
+
+
+:local(.metricsDataHeader_div){
+	height: calc(5vh + 28px);
+    height: 45px;
+    color: rgb(11; 11; 115);
+    margin: 10px 0px 80px 20px;
+    font-size: 2em;
+}
+
+:local(.profilePicContainer_div){
+	display: inline-block;
+    vertical-align: top;
+    width: 50px;
+}
+
+:local(.profilePic_div){
+	width: 45px;
+    height: 45px;
+    border-style: solid;
+    border-radius: 6px;
+    border-color: rgb(112, 204, 244);
+    left: 25px;
+}
+
+:local(.profileDetails_div){
+	display: inline-block;
+    vertical-align: top;
+    margin-left: 10px;
+    height: 45px;
+    /* width: calc(100% - 10px - 45px); */
+    position: relative;
+    width: calc(300px - 50px - 10px - 20px - 2px);
+}
+
+local:(.profileOwnerName_div){
+	display: inline;
+    right: 25%;
+    height: 25px;
+    font-size: 2.5rem;
+    vertical-align: top;
+    line-height: 25px;
+}
+
+local:(.followingContainer_div){
+	height: 20px;
+    padding-left: 2px;
+}
+
+:local(.followingStats_div){
+	display: inline-block;
+    height: 100%;
+    vertical-align: top;
+}
+
+:local(.followingHeader_div){
+	display: inline-block;
+    height: 100%;
+    color: #656565;
+    text-align: left;
+    font-size: 1.3rem;
+    line-height: 20px;
+    vertical-align: top;
+}
+
+:local(.followingValue_div){
+	display: inline-block;
+    color: #4a4a4a;
+    text-align: left;
+    font-size: 1.2rem;
+    letter-spacing: 0.2rem;
+    font-weight: bold;
+    padding-left: 12px;
+    line-height: 20px;
+    height: 100%;
+    vertical-align: top;
+}
+
+:local(.followingBtn_div){
+	display: inline-block;
+    width: 26px;
+    height: 26px;
+    margin-top: -3px;
+    vertical-align: top;
+    right: 0px;
+    float: right;
+    margin-right: 10px;
+}

@@ -28,7 +28,7 @@ import NavStyles from '../../nav.css';
 
 //Third pary
 import isEqual from 'lodash.isequal';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, Link } from 'react-router-dom';
 
 
 const bannerTitleImg = {
@@ -60,7 +60,12 @@ export function SiteNav(props){
     							style={logo_svg}
     						/>
     						<div className={NavStyles.navBanner_div}>
-    							<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} callBacks={props.navEventCallbacks} webAppView={props.webAppView} match={props.match}/>
+    							<Nav 
+    								blocks={Object.keys(OxiAppConstants.navRequestMap)} 
+    								callBacks={props.navEventCallbacks} 
+    								webAppView={props.webAppView} 
+    								match={props.match}
+    								ownerUsernamePath={props.ownerUsernamePath}/>
     						</div>
     					</React.Fragment>
     				) : (
@@ -131,26 +136,41 @@ class Nav extends React.Component{
 				{
 					this.props.blocks.map((block) => {
 					console.log('block = ', block);
+					console.log('selected = ', this.state.selected);
+					let navHeader = block.toString();
+					let selectionPath = '';
+					
+					if(navHeader === 'profile'){
+						selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`;
+					}else if(navHeader !== ''){
+						selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
+					}
+
 					return(
+						<Link to={`${this.props.match.url}${selectionPath}`}>
 							<div 
-								key={block.toString()} 
+								key={navHeader} 
 								className={NavStyles.stdNavButtonBlock} 
 								onClick={() => {
 									this.setState(prevState => ({
-										selected: block.toString()
+										selected: navHeader
 									}));
-									this.props.callBacks[block.toString()]();
+									//call back to webappview component to change child component to reflect navHeader selection
+									this.props.callBacks[navHeader]();
 								}}
 							>
-								{ 
-									this.state.selected === block.toString() ? 
-										<Redirect to={`${this.props.match.url}/${OxiAppConstants.navRequestMap[block.toString()].toLowerCase()}`} /> : 
-										null 
-								}
+								{/*
+									this.state.selected !== navHeader ? 
+										null :
+											this.props.match.path.includes('/shop/profile') ? 
+												<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`} /> : 
+												<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`} /> 
+								*/}
 								<div className={this.props.webAppView !== this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']}>
-									{ OxiAppConstants.navRequestMap[block.toString()] } 
+									{ OxiAppConstants.navRequestMap[navHeader] } 
 								</div>
-							</div>)
+							</div>
+						</Link>)
 					})
 				}
 			</div>
@@ -211,7 +231,8 @@ class OutfitNav extends React.Component{
 							view={this.props.webAppView} 
 							scrollContainerStyle={OutfitNavStyles.previewContainer}
 							containerHeight={containerHeight !== 0 ? containerHeight : null}
-							containerWidth={containerWidth !== 0 ? containerWidth : null} />);
+							containerWidth={containerWidth !== 0 ? containerWidth : null}
+							/*routeToHostProfile={this.props.routeToHostProfile}*/ />);
 				break;
 			case 'apparel':
 				browseContent = () => (<VisibleItemListBrowse changeItemHovered={()=>{}} scrollContainerStyle={OutfitNavStyles.previewContainer} />);
@@ -249,23 +270,28 @@ class MetricPanel extends React.Component{
 	render(){
 		return(
 			<div className={Styles.metricBlock}>
-				<div style={{
-					'padding-top': '15px',
-    				'padding-bottom': '15px',
-    				'height': '165px',
-    				'border-bottom-style': 'solid',
-    				'border-width': '20px',
-    				'border-color': '#6d6d6d',
-    				'margin-right':'-1px',
-				}}>
-					{this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
-						<ProfileControlContainer /> :
-						<BrowseControlContainer />
-					}
-
+				<div className={Styles.metricContainer_div}>
+					<div 
+						style={{
+							'padding-top': '15px',
+    						'padding-bottom': '15px',
+    						'height': '165px',
+    						'border-bottom-style': 'solid',
+    						'border-width': '20px',
+    						'border-color': '#6d6d6d',
+    						'margin-right':'-1px',
+    						'position':'relative',
+						}}
+					>
+						{this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
+							<ProfileControlContainer /> :
+							<BrowseControlContainer />
+						}
+	
+					</div>
+					<MetricTitleContainer />
+					<VisibleMetricList />
 				</div>
-				<MetricTitleContainer />
-				<VisibleMetricList />
 			</div>
 		);
 	}
@@ -282,11 +308,13 @@ export default class webAppView extends React.Component {
 				visibleItemsByIds: {}
 			},
 			itemIdHovered: null,
+			navDestination: props.location,
 		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
 		this._handleItemHovered = this._handleItemHovered.bind(this);
 		this._handleImageResized = this._handleImageResized.bind(this);
+		this._handleNavBtnSelected = this._handleNavBtnSelected.bind(this);
 
 		this.previousLocation = props.location;
 	}
@@ -423,6 +451,13 @@ export default class webAppView extends React.Component {
 		//}
 	}
 
+	//forces this component to update so Router can navigate to /profile 
+	_handleNavBtnSelected(location){
+		this.setState({
+			navDestination: location
+		})
+	}
+
 	componentWillUpdate(nextProps){
 		// set previousLocation if props.location is not modal
 		if(nextProps.history.action !== "POP" && (!location.state || !location.state.modal)){
@@ -438,11 +473,14 @@ export default class webAppView extends React.Component {
 
 		const createModalFragment = (pathname) => (
 			<React.Fragment>
-				<Redirect push={true} to={{
-					pathname:pathname, 
-					state:{modal: true}
-				}}/>
-				<Route path={pathname} component={ModalContentSelection} />
+				{/*
+					<Redirect push={true} to={{
+						pathname:pathname, 
+						state:{modal: true}
+					}}/>
+					<Route path={pathname} component={ModalContentSelection} />
+				*/}
+				<ModalContentSelection/>
 			</React.Fragment>
 		);
 
@@ -464,9 +502,16 @@ export default class webAppView extends React.Component {
 		}
 		console.log('this.previousLocation = ', this.previousLocation);
 		console.log('this.props.location = ', location);
+		console.log('this.props.owner = ', this.props.owner);
+		/*switch(this.state.navDestination){
+			case 'profile'
+				<Redirect push={true} to={`${this.props.match.url}/profile${}`}/>
+				<Route path={this.props.match.url + 'profile'}/>
+		}*/
+		let ownerUsernamePath = this.props.owner ? `/${this.props.owner.username}` : '';
 		return(
 			<React.Fragment>
-				<Switch location={isModal ? this.previousLocation :  location}>
+				<Switch location={isModal ? this.previousLocation : location}>
 					{/*<Route 
 						path="/"
 						render={() => (
@@ -478,18 +523,24 @@ export default class webAppView extends React.Component {
 					/>*/}
 					{/*<Redirect to={`${this.props.match.url}/${this.props.webAppView}`}/>*/}
 					<Route
-						path={this.props.match.url + "/browse"}
-						render={() => (	
+						path={`${this.props.match.url}/browse`}
+						render={(props) => (	
 							<div>
-								<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView} match={this.props.match}/>
+								<SiteNav 
+									navEventCallbacks={this.props.navEventCallbacks} 
+									webAppView={this.props.webAppView} 
+									match={this.props.match}
+									ownerUsernamePath={ownerUsernamePath} />
 								<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 									<div className={Styles.containerBrowse}>
-										<div className={Styles.metricsContainer_div}>
+										{/*<div className={Styles.metricsContainer_div}>
 											<MetricPanel />
-										</div>
+										</div>*/}
+										<MetricPanel/>
 										<OutfitNav 
 											webAppView={this.props.webAppView}
-											browseSelection={this.props.browseSelection}/>
+											browseSelection={this.props.browseSelection}
+											/*routeToHostProfile={(usernameUri) => this._handleNavBtnSelected(`/profile${usernameUri}`)}*/ />
 										{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
 										<Admin/>
 									</div>
@@ -498,10 +549,14 @@ export default class webAppView extends React.Component {
 						)}
 					/>
 					<Route
-						path={this.props.match.url + "/profile"}
-						render={() => (
+						path={`${this.props.match.url}/profile/:username`}
+						render={(props) => (
 							<div>
-								<SiteNav navEventCallbacks={this.props.navEventCallbacks} webAppView={this.props.webAppView} match={this.props.match}/>
+								<SiteNav 
+									navEventCallbacks={this.props.navEventCallbacks} 
+									webAppView={this.props.webAppView} 
+									match={this.props.match}
+									ownerUsernamePath={ownerUsernamePath}/>
 								<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
 									<div 
 										className={Styles.containerProfile} 
@@ -529,7 +584,7 @@ export default class webAppView extends React.Component {
 											imageWidth={this.state.imageWidth}
 											imageHeight={this.state.imageHeight}
 											webAppView={this.props.webAppView}
-											browseSelection="outfits"/> />
+											browseSelection="outfits"/> 
 										<Admin/>
 									</div>
 								</div>
@@ -537,7 +592,7 @@ export default class webAppView extends React.Component {
 							</div>
 						)}
 					/>
-					<Route component={null} />
+					<Route render={props => <div>This URI does not exist</div>} />
 				</Switch>
 				{this.props.formType !== 'HIDDEN' ? modalContent : null}
 			</React.Fragment>

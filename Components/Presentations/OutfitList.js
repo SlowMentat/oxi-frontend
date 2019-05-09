@@ -55,7 +55,10 @@ class PagedOutfitList extends React.Component{
 											{...this.props.outfits[outfitId]} 
 											id={outfitId}
 											onClickContextProfile={this.props.onClickContextProfile} 
-											onClickContextHome={this.props.onClickContextHome}
+											onClickContextBrowse={this.props.onClickContextBrowse}
+											getHostMeasurements={this.props.getHostMeasurements}
+											navToHostProfile={this.props.navToHostProfile}
+											//routeToHostProfile={this.props.routeToHostProfile(`/${this.props.outfits[outfitId].username}`)}
 											isSelected={this.props.selectedId === outfitId}  
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.outfits[outfitId].coverpicuri} 
@@ -122,7 +125,7 @@ class OutfitList extends React.Component{
 		    		)}
 		    	</TransitionGroup>
 		    	{
-		    		this.props.viewState !== OxiAppConstants.viewState.PREVEIW ? 
+		    		this.props.viewState !== OxiAppConstants.viewState.PREVEIW && this.props.webAppView === 'profile' ? 
 		    			(<div id='makeOutfitCoverBtnContiner' className={outfitCoverBtnStyle.makeOutfitCoverBtnContainer_div}>
 		    				<div 
 		    					id='makeOutfitCoverBtn' 

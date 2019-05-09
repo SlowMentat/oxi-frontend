@@ -19,8 +19,8 @@ const mapStateToProps = (state, props ) => {
 		webAppView: state.appView.webAppView,
 		browseSelection: state.browseState.browseSelection,
 		viewState: state.contentViewState.viewState,
-		/*hostProfile: state.entitiesReducer.profile.byIds.host,
-		ownerProfile: state.entitiesReducer.profile.byIds.owner*/
+		/*hostProfile: state.entitiesReducer.profile.byIds.host,*/
+		owner: state.entitiesReducer.profile.byIds.owner,
 		formType: state.toggleModal.modal,
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,

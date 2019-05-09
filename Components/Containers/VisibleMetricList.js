@@ -8,7 +8,7 @@ const lowerBodyMetrics = ['hip', 'pantOutseam', 'pantInseam', 'thigh', 'calf']
 const getVisibleMetrics = (profile, blackList) => {
 	let ownerProfileMetrics = {};
 	if(profile !== null && profile !== undefined ){
-		ownerProfileMetrics = Object.assign({}, profile);
+		ownerProfileMetrics = Object.assign({}, profile.userMetricsDto);
 		console.log('ownerProfileMetrics', ownerProfileMetrics);
 		let i = 0;
 		for(let ind of blackList){
@@ -44,7 +44,8 @@ const mapStateToProps = (state, username) => {
 		'mens',
 		'womens',
 		'username',
-		'height'
+		'height',
+		'toleranceDto'
 	]
 	let filteredOwnerUpperBodyMetrics = getVisibleMetrics(state.entitiesReducer.profile.byIds.owner, [...blackList, ...lowerBodyMetrics]);
 	let filteredOwnerLowerBodyMetrics = getVisibleMetrics(state.entitiesReducer.profile.byIds.owner, [...blackList, ...upperBodyMetrics]);
@@ -66,9 +67,10 @@ const mapStateToProps = (state, username) => {
 		hostLowerBodyMetrics : filteredHostLowerBodyMetrics,
 		hostUpperBodyMetricIds :  Object.keys(filteredHostUpperBodyMetrics),
 		hostLowerBodyMetricIds :  Object.keys(filteredHostLowerBodyMetrics),
+		//tolerance: state.entitiesReducer.profile.byIds.owner.toleranceDto,
 		
-		ownerBodyShape: (state.entitiesReducer.profile.byIds.owner !== undefined ? state.entitiesReducer.profile.byIds.owner.bodyShape : null),
-		hostBodyShape: (state.entitiesReducer.profile.byIds.host !== undefined ? state.entitiesReducer.profile.byIds.host.bodyShape : null),
+		ownerBodyShape: (state.entitiesReducer.profile.byIds.owner !== undefined ? state.entitiesReducer.profile.byIds.owner.userMetricsDto.bodyShape : null),
+		hostBodyShape: (state.entitiesReducer.profile.byIds.host !== undefined ? state.entitiesReducer.profile.byIds.host.userMetricsDto.bodyShape : null),
 	});
 }
 

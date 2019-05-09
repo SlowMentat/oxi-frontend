@@ -19,10 +19,7 @@ export default class LogoIcon extends React.Component{
 				height="40" 
 				version="1.1" 
 				viewBox="0 0 75 40"	
-				style={this.props.style}>	
-				<g transform="translate(0,-10)">
-					<path d="m0.9588 11.539 36.542 37.197 36.543-37.197h-54.814z" fill="none" stroke="#ffca00" stroke-width=".54225"/>
-				</g>
+				style={this.props.style}>
 				<g transform="translate(0,-10)">
 					<g stroke="#53464c" stroke-dashoffset="15.118" stroke-linecap="round" stroke-linejoin="round">
 						<rect transform="matrix(-.70713 -.70708 -.70708 .70713 0 0)" x="-56.769" y="-26.806" width="10.515" height="10.515" ry="1.894" fill="#6dd7b4" stroke-width=".39862"/>

@@ -36,7 +36,13 @@ p{
     margin:0px;
 }
 
-#root{;
+a{
+	color: inherit;
+	text-decoration: none;
+}
+
+#root{
+	--main-background-color:#f9f9f9;
 }
 
 #modalRoot{
@@ -91,8 +97,9 @@ p{
 
 .containerProfile{
 	display: grid;
+	background-color: var(--main-background-color);
 	/*grid-template-columns: auto 250px 45% 20%;*/
-	grid-template-columns: 300px 24.579% 27% auto;
+	grid-template-columns: 300px 28.579% 27% auto;
     grid-template-rows: calc(100vh - 80px - 40px) 40px;
     grid-gap: 0px;
     grid-template-areas: 
@@ -103,9 +110,10 @@ p{
 
 .containerBrowse{
 	display: grid;
-	grid-template-columns: auto;
+	background-color: var(--main-background-color);
+	grid-template-columns: 300px auto;
     grid-template-rows: calc(100vh - 80px - 40px) 40px;
-    grid-template-areas: "browse" "admin";
+    grid-template-areas: "metric browse" "admin admin";
 	/*grid-template-columns: auto 80%;
 	grid-template-rows: calc(100vh - 80px - 40px) 40px;
 	grid-gap: 5px;
@@ -156,7 +164,18 @@ p{
 	/*grid-area: metric;*/
 	border-right-width: 1px;
     border-right-color: black;
-    border-right-style: solid;
+    /*border-right-style: solid;*/
+}
+
+:local(.metricContainer_div){
+	height: calc(100% - 16px + 40px);
+    border-style: solid;
+    border-width: 1px;
+    border-color: #c1c1c1;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background-color: white;
+    margin-top: 8px;
 }
 
 :local(.previewBlock){
@@ -174,7 +193,7 @@ p{
 
 :local(.outfitBlock){
 	composes: stdBlock;
-	margin-left: 300px;
+	/*margin-left: 300px;*/
 	grid-area: browse;
 }
 
@@ -191,22 +210,41 @@ p{
     width: 400px;
     border-style: solid;
     border-color: #bdbcbc;
+    background-color: white;
     border-left: none;
-    border-width: 2px;
+    border-width: 1px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
 }
 
 :local(.footerBlock){
 	composes: stdBlock;
-	grid-area: admin;
+	/*grid-area: admin;
 	background-color: #fdfdfd;
 	color: #212121;
     font-size: 17px;
     border-radius: 0px;
     border-top-width: 1px;
     border-top-color: #afafaf;
-    border-top-style: solid;
+    border-top-style: solid;*/
+	grid-area: admin;
+    background-color: #fdfdfd;
+    color: #212121;
+    font-size: 17px;
+    border-radius: 0px;
+    border-top-width: 1px;
+    border-top-color: #afafaf;
+    /* border-top-style: solid; */
+    background-color: #f9f9f9;
+    text-align: left;
+    line-height: 40px;
+    font-size: 15px;
+    font-family: sans-serif;
+    letter-spacing: .1rem;
+    color: #6d6d6d;
+	padding-left: 20px;
+    padding-right: 20px;
+    margin-left: 300px;
 }
 
 /*CSS styles for landing page port divs*/

@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import OutfitStyles from '../../outfit.css';
-import {OutfitAddDelete} from './OutfitTileCtrls.js';
+import {OutfitEditDelete, OutfitTileBrowseCtrls} from './OutfitTileCtrls.js';
 import {OutfitSocialStatistics} from './OutfitSocialStatistics.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 var showOutfitTileControls = {
-
+	position: 'relative',
 };
 
 export class Outfit extends React.Component{
@@ -19,7 +19,7 @@ export class Outfit extends React.Component{
 			hovering: false
 		};
 
-		this._handleOnClick = this._handleOnClick.bind(this);
+		this._handleTileClicked = this._handleTileClicked.bind(this);
 		this._handleImageReceived = this._handleImageReceived.bind(this);
 		this._handleOnMouseOver = this._handleOnMouseOver.bind(this);
 		this._handleOnMouseOut = this._handleOnMouseOut.bind(this);
@@ -39,11 +39,12 @@ export class Outfit extends React.Component{
 		}
 	}
 
-	_handleOnClick(event){
+	_handleTileClicked(event){
 		switch(this.props.webAppView){
 			case OxiAppConstants.navRequestMap.home.toLowerCase():
-				//TDOO: freeze the tileCotnrolShown state
-				this.props.onClickContextHome(this.props.id);
+				if(!this.props.isSelected){
+					this.props.onClickContextBrowse(this.props.id, null);
+				}
 				break;
 			case OxiAppConstants.navRequestMap.profile.toLowerCase():
 				if(!this.props.isSelected && this.props.viewState === OxiAppConstants.viewState.PREVIEW){			
@@ -115,15 +116,18 @@ export class Outfit extends React.Component{
 
 		return(
 			<div 
-				className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
+				//className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
+				className={OutfitStyles.stdOutfitBlock} 
 				style={contextualStyles} 
-				onClick={this._handleOnClick}
+				onClick={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? this._handleTileClicked : null}
 				onMouseOver={this._handleOnMouseOver}
 				onMouseOut={this._handleOnMouseOut}
 			>
 				{
 					isHome ? 
-						(<div className={OutfitStyles.outfitUsernameContainer_div} style={{'padding':'0px'}}>
+						(<div 
+							className={this.props.isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
+							style={{'padding':'0px'}}>
 							<div className={OutfitStyles.outfitUsername_div}>
 								{this.props.username !== undefined ? this.props.username.toUpperCase() : null}
 							</div>
@@ -161,9 +165,14 @@ export class Outfit extends React.Component{
 							})} 
 					>	
 						{
-							(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) 
-							? (<OutfitAddDelete editOutfit={this.props.editOutfit}/>)
-							: (null)
+							(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) ?
+							(<OutfitEditDelete editOutfit={this.props.editOutfit}/>) :
+							(<OutfitTileBrowseCtrls 
+								navToHostProfile={this.props.navToHostProfile} 
+								routeToHostProfile={this.props.routeToHostProfile}
+								username={isHome ? this.props.username : null}
+								getHostMeasurementsHandler={() => this.props.getHostMeasurements(this.props.id)}
+								handleTileSelected={this._handleTileClicked}/>)
 						}
 					</div>
 				</CSSTransition>

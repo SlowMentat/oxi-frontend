@@ -61,10 +61,10 @@ const mapDispatchToProps = (dispatch) => ({
 	postProfile: (profile) => {
 		dispatch(postProfile(profile))
 	},
-	navStateToBrowse : (handlePortalSelect) => {
+	navStateToBrowse : (handlePortalSelect, isOwnerProfileEntityPresent) => {
 		//location.pathname = "/shop/profile";
 		handlePortalSelect(OxiAppConstants.toPortals.consumer);
-		dispatch(navigateTo(OxiAppConstants.navRequestMap.home.toLowerCase()));
+		dispatch(navigateTo(OxiAppConstants.navRequestMap.home.toLowerCase(), isOwnerProfileEntityPresent));
 	},
 	navToCreatAccount : (accountType) => {
 		dispatch(setCreateAccountView(accountType))

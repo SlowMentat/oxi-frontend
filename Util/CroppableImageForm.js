@@ -223,7 +223,7 @@ class CroppableImageForm extends React.Component{
 							({})
 					)}*/
 					cropImgRoot={this.cropImgRoot}
-					src={(this.state.src || this.props.src) || (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg")}
+					src={(this.state.src || this.props.src) || ("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg")}
 					crop={this.state.crop}
 					onImageLoaded={this._onImageLoaded}
 					onComplete={this._onCropComplete}
@@ -237,7 +237,7 @@ class CroppableImageForm extends React.Component{
 			content = (
 				<img 
 					style={Object.assign({}, this.props.imgStyle)} 
-					src={(this.state.src || this.props.src) || (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg")} 
+					src={(this.state.src || this.props.src) || ("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg")} 
 					onClick={this.props.onImageClick} 
 					onLoad={this._handleImageLoad} 
 					ref={this.props.setupImageRef}/>

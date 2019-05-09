@@ -13,6 +13,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { Link } from 'react-router-dom';
 
 
 const ButtonContainer ={
@@ -35,7 +36,7 @@ const Button = {
     //'left': '10px'
 }
 
-export class OutfitAddDelete extends React.Component{
+export class OutfitEditDelete extends React.Component{
 	constructor(props){
 		super(props);
 	}
@@ -66,5 +67,59 @@ export class OutfitAddDelete extends React.Component{
 				</div>
 			</div>
 		);
+	}
+}
+
+export class OutfitTileBrowseCtrls extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		return(
+			<div style={{
+				position: 'absolute',
+    			top: 'calc(50% - 25px)',
+    			width: '153px',
+    			left: 'calc(50% - 153px/2)',
+			}}>
+				<div className={OutfitStyles.previewMeasureBtnContainer_div}>
+					<div className={OutfitStyles.previewMeasureBtn_div}>
+					</div>
+				</div>
+				<div 
+					className={OutfitStyles.previewMeasureBtnContainer_div}
+					style={{padding:'0px'}}>
+					<div 
+						className={OutfitStyles.previewMeasureBtn_div}
+						style={{
+							height:'100%',
+							'line-height':'50px',
+						}}
+						onClick={(e) => {
+							e.stopPropagation();
+							this.props.handleTileSelected();
+							this.props.getHostMeasurementsHandler()();
+						}}>
+					•
+					</div>
+				</div>
+				<div className={OutfitStyles.previewMeasureBtnContainer_div}>
+					<Link to={`/shop/profile/${this.props.username}`}>
+					{/*<Link to={`/shop/browse`}>*/}
+						<div 
+							className={OutfitStyles.previewMeasureBtn_div}
+							style={{'line-height':'40px'}}
+							onClick={(e) => {
+								//e.stopPropagation();
+								this.props.navToHostProfile();
+								//this.props.routeToHostProfile();
+							}}>
+						→
+						</div>
+					</Link>
+				</div>
+			</div>
+		)
 	}
 }

@@ -185,7 +185,13 @@ export class Item extends React.Component{
 						fill={fill}
 						stroke={stroke}/>
 				</a>
-				<a className={ItemStyles.itemTypeBlock}>
+				<a 
+					className={ItemStyles.itemTypeBlock} 
+					style={{
+						'border-top-right-radius': '4px',
+						'border-bottom-right-radius': '4px',
+					}}
+				>
 					<div style={itemCellContainer}>
 						<div>	
 							{this.props.item.size}

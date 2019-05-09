@@ -34,7 +34,7 @@ import LandingPageContainer from './Components/Containers/LandingPageContainer.j
 
 //Reducers
 import _OxiApp from './Components/Reducers/indexReducers.js';
-import {showModal, setFormVisibility, setXcsrfToken, fetchEntities, handleUnauthorizedRequest, insertCsrfToken} from './Components/Actions/indexActions.js';
+import {showModal, setFormVisibility, setXcsrfToken, fetchEntities, handleUnauthorizedRequest, insertCsrfToken, cookies} from './Components/Actions/indexActions.js';
 
 //See instructions when adding enhancers and middlewares
 import { devToolsEnhancer } from 'redux-devtools-extension';
@@ -68,7 +68,7 @@ const store = createStore(_OxiApp,
 console.log("Initialized Store")
 console.log(store.getState());
 const unsubscribeStore = store.subscribe(() => console.log(store.getState()));
-const cookies = new Cookies();
+//const cookies = new Cookies();
 
 //Constant global variables
 //TODO:  Thios was moved to .../Util/OxiAppConstants.  Replace references to this definition in other modules with new location.
@@ -105,6 +105,10 @@ const cookies = new Cookies();
 //set axios defult headers
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+if(cookies.get('authorization')){
+	axios.defaults.headers.common['authorization'] = cookies.get('authorization');
+}
+//axios.defaults.headers.common['Authorization'] = 'Bearer';
 //axios.defaults.headers.common['Origin'] = 'https://'
 
 //Set interceptor for responses with unauthorized status.
@@ -380,7 +384,7 @@ class App extends React.Component {
 			case OxiAppConstants.toPortals.consumer:
 				return (
 					<React.Fragment>
-						<Redirect push={true} to='/shop/profile'/>
+						<Redirect push={true} to='/shop/browse'/>
 	    				<Route path={this.props.match.url + 'shop'} component={ WebAppView }/>
 	    			</React.Fragment>
 				);

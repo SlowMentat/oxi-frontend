@@ -10,11 +10,12 @@
 
 :local(.stdOutfitBlock){
 	composes:stdBlock from './root.css';
+    --outfit-tile-width: 200px;
 	position:relative;
-	width:200px;
+	width:var(--outfit-tile-width);
 	height:calc(200px * 3/2);
 	margin:auto;
-	margin-top: 25px;
+	margin-top: 32px;
 	border-radius: 2px;
     border-width: 1px;
     border-color: #212121;
@@ -24,14 +25,14 @@
 }
 
 :local(.outfitMenuBlock){
-	margin-right: -50px;
+	margin-right: -23px;
 	margin-top: -25px;
 }
 
 :local(.Outfit__div--selected){
 	composes:stdOutfitBlock;
-	border-style: solid;
-	border-color: var(--entity-selected-border-color);
+	/*border-style: solid;
+	border-color: var(--entity-selected-border-color);*/
 }
 
 :local(.addOutfitButton){
@@ -75,11 +76,13 @@
 
 /*Social Statistic (Home Page)*/
 
-:local(.SocialStatsContainerHome){
+:local(.likesContainerHome_div){
 	position: absolute;
-    width: 100%;
-    height: 40px;
-    bottom: -40px;
+    height: calc((var(--outfit-tile-width)*3/2) * 0.076);
+    bottom: calc((var(--outfit-tile-width)*3/2) * -0.076);
+    width: calc(100%);
+    /*height: 40px;
+    bottom: -40px;*/
     right: 0px;
     border-style: none;
     text-align: right;
@@ -87,30 +90,98 @@
     padding-top: 5px;
 }
 
-/*Social Statistics CSS*/
-
-:local(.SocialStatsContainer){
-	position: absolute;
-	width: 23px;
-	height: calc(200px + 200px/2);
-	margin-left: -30px;
+:local(.likesStats_div){
+    /*width: calc(100% - 40px);
+    height: 40px;
+    display: inline-block;*/
+    width: 75%;
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+    right: 0px;
+    text-align: left;
 }
 
-:local(.socialStatsIconContainer){    
+:local(.likesHeader_div){
+    /*display: inline-block;
+    width: 50px;
+    height: 100%;
+    line-height: 40px;
+    color: #ababab;
+    text-align: left;
+    font-size: 1.3rem;
+    letter-spacing: 0.1rem;
+    font-weight: bold;
+    padding-left: 10px;*/
+    display: inline-block;
+   /*width: 50px;*/
+    height: 100%;
+    line-height: calc((var(--outfit-tile-width)*3/2) * 0.076);
+    color: #656565;
+    text-align: left;
+    font-size: 1.3rem;
+}
+
+:local(.likesValue_div){
+    /*height: 40px;
+    width: calc(100% - 50px);
+    color: #4a4a4a;
+    display: inline-block;
+    text-align: left;
+    padding-left: 15px;
+    line-height: 40px;
+    font-size: 1.2rem;
+    letter-spacing: 0.2rem;
+    font-weight: bold;*/
+    height: 100%;
+    width: calc(100% - 50px);
+    color: #4a4a4a;
+    display: inline-block;
+    text-align: left;
+    /* padding-left: 10px; */
+    line-height: calc((var(--outfit-tile-width)*3/2) * 0.076);
+    font-size: 1.2rem;
+    letter-spacing: 0.2rem;
+    font-weight: bold;
+    padding-left: 12px
+}
+
+/*Social Statistics CSS*/
+
+:local(.likesContainer_div){
+	position: absolute;
+	/*width: 23px;*/
+    width:100%;
+    text-align: right;
+	height: calc((var(--outfit-tile-width)*3/2) * 0.076);
+    bottom: calc((var(--outfit-tile-width)*3/2) * -0.076 - 3px);
+	/*margin-left: -30px;*/
+}
+
+:local(.likesBtn_div){    
+    /*top: 0px;
 	width: 40px;
     height: 40px;
     position: relative;
     display: inline-block;
     vertical-align: top;
     padding-left: 8px;
-    padding-right: 8px;
+    padding-right: 8px;*/
+    top: 0px;
+    width: 25%;
+    height: 100%;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    right: 0px;
 }
 
-:local(.socialStatsIcon){
-	top: 25%;
-	height: 50%;
-	width: 100%;
-	position: absolute;
+:local(.likesBtn_svg){
+	/*top: 25%;*/
+	height: 100%;
+	/*width: 100%;*/
+    width: auto;
+	/*position: absolute;*/
 }
 
 /*==========TRANSITION GROUP CLASSES==========*/
@@ -188,6 +259,29 @@
     margin-top: calc(50% + 20%/2);
 }
 
+:local(.previewMeasureBtnContainer_div){
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+    position: relative;
+    height: 50px;
+    width: 50px;    
+    display: inline-block;
+    vertical-align: top;
+}
+
+:local(.previewMeasureBtn_div){
+    border-style: solid;
+    border-width: 1px;
+    border-color: white;
+    border-radius: 3px;
+    width: 100%;
+    height: 40px;
+    cursor: pointer;
+    font-size: 20px;
+    text-align: center;
+}
+
 /*replaced by outfitMenuContainer*/
 /*.editOutfitBtnContainer5_div{
 	position: absolute;
@@ -201,19 +295,30 @@
 	position: absolute;
     border-style: solid;
     border-width: 1px;
-    border-color: #00000042;
+    border-color: #b8b8b8;
     border-right-style: none;
-    background-color: #00000005;
+    background-color: #f8f8f8;
     padding: 10px 14px 10px 14px;
     width: 50px;
     height: calc(200px + 200px/2);
     margin-left: -50px;
+    color: #5f5f5f;
+
+    transition: background-color 150ms, color 150ms, border-color 150ms;
+}
+
+:local(.outfitUsernameContainer_div--selected){
+    composes:outfitUsernameContainer_div;
+    background-color: #4a4a4a;
+    border-color: #4a4a4a;
+    color: white;
+
+    transition: background-color 150ms, color 150ms,  border-color 150ms;
 }
 
 :local(.outfitUsername_div){
 	height: 100%;
     width: 100%;
-    color: #5f5f5f;
     line-height: 2.5em;
     font-size: 2.5em;
     font-family: 'Archivo Black', sans-serif;

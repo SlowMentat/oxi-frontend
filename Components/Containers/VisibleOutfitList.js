@@ -20,6 +20,8 @@ import {
 	addItemContent,
 	patchEntity,
 	updateOutfitCoverpicuri,
+	removeAllEntities,
+	navigateTo,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -44,6 +46,7 @@ const mapStateToProps = (state, props) => {
 		//selectedAddedId: state.entitiesStateReducer.outfits.selected,
 		//view: props.view,
 		viewState: state.contentViewState.viewState,
+		webAppView: state.appView.webAppView,
 		contents : state.entitiesReducer.contents.byIds,
 		selectedContentId : state.entitiesStateReducer.contents.selected,
 		items : state.entitiesReducer.items.byIds,
@@ -65,7 +68,11 @@ const mapDispatchToProps = (dispatch, state) => ({
 		console.log("view Outfit div clicked")
 		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));
 	},
-	onClickContextHome : (outfitId) => {
+	onClickContextBrowse : (outfitId, targetChildId) => {
+		console.log("outfit tile selected");
+		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+	},
+	getHostMeasurements : (outfitId) => {
 		//fetch for the outfit's user's profile metrics (findProfileByOutfitId)
 		console.log('clicked', outfitId);
 		dispatch(fetchMetrics(outfitId));
@@ -118,6 +125,22 @@ const mapDispatchToProps = (dispatch, state) => ({
 		.then(response => {
 			dispatch(updateOutfitCoverpicuri(modifiedProperties));
 		});
+	},	
+	navToHostProfile : (hostUsername) => {	
+		//Deselect everything
+		/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+		//remove all entitiy data from entitiesReducer branch
+		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
+		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
+		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
+		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
+	
+		dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+	},
+	compareHostMeasurements: (outfitId) => {
+
 	}
 })
 

@@ -58,7 +58,7 @@ export default class ItemList extends React.Component{
 		});*/
 		let itemControl
 		return (
-		    <div className={ItemStyles.itemMenuBlock} style={{'padding-left': '50px'}} >
+		    <div className={ItemStyles.itemMenuBlock} style={{'padding-left': '75px'}} >
 		    	<div style={{'height':'calc(5vh + 25px)'}}>
 		    		<div className={ItemStyles.itemMenuHeaderContainer}>
 		    			<div className={ItemStyles.itemMenuHeader}>

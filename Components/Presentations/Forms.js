@@ -4,7 +4,7 @@ import FormStyles from '../../forms.css';
 import Styles from '../../root.css';
 import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
-import {handleUnauthorizedRequest, requestInterceptor, loginConfig} from '../../Components/Actions/indexActions.js';
+import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {denormalizeOutfit} from '../../Util/Schema.js';
 /*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
@@ -271,6 +271,7 @@ export class ItemForm extends React.Component{
 				// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
 				//this.props.editingItem(this.props.itemAllIds);
 				this.props.cancelAction();
+				//this.props.history.goBack();
 			}else{
 				console.log('input is not an approved retailer');
 			}
@@ -405,6 +406,9 @@ export class LoginForm extends React.Component{
 		axios(loginConfig(username, password))
 		.then(response => {
 			if(response.status == OxiAppConstants.HttpStatus.OK){
+				//append the authorization token expected in the 200 /login response onto the defualt Authorization header
+				cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
+				axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 				this.props.cancelAction();
 				this.props.history.goBack();
 				this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);

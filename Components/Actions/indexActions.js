@@ -113,7 +113,7 @@ const defaultProfileData = {
 	'halfShoulder':'',
 	'chest':'',
 	'waist':'',
-	'hips':'',
+	//'hips':'',
 	'sleeve':'',
 	'frontLength':'',
 	'backLength':'',
@@ -236,18 +236,27 @@ export const modifyProfile = makeActionCreator(MODIFY_PROFILE, OxiAppConstants.E
 export const cookies = new Cookies();
 
 const postConfig = (url, data) => {
+	//let authScheme = cookies.get('auth_scheme') !== null ? cookies.get('auth_scheme') : '';
+	//let authToken = '';// cookies.get('auth_token') !== null ? cookies.get('auth_token') : '';
 	return {
 		method: 'POST',
-		headers: {'content-type': 'application/x-www-form-urlencoded'},
-		data: qs.stringify(data),
+		//headers: {'content-type': 'application/x-www-form-urlencoded'},
+		//data: qs.stringify(data),
+		headers:{
+			//'content-type': 'application/x-www-form-urlencoded',
+			'content-type': 'application/json;charset=UTF-8',
+			//'Authorization':(authScheme + authToken)
+		},
+		data: data,
 		url
 	};
 }
+
 export const loginConfig = (username, password) => {
 	return postConfig(
 		OxiAppConstants.apiBaseURL + '/login',
 		{
-			'X-CSRF-TOKEN' : cookies.get('csrf_token'),
+			//'X-CSRF-TOKEN' : cookies.get('csrf_token'),
 			'username' : username,
 			'password' : password
 		}
@@ -265,6 +274,8 @@ export function handleUnauthorizedRequest(response){
 			console.log('Setting new csrf token');
 			console.log(response.headers['x-csrf-token']);
 			cookies.set('csrf_token', response.headers['x-csrf-token']);
+			cookies.set('authorization', response.headers['www-authenticate'] + ' ');
+			axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
 			dispatch(setFormVisibility("Login", response.request.responseURL, response.config.method));
 			return response;
 		}
@@ -621,13 +632,15 @@ export const setCreateAccountView = (accountType) => {
 	});
 }
 
-function selectDestination(location, dispatch){
+function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 	console.log('destination = ', Location)
 	switch(location){
 		case OxiAppConstants.navRequestMap.home.toLowerCase():
 			dispatch(setWebAppView(location));
 			//Fetch all entities.  
 			//TODO:  filtered fetch via queary parameters
+			
+			isOwnerProfileEntityPresent ? null : dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all'));
 			break;
 		case OxiAppConstants.navRequestMap.profile.toLowerCase():
@@ -653,14 +666,13 @@ function selectDestination(location, dispatch){
 	}
 }
 
-export function navigateTo(location){
+export function navigateTo(location, isOwnerProfileEntityPresent){
 	return function(dispatch, getState){
 		console.log('in navigateTo()')
 		dispatch(requestNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
-		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && 
-			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
+		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
 			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
 		}else{
 			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
@@ -672,7 +684,7 @@ export function navigateTo(location){
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
 
-			selectDestination(location, dispatch);
+			selectDestination(location, dispatch, isOwnerProfileEntityPresent);
 			dispatch(requestNavigation(null));
 		}/*
 		}).then((response) => {
@@ -699,7 +711,7 @@ export function navigateTo(location){
 //TODO:  this should be replaced with an email verification login on initial account creation.
 export function createUser(email, password, username){
 	return function(dispatch){
-		return axios.post(OxiAppConstants.serviceURL + '/createUser', {			
+		return axios.post(OxiAppConstants.apiBaseURL + '/account/user/register', {			
 			'email': email,
 			'password': password,
 			'username': username			
@@ -713,15 +725,22 @@ export function createUser(email, password, username){
 				console.log(response);
 				cookies.set('csrf_token', response.headers['x-csrf-token']);
 				//Log user in
-				axios(loginConfig(username, password))
-				.then(response => {
-					if(response.status === OxiAppConstants.HttpStatus.OK){
-						dispatch(addProfile(response.data));
-						dispatch(showProfileMenu(true));
-					}else{
-						console.log("Could not sign in")
-					}
-				});
+				console.log('skipping login')
+				//axios(loginConfig(username, password))
+				//.then(response => {
+				//	if(response.status === OxiAppConstants.HttpStatus.OK){
+				//		//append the authorization token expected in the 200 /login response onto the defualt Authorization header
+				//		cookies.set('authorization', `${response.headers['www-authenticate']} ${response.headers['authorization']}`);
+				//		console.log('www-authenticate = ', response.headers['www-authenticate']);
+				//		axios.defaults.headers.common['authorization'] = cookies.get('authorization');
+				//		console.log('username = ', username);
+				//		//create a new profile with provisioned username in redux store
+				//		dispatch(addProfile(Object.assign({}, {'username': username}, response.data)));
+				//		dispatch(showProfileMenu(true));
+				//	}else{
+				//		console.log("Could not sign in")
+				//	}
+				//});
 			}
 		})
 		//.then(response => callback(event, response));		
