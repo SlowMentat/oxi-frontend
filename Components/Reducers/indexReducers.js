@@ -695,12 +695,12 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 
 		case `ADD_${action.typeSpecifier}S`:
 			//let nextCount = state.count + 1;
-			if(nextCount > maxCount){
+			let currentCount = state.count;
+			if(currentCount + 1 > maxCount){
 				return state;
 			}else{
 				let scrubbedAction = {payload:{entities:{}}};
 				let newEntityCount = 1;
-
 				let addedEntityCount = Object.keys(action.payload.entities).length;
 				let scrubbedActionEntityIds = [];
 				//find the max id
@@ -710,9 +710,10 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 					}
 					return maxId;
 				}, 0);
-
+				console.log('max content count = ', maxCount);
 				//perform scrubbing operations on all entities first
 				for(let entity of action.payload.entities){
+					currentCount = state.count + newEntityCount;
 					if(state.count + newEntityCount <= maxCount){
 						//if entity is new
 						if(entity.id === null){
@@ -747,7 +748,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 				return Object.assign({}, state, {
 					byIds : byId(byIdsRef, scrubbedAction),
 					allIds : allIds(allIdsRef, scrubbedAction),
-					count : nextCount
+					count : currentCount
 				});
 			}
 

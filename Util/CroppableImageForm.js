@@ -270,12 +270,29 @@ class CroppableImageForm extends React.Component{
 	* Then adds content entites to addedEntitiesReducer with contet.coverpicuri set to a corresponding image file reference
 	*/
 	_onSelectMultipleFiles(event){
-		for(var i=0; i < event.target.files.length; i++){
-			//this.fileRefs.push(event.target.files[i]);
-			this.fileRefs = Object.assign({}, this.fileRefs, {[event.target.files[i].name]: event.target.files[i]} );
-		}
-		this.props.addContentFromImages(this.fileRefs);
 
+		let newFileRefs = {}		
+		let currentCount = Object.keys(this.fileRefs).length;
+		let addCount = 1;
+
+		for(var i=0; i < event.target.files.length; i++){
+			
+			if(currentCount + addCount < 7){
+				//make sure file reference does not already exist in this.fileRefs
+				if (this.fileRefs[event.target.files[i].name] === undefined){
+					newFileRefs = Object.assign({}, newFileRefs, {[event.target.files[i].name]: event.target.files[i]} );				
+				}else{
+					console.log('Image is already being editted.  Remove image from editor before adding again')
+				}
+			}else{
+				console.log("image count limit reached")
+				break;
+			}
+			addCount++;
+		}
+
+		this.fileRefs = Object.assign({}, this.fileRefs, newFileRefs );
+		if(Object.keys(newFileRefs).length > 0) this.props.addContentFromImages(newFileRefs);
 	}
 
 	_onSelectFile(event){
