@@ -5,6 +5,7 @@ import {OutfitEditDelete, OutfitTileBrowseCtrls} from './OutfitTileCtrls.js';
 import {OutfitSocialStatistics} from './OutfitSocialStatistics.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 var showOutfitTileControls = {
 	position: 'relative',
@@ -41,12 +42,12 @@ export class Outfit extends React.Component{
 
 	_handleTileClicked(event){
 		switch(this.props.webAppView){
-			case OxiAppConstants.navRequestMap.home.toLowerCase():
+			case OxiAppConstants.navRequestMap.a.toLowerCase():
 				if(!this.props.isSelected){
 					this.props.onClickContextBrowse(this.props.id, null);
 				}
 				break;
-			case OxiAppConstants.navRequestMap.profile.toLowerCase():
+			case OxiAppConstants.navRequestMap.b.toLowerCase():
 				if(!this.props.isSelected && this.props.viewState === OxiAppConstants.viewState.PREVIEW){			
 					//call selectAndPropogate
 					this.props.onClickContextProfile(this.props.id, this.props.contentIds[0]);
@@ -62,9 +63,9 @@ export class Outfit extends React.Component{
 		showOutfitTileControls = Object.assign({}, {display: 'block'});
 		this.setState({hovering: true});
 		switch(this.props.webAppView){
-			case OxiAppConstants.navRequestMap.home.toLowerCase():
+			case OxiAppConstants.navRequestMap.a.toLowerCase():
 				break;
-			case OxiAppConstants.navRequestMap.profile.toLowerCase():
+			case OxiAppConstants.navRequestMap.b.toLowerCase():
 				break;
 			default:
 				break;
@@ -75,9 +76,9 @@ export class Outfit extends React.Component{
 		showOutfitTileControls = Object.assign({}, {display: 'none'});
 		this.setState({hovering: false})
 		switch(this.props.webAppView){
-			case OxiAppConstants.navRequestMap.home.toLowerCase():
+			case OxiAppConstants.navRequestMap.a.toLowerCase():
 				break;
-			case OxiAppConstants.navRequestMap.profile.toLowerCase():
+			case OxiAppConstants.navRequestMap.b.toLowerCase():
 				break;
 			default:
 				break;
@@ -101,7 +102,7 @@ export class Outfit extends React.Component{
 		let contextualStyles = null;
 		let outfitHeight = this.props.containerHeight/3;
 		let outfitWidth = outfitHeight*(2/3);
-		let isHome = this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase()
+		let isHome = this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase()
 		contextualStyles = isHome ?
 			contextualStyles = {
 				'display':'inline-block',
@@ -119,9 +120,8 @@ export class Outfit extends React.Component{
 				//className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
 				className={OutfitStyles.stdOutfitBlock} 
 				style={contextualStyles} 
-				onClick={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? this._handleTileClicked : null}
-				onMouseOver={this._handleOnMouseOver}
-				onMouseOut={this._handleOnMouseOut}
+				onClick={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this._handleTileClicked : null}
+		
 			>
 				{
 					isHome ? 
@@ -129,53 +129,71 @@ export class Outfit extends React.Component{
 							className={this.props.isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
 							style={{'padding':'0px'}}>
 							<div className={OutfitStyles.outfitUsername_div}>
-								{this.props.username !== undefined ? this.props.username.toUpperCase() : null}
+								{this.props.username !== undefined && this.props.username !== null ? this.props.username.toUpperCase() : null}
 							</div>
 						</div>) :
-						null
+						(<div className={this.props.isSelected ? OutfitStyles['outfitMultiPicContainer_div--selected'] : OutfitStyles.outfitMultiPicContainer_div}>
+							<div className={OutfitStyles.outfitMultiPic_div}>
+								{
+									Object.keys(this.props.contents).length > 1 ? 
+										(<SvgIcon 
+											style={{
+												width:'100%', 
+												height:'100%'
+											}} 
+											name="MultiplePicIcon" 
+											stroke={this.props.isSelected ? '#FFF' : '#000'}/>) :
+										null
+								}
+							</div>
+						</div>)
 				}
-				<img 
-					src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
-					style={{
-						width:'100%', 
-						'max-height':'inherit',
-						'border-radius':'3px',
-						'border-top-left-radius':'0px',
-						'border-bottom-left-radius':'0px',
-						position:'absolute'
-					}}
-				/>
-				<CSSTransition 
-					key={this.props.id}
-				    tiemout={200}
-				    classNames="outfitMenuContainer"
-				    in={(this.state.hovering && this.props.viewState === OxiAppConstants.viewState.PREVIEW)}
-				    unmountOnExit >
-					<div 
-						className={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
-							OutfitStyles.outfitMenuContainer : 
-								!this.props.isSelected ? 
-									OutfitStyles.outfitTileMask : 
-									null } 
-						style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
-							showOutfitTileControls : 
-							({
-								'display':'block', 
-								'top':`calc(${outfitHeight} - 70px`
-							})} 
-					>	
-						{
-							(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) ?
-							(<OutfitEditDelete editOutfit={this.props.editOutfit}/>) :
-							(<OutfitTileBrowseCtrls 
-								navToHostProfile={this.props.navToHostProfile} 
-								routeToHostProfile={this.props.routeToHostProfile}
-								username={isHome ? this.props.username : null}
-								getHostMeasurementsHandler={() => this.props.getHostMeasurements(this.props.id)}
-								handleTileSelected={this._handleTileClicked}/>)
-						}
-					</div>
-				</CSSTransition>
+				<div
+					onMouseOver={this._handleOnMouseOver}
+					onMouseOut={this._handleOnMouseOut}>
+					<img 
+						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
+						style={{
+							width:'100%', 
+							'max-height':'inherit',
+							'border-radius':'3px',
+							'border-top-left-radius':'0px',
+							'border-bottom-left-radius':'0px',
+							position:'absolute'
+						}}
+					/>
+					<CSSTransition 
+						key={this.props.id}
+					    tiemout={200}
+					    classNames="outfitMenuContainer"
+					    in={(this.state.hovering && this.props.viewState === OxiAppConstants.viewState.PREVIEW)}
+					    unmountOnExit >
+						<div 
+							className={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
+								OutfitStyles.outfitMenuContainer : 
+									!this.props.isSelected ? 
+										OutfitStyles.outfitTileMask : 
+										null } 
+							style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
+								showOutfitTileControls : 
+								({
+									'display':'block', 
+									'top':`calc(${outfitHeight} - 70px`
+								})} 
+						>	
+							{
+								(this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) ?
+								(<OutfitEditDelete editOutfit={this.props.editOutfit}/>) :
+								(<OutfitTileBrowseCtrls 
+									navToHostProfile={this.props.navToHostProfile} 
+									routeToHostProfile={this.props.routeToHostProfile}
+									username={isHome ? this.props.username : null}
+									getHostMeasurementsHandler={() => this.props.getHostMeasurements(this.props.id)}
+									handleTileSelected={this._handleTileClicked}/>)
+							}
+						</div>
+					</CSSTransition>
+				</div>
 				<OutfitSocialStatistics webAppView={this.props.webAppView}/>
 			</div>
 		);

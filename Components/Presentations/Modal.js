@@ -31,6 +31,9 @@ function Modal(props){
 				clearInvalidations={() => props.clearInvalidations(props.entitiesStateReducer)}
 				math={props.match}
 				history={props.history}
+				getSuggestion={props.getSuggestion}
+				getApparelTypes={props.getApparelTypes}
+				allApparelTypes={props.allApparelTypes}
 			/>
 		</ModalContainer>
 	);

@@ -19,14 +19,15 @@ export const OxiAppConstants = Object.freeze({
 	modalRoot : document.getElementById('modalRoot'),
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
+	webAppBaseURL : 'https://www.oxisalechannel.com',
 	aspectRatio : (2 / 3),
 	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1
 	navRequestMap : {
-		home : "Browse",
-		profile : "Profile",
-		settings : "Settings",
-		search : "Search",
-		logout : "Logout"
+		a : "Browse",
+		b : "Profile",
+		c : "Fitting",
+		//search : "Search",
+		//logout : "Logout"
 	},
 	toPortals:{
 		consumer: '/shop/browse',
@@ -41,7 +42,26 @@ export const OxiAppConstants = Object.freeze({
 		ITEM_CONTENT : "ITEMCONTENT",
 		PICTURE : "PICTURE",
 		BRAND: "BRAND",
-		RETAILER: "RETAILER"
+		RETAILER: "RETAILER",
+		APPAREL_TYPE: "APPAREL_TYPE",
+		search:{
+			ta: 'AVAILABLE_ITEMS',
+		}
+	},
+	routeURIs:{
+		login:'/user/account/login',
+		browse: '/shop/browse',
+		shop: '/shop',
+		search:{
+			a:'/searchItems',
+			b:'/searchRetailerNames',
+			c:'/searchUdr',
+			d:'/searchUds',
+			e:'/searchApparelTypes'
+		}
+	},
+	appUris:{
+		a: '/allApparelTypes'
 	},
 	MenuTypes : {
 		FILTER: "FILTER",
@@ -86,7 +106,8 @@ export const OxiAppConstants = Object.freeze({
 	requestToBatchedDispatchMap : {
 		outfits: {
 			get: (dispatch) => {
-				dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+				//navigate to browse
+				dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase()));
 			},
 		}
 	},
@@ -115,9 +136,10 @@ export const OxiAppConstants = Object.freeze({
 			id: null,
 			positionx: '',
 			positiony: '',
-			type: '',
-			size: '',
-			retailer: '',
+			//type: {},
+			//size: {},
+			//retailer: '',
+			product:{},
 			brand: ''
 		},
 		PICTURE: {

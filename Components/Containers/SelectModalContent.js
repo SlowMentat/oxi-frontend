@@ -17,7 +17,8 @@ import {
 	replaceEdittingIds,
 	disableAddContentButton,
 	clearClientInvalidation,
-	clearSelectMultipleEntity
+	clearSelectMultipleEntity,
+	fetchSuggestion
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -78,7 +79,8 @@ const mapStateToProps = (state, props) => {
 		retailers: state.entitiesReducer.retailers.byIds,
 		requestedNav : state.requestedNavigation.location,
 		entitiesStateReducer: state.entitiesStateReducer,
-		addedEntitiesReducer: state.addedEntitiesReducer
+		addedEntitiesReducer: state.addedEntitiesReducer,
+		allApparelTypes: Object.values(state.entitiesReducer.apparelTypes.byIds),
 	};
 }
 
@@ -125,7 +127,13 @@ const mapDispatchToProps = (dispatch) => ({
 				'items':itemAllIds
 			}));
 		},
-		afterLoginSuccess:  (requestUrl, requestType) => OxiAppConstants.requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceURL+'/', "").split('?')[0]][requestType](dispatch),
+		afterLoginSuccess:  (requestUrl, requestType) => {
+			if(requestUrl !== null && requestUrl !== undefined && requestUrl !== ''){
+				OxiAppConstants.requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceURL+'/', "").split('?')[0]][requestType](dispatch);
+			}else{
+				
+			}
+		},
 		clearUpdates: () => {
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.OUTFIT));
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.CONTENT));
@@ -152,6 +160,16 @@ const mapDispatchToProps = (dispatch) => ({
 				default:
 					break;
 			}
+		},
+		getSuggestion:(uri)=>{
+			return new Promise((resolve, reject) => {
+				resolve(dispatch(fetchSuggestion(uri)));
+			});
+		},
+		getApparelTypes:(uri)=>{
+			return new Promise((resolve, reject) => {
+				resolve(dispatch(fetchSuggestion(uri)));
+			})
 		}
 })
 

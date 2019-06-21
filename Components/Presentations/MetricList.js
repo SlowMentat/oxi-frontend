@@ -9,16 +9,16 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 
 
-const labelContainer_div = {
-	'border-top-style': 'none',
-    'border-width': '20px',
-    'border-color': '#dadada',
-    'position': 'relative',
-}
+//const labelContainer_div = {
+//	'border-top-style': 'none',
+//    'border-width': '20px',
+//    'border-color': '#dadada',
+//    'position': 'relative',
+//}
 
 const upperBodySection_div = {
     'margin': '0px auto 0px 0px',
-    'padding-top': '15px',
+    //'padding-top': '15px',
     'margin-left': '0px',
 }
 
@@ -146,7 +146,7 @@ class MetricGraph extends React.Component{
 		}
 
 		return(
-			<div className={MetricStyles.metricGraphContainer_div}>
+			<div className={MetricStyles.metricGraphBarsContainer_div}>
 				{output}
 				{/*
 					true ? null :
@@ -168,6 +168,10 @@ class MetricGraph extends React.Component{
 						}
 					</svg>
 				*/}
+				<div className={MetricStyles.toleranceBoundsMin_div}>
+				</div>
+				<div className={MetricStyles.toleranceBoundsMax_div}>
+				</div>
 			</div>
 		);
 	}
@@ -344,7 +348,7 @@ class MetricList extends React.Component{
 		console.log('this.state.labels.lowerBody = ', this.state.labels.lowerBody)
 		return (
 			<React.Fragment>	
-				<div style={labelContainer_div}>
+				<div className={MetricStyles.metricGraphContainer_div}>
 					<div id='upperBodySection' style={upperBodySection_div}>
 						<div>
 							<Labels 
@@ -368,7 +372,7 @@ class MetricList extends React.Component{
 							</React.Fragment>
 						</div>
 					</div>
-					<div id='lowerBodySecction' style={upperBodySection_div}>
+					<div id='lowerBodySection' style={upperBodySection_div}>
 						<div> 
 							<Labels 
 								labelToPositionMap={this.state.labels.lowerBody} 
@@ -393,10 +397,16 @@ class MetricList extends React.Component{
 					</div>
 				</div>
 	
-				<div>
+				<div className={MetricStyles.bodyDiagramContainer_div}>
 					<div style={{'height':'100%'}}>
 						<BodyDiagram 
-							bodyShape={this.props.hostBodyShape === null ? this.props.ownerBodyShape : this.props.hostBodyShape} 
+							bodyShape={
+								this.props.hostBodyShape !== null ? 
+									this.props.hostBodyShape : 
+									this.props.ownerBodyShape !== null ? 
+										this.props.ownerBodyShape : 
+										this.props.ownerBodyShape 
+							} 
 							selectedField={this.state.labelHovered} 
 							orientation='left' />
 					</div>

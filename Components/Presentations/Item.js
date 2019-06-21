@@ -44,7 +44,8 @@ const defualtItemMenuContainer = {
 }
 
 const itemCellContainer = {
-	//position: 'absolute',
+	'margin-top':'25px',
+	width:'100%',
 }
 const itemCellContentContainer = {
 	position: 'relative',
@@ -78,42 +79,46 @@ export class Item extends React.Component{
 
 	render(){
 		let brandColorStyle = null;
-		let brandName = null;
-		let brandLink = null;
 		let retailerName = null;
 		let retailerLink = null;
+		let description = '';
+		let userDefinedSize = null;
+		//let retailerName = null;
+		//let retailerLink = null;
 
 		if(this.props.item !== undefined){
-			if(this.props.brands !== undefined && this.props.brands !== null && this.props.item.brand){
-				brandName = this.props.brands[this.props.item.brand].name;
-				brandLink = this.props.brands[this.props.item.brand].link;
-				brandColorStyle = {
-					'background-image': `linear-gradient(to right, black, black, rgb(${this.props.brands[this.props.item.brand].red},${this.props.brands[this.props.item.brand].green},${this.props.brands[this.props.item.brand].blue}))`
-				};
+			//if(this.props.item.retailer !== null && this.props.item.retailer !== undefined){
+			if(this.props.item.product !== null && this.props.item.product !== undefined){
+				//retailerName = this.props.item.retailer.name;//this.props.brands[this.props.item.brand].name;
+				//retailerLink = this.props.item.retailer.home_page_url;//this.props.brands[this.props.item.brand].link;
+				retailerName = this.props.item.product.udr  //User defined retailer
+				retailerLink = this.props.item.product.onlineStoreUrl;
+				userDefinedSize = this.props.item.product.uds;  //User defined size
+				description = this.props.item.product.handle;
 			}
-			if(this.props.retailers !== undefined && this.props.retailers !== null && this.props.item.retailer){
+			/*if(this.props.retailers !== undefined && this.props.retailers !== null && this.props.item.retailer){
 				retailerName = this.props.retailers[this.props.item.retailer].name;
 				retailerLink = this.props.retailers[this.props.item.retailer].link
-			}
+			}*/
 		}else{
 			return null;
 		}
-	
+		console.log('description = ', description);
 		let fill = "#FFF";
 		let stroke = "#FFF";
 		let isSelected = this.props.selectedAllIds.includes(this.props.item.id);
 		let itemContainerStyles = null;
-		let isProfileView = (this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase());
+		let isProfileView = (this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase());
 	
 		switch(true){
-			case this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase():
+			case this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase():
 				itemContainerStyles = !isSelected ?
 								ItemStyles.itemContainer_div :
 								this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
 									ItemStyles['itemContainerPreview_div--selected'] : 
 									ItemStyles['itemContainerEdit_div--selected'];
 				break;
-			case this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase():
+			case this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase():
 				itemContainerStyles = !isSelected ? 
 								ItemStyles.itemContainer_div :
 								this.props.browseSelection === 'apparel' ?
@@ -132,7 +137,7 @@ export class Item extends React.Component{
 				onMouseLeave={this.props._handleMouseLeave.bind(null)} 
 				style={isProfileView ? {width: '100%', 'height':'calc(((100vh - 40px - 40px - 80px - 80px - 25px - 5vh - 12px)/6) - 1px)'} : {}}
 				onClick={() => {
-					if(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() && this.props.browseSelection === 'apparel'){
+					if(this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() && this.props.browseSelection === 'apparel'){
 						this.props.removeContentEntities();
 						this.props.getContentsByItemId();
 						this.props.onDeselect(this.props.selectedAllIds.filter(id => id != this.props.item.id)[0]);
@@ -179,27 +184,28 @@ export class Item extends React.Component{
 						}
 					</div>
 				</CSSTransition>
-				<a className={ItemStyles.itemSizeBlock}>
+				<a className={ItemStyles.itemTypeBlock}>
 					<SvgIcon 
-						name={OxiAppConstants.ItemTypesByLabel[this.props.item.type] !== undefined ? OxiAppConstants.ItemTypesByLabel[this.props.item.type].iconName : null}
+						//name={this.props.item.apparelType.iconName !== undefined ? this.props.item.apparelType.iconName : null}
+						name={this.props.apparelTypeByIds !== undefined ? this.props.apparelTypeByIds[this.props.item.apparelType].iconName : null}
 						fill={fill}
 						stroke={stroke}/>
 				</a>
 				<a 
-					className={ItemStyles.itemTypeBlock} 
+					className={ItemStyles.itemSizeBlock} 
 					style={{
 						'border-top-right-radius': '4px',
 						'border-bottom-right-radius': '4px',
 					}}
 				>
 					<div style={itemCellContainer}>
-						<div>	
-							{this.props.item.size}
+						<div className={ItemStyles.itemSize_div}>	
+							{userDefinedSize}
 						</div>
 					</div>
 				</a>
 				{
-					(this.props.webAppView === OxiAppConstants.navRequestMap.home.toLowerCase() && this.props.browseSelection === 'apparel') ?
+					(this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() && this.props.browseSelection === 'apparel') ?
 						(
 							<div style={{
 								display: 'inline-block',
@@ -213,19 +219,19 @@ export class Item extends React.Component{
 						null
 				}
 
-				<div className={isProfileView ? ItemStyles.sourceInforProfile_div : ItemStyles.sourceInfo}>
-					<div className={ItemStyles.itemBrandBlock} href={brandLink} target="_blank">
-						<div style={itemCellContainer}>
-							<div className={ItemStyles.itemBrandHomeGradientContainer_div}>
-								<div className={ItemStyles.itemBrandHomeGradient_div}>
+				<div className={isProfileView ? ItemStyles.sourceInfoProfile_div : ItemStyles.sourceInfo}>
+					<div className={ItemStyles.itemInfoBlock_div} href={retailerLink} target="_blank">
+						<div style={{}}>
+							<div className={ItemStyles.itemRetailerHomeGradientContainer_div}>
+								<div className={ItemStyles.itemRetailerHomeGradient_div}>
 								</div>
 							</div>
-							<div className={ItemStyles.brandName_div}>	
-								{brandName}
+							<div className={ItemStyles.retailerName_div}>	
+								{retailerName}
 							</div>
-							<div className={ItemStyles.itemBrandEndGradientContainer_div}>
+							<div className={ItemStyles.itemRetailerEndGradientContainer_div}>
 								<div 
-									className={ItemStyles.itemBrandEndGradient_div}
+									className={ItemStyles.itemRetailerEndGradient_div}
 									style={isProfileView ? ({width:'65px'}) : ({})}>
 									<div className={ItemStyles.ellipsisContainer_div}>
 										<div className={ItemStyles.ellipsis_div}>
@@ -236,10 +242,10 @@ export class Item extends React.Component{
 							</div>
 						</div>
 					</div>
-					<div className={ItemStyles.itemRetailerBlock} href={retailerLink} target="_blank">
+					<div className={ItemStyles.itemDescriptionBlock} href={retailerLink} target="_blank">
 						<div style={itemCellContainer}>
 							<div>	
-								{retailerName}
+								{description}
 							</div>
 						</div>
 					</div>
@@ -256,7 +262,7 @@ export class Item extends React.Component{
 						null
 				}
 				{
-					this.props.webAppView !== OxiAppConstants.navRequestMap.home.toLowerCase() ?
+					this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase() ?
 						null :
 						this.props.browseSelection !== 'apparel' ?
 							null : 

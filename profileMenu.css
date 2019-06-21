@@ -1,20 +1,24 @@
-:local(.fieldList_div){
-	width: 300px; /*15%;*/
+:local(.fieldList_div){    
+    --profile-ctrl-contianer-width: 360px;
+    --profile-ctrl-container-padding: 30px;
+    --profile-ctrl-container-border-width: 1px;
+    width: var(--profile-ctrl-contianer-width);
     margin: auto;
-    margin-top: 80px;
+    margin-top: 100px;
     display: inline-block;
     text-align: center;
     vertical-align: top;
-    border-color: #212121;
-    border-width: 1px;
+    border-color: #c1c1c1;
+    border-style: solid;
+    border-width: var(--profile-ctrl-container-border-width);
     border-radius: 3px;
-    padding-top: 30px;
-    padding-bottom: 30px;
+    background-color: white;
+    padding: var(--profile-ctrl-container-padding);
 }
 
 :local(.fieldListTitleContainer1_div){
 	height: 100px;
-    background-color: #70ccf42e;
+    /*background-color: #70ccf42e;*/
     border-radius: 2px;
     margin-bottom: 10px
 }
@@ -32,6 +36,7 @@
     margin-top: calc(50px - 15px);
     position: absolute;
     width: 100%;
+    transition: height 200ms ease-in-out;
 }
 
 
@@ -44,7 +49,7 @@
     height: 23px;
     margin-top: 3px;
     padding: 3.5px;
-    height: 30px;
+    /*height: 30px;*/
     transition: color 200ms ease-in-out, background-color 200ms ease-in-out
 }
 
@@ -99,8 +104,9 @@
 }
 
 :local(.inputNumberLabel_div){
+    composes:label from './root.css';
 	display: inline-block;
-    font-size: 1.6rem;
+    /*font-size: 1.7rem;*/
     float: right;
     height: inherit;
     height:inherit;
@@ -120,13 +126,14 @@
 }
 
 :local(.submitBtnText_div){
+    composes:l3Button from './forms.css';
 	position: absolute;
 	height: inherit;
 	width: 75px;
 	right: 0px;
-	background-color: #525252;
+	/*background-color: #525252;
     color: #fdfdfd;
-    border: solid 2px #000000;
+    border: solid 2px #000000;*/
 	cursor: pointer;
 	border-radius: 3px;
     line-height: 35px;
@@ -196,8 +203,8 @@
     width: 15px;
     cursor: grab;
     border-radius: 2px;
-    border: solid 2px #969696;
-    background-color: #a5a5a5;
+    border: solid 1px #525252;
+    background-color: #ffffff;
     right: 0px;
 }
 
@@ -223,6 +230,21 @@
     margin: auto;
 }
 
+:local(.toleranceUnitContainer_div){
+    position: absolute;
+    height: 100%;
+    width: 100px;
+    top: 0px;
+    left: calc(var(--profile-ctrl-contianer-width) - var(--profile-ctrl-container-padding) + 5px);
+}
+
+:local(.toleranceUnit_div){
+    line-height: 50px;
+    font-size: 20px;
+    font-family: "Archivo Black";
+    color: gray;
+}
+
 :local(.toleranceCheckBox_div){    
     width: 100%;
     height: inherit;
@@ -237,32 +259,58 @@
 
 
 :local(.slideValueRange_div){
+    --value-spacing: 20px;
+    --value-range-width: 95px;
     position: absolute;
-    right: -120px;
-    /*width: 100px;*/
-    height: var(--main-height);
-    line-height: var(--main-height);
-    font-size: 1.4rem;
-    color: darkgrey;
+    right: calc(var(--value-spacing) - 2*var(--profile-ctrl-container-padding) - var(--value-range-width));
+    width: var(--value-range-width);
+    line-height: var( --main-height);
 }
 
-:local(.slideValueData_div){
+.slidValue{
+    composes:label from './root.css';
+    font-size: 1.5rem;
+    letter-spacing: 0.05rem;
+    text-transform: unset;
     user-select: none;
+    width: 45
+}
+
+:local(.slideValueMin_div){
+    composes:slidValue;
     line-height: inherit;
     display: inline-block;
-    widows: 1.2rem;    
+    float: left;
+}
+
+:local(.slideValueTo_div){
+    composes:slidValue;
+    width: 5px;
+    display: inline-block;
+}
+
+:local(.slideValueMax_div){
+    composes:slidValue;
+    line-height: inherit;
+    display: inline-block;
+    float: right;
 }
 
 :local(.slideLabel){
+    composes:label from './root.css';
     user-select:none;
     position: absolute;
     height: var(--main-height);
     text-align: right;
-    left: -120px;
-    width: 100px;
-    line-height: var(--main-height);
-    font-size: 1.4rem;
-    color: darkgrey;
+    /*font-size: 1.4rem;
+    color: #707070;
+    text-transform: capitalize;*/
+    --label-spacing: 20px;
+    --label-width: 100px;
+    position: absolute;    
+    width: var(--label-width);
+    left: calc(var(--label-spacing) - 2*var(--profile-ctrl-container-padding) - var(--label-width));
+    line-height: var( --main-height);
 }
 
 :local(.tick_div){

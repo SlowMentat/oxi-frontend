@@ -43,7 +43,7 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 								result.allIds = contents.byIds[selectedContentId]["items"].sort();
 							}
 							for(let itemId of result.allIds){
-								result.byIds[itemId] =  itemsById[itemId];
+								result.byIds[itemId] = itemsById[itemId];
 							}
 							//result.allIds = Object.keys(result.byIds);
 							console.log('result', result);
@@ -82,7 +82,7 @@ const mapStateToProps = (state, props) => {
 			state.entitiesReducer.items, 
 			'BY_CONTENT_ID', 
 			state.entitiesReducer.contents, 
-			state.entitiesStateReducer.contents.selected === 1 ? false : state.entitiesStateReducer.contents.selected), 
+			typeof state.entitiesStateReducer.contents.selected === 'number' ? false : state.entitiesStateReducer.contents.selected), 
 		state.entitiesReducer.items.allEditingIds);
 
 
@@ -91,6 +91,7 @@ const mapStateToProps = (state, props) => {
 		itemIds : filteredItems.allIds,
 		addedItems : filteredAddedItems.byIds,
 		addedItemIds : filteredAddedItems.allIds,
+		apparelTypeByIds : state.entitiesReducer.apparelTypes.byIds,
 		brands : brands,
 		retailers : retailers,
 		viewState: state.contentViewState.viewState,

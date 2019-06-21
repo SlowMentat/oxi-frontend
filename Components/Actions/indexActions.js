@@ -40,6 +40,7 @@ export const REPLACE_OUTFIT 		= "REPLACE_" 	+ OxiAppConstants.EntityTypes.OUTFIT
 export const DELETE_OUTFIT			= "DELETE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const SELECT_PAGE 			= "SELECT_PAGE";
 export const CREATE_PICTURE			= "CREATE_"		+ OxiAppConstants.EntityTypes.PICTURE;
+export const CREATE_APPAREL_TYPE	= "CREATE_"		+ OxiAppConstants.EntityTypes.APPAREL_TYPE;
 export const SET_BROWSER_SELECTION   = "SET_BROWSER_SELECTION";
 
 //Action on for entities added to client
@@ -50,6 +51,7 @@ export const SELECT_NEW_ITEM		= 'SELECT_NEW_'			+ OxiAppConstants.EntityTypes.IT
 export const ADD_ITEMCONTENT		= 'ADD_'				+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
 export const REMOVE_ITEMCONTENT		= 'REMOVE_'				+ OxiAppConstants.EntityTypes.ITEM_CONTENT;
 export const ADD_CONTENT			= 'ADD_'				+ OxiAppConstants.EntityTypes.CONTENT;
+export const ADD_CONTENTS			= 'ADD_'				+ OxiAppConstants.EntityTypes.CONTENT	+'S';
 export const MODIFY_CONTENT			= 'MODIFY_'				+ OxiAppConstants.EntityTypes.CONTENT;
 export const REMOVE_CONTENT			= 'REMOVE_'				+ OxiAppConstants.EntityTypes.CONTENT;
 export const SELECT_CONTENT			= 'SELECT_'				+ OxiAppConstants.EntityTypes.CONTENT;
@@ -65,6 +67,7 @@ export const REPLACE_PROFILE		= "REPLACE_"			+ OxiAppConstants.EntityTypes.PROFI
 export const REPLACE_BRAND			= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.BRAND;
 export const REPLACE_RETAILER		= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.RETAILER;
 export const REPLACE_PICTURE		= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.PICTURE;
+export const REPLACE_APPAREL_TYPE   = 'REPLACE_'			+ OxiAppConstants.EntityTypes.APPAREL_TYPE;
 
 //Async action types
 export const REQUEST_LOGIN 			= "REQUEST_LOGIN";
@@ -95,6 +98,12 @@ export const SET_VISIBLE_HELP		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP
 export const SET_VISIBLE_FILTER		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
 
 export const UPDATE_OUTFIT_COVERPICURI = 'UPDATE_OUTFIT_COVERPICURI';
+
+export const RECEIVED_EXISTING_ITEMS_SEARCH = 'RECEIVED_EXISTING_ITEMS_SEARCH';
+export const RECEIVED_RETAILER_NAMES_SEARCH = 'RECEIVED_RETAILER_NAMES_SEARCH';
+export const RECEIVED_UDR_NAMES_SEARCH = 'RECEIVED_UDR_NAMES_SEARCH';
+export const RECEIVED_UDS_LABELS_SEARCH = 'RECEIVED_UDS_LABELS_SEARCH';
+export const RECEIVED_ALL_APPAREL_TYPES ='RECEIVED_ALL_APPAREL_TYPES';
 
 
 //global variables
@@ -182,6 +191,7 @@ export const replaceContents 	= makeActionCreator(REPLACE_CONTENT, OxiAppConstan
 
 //export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id', 'outfitId', 'items');
 export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity');
+export const addContents 		= makeActionCreator(ADD_CONTENTS, OxiAppConstants.EntityTypes.CONTENT, 'entities');
 
 //Action primarily used to modify the items propterty of the content entity in the addedEntityReducer tree after an item entity has been added to addedEntityRedercer.items branch
 export const modifyContent 		= makeActionCreator(MODIFY_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity')
@@ -202,6 +212,14 @@ export const disableAddContentButton = makeActionCreator(DISABLE_CONTENT_BUTTON,
 
 export const updateOutfitCoverpicuri = makeActionCreator(UPDATE_OUTFIT_COVERPICURI, OxiAppConstants.EntityTypes.OUTFIT, 'entity');
 
+export const createApparelTypes = makeActionCreator(CREATE_APPAREL_TYPE, OxiAppConstants.EntityTypes.APPAREL_TYPE, 'entities');
+export const replaceApparelTypes = makeActionCreator(REPLACE_APPAREL_TYPE, OxiAppConstants.EntityTypes.APPAREL_TYPE, 'entities');
+
+export const receivedSearchExistingItem = makeActionCreator(RECEIVED_EXISTING_ITEMS_SEARCH, null, 'retailerItemResults');
+export const receivedSearchRetailers = makeActionCreator(RECEIVED_RETAILER_NAMES_SEARCH, null, 'retailerNameResults');
+export const receivedSearchUserDefinedRetailers = makeActionCreator(RECEIVED_UDR_NAMES_SEARCH, null, 'udrNameResults');
+export const receivedSearchUserDefinedSizes = makeActionCreator(RECEIVED_UDS_LABELS_SEARCH, null, 'udsLabelResults');
+export const receivedAllApparelTypes = makeActionCreator(RECEIVED_ALL_APPAREL_TYPES, null, 'allApparelTypes');
 
 /*export const updateItemContent 	= (id, itemId, contentId) => {
 	return({
@@ -633,9 +651,9 @@ export const setCreateAccountView = (accountType) => {
 }
 
 function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
-	console.log('destination = ', Location)
+	console.log('destination = ', location)
 	switch(location){
-		case OxiAppConstants.navRequestMap.home.toLowerCase():
+		case OxiAppConstants.navRequestMap.a.toLowerCase():
 			dispatch(setWebAppView(location));
 			//Fetch all entities.  
 			//TODO:  filtered fetch via queary parameters
@@ -643,7 +661,7 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 			isOwnerProfileEntityPresent ? null : dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all'));
 			break;
-		case OxiAppConstants.navRequestMap.profile.toLowerCase():
+		case OxiAppConstants.navRequestMap.b.toLowerCase():
 			console.log('about to dispatch fetchItemMenus()')
 			//Get the Brand and Retailer Lists
 			dispatch(fetchItemMenus()).then((response) => {
@@ -657,9 +675,9 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 				dispatch(handleUnauthorizedRequest(error.response));
 			})
 			break;
-		case OxiAppConstants.navRequestMap.settings.toLowerCase():
+		case OxiAppConstants.navRequestMap.c.toLowerCase():
 			dispatch(showProfileMenu(true));
-			dispatch(setWebAppView('landing'));
+			//dispatch(setWebAppView('landing'));
 			break;
 		default:
 			break;
@@ -672,7 +690,7 @@ export function navigateTo(location, isOwnerProfileEntityPresent){
 		dispatch(requestNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
-		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
+		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
 			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
 		}else{
 			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
@@ -748,7 +766,7 @@ export function createUser(email, password, username){
 }
 
 //Post new profile entities to the server.  There should only ever be one profile entity,
-//howevern support for multiple profile entities is implemented here
+//however support for multiple profile entities is implemented here
 export function postProfile(profile){
 	return function(dispatch){
 		//keep loacal ids
@@ -764,7 +782,7 @@ export function postProfile(profile){
 				console.log("dispatching removeProfile");
 				//Change switch to profile view
 				//dispatch(setWebAppView('profile'));
-				dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+				dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
 				//Add new profile data returned in the response body to the redux tree
 				dispatch(replaceProfile({'owner': response.data}));
 				//populate the profile view with usr content
@@ -795,14 +813,47 @@ export function fetchMetrics(outfitId){
 export function fetchItemMenus(){
 	return function(dispatch){
 		return new Promise((resolve, reject) => {
-			dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))
+			//dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))			
+			dispatch(fetchEntities(OxiAppConstants.EntityTypes.APPAREL_TYPE, '', ''))
 			.then((response) => {
-				dispatch(fetchEntities(OxiAppConstants.EntityTypes.RETAILER, '', ''))
-				.then(response => resolve())
-				.catch(reason => reject(reason))
+				resolve();
+				//dispatch(fetchEntities(OxiAppConstants.EntityTypes.RETAILER, '', ''))
+				//.then(response => resolve())
+				//.catch(reason => reject(reason))
 			})
 			.catch(reason => reject(reason))
 		});
+	}
+}
+
+export function fetchSuggestion(uri){
+	return function(dispatch){
+		return axios.get(`${OxiAppConstants.serviceURL}${uri}`).then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.OK){
+				switch(true){
+					//searchItems
+					case uri.includes(OxiAppConstants.routeURIs.search.a):
+						dispatch(receivedSearchExistingItem(response.data));
+						break;
+					case uri.includes(OxiAppConstants.routeURIs.search.b):
+						dispatch(receivedSearchRetailers(response.data));
+						break;
+					case uri.includes(OxiAppConstants.routeURIs.search.c):
+						dispatch(receivedSearchUserDefinedRetailers(response.data));
+						break;
+					case uri.includes(OxiAppConstants.routeURIs.search.d):
+						dispatch(receivedSearchUserDefinedSizes(response.data));
+						break;
+					//Note this is not a suggest request.  Rather it gets all ApparelTypes
+					//TODO:  depricated in favor of single GET requtest for all apparel type resources from sql database when navigating to profile page
+					case uri.includes(OxiAppConstants.appUris.a):
+						dispatch(receivedAllApparelTypes(response.data));
+						break;
+					default:
+						break;
+				}
+			}
+		})
 	}
 }
 
@@ -816,6 +867,27 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 		let reqResponse = null;
 
 		switch(entityType){
+			case OxiAppConstants.EntityTypes.APPAREL_TYPE:
+				return axios.get(OxiAppConstants.serviceURL + `/apparelTypes?page=${0}&size=${50}`)
+				.then(response => {
+					if(response.status === OxiAppConstants.HttpStatus.OK){
+						let normalizedJson = response.data._embedded.apparelTypeDtoes.reduce((accumulator, currentObject) => {
+							return(Object.assign(accumulator, {
+								[currentObject.id]: {
+									'id': currentObject.id, 
+									'name': currentObject.name,
+									'iconName': currentObject.iconName
+								}
+							}));
+						},{});
+						console.log('normalizedJson ApparelType:  ', normalizedJson);
+						dispatch(receiveEntities(entityType.toLowerCase(), null));
+						dispatch(replaceApparelTypes(normalizedJson));
+					}else{
+						throw 'Unexpected response status received when fetching brands:  ' + response.status; 
+					}
+				})
+				break;
 			case OxiAppConstants.EntityTypes.BRAND:
 				return axios.get(OxiAppConstants.serviceURL + `/brands?page=${0}&size=${50}`)
 				.then(response => {

@@ -33,7 +33,11 @@
     padding-top: 20px;
 }
 
-
+:local(.itemBlock){	
+	--size-block-width: 70px;
+	--type-block-width: 50px;
+	padding-left: 75px;
+}
 
 :local(.stdItemBlock){
 	composes:stdBlock from './root.css';
@@ -51,23 +55,36 @@
 	display: inline-flex;
 }
 
-:local(.itemSizeBlock) {
+:local(.itemTypeBlock) {
 	composes: stdItemBlock;
-	grid-area: size;
-	width:50px;
+	grid-area: type;
+	width:var(--type-block-width);
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 3px;
 }
 
-:local(.itemTypeBlock) {
+:local(.itemSizeBlock) {
 	composes: stdItemBlock;
-	grid-area: type;
-	width: 50px;
+	grid-area: size;
+	width: var(--size-block-width);
 	position: relative;
 	vertical-align: top;
 }
 
-:local(.itemRetailerBlock) {
+:local(.itemSize_div){
+	height: 44px;
+    width: 44px;
+    text-align: center;
+    line-height: 42px;
+    border: solid 2px white;
+    border-radius: 22px;
+    font-size: 1.9rem;
+    font-family: Roboto;
+    letter-spacing: 0.08rem;
+    margin: auto;
+}
+
+:local(.itemDescriptionBlock) {
 	composes: stdItemBlock;
 	background-color: none;
 	color: #e0c570;
@@ -78,7 +95,7 @@
 	font-size:1.5em; 
 }
 
-:local(.itemBrandBlock) {
+:local(.itemInfoBlock_div) {
 	composes: stdItemBlock;
 	height: 50%;
     display: block;
@@ -204,13 +221,14 @@
     background-color: #4a4547
 }
 
-:local(.sourceInforProfile_div){
-	composes:sourceInfo;	
-    width: calc(100% - 100px - 5px);
+:local(.sourceInfoProfile_div){
+	composes:sourceInfo;
+	--sourceInfo-left-margin: 5px;	
+    width: calc(100% - var(--type-block-width) - var(--size-block-width) - var(--sourceInfo-left-margin));
     padding-right: 15px;
     /*background-color: #4a4547;*/
     background-color: #ffffff;
-    margin-left: 5px;
+    margin-left: var(--sourceInfo-left-margin);
     border: 1px solid #bdbcbc;
     border-radius: 4px;
 }
@@ -247,14 +265,14 @@
     top: 0px;
 }
 
-:local(.itemBrandHomeGradientContainer_div){
+:local(.itemRetailerHomeGradientContainer_div){
     display: inline-block;
     vertical-align: top;
     position: relative;
     width: 0px;
 }
 
-:local(.itemBrandHomeGradient_div){
+:local(.itemRetailerHomeGradient_div){
 	position: absolute;
     width: 10px;
     height: 50px;
@@ -263,7 +281,7 @@
     margin-left: -8px;
 }
 
-:local(.brandName_div){
+:local(.retailerName_div){
 	overflow: hidden;
     display: inline-block;
     white-space: nowrap;
@@ -273,12 +291,12 @@
     line-height: 3.5rem;
 }
 
-:local(.itemBrandEndGradientContainer_div){
-	composes:itemBrandHomeGradientContainer_div;
+:local(.itemRetailerEndGradientContainer_div){
+	composes:itemRetailerHomeGradientContainer_div;
 }
 
-:local(.itemBrandEndGradient_div){
-	composes:itemBrandHomeGradient_div;
+:local(.itemRetailerEndGradient_div){
+	composes:itemRetailerHomeGradient_div;
     width: 50px;
     /*background: linear-gradient(to right, #4a454700, #4a4547);*/
     background : linear-gradient(to right, #ffffff00, #ffffff, #ffffff);

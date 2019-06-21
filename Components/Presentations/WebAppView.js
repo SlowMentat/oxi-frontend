@@ -15,6 +15,7 @@ import MetricTitleContainer from '../../Components/Containers/MetricTitleContain
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
 import ProfileControlContainer from '../../Components/Containers/ProfileControlContainer.js';
+import ProfileMenuContainer from '../../Components/Containers/ProfileMenuContainer.js';
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 
 //Presentation Component 
@@ -25,6 +26,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitNavStyles from '../../outfitNav.css';
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
+import MetricStyles from '../../metric.css';
 
 //Third pary
 import isEqual from 'lodash.isequal';
@@ -135,42 +137,42 @@ class Nav extends React.Component{
 			<div className={NavStyles.stdNavButtonContiner_div}>
 				{
 					this.props.blocks.map((block) => {
-					console.log('block = ', block);
-					console.log('selected = ', this.state.selected);
-					let navHeader = block.toString();
-					let selectionPath = '';
-					
-					if(navHeader === 'profile'){
-						selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`;
-					}else if(navHeader !== ''){
-						selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
-					}
-
-					return(
-						<Link to={`${this.props.match.url}${selectionPath}`}>
-							<div 
-								key={navHeader} 
-								className={NavStyles.stdNavButtonBlock} 
-								onClick={() => {
-									this.setState(prevState => ({
-										selected: navHeader
-									}));
-									//call back to webappview component to change child component to reflect navHeader selection
-									this.props.callBacks[navHeader]();
-								}}
-							>
-								{/*
-									this.state.selected !== navHeader ? 
-										null :
-											this.props.match.path.includes('/shop/profile') ? 
-												<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`} /> : 
-												<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`} /> 
-								*/}
-								<div className={this.props.webAppView !== this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']}>
-									{ OxiAppConstants.navRequestMap[navHeader] } 
+						console.log('block = ', block);
+						console.log('selected = ', this.state.selected);
+						let navHeader = block.toString();
+						let selectionPath = '';
+						
+						if(navHeader === 'b' || navHeader === 'c'){
+							selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`;
+						}else if(navHeader !== ''){
+							selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
+						}
+	
+						return(
+							<Link to={`${this.props.match.url}${selectionPath}`}>
+								<div 
+									key={navHeader} 
+									className={NavStyles.stdNavButtonBlock} 
+									onClick={() => {
+										this.setState(prevState => ({
+											selected: navHeader
+										}));
+										//call back to webappview component to change child component to reflect navHeader selection
+										this.props.callBacks[navHeader]();
+									}}
+								>
+									{/*
+										this.state.selected !== navHeader ? 
+											null :
+												this.props.match.path.includes('/shop/profile') ? 
+													<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`} /> : 
+													<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`} /> 
+									*/}
+									<div className={this.props.webAppView !== this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']}>
+										{ OxiAppConstants.navRequestMap[navHeader] } 
+									</div>
 								</div>
-							</div>
-						</Link>)
+							</Link>)
 					})
 				}
 			</div>
@@ -207,7 +209,7 @@ class OutfitNav extends React.Component{
 		let containerHeight = this.props.imageHeight;
 		let containerWidth = this.props.imageWidth*(2/3);
 		let browseWrapper = (wrappedStuff) => (
-			this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ?			
+			this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
 				( <div style={{'grid-area':'browse'}}>
 					<OutfitPanelContainer 
 						style={{
@@ -247,8 +249,8 @@ class OutfitNav extends React.Component{
 				{
 					browseWrapper(
     					(<div 
-    						className={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock} 
-    						style={this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
+    						className={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock} 
+    						style={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
     							({
     								height:`calc(${this.props.imageHeight}px)`,
     								width: `calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`
@@ -283,13 +285,34 @@ class MetricPanel extends React.Component{
     						'position':'relative',
 						}}
 					>
-						{this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? 
+						{this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
 							<ProfileControlContainer /> :
 							<BrowseControlContainer />
 						}
 	
 					</div>
 					<MetricTitleContainer />
+					<div className={MetricStyles.metricMatch_div}>
+						<div className={MetricStyles.metricMatchLPanel_div}>
+							<div className={MetricStyles.fitIcon_div}>
+								FITS!
+							</div>
+						</div>
+						<div className={MetricStyles.metricMatchRPanel_div}>
+							<div className={MetricStyles.comparisonTypeIconContainer_div}>
+							  <div className={MetricStyles.comparisonTypeIcon_div}>
+							  	<SvgIcon name='CompTypeMaleIcon'/>
+							  </div>
+							  <div 
+							  	className={MetricStyles.comparisonTypeIcon_div}
+							  	style={{'border-left':'solid 2px gray'}}>
+							  	<SvgIcon 
+							  		name='CompTypeApparelIcon'
+							  		style={{height:'100%', width:'70%'}}/>
+							  </div>
+							</div>
+						</div>
+					</div>
 					<VisibleMetricList />
 				</div>
 			</div>
@@ -523,9 +546,11 @@ export default class webAppView extends React.Component {
 					/>*/}
 					{/*<Redirect to={`${this.props.match.url}/${this.props.webAppView}`}/>*/}
 					<Route
-						path={`${this.props.match.url}/browse`}
-						render={(props) => (	
+						path={`${this.props.match.url}/${OxiAppConstants.navRequestMap.a.toLowerCase()}`}
+						render={(props) => (
+							//Fetch all necesary data from the api server for the /browse page
 							<div>
+								{ /*this.props.navEventCallbacks.a(true)*/ }
 								<SiteNav 
 									navEventCallbacks={this.props.navEventCallbacks} 
 									webAppView={this.props.webAppView} 
@@ -549,9 +574,10 @@ export default class webAppView extends React.Component {
 						)}
 					/>
 					<Route
-						path={`${this.props.match.url}/profile/:username`}
+						path={`${this.props.match.url}/${OxiAppConstants.navRequestMap.b.toLowerCase()}/:username`}
 						render={(props) => (
 							<div>
+								{/*this.props.webAppView !== 'profile' ? this.props.navEventCallbacks.b(this.props.match.params.username) : null*/}
 								<SiteNav 
 									navEventCallbacks={this.props.navEventCallbacks} 
 									webAppView={this.props.webAppView} 
@@ -591,6 +617,28 @@ export default class webAppView extends React.Component {
 								{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
 							</div>
 						)}
+					/>
+					<Route
+						path={`${this.props.match.url}/${OxiAppConstants.navRequestMap.c.toLowerCase()}`}
+						render={(props) => (
+							<div>							
+								{ /*this.props.navEventCallbacks.c() */}
+								<SiteNav 
+									navEventCallbacks={this.props.navEventCallbacks} 
+									webAppView={this.props.webAppView} 
+									match={this.props.match}
+									ownerUsernamePath={ownerUsernamePath} />
+								{/*this.props.webAppView !== 'measurements' ? this.props.navEventCallbacks.c(this.props.match.params.username) : null*/}
+								<ProfileMenuContainer
+									//profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
+									test={false}
+									//toggleRadio={this.props.toggleRadio} 
+									//postProfile={this.props.postProfile} 
+									//modifyProfile={this.props.modifyProfile}
+									//profileId={this.props.addedProfileId}
+									/>
+							</div>
+						)} 
 					/>
 					<Route render={props => <div>This URI does not exist</div>} />
 				</Switch>

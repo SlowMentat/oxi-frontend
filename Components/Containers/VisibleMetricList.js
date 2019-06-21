@@ -69,8 +69,20 @@ const mapStateToProps = (state, username) => {
 		hostLowerBodyMetricIds :  Object.keys(filteredHostLowerBodyMetrics),
 		//tolerance: state.entitiesReducer.profile.byIds.owner.toleranceDto,
 		
-		ownerBodyShape: (state.entitiesReducer.profile.byIds.owner !== undefined ? state.entitiesReducer.profile.byIds.owner.userMetricsDto.bodyShape : null),
-		hostBodyShape: (state.entitiesReducer.profile.byIds.host !== undefined ? state.entitiesReducer.profile.byIds.host.userMetricsDto.bodyShape : null),
+		ownerBodyShape: (
+			(state.entitiesReducer.profile.byIds.owner === undefined) ? 
+			null:
+			state.entitiesReducer.profile.byIds.owner.userMetricsDto ? 
+				state.entitiesReducer.profile.byIds.owner.userMetricsDto.bodyShape : 
+				null
+		),
+		hostBodyShape: (
+			state.entitiesReducer.profile.byIds.host === undefined ? 
+			null : 
+			state.entitiesReducer.profile.byIds.host.userMetrics ?
+				state.entitiesReducer.profile.byIds.host.userMetricsDto.bodyShape : 
+				null
+		),
 	});
 }
 

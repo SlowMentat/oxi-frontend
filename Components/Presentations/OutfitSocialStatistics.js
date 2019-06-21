@@ -10,7 +10,7 @@ import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 )*/
 
 export const OutfitSocialStatistics = (props) => (
-	<div className={props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase() ? OutfitStyles.likesContainer_div : OutfitStyles.likesContainerHome_div} >
+	<div className={props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? OutfitStyles.likesContainer_div : OutfitStyles.likesContainerHome_div} >
 		<div className={OutfitStyles.likesStats_div}>
 			<div className={OutfitStyles.likesHeader_div}>
 				Likes

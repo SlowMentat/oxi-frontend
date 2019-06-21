@@ -119,7 +119,7 @@ class OutfitList extends React.Component{
 			<React.Fragment>
 				<TransitionGroup style={{'height':'100%'}}>
 					{(
-						this.props.view === OxiAppConstants.navRequestMap.home.toLowerCase() ?
+						this.props.view === OxiAppConstants.navRequestMap.a.toLowerCase() ?
 		    				(<PagedOutfitList container1_div={container1_div} container2_div={container2_div} {...this.props} />) :
 		    				(<PagedOutfitList container1_div={{'height':'100%'}} container2_div={{'height':'100%'}} {...this.props} />)
 		    		)}

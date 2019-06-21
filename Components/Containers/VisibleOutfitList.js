@@ -137,7 +137,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
 	
-		dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+		dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
 	},
 	compareHostMeasurements: (outfitId) => {
 

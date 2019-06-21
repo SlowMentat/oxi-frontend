@@ -66,15 +66,15 @@ const inputTextProfileForm = {
 
 }
 
-const submitBtnStyle = {
-	'width':'150px',
-	'margin':'auto',
-	'margin-top':'15px',
-	'border-radius':'5px',
-	'padding': '11px',
-	'background-color': '#434343',
-	'color':'#fdfdfd'
-}
+//const submitBtnStyle = {
+//	'width':'150px',
+//	'margin':'auto',
+//	'margin-top':'15px',
+//	'border-radius':'5px',
+//	'padding': '11px',
+//	'background-color': '#434343',
+//	'color':'#fdfdfd'
+//}
 
 const descriptionBlockStyle = {
 	'width':'50%',
@@ -120,32 +120,32 @@ const InputTextField = ({props}) => {
 	);
 };
 
-const InputNumberField = ({props}) => (
-	<div className={props.containerStyle} style={props.selectedField === props.name ?  ({'border-style':'none'}) : null}>
-		{props.type} <input 
-			id="measurementField"
-			value={props.value}
-			type="number"
-			step="0.5"
-			maxlength="5"
-			min="0"
-			max="999.99" 
-			name={props.name} 
-			placeholder={props.placeholder} 
-			onChange={props.onChange} 
-			className={props.inputStyle}
-			onFocus={props.onSelect}
-			style={props.selectedField === props.name ? 
-				({
-					'background-color': '#ffffff00',
-					color: 'white',
-				}):
-				null
-			}
-
-		/>
-	</div>
-);
+//const InputNumberField = ({props}) => (
+//	<div className={props.containerStyle} style={props.selectedField === props.name ?  ({'border-style':'none'}) : null}>
+//		{props.type} <input 
+//			id="measurementField"
+//			value={props.value}
+//			type="number"
+//			step="0.5"
+//			maxlength="5"
+//			min="0"
+//			max="999.99" 
+//			name={props.name} 
+//			placeholder={props.placeholder} 
+//			onChange={props.onChange} 
+//			className={props.inputStyle}
+//			onFocus={props.onSelect}
+//			style={props.selectedField === props.name ? 
+//				({
+//					'background-color': '#ffffff00',
+//					color: 'white',
+//				}):
+//				null
+//			}
+//
+//		/>
+//	</div>
+//);
 
 const RadioButton = (props) => (
 	<div style={this.props.selected ? radioSelectedStyle : radioDeselectedStyle} onClick={() => this.props.toggleRadio(this.props.id)}>
@@ -157,6 +157,8 @@ const CheckBox = (props) => (
 	</div>
 )
 
+
+
 //make sure to perfom server side validation
 function validateEmail(email) {
     //var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -166,13 +168,11 @@ function validateEmail(email) {
     return re.test(String(email).toLowerCase());
 }
 
-
-
 function validateUsername(email) {
 	//make a GET request with username to server to verify uniqueness
 }
 
-const CreateAccountField = ({props}) => (
+export const CreateAccountField = ({props}) => (
 	<div className={CreateAccountStyles.inputContainer_div}>
 		<InputTextField props={{
 			containerStyle: CreateAccountStyles.inputTextContainer_div, 
@@ -203,7 +203,7 @@ const CreateAccountField = ({props}) => (
 	</div>
 );
 
-const InvalidPasswordPrompt = ({props}) => (
+export const InvalidPasswordPrompt = ({props}) => (
 	<div className={CreateAccountStyles.invalidInputPrompt_div}>
 		{
 			!props.validPasswordLength ? 
@@ -252,7 +252,7 @@ const InvalidPasswordPrompt = ({props}) => (
 	</div>
 )
 
-class GetStarted extends React.Component{
+class CreateAccountForm extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
@@ -431,45 +431,47 @@ class GetStarted extends React.Component{
 	}
 }
 
-class ProfileFieldWrapper extends React.Component{
-	constructor(props){
-		super(props);
-	}
 
-	shouldComponentUpdate(nextProps){
-		const differentField = this.props.field !== nextProps.field;
-		const differentCallback = this.props.callback !== nextProps.callback;
-		return differentField || differentCallback;
-	}
 
-	render(){
-		const isSelected = this.props.selectedField === this.props.field;
-		return(
-			<div>
-				<div className={ProfileMenuStyles.inputNumberContainer_div} style={this.props.style || (isSelected ? ({'border-radius': '2px', color:'white'}) : null)}>
-					<div className={ProfileMenuStyles.selectHighlight_div} style={isSelected ? ({width: '100%'}) : ({width:'0px'})}>			
-					</div>
-					<InputNumberField props={{
-						containerStyle: ProfileMenuStyles.inputNumber_div,
-						inputStyle: ProfileMenuStyles.inputNumber_input,
-						name: this.props.field,
-						placeholder: "",
-						value: this.props.value,
-						onChange:(event) => this.props.callback(event),
-						onSelect:this.props.onSelect,
-						selectedField: this.props.selectedField
-					}}/>
-					<div className={ProfileMenuStyles.displayUnits_div} style={(isSelected ? ({color: '#70ccf4'}) : null)}>
-						{(this.props.units === 'cm' ? 'cm' : 'in')}
-					</div>
-					<div className={ProfileMenuStyles.inputNumberLabel_div}>
-						{this.props.field}
-					</div>
-				</div>
-			</div>		
-		);
-	}
-}
+//class ProfileFieldWrapper extends React.Component{
+//	constructor(props){
+//		super(props);
+//	}
+//
+//	shouldComponentUpdate(nextProps){
+//		const differentField = this.props.field !== nextProps.field;
+//		const differentCallback = this.props.callback !== nextProps.callback;
+//		return differentField || differentCallback;
+//	}
+//
+//	render(){
+//		const isSelected = this.props.selectedField === this.props.field;
+//		return(
+//			<div>
+//				<div className={ProfileMenuStyles.inputNumberContainer_div} style={this.props.style || (isSelected ? ({'border-radius': '2px', color:'white'}) : null)}>
+//					<div className={ProfileMenuStyles.selectHighlight_div} style={isSelected ? ({width: '100%'}) : ({width:'0px'})}>			
+//					</div>
+//					<InputNumberField props={{
+//						containerStyle: ProfileMenuStyles.inputNumber_div,
+//						inputStyle: ProfileMenuStyles.inputNumber_input,
+//						name: this.props.field,
+//						placeholder: "",
+//						value: this.props.value,
+//						onChange:(event) => this.props.callback(event),
+//						onSelect:this.props.onSelect,
+//						selectedField: this.props.selectedField
+//					}}/>
+//					<div className={ProfileMenuStyles.displayUnits_div} style={(isSelected ? ({color: '#70ccf4'}) : null)}>
+//						{(this.props.units === 'cm' ? 'cm' : 'in')}
+//					</div>
+//					<div className={ProfileMenuStyles.inputNumberLabel_div}>
+//						{this.props.field}
+//					</div>
+//				</div>
+//			</div>		
+//		);
+//	}
+//}
 
 const radioListStyle = {
 	'display':'inline-block',
@@ -532,7 +534,7 @@ const femaleContainer = {
 	'margin-top': '185px'	
 }
 
-const Ruler = ({props}) => (props.ticks.map((tick, ticks) => (
+/*const Ruler = ({props}) => (props.ticks.map((tick, ticks) => (
 		tick < 9 ? 
 			(<div
 				id={ (props.measurement + ((tick - ticks.length/2) * props.scale / 2)) }  
@@ -597,16 +599,16 @@ class ToleranceSettings extends React.Component{
 			preset3: 'Loose',
 		}
 
-		/*if(Object.keys(this.props.minTolerances).length === 0 && Object.keys(this.props.maxTolerances).length === 0){
-			for(let field of this.filteredFieldNames){
-				//values int ticks indecese 
-				minToleranceFields = Object.assign({}, minToleranceFields, {[field]: 0 });
-				maxToleranceFields = Object.assign({}, maxToleranceFields, {[field]: (this.props.ticks.length-1) });
-			}
-		}else{
-			minToleranceFields = this.props.minTolerances;
-			maxToleranceFields = this.props.maxTolerances;
-		}*/
+		//if(Object.keys(this.props.minTolerances).length === 0 && Object.keys(this.props.maxTolerances).length === 0){
+		//	for(let field of this.filteredFieldNames){
+		//		//values int ticks indecese 
+		//		minToleranceFields = Object.assign({}, minToleranceFields, {[field]: 0 });
+		//		maxToleranceFields = Object.assign({}, maxToleranceFields, {[field]: (this.props.ticks.length-1) });
+		//	}
+		//}else{
+		//	minToleranceFields = this.props.minTolerances;
+		//	maxToleranceFields = this.props.maxTolerances;
+		//}
 
 		this.state={
 			//minTolerances: {...minToleranceFields},
@@ -632,12 +634,12 @@ class ToleranceSettings extends React.Component{
 		//this.setPresetTolerances = this.setPresetTolerances.bind(this);
 	}
 
-	/*componentWillUnmount(){
-		this.props.saveTickState({
-			minTolerances: this.state.minTolerances,
-			maxTolerances: this.state.maxTolerances,			
-		})
-	}*/
+	//componentWillUnmount(){
+	//	this.props.saveTickState({
+	//		minTolerances: this.state.minTolerances,
+	//		maxTolerances: this.state.maxTolerances,			
+	//	})
+	//}
 
 	getDeltaTick(field, isMinTolerance){
 		const deltaTick = Math.round((this.state.deltaX)/this.tickPixelDelta);
@@ -659,21 +661,21 @@ class ToleranceSettings extends React.Component{
 		return deltaTick;
 	}
 
-	/*getToleranceValues(field, isMinTolerance){
-		let value = 0;
-		const displayedProfileDataValue = parseInt(this.props.displayedProfileData[field], 10);
-		if(isMinTolerance){
-			value = displayedProfileDataValue > 4 ? 
-				(displayedProfileDataValue + (this.state.minTolerances[field] - 5) * this.scale) :
-				(displayedProfileDataValue + (this.state.minTolerances[field] - 4) * this.scale)
-		}else{
-			value = displayedProfileDataValue > 4 ? 
-				(displayedProfileDataValue + (this.state.maxTolerances[field] - 5) * this.scale) :
-				(displayedProfileDataValue + (this.state.maxTolerances[field] - 4) * this.scale)
-		}
+	//getToleranceValues(field, isMinTolerance){
+	//	let value = 0;
+	//	const displayedProfileDataValue = parseInt(this.props.displayedProfileData[field], 10);
+	//	if(isMinTolerance){
+	//		value = displayedProfileDataValue > 4 ? 
+	//			(displayedProfileDataValue + (this.state.minTolerances[field] - 5) * this.scale) :
+	//			(displayedProfileDataValue + (this.state.minTolerances[field] - 4) * this.scale)
+	//	}else{
+	//		value = displayedProfileDataValue > 4 ? 
+	//			(displayedProfileDataValue + (this.state.maxTolerances[field] - 5) * this.scale) :
+	//			(displayedProfileDataValue + (this.state.maxTolerances[field] - 4) * this.scale)
+	//	}
 
-		return value;
-	}*/
+	//	return value;
+	//}
 
 	_handleMinSliderMove(e, field){
 		console.log('x = ', e.clientX);
@@ -734,10 +736,10 @@ class ToleranceSettings extends React.Component{
 			deltaX: 0,
 			startX: 0,
 			deltaTick :0,
-			/*[toleranceObjType]: {
-				...this.state[toleranceObjType],
-				[field]: (prevState.startTick + prevState.deltaTick),
-			},*/
+			//[toleranceObjType]: {
+			//	...this.state[toleranceObjType],
+			//	[field]: (prevState.startTick + prevState.deltaTick),
+			//},
 			sliderTransition:true
 		}));
 
@@ -773,53 +775,53 @@ class ToleranceSettings extends React.Component{
 		}
 	}
 
-	/*_handlePresetClicked(e, label){
-		console.log('_presetClicked')
-		this.setState(prevState => ({
-			selectedPreset: label,
-			...this.setPresetTolerances(label)
-		}));
-	}*/
+	//_handlePresetClicked(e, label){
+	//	console.log('_presetClicked')
+	//	this.setState(prevState => ({
+	//		selectedPreset: label,
+	//		...this.setPresetTolerances(label)
+	//	}));
+	//}
 
-	/*setPresetTolerances(preset){		
-		let minToleranceFields = {};
-		let maxToleranceFields = {};
-		let minToleranceValue = 0;
-		let maxToleranceValue = this.props.ticks.length-1;
+	//setPresetTolerances(preset){		
+	//	let minToleranceFields = {};
+	//	let maxToleranceFields = {};
+	//	let minToleranceValue = 0;
+	//	let maxToleranceValue = this.props.ticks.length-1;
 
-		switch(true){
-			//Tight
-			case preset === this.presets.preset1:
-				minToleranceValue = 2;
-				maxToleranceValue = 3;
-				break;
-			//Fit
-			case preset === this.presets.preset2:
-				minToleranceValue = 4;
-				maxToleranceValue = 5;
-				break;
-			//Loose
-			case preset === this.presets.preset3:
-				minToleranceValue = 6;
-				maxToleranceValue = 7;
-				break;
-		}
+	//	switch(true){
+	//		//Tight
+	//		case preset === this.presets.preset1:
+	//			minToleranceValue = 2;
+	//			maxToleranceValue = 3;
+	//			break;
+	//		//Fit
+	//		case preset === this.presets.preset2:
+	//			minToleranceValue = 4;
+	//			maxToleranceValue = 5;
+	//			break;
+	//		//Loose
+	//		case preset === this.presets.preset3:
+	//			minToleranceValue = 6;
+	//			maxToleranceValue = 7;
+	//			break;
+	//	}
 
-		for(let field of this.filteredFieldNames){
-			//values int ticks indecese 
-			minToleranceFields = Object.assign({}, minToleranceFields, {[field]: minToleranceValue });
-			maxToleranceFields = Object.assign({}, maxToleranceFields, {[field]: maxToleranceValue });
-		}
+	//	for(let field of this.filteredFieldNames){
+	//		//values int ticks indecese 
+	//		minToleranceFields = Object.assign({}, minToleranceFields, {[field]: minToleranceValue });
+	//		maxToleranceFields = Object.assign({}, maxToleranceFields, {[field]: maxToleranceValue });
+	//	}
 
-		return({
-			minTolerances:{
-				...minToleranceFields
-			},
-			maxTolerances:{
-				...maxToleranceFields
-			},
-		});
-	}*/
+	//	return({
+	//		minTolerances:{
+	//			...minToleranceFields
+	//		},
+	//		maxTolerances:{
+	//			...maxToleranceFields
+	//		},
+	//	});
+	//}
 
 	render(){
 		return(
@@ -1201,9 +1203,9 @@ class ProfileMenu extends React.Component{
 	}
 
 	_handleFieldBlur(event){
-		/*this.setState(prevState => ({
-			prevSelectedField: event.target.name
-		}));*/
+		//this.setState(prevState => ({
+		//	prevSelectedField: event.target.name
+		//}));
 	}
 
 	_handleOnSubmit(){
@@ -1228,7 +1230,7 @@ class ProfileMenu extends React.Component{
 		console.log('tolerance = ', tolerance);
 		scrubbedProfileState = Object.assign({}, scrubbedProfileState, {...scrubbedProfileState, toleranceDto:{id:null, ...tolerance}});
 		this.props.modifyProfile(scrubbedProfileState);
-		this.props.postProfile(scrubbedProfileState/*this.state.profileData*/);
+		this.props.postProfile(scrubbedProfileState/*this.state.profileData*//*);
 	}
 
 	_goToMeasurments(){
@@ -1348,12 +1350,12 @@ class ProfileMenu extends React.Component{
 					{ 
 						this.state.fieldListTitle === this.menuPage1 ? (
 							<React.Fragment>
-								{/*<ProfileFieldWrapper 
-									field='country' 
-									value={this.state.profileData['USA']} 
-									callback={()=>{this._handleInputFieldChange(event, 'country')}}
-									onSelect={() => this._handleFieldFocus(event)} 
-									selectedField={this.state.selectedField} />*/}
+								{//<ProfileFieldWrapper 
+								//field='country' 
+								//value={this.state.profileData['USA']} 
+								//callback={()=>{this._handleInputFieldChange(event, 'country')}}
+								//onSelect={() => this._handleFieldFocus(event)} 
+								//selectedField={this.state.selectedField} />}
 								<SlideSwitch props={{
 									toggleSlidSwitch: this._toggleSlidSwitch,
 									units: this.state.units
@@ -1464,7 +1466,7 @@ class ProfileMenu extends React.Component{
 			</div>
 		);
 	}
-}
+}*/
 
 
 
@@ -1570,7 +1572,7 @@ class CreateAccount extends React.Component{
     						'padding-left': '50px',
 						}}>
 							<div>
-								<GetStarted style={getStartedStyle} createUser={this.props.createUser}/>
+								<CreateAccountForm style={getStartedStyle} createUser={this.props.createUser}/>
 							</div>
 						</div>
 					</div>
@@ -1648,7 +1650,7 @@ class Portal extends React.Component{
 								style={this.state.isMouseOver ? ({'display': 'block'}) :  ({'display':'none'}) }
 								onClick={(event) => {
 									event.stopPropagation();
-									this.props.navToCreatAccount(this.props.title.toLowerCase())
+									this.props.navToCreateAccount(this.props.title.toLowerCase())
 								}}>
 								<div className={Styles.signupBtnText_div} >
 									{this.props.actionIndicator}
@@ -1668,8 +1670,10 @@ class Portal extends React.Component{
 }
 
 export default class LandingPage extends React.Component{
+
 	constructor(props){
 		super(props);
+		this.defualtURI = "/account/user/register";
 	}
 
 	render() {
@@ -1678,7 +1682,7 @@ export default class LandingPage extends React.Component{
 				<SiteNav match={this.props.match} webAppView={!this.props.profileMenu ? 'landing' : ''}/>
 				<div>				
 					{
-						this.props.profileMenu ? (
+						this.props.profileMenu ? null/*(
 								<ProfileMenu 
 									profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
 									test={true}
@@ -1686,7 +1690,7 @@ export default class LandingPage extends React.Component{
 									postProfile={this.props.postProfile} 
 									modifyProfile={this.props.modifyProfile}
 									profileId={this.props.addedProfileId} />
-							) : 
+							)*/ : 
 							(this.props.createAccountView === 'none' || this.props.createAccountView === '') ? (
 									<div>
 										<div 
@@ -1700,12 +1704,12 @@ export default class LandingPage extends React.Component{
 											<div style={{height: '100%', 'width':'900px', margin:'auto', 'margin-top': '25px'}}>
 												<Portal 
 													title="Shopper"
-													description="Join the community of shoppers, designers, and retailers to streamline your online shopping experience.  Discover new apparel styles, be confident in the fit, and get rewarded while you're at it."
+													description="Discover new styles, be confident in the fit, and get rewarded.  Join the community of shoppers, designers, and retailers to streamline your online shopping experience."
 													infoLink={null}
 													highlight='#6dd7b4'
 													actionIndicator="create account"
 													enterPortal={() => this.props.navStateToBrowse(this.props.handlePortalSelect, (this.props.profile !== undefined))}
-													navToCreatAccount={this.props.navToCreatAccount}
+													navToCreateAccount={this.props.navToCreateAccount}
 												/>
 												<Portal 
 													title="Designer"
@@ -1714,11 +1718,11 @@ export default class LandingPage extends React.Component{
 													highlight='#70ccf4'
 													actionIndicator="create account"
 													enterPortal={() => console.log('Designer portal clicked')}
-													navToCreatAccount={this.props.navToCreatAccount}
+													navToCreateAccount={this.props.navToCreateAccount}
 												/>
 												<Portal 
 													title="E-Retailer"
-													description="Get your apparel noticed!  Leverage our community affiliate program to increase exposure and gain insights on what's trending."
+													description="Get your apparel noticed.  Leverage our community affiliate program to increase exposure and gain insights on what's trending."
 													infoLink={null}
 													highlight='#e0c570'
 													actionIndicator="create account"
@@ -1726,18 +1730,18 @@ export default class LandingPage extends React.Component{
 														console.log('E-Retailer portal clicked');
 														
 													}}
-													navToCreatAccount={this.props.navToCreatAccount}
+													navToCreateAccount={this.props.navToCreateAccount}
 												/>
 											</div>
 										</div>
-										<GetStarted style={getStartedStyle} createUser={this.props.createUser}/> 
+										<CreateAccountForm style={getStartedStyle} createUser={this.props.createUser}/> 
 										<HowItWorks/>
 									</div>
 								) : 
 								this.props.createAccountView === 'shopper' ? (
 										<React.Fragment>
-											<Redirect to='/account-shopper' />
-											<Route path='/account-shopper' render={props => <CreateAccount accountType="shopper" createUser={this.props.createUser}/>} /> 
+											<Redirect to={this.defualtURI} />
+											<Route path={this.defualtURI} render={props => <CreateAccount accountType="shopper" createUser={this.props.createUser}/>} /> 
 										</React.Fragment>
 									) : 
 									null

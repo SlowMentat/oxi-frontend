@@ -32,7 +32,11 @@ import DeleteContentIcon from './Icons/DeleteContentIcon.js';
 import SpreadIcon from './Icons/SpreadIcon.js';
 import StatsIcon from './Icons/StatsIcon.js';
 import ShopIcon from './Icons/ShopIcon.js';
-import FollowIcon from './Icons/FollowIcon.js'
+import FollowIcon from './Icons/FollowIcon.js';
+import RetailerIcon from './Icons/RetailerIcon.js';
+import CompTypeMaleIcon from './Icons/CompTypeMaleIcon.js';
+import CompTypeApparelIcon from './Icons/CompTypeApparelIcon.js';
+import MultiplePicIcon from './Icons/MultiplePicIcon.js'
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -69,6 +73,9 @@ export const SvgIcon = (props) => {
 		case 'StatsIcon': return(<StatsIcon {...props}/>); break;		
 		case 'ShopIcon' : return(<ShopIcon {...props}/>); break;	
 		case 'FollowIcon' : return(<FollowIcon {...props}/>); break;
+		case 'CompTypeMaleIcon' : return(<CompTypeMaleIcon {...props}/>); break;
+		case 'CompTypeApparelIcon' : return(<CompTypeApparelIcon{...props}/>); break; 
+		case 'MultiplePicIcon' : return (<MultiplePicIcon {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

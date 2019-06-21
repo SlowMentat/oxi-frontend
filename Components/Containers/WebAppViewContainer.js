@@ -29,7 +29,7 @@ const mapStateToProps = (state, props ) => {
 
 const mapDispatchToProps = (dispatch, props) => ({
 	navEventCallbacks : {
-		home : () => {
+		a : (isOwnerProfileEntityPresent) => {
 			//dispatch(setWebAppView("home"))
 			/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
 			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
@@ -39,10 +39,10 @@ const mapDispatchToProps = (dispatch, props) => ({
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
-			
-			dispatch(navigateTo(OxiAppConstants.navRequestMap.home.toLowerCase()));
+			console.log('in navEventCallback for navRequestMap.a');
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase(), isOwnerProfileEntityPresent));
 		},
-		profile : (profileId) => {
+		b : (profileId) => {
 			/*dispatch(setWebAppView("profile"));
 			//fetch owners outfits 
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, ''));
@@ -51,21 +51,21 @@ const mapDispatchToProps = (dispatch, props) => ({
 			//Clear existing store
 
 			//Deselect everything
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
-			//remove all entitiy data from entitiesReducer branch
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
-
-			dispatch(navigateTo(OxiAppConstants.navRequestMap.profile.toLowerCase()));
+			//dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
+			//dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
+			//dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
+			////remove all entitiy data from entitiesReducer branch
+			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
+			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
+			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
+			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
+			console.log('in navEventCallback for navRequestMap.b');
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
 		},
-		settings : () => {
+		c : () => {
 			//dispatch(setWebAppView("settings"))
 			//dispatch(navigateTo(OxiAppConstants.navRequestMap.landing.toLowerCase()));
-			dispatch(navigateTo(OxiAppConstants.navRequestMap.settings.toLowerCase()));
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.c.toLowerCase()));
 		},
 		search : () => {
 			dispatch(setWebAppView("search"))

@@ -70,6 +70,11 @@ a{
 	justify-content: center;
 }
 
+.loginPage_div{
+	composes:modal;
+	background-color: unset;
+}
+
 .stdBlock{
 	--entity-selected-border-color: red;		/*Defualt border color for selected divs representing entities*/
 	border-radius: 5px;
@@ -88,18 +93,31 @@ a{
 
 .stdButton{
 	composes:pressable;
+	--button-transition-period: 170ms;
 	cursor:pointer;
 }
 
 .stdButton:hover{
-	background-color: #c27e1d;
+	/*background-color: #c27e1d;*/
+	color: #6f6f6f;
+    background-color: #d8d8d8;
+    transition: color var(--button-transition-period), background-color var(--button-transition-period);
 }
 
 .containerProfile{
 	display: grid;
+	--column-width-item: 28.579%;
+	--column-width-metric: 300px;
+	--column-width-preview: 27%;
+	--column-width-browse: auto;
 	background-color: var(--main-background-color);
 	/*grid-template-columns: auto 250px 45% 20%;*/
-	grid-template-columns: 300px 28.579% 27% auto;
+	grid-template-columns: 
+		var(--column-width-metric) 
+		var(--column-width-item) 
+		var(--column-width-preview) 
+		var(--column-width-browse);
+	/*grid-template-columns: 300px 28.579% 27% auto;*/
     grid-template-rows: calc(100vh - 80px - 40px) 40px;
     grid-gap: 0px;
     grid-template-areas: 
@@ -120,6 +138,14 @@ a{
 	grid-template-areas:
 		"metric browse"
 		"admin admin";*/
+}
+
+.label{
+    color: #707070;
+    font-family: Roboto;
+    font-size: 1.7rem;
+    letter-spacing: 0.07rem;
+    text-transform: capitalize;
 }
 
 .metricsContainer_div{
@@ -147,7 +173,7 @@ a{
     /* display: inline-block; */
     width: auto;
     height: 100%;
-    margin-left: 300px;
+    margin-left: 290px;
     padding-top: 12.5px;
     padding-bottom: 12.5px;
 }
@@ -168,6 +194,7 @@ a{
 }
 
 :local(.metricContainer_div){
+	position:relative;
 	height: calc(100% - 16px + 40px);
     border-style: solid;
     border-width: 1px;

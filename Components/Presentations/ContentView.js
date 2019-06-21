@@ -53,8 +53,10 @@ const ShowContentView = (props) => {
 	if(props.viewContext === OxiAppConstants.viewState.ADD){
 		contentView = (
 			<ImageAdd 
+				addContentFromImages={props.addContentFromImages}
 				setupImageRef={props.setupImageRef}
 				itemMapDimension={props.itemMapDimension}
+				addedContentIds={props.addedContentIds}
 				addedEntities={props.addedEntities}
 				entitiesStateReducer={props.entitiesStateReducer}
 				contentSelected={props.contentSelected} 
@@ -82,6 +84,7 @@ const ShowContentView = (props) => {
 				itemContent={props.itemContent}
 				//setupContentViewRef={props.setupContentViewRef}
 				imageElement={props.imageElement}
+				addedContents={props.addedContents}
 			/>
 		);
 	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
@@ -108,12 +111,14 @@ const ShowContentView = (props) => {
 	}else if(props.viewContext === OxiAppConstants.viewState.EDIT){
 		contentView = (
 			<ImageEdit 
+				addContentFromImages={props.addContentFromImages}
 				setupImageRef={props.setupImageRef}
 				itemMapDimension={props.itemMapDimension}
 				addedEntities={props.addedEntities} 
 				entitiesStateReducer={props.entitiesStateReducer}
 				contents={props.contents} 
 				addedContents={props.addedContents}
+				addedContentIds={props.addedContentIds}
 				contentSelected={props.contentSelected} 
 				outfitIdSelected={props.outfitIdSelected}
 				brands={props.brands}
@@ -288,8 +293,11 @@ class ImageAdd extends React.Component{
 						console.log('item to be scrubbed = ', this.props.addedEntities.items.byIds[itemId])
 						let scrubbedItem = Object.assign({}, this.props.addedEntities.items.byIds[itemId], {
 							id: undefined, 
-							retailer: this.props.retailers.byIds[this.props.addedEntities.items.byIds[itemId].retailer].id,
-							brand: this.props.brands.byIds[this.props.addedEntities.items.byIds[itemId].brand].id
+							//retailer: this.props.retailers.byIds[this.props.addedEntities.items.byIds[itemId].retailer].id,
+							//retailer: this.props.addedEntities.items.byIds[itemId].retailer.name,
+							//brand: this.props.brands.byIds[this.props.addedEntities.items.byIds[itemId].brand].id
+							//apparelType: this.props.addedEntities.items.byIds[itemId].apparelType.id,
+							product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product)
 						});						
 						//json.contents[0].items = [...json.contents[0].items, scrubbedItem];
 						if(json.contents[0].items !== undefined && Object.keys(json.contents[0].items[0]).length > 0 && json.contents[0].items[0].constructor === Object){
@@ -358,7 +366,8 @@ class ImageAdd extends React.Component{
 		}
 
 		return (
-			<CroppableImageForm 
+			<CroppableImageForm 			
+				addContentFromImages={this.props.addContentFromImages}
 				imgStyle={imgStyle}
 				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
 				imgFormStyle={imgFormStyle}
@@ -385,7 +394,8 @@ class ImageAdd extends React.Component{
 				//setupContentViewRef={this.props.setupContentViewRef}
 				itemMapDimensions={this.props.itemMapDimensions}
 				itemMapDimension={this.props.itemMapDimension}
-				addedEntities={this.props.addedEntities}
+				addedContents={this.props.addedContents}
+				addedContentIds={this.props.addedContentIds}
 				updateImageDimension={this.props.updateImageDimension}
 				imageElement={this.props.imageElement}
 			/>
@@ -451,7 +461,7 @@ class ImageEdit extends React.Component{
 					//if(this.props.entitiesStateReducer.items.clientInvalidated.length > 0){
 					let itemsJson = [];
 					for(let itemId of this.props.addedEntities.contents.byIds[invalidatedContentId].items){
-						let itemJson = Object.assign({}, this.props.addedEntities.items.byIds[itemId]);
+						let itemJson = Object.assign({}, this.props.addedEntities.items.byIds[itemId], {product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product)});
 						if(itemJson.id !== undefined && typeof itemJson.id === 'number'){
 							itemJson.id = undefined;
 						}						
@@ -493,8 +503,11 @@ class ImageEdit extends React.Component{
 					//let itemJson = this.props.addedEntities.items.byIds[invalidatedItemId];
 					//Add additional info to item json
 					let itemJson = Object.assign({}, this.props.addedEntities.items.byIds[invalidatedItemId], {
-						retailer: this.props.retailers.byIds[this.props.addedEntities.items.byIds[invalidatedItemId].retailer].id,
-						brand: this.props.brands.byIds[this.props.addedEntities.items.byIds[invalidatedItemId].brand].id
+						//retailer: this.props.retailers.byIds[this.props.addedEntities.items.byIds[invalidatedItemId].retailer].id,
+						//retailer: this.props.addedEntities.items.byIds[invalidatedItemId].retailer.name,
+						//brand: this.props.brands.byIds[this.props.addedEntities.items.byIds[invalidatedItemId].brand].id
+						//apparelType: this.props.addedEntities.items.byIds[invalidatedItemId].apparelType.id,
+						product: JSON.stringify(this.props.addedEntities.items.byIds[invalidatedItemId].product)
 					});
 					console.log('itemJson = ', itemJson);
 					//Check for an id property having a number type to set to undefined
@@ -908,6 +921,7 @@ class ImageEdit extends React.Component{
 
 		return (
 			<CroppableImageForm 
+				addContentFromImages={this.props.addContentFromImages}
 				src={this.state.base64Image === null ? null : this.state.base64Image.split(',')[1] ? this.state.base64Image : null}
 				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
 
@@ -941,7 +955,8 @@ class ImageEdit extends React.Component{
 				//setupContentViewRef={this.props.setupContentViewRef}
 
 				itemMapDimension={this.props.itemMapDimension}
-				addedEntities={this.props.addedEntities}
+				addedContents={this.props.addedContents}
+				addedContentIds={this.props.addedContentIds}
 				updateImageDimension={this.props.updateImageDimension}
 				imageElement={this.props.imageElement}
 			/>
@@ -989,6 +1004,7 @@ class ContentView extends React.Component{
 	}
 
 	updateImageDimension(width, height){
+		console.log(`ContentView#updateImageDimension: calling imageResized( width:${width}, height:${height} )`);
 		this.props.imageResized(width, height);
 		/*this.setState({
 			imageWidth: width,
@@ -1046,6 +1062,7 @@ class ContentView extends React.Component{
 		return(
     		<div className={Styles.previewBlock}>    			
 				<ShowContentView  
+					addContentFromImages={this.props.addContentFromImages}
 					viewContext={viewContext} 
 					addedEntities={this.props.addedEntities}
 					entitiesStateReducer={this.props.entitiesStateReducer}
@@ -1054,6 +1071,7 @@ class ContentView extends React.Component{
 					retailers={this.props.retailers}
 					contents={this.props.contents} 
 					addedContents={this.props.addedContents}
+					addedContentIds={this.props.addedContentIds}
 					contentSelected={this.props.contentSelected} 
 					outfitIdSelected={this.props.outfitIdSelected}
 					getPreviewPic={this.props.getPreviewPic}
@@ -1088,8 +1106,8 @@ class ContentView extends React.Component{
 					itemContent={this.props.itemContent} />
 					<div 
 						style={{
-							width: this.image === undefined ? '0px' : `${this.image.clientWidth}px`,
-							display: this.image === undefined ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
+							width: (this.image === undefined || this.image === null) ? '0px' : `${this.image.clientWidth}px`,
+							display: (this.image === undefined || this.image === null) ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
 							float: 'right',
 						}}
 					>

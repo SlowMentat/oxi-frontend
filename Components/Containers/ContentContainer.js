@@ -38,7 +38,8 @@ import {
 	modifyOutfit,
 	patchEntity,
 	updateOutfitCoverpicuri,
-	modifyEntityProperties
+	modifyEntityProperties,
+	addContents
 	
 } from '../../Components/Actions/indexActions.js';
 import {
@@ -62,6 +63,7 @@ const mapStateToProps = (state, props) => {
 		//contentViewed: state.shownContentView.shownContentId,
 		contents: state.entitiesReducer.contents.byIds,
 		addedContents : state.addedEntitiesReducer.contents.byIds,
+		addedContentIds: state.addedEntitiesReducer.contents.allIds,
 		itemContent: state.entitiesReducer.itemContent,
 		//contentSelected : state.viewState.shownContentId
 		contentSelected : state.entitiesStateReducer.contents.selected,
@@ -81,6 +83,14 @@ const mapStateToProps = (state, props) => {
 }
 //TODO:  consolidate all the http request functions below :(
 const mapDispatchToProps = (dispatch) => ({
+	//fileReferences => { 'full filenmae' : FileObject }
+	addContentFromImages: (fileReferences) => {
+		let contentEntities = [{}];
+		Object.keys(fileReferences).map((name, ind, names) => {
+			contentEntities[ind] = Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {coverpicuri: name})
+		})
+		dispatch(addContents(contentEntities))
+	},
 	getItemForm: (posx, posy) => {
 		/*dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))
 		dispatch(fetchEntities(OxiAppConstants.EntityTypes.RETAILER, '', ''))*/

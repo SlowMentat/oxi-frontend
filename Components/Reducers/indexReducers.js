@@ -4,6 +4,7 @@ import {
 			ADD_PROFILE,
 			ADD_OUTFIT,	
 			ADD_CONTENT,
+			ADD_CONTENTS,
 			ADD_ITEM,
 			ADD_ITEMCONTENT,
 			CREATE_ITEM,
@@ -58,7 +59,14 @@ import {
 			SET_VISIBLE_HELP,
 			SET_VISIBLE_FILTER,
 			UPDATE_OUTFIT_COVERPICURI,
-			SET_LP_CREATE_ACCOUNT_VIEW
+			SET_LP_CREATE_ACCOUNT_VIEW,
+			RECEIVED_EXISTING_ITEMS_SEARCH,
+			RECEIVED_RETAILER_NAMES_SEARCH,
+			RECEIVED_UDR_NAMES_SEARCH,
+			RECEIVED_UDS_LABELS_SEARCH,
+			RECEIVED_ALL_APPAREL_TYPES,
+			CREATE_APPAREL_TYPE,
+			REPLACE_APPAREL_TYPE
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -106,6 +114,25 @@ const iniButtonState = {
 	},
 	addContent: {
 		disabled :  false
+	}
+}
+
+const iniSearchState = {
+	addItemContext: {
+		retailerItemResults:[],
+		retailerNameResults:[],
+		sizeRsults:[],
+		userDefinedRetailerResults:[],
+		udrNameResults:[],
+		udsLabelResults:[],
+		sizeLabelResults:[],
+		allApparelTypes:[]
+	},
+	browseOutfitsContext: {
+
+	},
+	borwseItemsContext:{
+
 	}
 }
 
@@ -197,6 +224,10 @@ function byId(state = {}, action){
 		case `ADD_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.entity.id]: action.payload.entity});
 
+		case `ADD_${action.typeSpecifier}S`:
+			console.log('byId: action = ', action)
+			return Object.assign({}, state, action.payload.entities)
+
 		//action typed performed on "entitiesReducer"
 		/*case `UPDATE_${action.typeSpecifier}`:
 			return state;//Object.assign({}, state, {[action.payload.id] : action.payload});*/
@@ -261,6 +292,14 @@ function allIds(state = [], action){
 		case `ADD_${action.typeSpecifier}`:
 			return [...state, action.payload.entity.id];
 			//return [...state, state.reduce((maxId, itemId) => Math.max(maxId, itemId), 0) + 1];
+
+		case `ADD_${action.typeSpecifier}S`:
+			console.log('allId: action = ', action)
+			let ids = [];
+			for(let entity of Object.values(action.payload.entities)) {
+				ids = [...ids, entity.id];
+			}
+			return [...state, ...ids] //since keys are 
 
 		//action typed performed on "entitiesReducer"
 		case `DELETE_${action.typeSpecifier}`:
@@ -619,12 +658,9 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 	//Handle action
 	//batch comment//console.log('localEntities:  action = ', action);
 	//batch comment//console.log('localEntities:  state = ', state);
+	let nextCount = state.count + 1;
 	switch(action.type){
 		case `ADD_${action.typeSpecifier}`:
-			//batch comment//console.log('localEntities:  switch case ADD_');
-			let nextCount = state.count + 1;
-			////batch comment//console.log('maxCount' + maxCount);
-			////batch comment//console.log('nextCount' + nextCount);
 			if(nextCount > maxCount){
 				return state;
 			}else{
@@ -636,6 +672,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 						payload : {
 							entity: {
 								...action.payload.entity,
+								//Increment the greatest id of all added entities by 1 and assign to this payload entity
 								id : allIdsRef.reduce((maxId, currentId) => {
 									if(typeof currentId === 'number'){
 										return (Math.max(maxId, currentId));
@@ -655,6 +692,65 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 					count : nextCount
 				});
 			}
+
+		case `ADD_${action.typeSpecifier}S`:
+			//let nextCount = state.count + 1;
+			if(nextCount > maxCount){
+				return state;
+			}else{
+				let scrubbedAction = {payload:{entities:{}}};
+				let newEntityCount = 1;
+
+				let addedEntityCount = Object.keys(action.payload.entities).length;
+				let scrubbedActionEntityIds = [];
+				//find the max id
+				let originalMaxId = allIdsRef.reduce((maxId, currentId) => {
+					if(typeof currentId === 'number'){
+						return (Math.max(maxId, currentId));
+					}
+					return maxId;
+				}, 0);
+
+				//perform scrubbing operations on all entities first
+				for(let entity of action.payload.entities){
+					if(state.count + newEntityCount <= maxCount){
+						//if entity is new
+						if(entity.id === null){
+							let nextId = originalMaxId + newEntityCount;
+							scrubbedAction = Object.assign({}, action, {
+								...action,
+								payload : {
+									entities: {
+										...scrubbedAction.payload.entities,
+										//key is passed as null value, so access must be done using index
+										[nextId] : Object.assign(entity, {id: nextId})//action.payload.entities[newEntityCount]
+									}
+								}
+							});
+							newEntityCount++;
+							//batch comment//console.log('scrubbedAction = ', scrubbedAction);
+						}else{
+							//Note:  Ass
+							throw error('Cannot batch add multiple persisted entities (indicated by having id property with UUID value) to the addedEntitiesReducer store.  Instead add each entity individual');
+							//scrubbedAction = Object.assign({}, action, {
+							//	...action,
+							//	payload : {
+							//		entities:{
+							//			...scrubbedAction.payload.entities,
+							//			[entity.id]: entity
+							//		}
+							//	}
+							//});
+						}
+					}
+				}
+				return Object.assign({}, state, {
+					byIds : byId(byIdsRef, scrubbedAction),
+					allIds : allIds(allIdsRef, scrubbedAction),
+					count : nextCount
+				});
+			}
+
 		case `MODIFY_${action.typeSpecifier}`: //fix this
 			//batch comment//console.log('localEntities:  switch case MODIFY_');
 			return Object.assign({}, state, {
@@ -662,6 +758,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 				allIds : allIds(allIdsRef, action), 
 				/*count :  state.count++*/
 			});
+
 		case `REMOVE_ADDED_${action.typeSpecifier}`:
 			//batch comment//console.log('localEntities:  switch case REMOVE_');
 			//decrement profile coutner
@@ -740,6 +837,38 @@ function buttonState(state = iniButtonState, action){
 	}
 }
 
+function searchState(state = iniSearchState, action){
+	switch(action.type){
+		case RECEIVED_EXISTING_ITEMS_SEARCH:
+			return Object.assign({}, state, {'addItemContext': {
+				...state.addItemContext,
+				...action.payload
+			}})
+		case RECEIVED_RETAILER_NAMES_SEARCH:
+			return Object.assign({}, state, {'addItemContext': {
+				...state.addItemContext,
+				...action.payload
+			}})	
+		case RECEIVED_UDR_NAMES_SEARCH:
+			return Object.assign({}, state, {'addItemContext': {
+				...state.addItemContext,
+				...action.payload
+			}})	
+		case RECEIVED_UDS_LABELS_SEARCH:
+			return Object.assign({}, state, {'addItemContext': {
+				...state.addItemContext,
+				...action.payload
+			}})
+		case RECEIVED_ALL_APPAREL_TYPES:
+			return Object.assign({}, state, {'addItemContext': {
+				...state.addItemContext,
+				...action.payload
+			}})		
+		default:
+			return state;
+	}
+}
+
 const popupMenus = (state = {}, action) => {
 	switch(action.type){
 		case `SET_VISIBLE_${action.typeSpecifier}`:
@@ -802,6 +931,7 @@ const entitiesReducer = combineReducers({
 	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
 	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
 	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
+	apparelTypes : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.APPAREL_TYPE, defualtEntitiesStore),
 	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
 	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
 });
@@ -832,6 +962,7 @@ const _OxiApp = combineReducers({
 	//add reducers for combining here
 	buttonState,
 	browseState,
+	searchState,
 	appView,
 	landingPage,
 	popupMenusReducer,

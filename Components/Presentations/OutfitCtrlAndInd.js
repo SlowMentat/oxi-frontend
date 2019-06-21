@@ -34,7 +34,7 @@ class OutfitCtrlAndInd extends React.Component{
 
 	render(){
 		let button = null;
-		if(this.props.webAppView === OxiAppConstants.navRequestMap.profile.toLowerCase()){
+		if(this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase()){
 			button = (
 				<div 
 					className={OutfitNavStyles.outfitCtrlBtnContainer_div} 

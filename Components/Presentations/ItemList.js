@@ -58,7 +58,7 @@ export default class ItemList extends React.Component{
 		});*/
 		let itemControl
 		return (
-		    <div className={ItemStyles.itemMenuBlock} style={{'padding-left': '75px'}} >
+		    <div className={ItemStyles.itemBlock}>
 		    	<div style={{'height':'calc(5vh + 25px)'}}>
 		    		<div className={ItemStyles.itemMenuHeaderContainer}>
 		    			<div className={ItemStyles.itemMenuHeader}>
@@ -98,7 +98,7 @@ export default class ItemList extends React.Component{
 			    					(			    					
 			    						<CSSTransition
 			    							key={itemId}
-			    							tiemout={200}
+			    							timeout={200}
 			    							classNames="itemInitialize"
 			    							onExit={(element) => {console.log(itemId, ' exited.  Element is: ', element)}}
 			    							unmountOnExit >
@@ -116,7 +116,8 @@ export default class ItemList extends React.Component{
 			    									webAppView={this.props.webAppView}
 			    									viewState={this.props.viewState}
 			    									_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
-			    									_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)} />))
+			    									_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
+			    									apparelTypeByIds={this.props.apparelTypeByIds} />))
 			    							}
 			    						</CSSTransition>
 			    					)
@@ -147,7 +148,8 @@ export default class ItemList extends React.Component{
 			    									viewState={this.props.viewState}
 			    									webAppView={this.props.webAppView}
 			    									_handleMouseOver={(event) => this.props.changeItemHovered(itemId)}
-			    									_handleMouseLeave={(event) => this.props.changeItemHovered(null)} />))
+			    									_handleMouseLeave={(event) => this.props.changeItemHovered(null)} 
+			    									apparelTypeByIds={this.props.apparelTypeByIds} />))
 			    							}
 			    						</CSSTransition>
 			    					));
