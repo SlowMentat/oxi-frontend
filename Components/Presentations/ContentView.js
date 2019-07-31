@@ -246,7 +246,10 @@ class ImagePreview extends React.Component{
 						itemMapDimension={this.props.itemMapDimension}
 
 						itemIdHovered={this.props.itemIdHovered}
-						changeItemHovered={this.props.changeItemHovered}/>	
+						changeItemHovered={this.props.changeItemHovered}
+
+						contentSelected = {this.props.contentSelected}
+						contents = {this.props.contents}/>	
 					
 				</div>
 			</div>
@@ -372,7 +375,7 @@ class ImageAdd extends React.Component{
 				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
 				imgFormStyle={imgFormStyle}
 				imgFormControlStyle={FormStyles.imgFormControlStyle}
-				postAddedOutfit={this._handleSubmit}
+				_handleSubmit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
 				itemLocationMap={
@@ -386,11 +389,16 @@ class ImageAdd extends React.Component{
 							simulateImageClick={this.props.simulateImageClick}
 
 							itemIdHovered={this.props.itemIdHovered}
-							changeItemHovered={this.props.changeItemHovered}/>				
+							changeItemHovered={this.props.changeItemHovered}
+
+							contentSelected = {this.props.contentSelected}
+							addedContents = {this.props.addedContents}
+							contents = {this.props.contents}  />				
 					)
 				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
 				setupImageRef={this.props.setupImageRef}
+				viewState={this.props.viewContext} 
 				//setupContentViewRef={this.props.setupContentViewRef}
 				itemMapDimensions={this.props.itemMapDimensions}
 				itemMapDimension={this.props.itemMapDimension}
@@ -473,11 +481,11 @@ class ImageEdit extends React.Component{
 					console.log('TEST 2:  addedEntities = ', this.props.addedEntities.contents.byIds[invalidatedContentId].items);
 					console.log('========');
 					console.log();
+					
+					////Check for an id property having of number type to set to undefined
+					//if(json.contents[currentInd].id !== undefined && typeof json.contents[currentInd].id === 'number'){
+					//	json.contents[currentInd].id = undefined;
 					//}
-					//Check for an id property having of number type to set to undefined
-					if(json.contents[currentInd].id !== undefined && typeof json.contents[currentInd].id === 'number'){
-						json.contents[currentInd].id = undefined;
-					}
 					currentInd++;
 				}
 				break;
@@ -552,7 +560,7 @@ class ImageEdit extends React.Component{
 		return json;
 	}
 
-	_handleSubmit(fileData){
+	_handleSubmit(files, invalidatedContentId){
 		var outfitJson = {};
 		console.log('addedEntities before call to pruneAddedentities = ', this.props.addedEntities);
 		outfitJson = this.pruneAddedEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitJson);
@@ -564,7 +572,7 @@ class ImageEdit extends React.Component{
 					//outfit exists on the server
 					case 'string':
 						this.props.putModifiedOutfit(
-							fileData, 
+							files, 
 							this.props.entitiesStateReducer.contents.selected, 
 							outfitJson, this.props.addedEntities, 
 							this.props.entitiesStateReducer, 
@@ -572,9 +580,9 @@ class ImageEdit extends React.Component{
 						break;
 					//outfit does not exist on the server
 					case 'number':
-						//this.props.postAddedOutfit(fileData, outfitJson.contents[0], outfitJson.id, this.props.addedEntities, this.props.entitiesStateReducer);
+						//this.props.postAddedOutfit(files, outfitJson.contents[0], outfitJson.id, this.props.addedEntities, this.props.entitiesStateReducer);
 						this.props.postAddedOutfit(
-							fileData, 
+							files, 
 							outfitJson, 
 							this.props.addedEntities, 
 							this.props.entitiesStateReducer, 
@@ -586,28 +594,32 @@ class ImageEdit extends React.Component{
 				break;
 			//Either new content has been added or contents non-entity properties have been modified
 			case this.props.entitiesStateReducer.contents.clientInvalidated.length > 0:
-				switch(typeof this.props.entitiesStateReducer.contents.selected){
-					case 'string':
-						console.log('addedEntities before call to putModifiedContent = ', this.props.addedEntities);
-						this.props.putModifiedContent(
-							fileData, 
-							Object.assign({}, outfitJson.contents[0]), 
-							outfitJson.id, 
-							this.props.addedEntities, 
-							this.props.entitiesStateReducer,
-							this.props.itemContent.count );
-						break;
-					case 'number':
-						this.props.postAddedContent(
-							fileData, 
-							outfitJson.contents[0], 
-							this.props.entitiesStateReducer.outfits.selected, 
-							this.props.addedEntities, 
-							this.props.entitiesStateReducer, 
-							this.props.itemContent.count);
-						break;
-					default:
-						break;
+				for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
+				//if(invalidatedContentId){
+					let currentContent = outfitJson.contents.filter(content => content.id === invalidatedContentId)[0];
+					switch(typeof invalidatedContentId){//this.props.entitiesStateReducer.contents.selected){
+						case 'string':
+							console.log('addedEntities before call to putModifiedContent = ', this.props.addedEntities);
+							this.props.putModifiedContent(
+								files[currentContent.coverpicuri],
+								Object.assign({}, currentContent, {id: null}),//contents[0]), 
+								outfitJson.id, 
+								this.props.addedEntities, 
+								this.props.entitiesStateReducer,
+								this.props.itemContent.count );
+							break;
+						case 'number':
+							this.props.postAddedContent(
+								files[currentContent.coverpicuri],
+								Object.assign({}, currentContent, {id: null}),//,contents[0], 
+								this.props.entitiesStateReducer.outfits.selected, 
+								this.props.addedEntities, 
+								this.props.entitiesStateReducer, 
+								this.props.itemContent.count);
+							break;
+						default:
+							break;
+					}
 				}
 				break;
 			//Only item enitties have been modified or added
@@ -633,7 +645,10 @@ class ImageEdit extends React.Component{
 										payloadJsonPut = Object.assign({}, payloadJsonPut, {
 											[contentId]: [
 												...payloadJsonValue, 
-												this.props.addedEntities.items.byIds[itemId]
+												//remove product property from non-custom items in contentJson
+												this.props.addedEntities.items.byIds[itemId].platform === null ? 
+													Object.assign( {}, this.props.addedEntities.items.byIds[itemId], {'product': undefined, 'sizeChartDto':undefined} ):
+													this.props.addedEntities.items.byIds[itemId]
 											]
 										});
 										putPayloadEmpty = false;
@@ -906,15 +921,15 @@ class ImageEdit extends React.Component{
 				let contentPictureId = null;
 				if(this.props.addedContents[this.props.contentSelected] !== undefined) contentPictureId = this.props.addedContents[this.props.contentSelected].picture;
 				console.log('contentPictureId = ', contentPictureId);
-				//determine if the selcted content's picture property is different, and thus not loaded in the contentView
+				//determine if the selected content's picture property is different, and thus not loaded in the contentView
 				if(contentPictureId !== this.state.pictureId && contentPictureId !== undefined && contentPictureId !== null){
 					//check if the picture id is not from a newly added content entity.  If so the content view needs to be nullified
-					if(contentPictureId !== ''){
+					if(contentPictureId !== '' && typeof contentPictureId !== 'number'){
 						this.props.getPreviewPic(this.props.pictures[contentPictureId].largeuri, this._handleImageReceived, this.props.pictures[contentPictureId]);//TODO:  refactor fetchImage to just take picture obejct.  OutfitList container calls fetchImage
-					}else{
-						console.log('calling _handleImageReceived()');
-						this._handleImageReceived(null, '', {id: ''});
-					}
+					}//else{
+					//	console.log('calling _handleImageReceived()');
+					//	this._handleImageReceived(null, '', {id: ''});
+					//}
 				}
 			}
 		}
@@ -932,7 +947,7 @@ class ImageEdit extends React.Component{
 				imgStyle={imgStyle}
 				imgFormStyle={imgFormStyle}
 				imgFormControlStyle={FormStyles.imgFormControlStyle}
-				postAddedOutfit={this._handleSubmit}
+				_handleSubmit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
 				itemLocationMap={
@@ -946,10 +961,15 @@ class ImageEdit extends React.Component{
 							simulateImageClick={this.props.simulateImageClick}
 
 							itemIdHovered={this.props.itemIdHovered}
-							changeItemHovered={this.props.changeItemHovered}/>				
+							changeItemHovered={this.props.changeItemHovered}
+
+							contentSelected = {this.props.contentSelected}
+							addedContents = {this.props.addedContents}
+							contents = {this.props.contents}/>				
 					)
 				}
 				entitiesStateReducer={this.props.entitiesStateReducer}
+				viewState={this.props.viewContext} 
 
 				setupImageRef={this.props.setupImageRef}
 				//setupContentViewRef={this.props.setupContentViewRef}
@@ -1006,14 +1026,10 @@ class ContentView extends React.Component{
 	updateImageDimension(width, height){
 		console.log(`ContentView#updateImageDimension: calling imageResized( width:${width}, height:${height} )`);
 		this.props.imageResized(width, height);
-		/*this.setState({
-			imageWidth: width,
-			imageHeight: height,
-		});	*/	
 	}
 
 	_handleResize(event){
-		console.log('RESIZED')
+		console.log(`ContentView#_handleResize: calling _handleResize( width:${this.image.clientWidth}, height:${this.image.clientHeight} )`);
 		//this.updateImageDimension(this.image.clientWidth, this.image.clientHeight);
 		this.props.imageResized(this.image.clientWidth, this.image.clientHeight);
 		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);

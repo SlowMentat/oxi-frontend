@@ -60,6 +60,8 @@ const mapStateToProps = (state, props) => {
 		scrollPageHeight: state.entitiesStateReducer.outfits.scrollPageHeight,
 		pages: state.entitiesReducer.outfits.pages,
 		pictures: state.entitiesReducer.pictures.byIds,
+
+		entitiesStateReducer: state.entitiesStateReducer,
 	});
 }
 
@@ -80,13 +82,15 @@ const mapDispatchToProps = (dispatch, state) => ({
 	},
 	focusOnAddedOutift : (addedOutfitId) => dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.OUTFIT, addedOutfitId)),
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
-	editOutfit : (outfit, selectedOutfitId, contents, selectedContentId, items) => {
+	editOutfit : (outfit, entitiesStateReducer, contents, selectedContentId, items) => {
 		console.log('editOutfit:  outfit = ', outfit);
 		dispatch(disableAddOutfit(true));
-		if(selectedOutfitId !== outfit.id){
+
+		//if(entitiesStateReducer.outfits.selected !== outfit.id || entitiesStateReducer.outfits.prevSelected === false){
 			//set the selected content to the first in the array.  Outfit should always have at least one content child entity.
-			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfit.id, outfit.contents[0]))
-		}
+			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfit.id, outfit.contents[0], null));
+		//}
+
 		//inserts this outfit id into the allEdittingIds array, specifying what entities have been modified.
 		//dispatch(updateOutfit(outfit.id));
 		dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.OUTFIT, outfit.id));
@@ -94,6 +98,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 		//TODO: change this and other ADD_* actions to just take an entity object as its parameter
 		dispatch(addOutfit(Object.assign({}, OxiAppConstants.EntityTemplates.OUTFIT, outfit)));
 		//dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.OUTFIT, outfit.id));
+
 		//copy content entities that are children of outfit to the addedEntitiesReducer tree
 		for(let contentId of outfit['contents']){
 			dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.CONTENT, contentId));

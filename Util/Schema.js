@@ -2,7 +2,16 @@ import {schema} from 'normalizr';
 import {OxiAppConstants} from './OxiAppConstants.js';
 //Schemas used by normalizr
 
-export const item = new schema.Entity(OxiAppConstants.JsonPropertyNames.ITEM, {}, {idAttribute : 'id'});
+
+export const sizeGroup = new schema.Entity(OxiAppConstants.JsonPropertyNames.SIZE_GROUP, {}, {idAttribute: 'id'});
+
+export const sizeChart = new schema.Entity(OxiAppConstants.JsonPropertyNames.SIZE_CHART, {
+	[OxiAppConstants.JsonPropertyNames.SIZE_GROUP] : [sizeGroup],
+}, {idAttribute: 'id'});
+
+export const item = new schema.Entity(OxiAppConstants.JsonPropertyNames.ITEM, {
+	[OxiAppConstants.JsonPropertyNames.SIZE_CHART] : sizeChart,
+}, {idAttribute : 'id'});
 
 export const picture = new schema.Entity(OxiAppConstants.JsonPropertyNames.PICTURE, {}, {idAttribute : 'id'});
 
@@ -23,6 +32,8 @@ export const profileSchema = new schema.Entity(OxiAppConstants.JsonPropertyNames
 export const contents = new schema.Array(content);
 
 export const items = new schema.Array(item);
+
+export const sizeGroups = new schema.Array(sizeGroup); 
 
 
 

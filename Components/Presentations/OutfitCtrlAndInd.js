@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 import OutfitNavStyles from '../../outfitNav.css';
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
+import ControlStyles from '../../controls.css';
+
+import {Button} from '../../Components/Presentations/Controls.js';
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
 
@@ -29,12 +32,24 @@ class OutfitCtrlAndInd extends React.Component{
 	}
 
 	handleAddOutfitClcik(){
-		if(!this.props.buttonDisabled){this.props.addOutfit(1, undefined);}
+		if(!this.props.buttonDisabled){this.props.addOutfit(1, undefined, this.props.entitiesStateReducer);}
 	}
 
 	render(){
 		let button = null;
+		let customButtonStyles = {
+			color:'white',
+			'margin':'auto',		
+		}
 		if(this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase()){
+			/*button = (
+				<Button
+					buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //dynamic icon button
+					//onClickHandler={this.props.discardChanges}
+					title='add new outfit'
+					iconName='AddOutfitIcon'
+					customButtonStyles={customButtonStyles} />
+			)*/
 			button = (
 				<div 
 					className={OutfitNavStyles.outfitCtrlBtnContainer_div} 
@@ -44,13 +59,21 @@ class OutfitCtrlAndInd extends React.Component{
 						className={OutfitNavStyles.outfitCtrlBtn_div}
 						style={{
 						}}>
-						<div
-							className={OutfitNavStyles.outfitCtrlBtnContent_div}
-							style={{
-							}}>
-							+
-						</div>
-					</div>
+						{/*<div
+								className={OutfitNavStyles.outfitCtrlBtnContent_div}
+								style={{
+								}}>
+								+
+							</div>*/}
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+							//onClickHandler={this.props.discardChanges}
+							title='add new outfit'
+							iconName='AddOutfitIcon'
+							expandedWidth={150}
+							buttonHeight={40}
+							customButtonStyles={customButtonStyles} />
+							</div>
 				</div>
 			);
 		}

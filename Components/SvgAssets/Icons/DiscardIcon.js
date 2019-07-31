@@ -12,14 +12,17 @@ export default class DiscardIcon extends React.Component{
 
 	render(){
 		let crossColor = this.props.hovered ? "#ff8080" : "#000";
+		let className = this.props.className || null;
+		let style = this.props.style// || {'width':'100%','height':'100%'};
 		return(
 			<svg 
 				width="50mm" 
 				height="50mm" 
 				version="1.1" 
 				viewBox="0 0 50 50" 
-				xmlns="http://www.w3.org/2000/svg"				
-				style={{'width':'100%','height':'100%'}}>	
+				xmlns="http://www.w3.org/2000/svg"		
+				style={style ? style : ({})}
+				className={className}> 	
 				<g stroke="#000" stroke-linejoin="round">
 					<path 
 						d="m33.95 9.6635a5.8503 7.9553 21.989 0 0-6.7433 5.7397 5.8503 7.9553 21.989 0 0 1.2283 8.5048 10.245 18.963 0 0 0-8.7214 18.736 10.245 18.963 0 0 0 0.08888 2.3562h20.31a10.245 18.963 0 0 0 0.09199-2.3562 10.245 18.963 0 0 0-6.9531-17.937 5.8503 7.9553 21.989 0 0 4.9888-5.3939 5.8503 7.9553 21.989 0 0-2.712-9.3972 5.8503 7.9553 21.989 0 0-1.5782-0.25206z" 

@@ -11,7 +11,9 @@ function Modal(props){
 				formType={props.formType} 
 				cancelAction={props.closeModal} 
 				submitAction={props.submitAction} 
-				confirmDiscardSubmitAction = {(location) => props.confirmDiscardSubmitAction(location, props.addedEntitiesReducer)}
+				confirmDiscardSubmitAction = {
+					(location) => props.confirmDiscardSubmitAction(location, props.addedEntitiesReducer, props.outfitByIds[props.entitiesStateReducer.outfits.prevSelected])
+				}
 				outfits={props.outfits}
 				contents={props.contents} 
 				items={props.items}
@@ -34,6 +36,8 @@ function Modal(props){
 				getSuggestion={props.getSuggestion}
 				getApparelTypes={props.getApparelTypes}
 				allApparelTypes={props.allApparelTypes}
+				getSizeChartByItemId={props.getSizeChartByItemId}
+				createSizeGroup={props.createSizeGroup}
 			/>
 		</ModalContainer>
 	);

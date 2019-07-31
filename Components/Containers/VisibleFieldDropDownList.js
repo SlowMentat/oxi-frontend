@@ -30,6 +30,7 @@ const mapStateToProps = (state, props) => {
 	return ({
 		retailerItems: state.searchState.addItemContext.retailerItemResults,
 		retailerNames: state.searchState.addItemContext.retailerNameResults,
+		retailerSize: state.searchState.addItemContext.sizeResults,
 		udrNameResults: state.searchState.addItemContext.udrNameResults,
 		udsLabelResults: state.searchState.addItemContext.udsLabelResults,
 		sizeLabelResults: state.searchState.addItemContext.sizeLabelResults,
@@ -40,4 +41,4 @@ const mapDispatchToProps = (dispatch) => ({
 })
 
 const VisibleFieldDropDownList = connect(mapStateToProps, mapDispatchToProps)(FieldDropDownList);
-export default withRouter(VisibleFieldDropDownList);
+export default VisibleFieldDropDownList;

@@ -17,6 +17,7 @@ import BrowseControlContainer from '../../Components/Containers/BrowseControlCon
 import ProfileControlContainer from '../../Components/Containers/ProfileControlContainer.js';
 import ProfileMenuContainer from '../../Components/Containers/ProfileMenuContainer.js';
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 //Presentation Component 
 //Constants
@@ -41,12 +42,19 @@ const bannerTitleImg = {
 }
 
 const logo_svg = {
+	'--logo-height': '45px',
 	'position':' absolute',
-    'width':' auto',
+    /*'width':' auto',
     'height':' 100%',
     'margin-left':' 300px',
     'padding-top':' 12.5px',
-    'padding-bottom':' 12.5px',
+    'padding-bottom':' 12.5px',*/
+    left:'227px',
+    top:'50%',
+    'margin-top':'calc(-1*var(--logo-height)/2)',
+    height:'var(--logo-height)',
+    width: 'calc(var(--logo-height) + 20px)',
+    'z-ingex':'-1',
 }
 
 export function SiteNav(props){		
@@ -57,10 +65,12 @@ export function SiteNav(props){
     			props.webAppView !== 'landing' ?
     				(
     					<React.Fragment>
-    						<SvgIcon 
-    							name='LogoIcon' 
-    							style={logo_svg}
-    						/>
+    						<div className={Styles.logoContainer_div}>
+    							<SvgIcon 
+    								name='LogoIconFitsee' 
+    								style={logo_svg}
+    							/>
+    						</div>
     						<div className={NavStyles.navBanner_div}>
     							<Nav 
     								blocks={Object.keys(OxiAppConstants.navRequestMap)} 
@@ -75,7 +85,7 @@ export function SiteNav(props){
     						<div className={NavStyles.landingLogoContainer_div}>
     							<div className={NavStyles.landingLogo_div}>
     								<SvgIcon 
-    									name='LogoIcon' 
+    									name='LogoIconFitsee' 
     									style={Object.assign( {}, logo_svg, {
     										width:'100%', 
     										height:'75%', 
@@ -207,7 +217,7 @@ class OutfitNav extends React.Component{
 		let browseContent = null;
 		let browseNavStyle = null;
 		let containerHeight = this.props.imageHeight;
-		let containerWidth = this.props.imageWidth*(2/3);
+		let containerWidth = this.props.imageWidth*(OxiAppConstants.aspectRatio);
 		let browseWrapper = (wrappedStuff) => (
 			this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
 				( <div style={{'grid-area':'browse'}}>
@@ -231,7 +241,11 @@ class OutfitNav extends React.Component{
 				browseContent = () => (
 						<VisibleOutfitList 
 							view={this.props.webAppView} 
-							scrollContainerStyle={OutfitNavStyles.previewContainer}
+							scrollContainerStyle={
+								this.props.webAppView === OxiAppConstants.navRequestMap.a ?
+									OutfitNavStyles.previewContainer : 
+									OutfitNavStyles.previewBrowseContainer
+							}
 							containerHeight={containerHeight !== 0 ? containerHeight : null}
 							containerWidth={containerWidth !== 0 ? containerWidth : null}
 							/*routeToHostProfile={this.props.routeToHostProfile}*/ />);
@@ -252,8 +266,8 @@ class OutfitNav extends React.Component{
     						className={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock} 
     						style={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
     							({
-    								height:`calc(${this.props.imageHeight}px)`,
-    								width: `calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`
+    								height: (this.props.imageHeight > this.props.imageWidth ? `calc(${this.props.imageHeight}px)` : `calc(100% - 80px - 80px)`),
+    								width: `calc(${containerWidth !== 0 ? containerWidth : 350}px)`
     							}) : ({})
     						}>
     						{browseContent !== null ? browseContent() : null}
@@ -272,49 +286,60 @@ class MetricPanel extends React.Component{
 	render(){
 		return(
 			<div className={Styles.metricBlock}>
-				<div className={Styles.metricContainer_div}>
-					<div 
-						style={{
-							'padding-top': '15px',
-    						'padding-bottom': '15px',
-    						'height': '165px',
-    						'border-bottom-style': 'solid',
-    						'border-width': '20px',
-    						'border-color': '#6d6d6d',
-    						'margin-right':'-1px',
-    						'position':'relative',
-						}}
-					>
-						{this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
-							<ProfileControlContainer /> :
-							<BrowseControlContainer />
-						}
-	
-					</div>
-					<MetricTitleContainer />
-					<div className={MetricStyles.metricMatch_div}>
-						<div className={MetricStyles.metricMatchLPanel_div}>
-							<div className={MetricStyles.fitIcon_div}>
-								FITS!
+			<CSSTransition
+			    tiemout={600}
+			    classNames="metricContainer_div"
+			    in={true}
+			    unmountOnExit >
+					<div className={Styles.metricContainer_div}>
+						<div 
+							style={{
+								'padding-top': '15px',
+    							'padding-bottom': '15px',
+    							'height': '165px',
+    							'border-bottom-style': 'solid',
+    							'border-width': '20px',
+    							'border-color': '#6d6d6d',
+    							'margin-right':'-1px',
+    							'position':'relative',
+							}}
+						>
+							{this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+								//<ProfileControlContainer /> :
+								(
+									<div className={Styles.points_div}>
+										12649
+									</div>
+								) :
+								<BrowseControlContainer />
+							}
+		
+						</div>
+						<MetricTitleContainer />
+						<div className={MetricStyles.metricMatch_div}>
+							<div className={MetricStyles.metricMatchLPanel_div}>
+								<div className={MetricStyles.fitIcon_div}>
+									FITS!
+								</div>
+							</div>
+							<div className={MetricStyles.metricMatchRPanel_div}>
+								<div className={MetricStyles.comparisonTypeIconContainer_div}>
+								  <div className={MetricStyles.comparisonTypeIcon_div}>
+								  	<SvgIcon name='CompTypeMaleIcon'/>
+								  </div>
+								  <div 
+								  	className={MetricStyles.comparisonTypeIcon_div}
+								  	style={{'border-left':'solid 2px gray'}}>
+								  	<SvgIcon 
+								  		name='CompTypeApparelIcon'
+								  		style={{height:'100%', width:'70%'}}/>
+								  </div>
+								</div>
 							</div>
 						</div>
-						<div className={MetricStyles.metricMatchRPanel_div}>
-							<div className={MetricStyles.comparisonTypeIconContainer_div}>
-							  <div className={MetricStyles.comparisonTypeIcon_div}>
-							  	<SvgIcon name='CompTypeMaleIcon'/>
-							  </div>
-							  <div 
-							  	className={MetricStyles.comparisonTypeIcon_div}
-							  	style={{'border-left':'solid 2px gray'}}>
-							  	<SvgIcon 
-							  		name='CompTypeApparelIcon'
-							  		style={{height:'100%', width:'70%'}}/>
-							  </div>
-							</div>
-						</div>
+						<VisibleMetricList />
 					</div>
-					<VisibleMetricList />
-				</div>
+				</CSSTransition>
 			</div>
 		);
 	}
@@ -506,6 +531,9 @@ export default class webAppView extends React.Component {
 				<ModalContentSelection/>
 			</React.Fragment>
 		);
+
+		//Get the users saved items if not already exists
+		Object.keys(this.props.savedItemMap).length === 0 ? this.props.getSavedItems() : null;
 
 		switch(true){
 			case this.props.formType === OxiAppConstants.FormType.LOGIN:

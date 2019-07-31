@@ -104,6 +104,11 @@ export const RECEIVED_RETAILER_NAMES_SEARCH = 'RECEIVED_RETAILER_NAMES_SEARCH';
 export const RECEIVED_UDR_NAMES_SEARCH = 'RECEIVED_UDR_NAMES_SEARCH';
 export const RECEIVED_UDS_LABELS_SEARCH = 'RECEIVED_UDS_LABELS_SEARCH';
 export const RECEIVED_ALL_APPAREL_TYPES ='RECEIVED_ALL_APPAREL_TYPES';
+export const RECEIVED_SIZE_GROUPS_BY_ITEM_ID = 'RECEIVED_SIZE_GROUPS_BY_ITEM_ID';
+
+export const REPLACE_SIZE_GROUP = 'REPLACE_SIZE_GROUP';
+export const REPLACE_SIZE_CHART = 'REPLACE_SIZE_CHART';
+export const CREATE_SIZE_GROUP = 'CREATE_SIZE_GROUP';
 
 
 //global variables
@@ -193,12 +198,18 @@ export const replaceContents 	= makeActionCreator(REPLACE_CONTENT, OxiAppConstan
 export const addContent 		= makeActionCreator(ADD_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity');
 export const addContents 		= makeActionCreator(ADD_CONTENTS, OxiAppConstants.EntityTypes.CONTENT, 'entities');
 
-//Action primarily used to modify the items propterty of the content entity in the addedEntityReducer tree after an item entity has been added to addedEntityRedercer.items branch
+//Action primarily used to modify the items propterty of the content entity in the addedEntityReducer tree 
+//after an item entity has been added to addedEntityRedercer.items branch
+//This is also invoked when modifying the coverpicuri property once a picture/s is/are selected during an "add outfit" operation
 export const modifyContent 		= makeActionCreator(MODIFY_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'entity')
 
 //PICTURE Actions
 export const createPictures		= makeActionCreator(CREATE_PICTURE, OxiAppConstants.EntityTypes.PICTURE, 'entities');
 export const replacePictures 	= makeActionCreator(REPLACE_PICTURE, OxiAppConstants.EntityTypes.PICTURE, 'entities');
+
+export const createSizeGroups	= makeActionCreator(CREATE_SIZE_GROUP, OxiAppConstants.EntityTypes.SIZE_GROUP, 'entities');
+export const replaceSizeGroups	= makeActionCreator(REPLACE_SIZE_GROUP, OxiAppConstants.EntityTypes.SIZE_GROUP, 'entities');
+export const replaceSizeCharts	= makeActionCreator(REPLACE_SIZE_CHART, OxiAppConstants.EntityTypes.SIZE_CHART, 'entities');
 
 export const selectAddedOutfit 	= makeActionCreator(SELECT_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id');
 export const selectAddedContent = makeActionCreator(SELECT_CONTENT, OxiAppConstants.EntityTypes.CONTENT, 'id');
@@ -220,6 +231,7 @@ export const receivedSearchRetailers = makeActionCreator(RECEIVED_RETAILER_NAMES
 export const receivedSearchUserDefinedRetailers = makeActionCreator(RECEIVED_UDR_NAMES_SEARCH, null, 'udrNameResults');
 export const receivedSearchUserDefinedSizes = makeActionCreator(RECEIVED_UDS_LABELS_SEARCH, null, 'udsLabelResults');
 export const receivedAllApparelTypes = makeActionCreator(RECEIVED_ALL_APPAREL_TYPES, null, 'allApparelTypes');
+export const receivedSizeGroupsByItemId = makeActionCreator(RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
 
 /*export const updateItemContent 	= (id, itemId, contentId) => {
 	return({
@@ -326,9 +338,64 @@ export const receiveRetailer = makeActionCreator(RECEIVED_RETAILER, OxiAppConsta
 export const receiveBrand = makeActionCreator(RECEIVED_BRAND, OxiAppConstants.EntityTypes.BRAND, '' );*/
 
 
+//======== GENERIC LIST ACTIONS ========
+
+export const addToList = (listType, listElement) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`ADD_${listType.toUpperCase()}`, listType.toUpperCase(), 'id')(listElement));
+	}
+} 
+
+export const removeFromList = (listType, listElement) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_${listType.toUpperCase()}`, listType.toUpperCase(), 'id')(listElement));
+	}
+}
+
+export const clearList = (listType, listElement) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`CLEAR_${listType.toUpperCase()}`, listType.toUpperCase(), 'id')(listElement));
+	}
+}
+
+export const updateList = (listType, listElement) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`UPDATE_${listType.toUpperCase()}`, listType.toUpperCase(), 'id')(listElement));
+	}
+}
+
+
+//======== GENERIC MAP ACTIONS ========
+
+export const addToMap = (mapType, ...keyValuePair) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`PUT_TO_${mapType.toUpperCase()}`, mapType.toUpperCase(), 'itemId', 'createdOn')(keyValuePair[0], keyValuePair[1]));
+	}
+}
+
+export const replaceMap = (mapType, newMap) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REPLACE_${mapType.toUpperCase()}`, mapType.toUpperCase(), 'newMap')(newMap));
+	}
+}
+
+export const removeFromMap = (mapType, itemId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`REMOVE_FROM_${mapType.toUpperCase()}`, mapType.toUpperCase(), 'itemId')(itemId));
+	}
+}
+
+
+//========================================
 
 export const receiveEntitiesTest = (entityType, data) => {
 	dispatch(makeActionCreator(`RECEIVED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'receivedAt')(data));
+}
+
+export const updatePrevSelectedEntity = (entityType, entityId) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`UPDATE_PREV_SELECTED_${entityType.toUpperCase()}`, entityType.toUpperCase(), 'prevSelected')(entityId));
+	}	
 }
 
 export const selectEntity = (entityType, entityId) => {
@@ -702,6 +769,8 @@ export function navigateTo(location, isOwnerProfileEntityPresent){
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
 
+			dispatch
+
 			selectDestination(location, dispatch, isOwnerProfileEntityPresent);
 			dispatch(requestNavigation(null));
 		}/*
@@ -765,6 +834,35 @@ export function createUser(email, password, username){
 	}
 }
 
+export function createCompany(formData){
+	return function(dispatch){
+		
+		return axios.post(OxiAppConstants.apiBaseURL + '/account/retailer/register', (({email, password, companyName, country, state, city, address1, address2}) => ({email, password, companyName, country, state, city, address1, address2}))(formData) )
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CONFLICT){
+				//dispatch 409 handler
+			}else if(response.status === OxiAppConstants.HttpStatus.OK || response.status === OxiAppConstants.HttpStatus.CREATED){
+				//save _csrf token in cookies
+				console.log('response headers: ');
+				console.log(response);
+				cookies.set('csrf_token', response.headers['x-csrf-token']);
+				//Log user in
+				console.log('skipping login')
+				
+				//axios.post(OxiAppConstants.apiBaseURL + '/retailer/createAccount', (({country, state, city, address1, address2}) => ({country, state, city, address1, address2}))(formData) )
+				//.then(response =>{
+				//	if(response.status === OxiAppConstants.HttpStatus.CONFLICT){
+				//		//dispatch 409 handler
+				//	}else if(response.status === OxiAppConstants.HttpStatus.OK || response.status === OxiAppConstants.HttpStatus.CREATED){
+				//		//save _csrf token in cookies
+				//	}
+				//})
+			}
+		})
+		//.then(response => callback(event, response));		
+	}
+}
+
 //Post new profile entities to the server.  There should only ever be one profile entity,
 //however support for multiple profile entities is implemented here
 export function postProfile(profile){
@@ -789,6 +887,44 @@ export function postProfile(profile){
 				///dispatch(fetchEntities('outfit', response.data.id));
 				//remove the sent profile from local addedEntitesReducer store
 				dispatch(removeProfile(id));
+			}
+		})
+	}
+}
+
+export function postSaveItem(itemId, onSuccess){
+	let itemID = itemId.toUpperCase();
+	return function(dispatch){
+		return axios.post(`${OxiAppConstants.serviceURL}/bookmark/${itemId}`, {}).then(response => {
+			if(response.status == OxiAppConstants.HttpStatus.CREATED){
+				dispatch(addToMap(OxiAppConstants.MapTypes.a, itemID, response.data));
+			}else{
+				console.log("request failed");
+			}
+		});
+	}
+}
+
+export function deleteSavedItem(itemId, onSuccess){
+	let itemID = itemId.toUpperCase();
+	return function(dispatch){
+		return axios.delete(`${OxiAppConstants.serviceURL}/bookmark/${itemId}`, { data: {} }).then(response => {
+			if(response.status == OxiAppConstants.HttpStatus.OK){
+				dispatch(removeFromMap(OxiAppConstants.MapTypes.a, itemID));
+			}else{
+				console.log("request failed");
+			}
+		});
+	}
+}
+
+export function getSavedItems(){
+	return function(dispatch){
+		return axios.get(`${OxiAppConstants.serviceURL}/bookmarks`).then(response => {
+			if(response.status == OxiAppConstants.HttpStatus.OK){
+				dispatch(replaceMap(OxiAppConstants.MapTypes.a, response.data));
+			}else{
+				console.log("request failed");
 			}
 		})
 	}
@@ -855,6 +991,16 @@ export function fetchSuggestion(uri){
 			}
 		})
 	}
+}
+
+export function getSizeChartByItemId(itemId){
+	return function(dispatch){
+		return axios.get(`${OxiAppConstants.serviceURL}/sizeChart?itemId=${itemId}`).then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.OK){
+				dispatch(receivedSizeGroupsByItemId(response.data.sizeGroupDtos))
+			}			
+		})
+	}	
 }
 
 export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=10){
@@ -958,10 +1104,8 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						console.log(json);
 						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						//normalize received json payload
-						let normalizedJson = normalize(json, outfitsSchema);
-						
-						console.log('entitiesStateReducer', normalizedJson); 
-						
+						let normalizedJson = normalize(json, outfitsSchema);						
+						console.log('entitiesStateReducer', normalizedJson); 						
 						//Manually build itemContents join table
 						let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
 						dispatch(createItemContent(itemContentJson));							
@@ -1250,18 +1394,41 @@ export function mergeResponseEntities(dispatch, normalizedJson){
 	let keys = Object.keys(normalizedJson.entities);
 	//let containsItems = false;
 	for(let entity of keys){
-		if(entity === 'outfits'){
-			containsOutfits = true;
-			dispatch(replaceOutfits(normalizedJson.entities[entity]));		
-		}else if(entity === 'contents'){
-			containsContents = true;
-			dispatch(replaceContents(normalizedJson.entities[entity]));		
-		}else if(entity === 'items'){
-			dispatch(replaceItems(normalizedJson.entities[entity]));
-		}else if(entity === 'picture'){
-			dispatch(replacePictures(normalizedJson.entities[entity]));
-		}else{
-			return;
+		switch(entity){
+			case OxiAppConstants.JsonPropertyNames.OUTFIT:
+	
+				containsOutfits = true;
+				dispatch(replaceOutfits(normalizedJson.entities[entity]));	
+				break;
+	
+			case OxiAppConstants.JsonPropertyNames.CONTENT:
+	
+				containsContents = true;
+				dispatch(replaceContents(normalizedJson.entities[entity]));	
+				break;	
+	
+			case OxiAppConstants.JsonPropertyNames.ITEM:
+	
+				dispatch(replaceItems(normalizedJson.entities[entity]));
+				break;
+	
+			case OxiAppConstants.JsonPropertyNames.PICTURE:
+	
+				dispatch(replacePictures(normalizedJson.entities[entity]));
+				break;
+	
+			case OxiAppConstants.JsonPropertyNames.SIZE_CHART:
+	
+				dispatch(replaceSizeCharts(normalizedJson.entities[entity]));
+				break;
+	
+			case OxiAppConstants.JsonPropertyNames.SIZE_GROUP:
+	
+				dispatch(replaceSizeGroups(normalizedJson.entities[entity]));
+				break;
+	
+			default:
+				break;
 		}
 	}
 	//select the first outfit if it exists
@@ -1292,17 +1459,24 @@ export function verifyIntent(intentTo){
 //@param {String} valid entityType from OxiAppConstants.EntityTypes to select
 //@param {String} valid id of the entity selected
 //@param {STring} valid id of the child entity to be selected next.
-export function selectAndPropogate(entityType, entityId, targetChildId){
+export function selectAndPropogate(entityType, entityId, targetChildId, entitiesStateReducer){
 	return function(dispatch){
 		console.log("selectAndPropogate entityType = ", entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
+				entitiesStateReducer ? 
+					dispatch(updatePrevSelectedEntity(OxiAppConstants.EntityTypes.OUTFIT, entitiesStateReducer.outfits.selected)) : 
+					dispatch(updatePrevSelectedEntity(OxiAppConstants.EntityTypes.OUTFIT, entityId));
+
 				dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, entityId));
 				//dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (entityId || false)));
 				console.log("targetChildId = ", targetChildId);
-				dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.CONTENT, targetChildId, null));
+				dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.CONTENT, targetChildId, null, entitiesStateReducer));
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
+				entitiesStateReducer ? 
+					dispatch(updatePrevSelectedEntity(OxiAppConstants.EntityTypes.CONTENT, entitiesStateReducer.contents.selected)) :
+					dispatch(updatePrevSelectedEntity(OxiAppConstants.EntityTypes.CONTENT, entityId));
 				dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, entityId));
 				break;
 			default:
@@ -1809,13 +1983,13 @@ function buildJsonFromEntities(id, entity ){
 }*/
 
 function shouldFetchEntites(state, entityType){
-	const entityState = state.entitiesState[entityType];
-	if(!entityState){
+	const entitiesStateReducer = state.entitiesState[entityType];
+	if(!entitiesStateReducer){
 		return true;
-	}else if(entityState.isFetching){
+	}else if(entitiesStateReducer.isFetching){
 		return false;
 	}else{
-		return entityState.didInvalidate;
+		return entitiesStateReducer.didInvalidate;
 	}
 }
 

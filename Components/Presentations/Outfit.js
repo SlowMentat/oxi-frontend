@@ -33,8 +33,8 @@ export class Outfit extends React.Component{
 	}
 
 	componentDidUpdate(prevProps){
-		console.log('this.prosp.coverpicuri = ', this.props.coverpicuri);
-		console.log('prevProps.coverpicuri = ', prevProps.coverpicuri);
+		//console.log('this.prosp.coverpicuri = ', this.props.coverpicuri);
+		//console.log('prevProps.coverpicuri = ', prevProps.coverpicuri);
 		if(this.props.coverpicuri !== prevProps.coverpicuri){
 			this.props.getCoverPic(this.props.coverpicuri, this._handleImageReceived, 'small');
 		}
@@ -92,7 +92,7 @@ export class Outfit extends React.Component{
 	}
 
 	render(){
-		console.log('Outfit(id = ', this.props.id, ')')
+		//console.log('Outfit(id = ', this.props.id, ')')
 		/*if(this.props.id === this.props.modifiedOutfitProperites.id){
 			console.log(`modifiedOutfitProperites.coverpicuri = ${this.props.modifiedOutfitProperites.coverpicuri}, \n this.props.coverpicuri = ${this.props.coverpicuri}`);
 			if(this.props.modifiedOutfitProperites.coverpicuri !== this.props.coverpicuri){
@@ -188,7 +188,7 @@ export class Outfit extends React.Component{
 									navToHostProfile={this.props.navToHostProfile} 
 									routeToHostProfile={this.props.routeToHostProfile}
 									username={isHome ? this.props.username : null}
-									getHostMeasurementsHandler={() => this.props.getHostMeasurements(this.props.id)}
+									getHostMeasurementsHandler={() => {this.props.getHostMeasurements(this.props.id)}}
 									handleTileSelected={this._handleTileClicked}/>)
 							}
 						</div>

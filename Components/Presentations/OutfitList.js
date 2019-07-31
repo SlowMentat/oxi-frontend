@@ -6,6 +6,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import PagedListContainer from '../../Components/Containers/PagedListContainer.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+import {Button} from '../../Components/Presentations/Controls.js';
 
 //Presentation Component 
 import PagedList from './PagedList.js';
@@ -59,7 +60,7 @@ class PagedOutfitList extends React.Component{
 											getHostMeasurements={this.props.getHostMeasurements}
 											navToHostProfile={this.props.navToHostProfile}
 											//routeToHostProfile={this.props.routeToHostProfile(`/${this.props.outfits[outfitId].username}`)}
-											isSelected={this.props.selectedId === outfitId}  
+											isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.outfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
@@ -68,7 +69,7 @@ class PagedOutfitList extends React.Component{
 											webAppView={this.props.view}
 											editOutfit={() => this.props.editOutfit(
 												this.props.outfits[outfitId], 
-												this.props.selectedId, 
+												this.props.entitiesStateReducer, 
 												this.props.contents, 
 												this.props.selectedContentId, 
 												this.props.items)}
@@ -84,7 +85,7 @@ class PagedOutfitList extends React.Component{
 											{...this.props.addedOutfits[outfitId]} 
 											id={outfitId}
 											onClickContextProfile={null} 
-											isSelected={this.props.selectedId === outfitId}  
+											isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.addedOutfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
@@ -115,6 +116,10 @@ class OutfitList extends React.Component{
 		//This seams sloppy but there should never be more than 1 outfit in the addedEntitiesReducer tree
 		let contentId = undefined;
 		console.log('view = ', this.props.view);
+		let customButtonStyles = {
+			color:'white',
+			'margin':'auto',		
+		}
 		return (
 			<React.Fragment>
 				<TransitionGroup style={{'height':'100%'}}>
@@ -133,18 +138,26 @@ class OutfitList extends React.Component{
 								onClick={() => {
 									new Promise((resolve, reject) => {
 										resolve( this.props.changeOutfitCoverPic({ 
-											id: this.props.selectedId,
+											id: this.props.entitiesStateReducer.outfits.selected,
 											coverpicuri: this.props.pictures[this.props.contents[this.props.selectedContentId].picture].smalluri 
 										}) );
 									});
 								}}
 							>
-		    					<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
+								<Button
+									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+									//onClickHandler={this.props.discardChanges}
+									title='make cover'
+									iconName='OutfitCoverIcon'
+									expandedWidth={125}
+									buttonHeight={40}
+									customButtonStyles={customButtonStyles} />
+		    					{/*<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
 		    					<div className={outfitCoverBtnStyle.makeOutfitCoverTextCtnr_div}>
 		    						<div className={outfitCoverBtnStyle.makeOutfitCoverText_div}>
 		    							Make outfit cover
 		    						</div>
-		    					</div>
+		    					</div>*/}
 		    				</div>
 		    			</div>) :
 		    			null

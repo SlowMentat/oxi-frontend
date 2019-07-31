@@ -8,15 +8,20 @@ import {
 	clearSelectMultipleEntity,
 	removeAddedEntities,
 	clientDeleteEntities,
-	modifyContent
+	modifyContent,
+	addToMap,
+	removeFromMap,
+	postSaveItem,
+	deleteSavedItem,
+	replaceProfile
 } from '../../Components/Actions/indexActions.js';
 import ItemList from '../../Components/Presentations/ItemList.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 
-const getVisibleItems = (items, filter, contents, selectedContentId) => {
-	console.log('getVisibleItems: passed items = ', items);
+const getVisibleItems = (items, filter, contents, selectedContentIds=[]) => {
+	//console.log('getVisibleItems: passed items = ', items);
 	let itemsById = items.byIds;
 	let result = {byIds:{}, allIds:[]};
 	//Only perform filter on non-empty items object
@@ -27,42 +32,57 @@ const getVisibleItems = (items, filter, contents, selectedContentId) => {
 			case 'BY_TYPE':
 				return items.filter(item => item.type = data);
 			case 'BY_SIZE':
-				return items.filter(items => item.size = data);
+				return items.filter(item => item.size = data);
 			/*case 'BY_SOURCE':
 				return items.filter(items => item. = data);*/
 			case 'BY_CONTENT_ID':
-				if(contents != undefined){
-					console.log("contents =");
-					console.log(contents)
-					if(selectedContentId != undefined && contents.allIds.length > 0){
-						if(selectedContentId != false){
-							//array of content ids
-							if(Object.keys(contents.byIds).length > 0){
-								console.log('contents.byIds[selectedContentId]["items"] = ',contents.byIds[selectedContentId]["items"])
-								console.log('contents.byIds[selectedContentId]["items"].sort() = ',contents.byIds[selectedContentId]["items"].sort())
-								result.allIds = contents.byIds[selectedContentId]["items"].sort();
-							}
-							for(let itemId of result.allIds){
-								result.byIds[itemId] = itemsById[itemId];
-							}
-							//result.allIds = Object.keys(result.byIds);
-							console.log('result', result);
-							let mergedItems = Object.assign({},items, result);	
-							console.log('mergedItems = ', mergedItems);
-							return mergedItems
+				if(contents != undefined && selectedContentIds.length > 0){
+					//console.log("contents =");
+					//console.log(contents)
+					let mergedItems = null;
+					for(let selectedContentId of selectedContentIds){
+						if(selectedContentId != undefined && contents.allIds.length > 0){
+							if(selectedContentId != false){
+								//array of content ids
+								if(Object.keys(contents.byIds).length > 0){
+									//console.log('contents.byIds[selectedContentId]["items"] = ',contents.byIds[selectedContentId]["items"])
+									//console.log('contents.byIds[selectedContentId]["items"].sort() = ',contents.byIds[selectedContentId]["items"].sort())
+									result.allIds = [...result.allIds, ...contents.byIds[selectedContentId]["items"]];
+								}
+								//result.allIds.sort()
+								//for(let itemId of result.allIds){
+								//	result.byIds[itemId] = itemsById[itemId];
+								//}
+								////result.allIds = Object.keys(result.byIds);
+								////console.log('result', result);
+								//mergedItems = Object.assign({}, items, result);	
+								////console.log('mergedItems = ', mergedItems);
+								//return mergedItems
+							}else{
+								//console.log("selectedContentId is false");
+							}				
 						}else{
-							console.log("selectedContentId is false");
-						}				
-					}else{
-						console.log("selectedContentId is undefined");
+							//console.log("selectedContentId is undefined");
+						}
 					}
+
+					result.allIds.sort();
+
+					for(let itemId of result.allIds){
+						result.byIds[itemId] = itemsById[itemId];
+					}
+
+					//console.log('result', result);
+					mergedItems = Object.assign({}, items, result);
+					return mergedItems;
+					
 				}else{
-					console.log("contents is undefined");
+					//console.log("contents is undefined or no content selected");
 				}
 			default:
 				return Object.assign({}, items, result);
 		}
-	}else if(selectedContentId === false){
+	}else if(selectedContentIds === false){
 		return
 	}
 	return items;
@@ -76,14 +96,24 @@ const mapStateToProps = (state, props) => {
 		state.addedEntitiesReducer.items, 
 		'BY_CONTENT_ID', 
 		state.addedEntitiesReducer.contents,
-		state.entitiesStateReducer.contents.selected);
+		//state.entitiesStateReducer.contents.selected
+		(state.addedEntitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected] ? 
+			state.addedEntitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected].contents : 
+			[])
+	);
 
-	let filteredItems = maskEdits(getVisibleItems(
+	let filteredItems = maskEdits(
+		getVisibleItems(
 			state.entitiesReducer.items, 
 			'BY_CONTENT_ID', 
 			state.entitiesReducer.contents, 
-			typeof state.entitiesStateReducer.contents.selected === 'number' ? false : state.entitiesStateReducer.contents.selected), 
-		state.entitiesReducer.items.allEditingIds);
+			//typeof state.entitiesStateReducer.contents.selected === 'number' ? false : state.entitiesStateReducer.contents.selected
+			state.entitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected] ? 
+				state.entitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected].contents : 
+				[]
+		), 
+		state.entitiesReducer.items.allEditingIds
+	);
 
 
 	return ({
@@ -97,7 +127,9 @@ const mapStateToProps = (state, props) => {
 		viewState: state.contentViewState.viewState,
 		webAppView: state.appView.webAppView,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
-		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected]
+		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],
+		savedItemMap: state.cache.savedItemMap,
+		sizeGroups: state.entitiesReducer.sizeGroups.byIds,
 	});
 }
 
@@ -107,8 +139,14 @@ const mapDispatchToProps = dispatch => ({
 	},
 	createHandleMulSel: (id) => () => dispatch(selectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
 	createHandleMulDesel: (id) => () => dispatch(deselectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
+	unsaveItem: (itemId) => { 
+		dispatch( deleteSavedItem( itemId ) ); 
+	},
+	saveItem: (itemId) => {
+		dispatch( postSaveItem( itemId ) );
+	},
 	deleteItem: (selectedAllIds, selectedContent) => {
-		dispatch(clientDeleteEntities(OxiAppConstants.EntityTypes.ITEM, selectedAllIds))
+		dispatch(clientDeleteEntities(OxiAppConstants.EntityTypes.ITEM, selectedAllIds));
 		//add selected content to content.clientInvalidated
 		///dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [selectedContent.id]));
 		//remove items from addedEntitiesReducer corresponding to the id found in items.multipleSelected
@@ -127,6 +165,9 @@ const mapDispatchToProps = dispatch => ({
 		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
 	},
 	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds)),
+	compareMetrics: (metrics) => {
+		dispatch(replaceProfile({'host' : {'userMetricsDto': metrics}}));
+	},
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

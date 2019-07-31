@@ -1,0 +1,222 @@
+
+:local(.localText){
+    color: #565656;
+    letter-spacing: 0.08rem;
+    font-size: 1.4rem;
+    font-family: Roboto;    
+}
+
+
+/*dynamic icon button classes*/
+:local(.dib_div){  
+    composes: pressable from "./root.css";
+    --button-height: 34px;
+    --button-padding: calc(var(--button-height)/13);
+    --expanded-width: 100px;
+    --border-color: #dedede;
+    text-align: left;
+    /*width: auto;*/
+    width:var(--button-height);
+    /*font-size: 1.4rem;*/
+    height: var(--button-height);
+    padding: var(--button-padding);
+    --button-border-width: 2px;
+
+    /*default svg dimensions*/
+    --button-line-height: calc(var(--button-height) - 2*var(--button-padding) - 2*var(--button-border-width));
+    line-height: var(--button-line-height);
+    border: solid var(--button-border-width) var( --border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    transition-delay: 500ms;
+    will-change: transform;
+}
+
+:local(.dibIcon_svg){
+    display: inline-block;
+    vertical-align: top;
+    /*width: var(--button-line-height);
+    padding-bottom: 4px;
+    height: var(--button-line-height);
+    width:100%;
+    height: 100%;*/
+}
+
+:local(.dibTitle_div){  
+    composes: localText;  
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 5px;
+    /*color: #565656;
+    letter-spacing: 0.08rem;
+    font-family: Roboto;*/
+    height: var(--button-line-height);
+}
+
+.dib_div-enter{
+    composes: dib_div;
+    /*width:var(--button-height);*/
+}
+
+.dib_div-enter-active{
+    width: var(--expanded-width);
+    transition: width 150ms ease-in;
+}
+
+.dib_div-exit{
+    width: var(--expanded-width);
+}
+
+.dib_div-exit-active{
+    width:var(--button-height);
+    transition: width 150ms ease-out;
+}
+
+
+
+/*pupup icon button classes*/
+:local(.pib_div){  
+    composes: pressable from "./root.css";
+    composes: dib_div;
+    overflow: unset;
+    position: relative;
+    transition-delay: unset;
+    --pu-text-height: var(--button-height);
+    --pu-text-padding: 3px;
+    --pu-text-left-align: 0px;
+    --pu-text-top-align: 0px; 
+    --pu-text-opacity: 0;
+
+    /*have to transition --pu-text-top-align variable here, which gets picked up by .pibTitle_div class*/
+}
+
+/*.pib_div:hover{
+    --pu-text-opacity: 1;
+    --pu-text-top-align: var(--pu-text-top-align-hover);
+    --pu-text-left-align: var(--pu-text-left-align-hover);
+}*/
+
+:local(.pibIcon_svg){
+    composes: dibIcon_svg;
+}
+
+:local(.pibTitle_div){  
+    composes: localText; 
+    pointer-events: none; /*needed to fixe on hover state oscillation between this and its parent element*/
+    font-size: 1rem;
+    text-transform: uppercase;
+    text-align: center;
+    position: absolute;
+    top: var(--pu-text-top-align);
+    left: var(--pu-text-left-align);
+    border: solid 1px black;
+    border-radius: 4px; 
+    padding: var(--pu-text-padding);
+    line-height: calc(var(--pu-text-height) - 2*var(--pu-text-padding));
+    height: var(--pu-text-height);
+    opacity: var(--pu-text-opacity);
+    color: white;
+    /*transition: top 100ms ease-in-out, opacity 70ms ease-in, opacity 70ms ease-out;*/
+    transition: top 100ms ease-in-out, opacity 50ms ease-in 50ms;
+}
+
+.pibTitle_div-enter{
+    composes: pibTitle_div;
+    /*width:var(--button-height);*/
+}
+
+.pibTitle_div-enter-active{
+    top: var(--pu-text-top-align-hover);/*represents default popup below button*/
+    left: var(--pu-text-left-align-hover);
+    opacity: 1;
+    transition: top 100ms ease-in 80ms, opacity 60ms ease-in 130ms;
+}
+
+.pibTitle_div-exit{
+    top: var(--pu-text-top-align-hover);/*represents default popup below button*/
+    left: var(--pu-text-left-align-hover);
+    opacity: 1;
+}
+
+.pibTitle_div-exit-active{
+    opacity: 0;
+    top: var(--pu-text-top-align);
+    transition: top 200ms ease-out, opacity 40ms ease-out;
+}
+
+
+/*static icon button classes*/
+:local(.sib_div){
+    composes: dib_div;
+    transition-delay: unset;
+    width: auto;
+}
+
+:local(.sibIcon_svg){
+    composes: dibIcon_svg;
+}
+
+:local(.sibTitle_div){    
+    composes: dibTitle_div;
+}
+
+
+
+
+
+:local(.control){
+    text-transform: uppercase;
+}
+
+:local(.selectable){    
+    composes:control;
+    composes:localText;
+    --button-height: 35px;
+    --selectable-width: 90px;
+    width: var(--selectable-width);
+    height:  var(--button-height);
+    cursor: pointer;
+}
+
+:local(.submittable){
+    composes:selectable;
+    --submittable-border-radius: 4px;
+    --submittable-border-width: 1px;
+    background-color: #f1f1f1;
+    border: solid var(--submittable-border-width) #888888;
+    /*color: #888888;
+    letter-spacing: 0.05rem;
+    font-size: 1.4rem;
+    font-weight: bold;*/
+    text-align: center;
+    line-height: calc(var(--button-height) - 2*var(--submittable-border-width));
+    padding: 0px;
+    border-radius: var(--submittable-border-radius);
+}
+
+.l1Button_div{
+    composes:submittable;
+    display: inline-block;
+    border: none;
+    background-color: #fdfdfd;
+    /*font-size: 1.1rem;*/
+    position: absolute;
+    right: 0px
+}
+
+.l1Button_div:hover{
+    color: black;
+    transition: color 170ms;
+}
+
+:local(.l3Button){
+    composes:stdButton from './root.css';
+    composes:submittable; 
+    text-transform: unset;
+}
+
+:local(.formL3Button){
+    composes:l3Button;     
+    /*margin-left: calc(100% - 17px - 90px);
+    margin-top: 17px;*/
+}

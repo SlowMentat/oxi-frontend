@@ -11,17 +11,20 @@ export default class ItemList extends React.Component{
 		this.state = {
 			itemIds: [...props.itemIds],
 			addedItemIds: [...props.addedItemIds],
+			expandedItemId: false,
+			sizeGroupIndLUT:{},
 		};
 	}
 
-	shouldComponentUpdate(nextProps) {
+	shouldComponentUpdate(nextProps, nextState) {
         const differentItems = this.props.items !== nextProps.items;
         const differentAddedItems = this.props.addedItems !== nextProps.addedItems;
         const differentBrands = this.props.brands !== nextProps.brands;
         const differentRetailers = this.props.retailers !== nextProps.retailers;
-        const shouldUpdate = differentItems || differentItems || differentBrands || differentRetailers;
-        console.log('should ItemList component updated: ', shouldUpdate);
-        return differentItems || differentItems || differentBrands || differentRetailers;
+        const diffExpandedItemId = this.state.expandedItemId !== nextState.expandedItemId;
+        const shouldUpdate = differentItems || differentItems || differentBrands || differentRetailers || diffExpandedItemId;
+        //console.log('should ItemList component updated: ', shouldUpdate);
+        return differentItems || differentItems || differentBrands || differentRetailers || diffExpandedItemId;
     }
 	/*let itemKeys = Object.keys(items)
 	let idArray = itemIds;
@@ -36,13 +39,13 @@ export default class ItemList extends React.Component{
 	console.log('**********************************');
 	*/
 	render(){
-		console.log('items = ', this.props.items)
-		console.log('addedItems = ', this.props.addedItems)
+		//console.log('items = ', this.props.items)
+		//console.log('addedItems = ', this.props.addedItems)
 		let allFilteredItems = Object.assign({}, this.props.items, this.props.addedItems);
-		console.log('allFilteredItems = ', allFilteredItems);
-		console.log('this.props.populateItemsMap = ', this.props.populateItemsMap);
-		console.log('Object.keys(allFilteredItems) = ', Object.keys(allFilteredItems))
-		console.log('Object.keys(allFilteredItems).length = ', Object.keys(allFilteredItems).length)
+		//console.log('allFilteredItems = ', allFilteredItems);
+		//console.log('this.props.populateItemsMap = ', this.props.populateItemsMap);
+		//console.log('Object.keys(allFilteredItems) = ', Object.keys(allFilteredItems))
+		//console.log('Object.keys(allFilteredItems).length = ', Object.keys(allFilteredItems).length)
 		if(Object.keys(allFilteredItems).length > 0) this.props.populateItemsMap ? this.props.populateItemsMap(allFilteredItems) : null;
 		//if(Object.keys(allFilteredItems).length > 0){
 			/*console.log('>>> this.props.visibleItemsMap = ', this.props.visibleItemsMap.visibleItemsByIds);
@@ -56,7 +59,21 @@ export default class ItemList extends React.Component{
 			itemIds: [...this.props.itemIds],
 			addedItemIds: [...this.props.addedItemIds],
 		});*/
-		let itemControl
+		let itemControl;
+		//let sizeGroupIndLUT = {};
+//
+		//// If item is a retailer item add sizechartDto id/index mapping
+		//const buildSizeGroupIndLUT =  (item) => {
+		//	if(item && item.platform !== OxiAppConstants.PLATFORM && this.state.sizeGroupIndLUT[item.sizeGroupId] === undefined){
+		//		var { sizeGroupDtos } = item.sizeChartDto;
+		//		sizeGroupDtos.map((sgId, ind) => {sgId === item.sizeGroupId ? (sizeGroupIndLUT[item.sizeGroupId] = ind) : null} );  
+		//		this.setState(prevState => ({
+		//			...prevState,
+		//			sizeGroupIndLUT
+		//		}));
+		//	}
+		//}
+
 		return (
 		    <div className={ItemStyles.itemBlock}>
 		    	<div style={{'height':'calc(5vh + 25px)'}}>
@@ -66,9 +83,7 @@ export default class ItemList extends React.Component{
 		    					{this.props.multipleSelectedAllIds.length === 0 ? 
 		    						null : 
 		    						this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-		    							<SvgIcon 
-		    								name="BookmarkIcon"
-		    								onClick={() => console.log('bookmark clicked')}/> : 
+		    							null : 
 		    							<SvgIcon 
 		    								name="DeleteIcon"
 		    								onClick={() => {
@@ -87,12 +102,16 @@ export default class ItemList extends React.Component{
 		    			</div>
 		    		</div>
 		    	</div>
-		    	<div>
+		    	<div style={{position:'relative'}}>
 		    		<TransitionGroup>
 			    		{
 			    			this.props.itemIds.map((itemId, ind) => {
 			    			//this.state.itemIds.map((itemId) => {
 			    				//console.log("itemId [from ItemList] = ", itemId);
+
+			    				//var item = this.props.items[itemId];
+			    				//buildSizeGroupIndLUT(item);
+
 			    				return (this.props.items[itemId] === undefined ?
 			    					false : 
 			    					(			    					
@@ -103,21 +122,44 @@ export default class ItemList extends React.Component{
 			    							onExit={(element) => {console.log(itemId, ' exited.  Element is: ', element)}}
 			    							unmountOnExit >
 			    							{
-			    								(state) => (state === 'unmounted' ? null : (<Item 
-			    									key={itemId}
-			    									index={ind}
-			    									item={this.props.items[itemId]} 
-			    									selectedAllIds={this.props.multipleSelectedAllIds}
-			    									onSelect={this.props.createHandleMulSel(itemId)} 
-			    									onDeselect={this.props.createHandleMulDesel(itemId)}
-			    									brands={this.props.brands} 
-			    									retailers={this.props.retailers}
-			    									itemIdHovered={this.props.itemIdHovered}
-			    									webAppView={this.props.webAppView}
-			    									viewState={this.props.viewState}
-			    									_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
-			    									_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
-			    									apparelTypeByIds={this.props.apparelTypeByIds} />))
+			    								(state) => (state === 'unmounted' ? 
+			    									null : 
+			    									( <Item 
+			    										key={itemId}
+			    										index={ind}
+			    										item={this.props.items[itemId]} 
+			    										selectedAllIds={this.props.multipleSelectedAllIds}
+			    										onSelect={this.props.createHandleMulSel(itemId)} 
+			    										onDeselect={this.props.createHandleMulDesel(itemId)}
+			    										brands={this.props.brands} 
+			    										retailers={this.props.retailers}
+			    										itemIdHovered={this.props.itemIdHovered}
+			    										webAppView={this.props.webAppView}
+			    										viewState={this.props.viewState}
+			    										_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
+			    										_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
+			    										apparelTypeByIds={this.props.apparelTypeByIds}
+			    										saveItem={this.props.saveItem}
+			    										unsaveItem={this.props.unsaveItem}
+			    										isSaved={this.props.savedItemMap[itemId.toUpperCase()] !== undefined}
+			    										expandItem={(id) => {
+			    											this.setState(prevState => ({
+			    												...prevState, 
+			    												'expandedItemId': id,
+			    											}));
+			    										}}
+			    										collapseItem ={() => {
+			    											this.setState(prevState => ({
+			    												...prevState, 
+			    												'expandedItemId': false,
+			    											}));
+			    										}}
+			    										isExpanded={this.state.expandedItemId === itemId}
+			    										expandedViewState={this.state.expandedItemId !== false}
+			    										//sizeGroupIndLUT={this.state.sizeGroupIndLUT}
+			    										compareMetrics={this.props.compareMetrics}
+			    										sizeGroups={this.props.sizeGroups} />) 
+			    								)
 			    							}
 			    						</CSSTransition>
 			    					)
@@ -128,6 +170,10 @@ export default class ItemList extends React.Component{
 			    			this.props.addedItemIds.map((itemId) => {
 			    			//this.state.addedItemIds.map((itemId) => {
 			    				//console.log("itemId [from addedItemList] = ", itemId);
+
+			    				//var item = this.props.items[itemId];
+			    				//buildSizeGroupIndLUT(item);
+
 			    				return (this.props.addedItems[itemId] === undefined ? 
 			    					null : 
 			    					(
@@ -137,19 +183,38 @@ export default class ItemList extends React.Component{
 			    							classNames="itemInitialize"
 			    							unmountOnExit >
 			    							{
-			    								(state) => (state === 'unmounted' ? null : (<Item 
-			    									item={this.props.addedItems[itemId]}
-			    									selectedAllIds={this.props.multipleSelectedAllIds}
-			    									onSelect={this.props.createHandleMulSel(itemId)} 
-			    									onDeselect={this.props.createHandleMulDesel(itemId)}
-			    									brands={this.props.brands} 
-			    									retailers={this.props.retailers}
-			    									itemIdHovered={this.props.itemIdHovered}
-			    									viewState={this.props.viewState}
-			    									webAppView={this.props.webAppView}
-			    									_handleMouseOver={(event) => this.props.changeItemHovered(itemId)}
-			    									_handleMouseLeave={(event) => this.props.changeItemHovered(null)} 
-			    									apparelTypeByIds={this.props.apparelTypeByIds} />))
+			    								(state) => (state === 'unmounted' ? 
+			    									null : 
+			    									(<Item 
+			    										item={this.props.addedItems[itemId]}
+			    										selectedAllIds={this.props.multipleSelectedAllIds}
+			    										onSelect={this.props.createHandleMulSel(itemId)} 
+			    										onDeselect={this.props.createHandleMulDesel(itemId)}
+			    										brands={this.props.brands} 
+			    										retailers={this.props.retailers}
+			    										itemIdHovered={this.props.itemIdHovered}
+			    										viewState={this.props.viewState}
+			    										webAppView={this.props.webAppView}
+			    										_handleMouseOver={(event) => this.props.changeItemHovered(itemId)}
+			    										_handleMouseLeave={(event) => this.props.changeItemHovered(null)} 
+			    										apparelTypeByIds={this.props.apparelTypeByIds}
+			    										expandItem={(id) => {
+			    											this.setState(prevState => ({
+			    												...prevState, 
+			    												'expandedItemId': id,
+			    											}));
+			    										}}
+			    										collapseItem ={() => {
+			    											this.setState(prevState => ({
+			    												...prevState, 
+			    												'expandedItemId': false,
+			    											}));
+			    										}}
+			    										isExpanded={this.state.expandedItemId === itemId}
+			    										sizeGroupIndLUT={this.state.sizeGroupIndLUT}
+			    										compareMetrics={this.props.compareMetrics}
+			    										expandedViewState={this.state.expandedItemId !== false}
+			    										sizeGroups={this.props.sizeGroups} />))
 			    							}
 			    						</CSSTransition>
 			    					));

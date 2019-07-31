@@ -29,16 +29,30 @@ h2{
 }
 
 p{
-	font-family: Comfortaa, cursive;	
-    font-size: 17px;
+    font-family: Roboto, Comfortaa, cursive;
+    font-size: 18px;
     line-height: 23px;
     word-spacing: 4px;
-    margin:0px;
+    margin: 0px;
 }
 
 a{
 	color: inherit;
 	text-decoration: none;
+}
+
+:local(.logoContainer_div){
+	/*width: 100%;*/
+	width:300px;
+    transition: width 175ms linear;
+    height: 78%;
+    margin-top: 8px;
+    /* display: inline-table; */
+    position: absolute;
+    top: 0px;
+    background-color: #3b3739;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 #root{
@@ -106,7 +120,7 @@ a{
 
 .containerProfile{
 	display: grid;
-	--column-width-item: 28.579%;
+	--column-width-item: 24.579%;
 	--column-width-metric: 300px;
 	--column-width-preview: 27%;
 	--column-width-browse: auto;
@@ -159,7 +173,8 @@ a{
 
 :local(.headerBlock){
 	z-index: 1000;
-	background-color: #212121;
+	background-color: var(--main-background-color);
+	border-bottom: solid 1px #c1c1c1;
 	/*grid-area: nav;*/
 	top: 0;
 	width: 100%;
@@ -190,6 +205,7 @@ a{
 	/*grid-area: metric;*/
 	border-right-width: 1px;
     border-right-color: black;
+    --x-axis-range: calc(300px - 13vh - 30px);
     /*border-right-style: solid;*/
 }
 
@@ -203,7 +219,39 @@ a{
     border-bottom-right-radius: 3px;
     background-color: white;
     margin-top: 8px;
+    left: 0px
 }
+
+:local(.points_div){
+	font-size: 55px;
+    font-family: 'Archivo Black';
+    left: calc(300px/4);
+    text-align: center;
+    height: 55px;
+    line-height: 55px;
+    color: #3b3739;
+    margin-top: 27px;
+}
+
+.metricContainer_div-enter{
+	composes:metricContainer_div;
+	left:-300px;
+}
+
+.metricContainer_div-enter-active{
+	left: 0px;
+	transition: left 150ms ease-in;
+}
+
+.metricContainer_div-exit{
+	left: 0px;
+}
+
+.metricContainer_div-exit-active{
+	left:-300px;
+	transition: left 150ms ease-out;
+}
+
 
 :local(.previewBlock){
 	composes: stdBlock;
@@ -382,4 +430,21 @@ a{
     line-height: 25px;
     font-size: 25px;
 }
+
+
+/*.centerArea:before{
+	content:'';
+	display: inline-block;
+	vertical-align: middle;
+	vertical-align: middle;
+	height: 100%;
+}
+.centerArea{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}*/
+
 

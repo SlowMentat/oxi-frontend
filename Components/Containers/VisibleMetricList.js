@@ -67,7 +67,7 @@ const mapStateToProps = (state, username) => {
 		hostLowerBodyMetrics : filteredHostLowerBodyMetrics,
 		hostUpperBodyMetricIds :  Object.keys(filteredHostUpperBodyMetrics),
 		hostLowerBodyMetricIds :  Object.keys(filteredHostLowerBodyMetrics),
-		//tolerance: state.entitiesReducer.profile.byIds.owner.toleranceDto,
+		tolerances: state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.toleranceDto : undefined,
 		
 		ownerBodyShape: (
 			(state.entitiesReducer.profile.byIds.owner === undefined) ? 

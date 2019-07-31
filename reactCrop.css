@@ -1,6 +1,7 @@
 .ReactCrop {
   position: relative;
   display: inline-block;
+  vertical-align: middle;
   cursor: crosshair;
   overflow: hidden;
   max-width: 100%;

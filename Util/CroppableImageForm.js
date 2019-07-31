@@ -2,6 +2,7 @@ import React from 'react';
 import ReactCrop, { makeAspectCrop } from 'react-image-crop';
 //import {ReactCropStyles} from 'react-image-crop/dist/ReactCrop.css';
 import {ReactCropStyles} from '../reactCrop.css';
+import Styles from '../root.css';
 import FormStyles from '../forms.css';
 
 import {OxiAppConstants} from './OxiAppConstants.js';
@@ -10,38 +11,52 @@ import {FileUploadIcon} from '../Components/SvgAssets/Icons/FileUploadIcon.js';
 //import CropIcon from '../Components/SvgAssets/Icons/CropIcon.js';
 //import OkIcon from '../Components/SvgAssets/Icons/OkIcon.js';
 import {SvgIcon} from '../Components/SvgAssets/SvgIcon.js';
+import {Button} from '../Components/Presentations/Controls.js';
 
 /**
  * @param {File} image - Image File Object
  * @param {Object} pixelCrop - pixelCrop Object provided by react-image-crop
  * @param {String} fileName - Name of the returned file in Promise
  */
-function getCroppedImg(data, pixelCrop, fileName, imageWidth, imagHeight) {
+
+//rotation transformation
+//function clockRotTransform([{xTl:0, yTl:0}, {xBr:0, yBr}], rotation){
+//	const clockWiseRotationMatrix = [
+//		{xTl: Math.cos(rotation), yTl: }, 
+//		{}
+//	];
+//}
+
+function getCroppedImg(data, pixelCrop, fileName, imageWidth, imageHeight, rotation, maxHeight, minY) {
 	return new Promise((resolve, reject) => {
 		var image = new Image();
-		image.src = data;
 		image.onload = () => {
 			const canvas = document.createElement('canvas');
 			canvas.width = pixelCrop.width*image.width/100;
-			canvas.height = pixelCrop.height*image.height/100;
+			canvas.height = pixelCrop.height * 100 / maxHeight * image.height/100;
 			const ctx = canvas.getContext('2d');
-			console.log('image width');
-			console.log(image.width);
-			console.log('image height');
-			console.log(image.height);
+			//console.log('image width');
+			//console.log(image.width);
+			//console.log('image height');
+			//console.log(image.height);
 			ctx.drawImage(
 				image,
 				pixelCrop.x*image.width/100,	//x coordinate of the top left corner of the sub-rectagle of the source image to draw into the destination context
-				pixelCrop.y*image.height/100,	//The Y coordinate of the top left corner of the sub-rectangle of the source image to draw into the destination context.
+				((pixelCrop.y - minY) * (100/maxHeight)) * image.height/100,	//The Y coordinate of the top left corner of the sub-rectangle of the source image to draw into the destination context.
 				canvas.width,					//The width of the sub-rectangle of the source image to draw into the destination context. If not specified, the entire rectangle from the coordinates specified by sx and sy to the bottom-right corner of the image is used.
 				canvas.height,					//The height of the sub-rectangle of the source image to draw into the destination context.
 				0,								//The X coordinate in the destination canvas at which to place the top-left corner of the source image.
 				0,								//The Y coordinate in the destination canvas at which to place the top-left corner of the source image.
-				canvas.width,					//The width to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in width when drawn.
-				canvas.height 					//The height to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in height when drawn.
+				/*imageWidth,*/canvas.width,					//The width to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in width when drawn.
+				/*imageHeight,*/canvas.height 				//The height to draw the image in the destination canvas. This allows scaling of the drawn image. If not specified, the image is not scaled in height when drawn.
 			);
+			ctx.rotate(rotation * Math.PI/180);
 			resolve(canvas.toDataURL('image/jpeg', 0.7));
+			//this.setState
 		};
+
+		image.src = data;
+		//return image;
 	});
 	// As Base64 string
 	// const base64Image = canvas.toDataURL('image/jpeg');
@@ -78,8 +93,9 @@ class CroppableImageForm extends React.Component{
 			imageY: 0,
 			imageWidth: 0,
 			imageHeight: 0,
+			rotation: 0,
 			crop: {
-				x: 25,
+				x: 0,
 				y: 0,
 				width: 0,
 				height: 0,
@@ -87,16 +103,27 @@ class CroppableImageForm extends React.Component{
 			}
 		};
 
+		let existingContents = {};
+		Object.keys(this.props.addedContents).map(id => Object.assign( existingContents, {[id]:this.imageDataTemplate} ) );
+
 		this.state = {
+			flag:true,
 			images:{
-				[this.props.entitiesStateReducer.contents.selected]: {...this.imageDataTemplate}
+				...existingContents
+				//[this.props.entitiesStateReducer.contents.selected]: {...this.imageDataTemplate}
 			},
 			fileUploadHovering: false,
 			submitHovering: false,
 			cropHovering:false,
 			discardHovering:false,
 		}
+
+
+		this.rotatedAspectRatio = this.props.imageElement.clientWidth / this.props.imageElement.clientHeigh;
+		this.maxHeight = null;
+		this.minY = null;
 		this.fileRefs=[];
+		this.fileInput = null;
 
 		this._handleSubmit = this._handleSubmit.bind(this);
 		this._onSelectFile = this._onSelectFile.bind(this);
@@ -110,6 +137,9 @@ class CroppableImageForm extends React.Component{
 		this._handleIconHover = this._handleIconHover.bind(this);
 		this.setupCropImgRoot = this.setupCropImgRoot.bind(this);
 		this.getImageSrc = this.getImageSrc.bind(this);
+		this.rotateImageClockwise = this.rotateImageClockwise.bind(this);
+		this.reloadImageRef = this.reloadImageRef.bind(this);
+		this.setCropBounds = this.setCropBounds.bind(this);
 	}
 
 	componentDidUpdate(prevProps){
@@ -117,9 +147,11 @@ class CroppableImageForm extends React.Component{
 		//Single addition 
 		//Multiple addition
 		//Single removal (multiple removal not allowed)
-		if(prevProps.addedContentIds.length !== this.props.addedContentIds.length){
+		//picture added from adding outfit
+		if(prevProps.addedContentIds.length !== this.props.addedContentIds.length || 
+			prevProps.addedContents[this.props.addedContentIds[0]].coverpicuri !== this.props.addedContents[this.props.addedContentIds[0]].coverpicuri){
 
-			console.log('CroppableImageForm#componentDidUpdate:  Changing state');		
+			//console.log('CroppableImageForm#componentDidUpdate:  Changing state');		
 
 			const loadAllImages = async (this1) => {	
 				var postLoadTasks = [];
@@ -146,9 +178,9 @@ class CroppableImageForm extends React.Component{
 						//var file = this1.fileRefs[this1.props.addedContents[`${id}`].coverpicuri];
 	
 						let getOnloadHandler = (contentId, this2, images, ti) => ((event) => {
-							console.log(`image loaded for content id: ${contentId}`);
+							//console.log(`image loaded for content id: ${contentId}`);
 							postLoadTasks[ti] = new Promise((resolve, reject) => {
-								console.log(`int post-loading task #${ti}`);
+								//console.log(`int post-loading task #${ti}`);
 								Object.assign(images, {
 									...images,
 									[`${contentId}`]:{
@@ -159,7 +191,7 @@ class CroppableImageForm extends React.Component{
 										cropping: true								
 									}
 								})
-								console.log(`post-loading task #${ti}: images updated`, images);
+								//console.log(`post-loading task #${ti}: images updated`, images);
 							});
 							postLoadTasks[ti];
 						});
@@ -180,10 +212,10 @@ class CroppableImageForm extends React.Component{
 					//try{
 					//	while(reader.readyState === FileReader.LOADING){
 					//		//loading in progress
-					//		console.log('reader.readyState = ', this1.frStateNames[reader.readyState]);
+					//		//console.log('reader.readyState = ', this1.frStateNames[reader.readyState]);
 					//	}
 					//}catch(e){
-					//	console.log('during multifile upload', e);
+					//	//console.log('during multifile upload', e);
 					//	break;
 					//}
 				}
@@ -192,20 +224,26 @@ class CroppableImageForm extends React.Component{
 				return images;
 			};
 			
-			loadAllImages(this).then(response => {
+			loadAllImages(this).then(result => {
 
-				console.log('about to update state');
-				let images = Object.assign(response, this.state.images);
-				console.log(images);
+				//console.log('*about to update state');
+				//console.log('		this.state.images =', this.state.images);
+				let images = Object.assign(result, this.state.images);
+				//console.log(images);
 				this.setState(prevState => ({
 					...prevState,
 					images
 					//images: {
 					//	...prevState.images,
-					//	...response
+					//	...result
 					//}
 				}));
 			});
+			
+			//invalidate newly added content entity/ies		
+			if(prevProps.addedContentIds.length < this.props.addedContentIds.length){
+				this.props.clientInvalidateEntity(this.props.addedContentIds.filter(id => typeof id === 'number'), OxiAppConstants.EntityTypes.CONTENT)();
+			}
 		}
 		//Single modification (multiple modification not allowed)
 		else{
@@ -219,15 +257,65 @@ class CroppableImageForm extends React.Component{
 		}
 	}
 
-	_handleSubmit(e) {
-		e.preventDefault();
-		// TODO: do something with -> this.state.file 
-		//postAddedOutfit(this.state.file);
-		this.state.images[this.selectedContentId].cropping ?  
-			console.log('please finish cropping before submiting image') : 
-			(this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0) ? //TODO:  should be ... > 0
-				this.props.postAddedOutfit(this.state.images[this.selectedContentId].src) :
-				this.props.postAddedOutfit(null);
+	componentDidMount(){
+		window.addEventListener('resize', this.reloadImageRef);
+
+		//force click of fileInput button when user clicks add outfit button.
+		this.props.viewState === OxiAppConstants.viewState.ADD ? this.fileInput.click() : null;
+	}
+
+	componentDidUnmount(){
+		window.removeEventListener('resize', this.reloadImageRef);
+	}
+
+	reloadImageRef(){
+		//const displayedImage = new Image();
+		//displayedImage.onLoad = () => {
+		//	//console.log(`Image data from state.images[${this.props.selectedContentId}].src loaded`)
+		//}	
+//
+		//displayedImage.src = this.state.images[this.props.selectedContentId].src
+		////console.log('handleForceUpdate')
+		this.setState(prevState => ({
+			...prevState,
+			flag: (!prevState.flag)
+		}))
+		//this.forceUpdate();
+	}
+
+	_handleSubmit(event) {
+		event.preventDefault();
+		let isCropping = false;
+
+		for(let image of Object.values(this.state.images)){
+			if(image.cropping){
+				isCropping = false;
+				break;
+			}
+		}
+
+		if(isCropping){
+			console.log('please finish cropping before submiting image')
+		}else{
+			let files = {};
+			for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
+				if(typeof this.props.addedContents[invalidatedContentId].picture === 'number' || this.props.addedContents[invalidatedContentId].picture.length === 0){
+
+					//Note for newly added content, the coverpicuri contains the file name.  
+					//Coverpicuri is used from each content entity to reference the corresponding file in files object when sending image data to the server
+					files = Object.assign({...files}, {
+						[this.props.addedContents[invalidatedContentId].coverpicuri]: this.state.images[invalidatedContentId].src
+					});
+					//(this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0) ? //TODO:  should be ... > 0
+					//	this.props._handleSubmit(this.state.images[this.selectedContentId].src) :
+					//	this.props._handleSubmit(null);
+				}else{
+
+				}
+			}
+			this.props._handleSubmit(files);
+		}
+
 		//event.preventDefault();
 	}
 
@@ -237,16 +325,26 @@ class CroppableImageForm extends React.Component{
 				(this.state.images[this.selectedContentId].src || this.props.src), 
 				this.state.images[this.selectedContentId].crop, 
 				'croppedResult', 
-				this.state.images[this.selectedContentId].maxWidth, 
-				this.state.images[this.selectedContentId].maxHeight
+				/*this.props.imageElement.clientWidth,*/this.state.images[this.selectedContentId].imageWidth,//.maxWidth, 
+				/*this.props.imageElement.clientHeight,*/this.state.images[this.selectedContentId].imageHeight,//.maxHeight,
+				this.state.images[this.selectedContentId].rotation,
+				this.maxHeight,
+				this.minY
 			)
-			.then(croppedFile => {				
+			.then(croppedImage => {	
+				this.props.setupImageRef(croppedImage);			
 				this.setState(prevState => ({
 					...prevState,
 					images:{
 						...prevState.images,
 						[this.selectedContentId]:{
-							src: croppedFile,
+							...prevState.images[this.selectedContentId],
+							//imageHeight: croppedImage.width * (prevState.images[this.selectedContentId].imageHeight !== 0 && prevState.images[this.selectedContentId].imageHeight !== 0 ? 
+							//	(prevState.images[this.selectedContentId].imageHeight / prevState.images[this.selectedContentId].imageWidth) : 
+							//	(croppedImage.naturalHeight / croppedImage.naturalWidth)
+							//),
+							//imageWidth: croppedImage.width,
+							src: croppedImage,
 							cropping: !this.state.images[this.selectedContentId].cropping
 						}
 					}
@@ -258,11 +356,15 @@ class CroppableImageForm extends React.Component{
 				images:{
 					...prevState.images,
 					[this.selectedContentId]:{
+						...prevState.images[this.selectedContentId],
 						cropping: !this.state.images[this.selectedContentId].cropping
 					}
 				}
 			}));
 		}
+
+
+		this.props.clientInvalidateEntity([this.props.entitiesStateReducer.contents.selected].picture, OxiAppConstants.EntityTypes.PICTURE)();
 	}
 
 	/*
@@ -277,7 +379,7 @@ class CroppableImageForm extends React.Component{
 
 		for(var i=0; i < event.target.files.length; i++){
 			
-			if(currentCount + addCount < 7){
+			if(currentCount + addCount < (OxiAppConstants.maxContentCount + 1)){
 				//make sure file reference does not already exist in this.fileRefs
 				if (this.fileRefs[event.target.files[i].name] === undefined){
 					newFileRefs = Object.assign({}, newFileRefs, {[event.target.files[i].name]: event.target.files[i]} );				
@@ -292,7 +394,14 @@ class CroppableImageForm extends React.Component{
 		}
 
 		this.fileRefs = Object.assign({}, this.fileRefs, newFileRefs );
-		if(Object.keys(newFileRefs).length > 0) this.props.addContentFromImages(newFileRefs);
+		if(Object.keys(newFileRefs).length > 0){
+			//const loadFiles = new Promise((resolve, reject) => resolve(this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents)));
+			//loadFiles.then(result => this.forceUpdate());
+			this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents);
+		}
+		if(this.props.entitiesStateReducer.outfits.clientInvalidated.length === 0){
+			//this.props.clientInvalidateEntity([this.props.entitiesStateReducer.outfits.selected], OxiAppConstants.EntityTypes.OUTFIT)();
+		}
 	}
 
 	_onSelectFile(event){
@@ -315,33 +424,50 @@ class CroppableImageForm extends React.Component{
 	}
 
 	_onImageLoaded(image){
-		console.log(`CroppableImageForm#_onImageLoaded:  calling updateImageDimension( width:${image.width}, height:${image.height} )`)
+		//console.log(`CroppableImageForm#_onImageLoaded:  calling updateImageDimension( width:${image.width}, height:${image.height} )`)
 		this.props.updateImageDimension(image.width, image.height);
 
 		//TODO:  crop dimensions aren't being initialized
 		//set crop dimensions if dimension they have not already been set by user
-		if(this.state.images[this.selectedContentId].crop.height === 0 || this.state.images[this.selectedContentId].crop.width === 0 ){
-			console.log('initializing crop');
+		//if(this.state.images[this.selectedContentId].crop.height === 0 || this.state.images[this.selectedContentId].crop.width === 0 ){
+			this.setCropBounds(this.state.images[this.selectedContentId].rotation);
+			//console.log('initializing crop');
 			this.setState(prevState => ({	
 				...prevState,
 				images:{
 					...prevState.images,
 					[this.selectedContentId] : {
 						...this.state.images[this.selectedContentId],
+						imageHeight: image.width * (prevState.images[this.selectedContentId].imageHeight !== 0 && prevState.images[this.selectedContentId].imageHeight !== 0 ? 
+							(prevState.images[this.selectedContentId].imageHeight / prevState.images[this.selectedContentId].imageWidth) : 
+							(image.naturalHeight / image.naturalWidth)
+						),
+						imageWidth: image.width,
 						crop: {
 							...this.state.images[this.selectedContentId].crop,
 							...makeAspectCrop({
 							 	x: this.state.images[this.selectedContentId].crop.x,
-							 	y: this.state.images[this.selectedContentId].crop.y,
-							 	aspect: 2 / 3,
-							 	width: this.state.images[this.selectedContentId].crop.width,
-							 	height: this.state.images[this.selectedContentId].crop.height
+
+							 	y: this.state.images[this.selectedContentId].crop.y === 0 ?
+							 		this.minY : 
+							 		this.state.images[this.selectedContentId].crop.y,
+
+							 	aspect: OxiAppConstants.aspectRatio,
+
+							 	width: this.state.images[this.selectedContentId].crop.width === 0 ? 
+							 		this.maxHeight * OxiAppConstants.aspectRatio * this.rotatedAspectRatio : 
+							 		this.state.images[this.selectedContentId].crop.width,
+
+							 	height: this.state.images[this.selectedContentId].crop.height === 0 ? 
+							 		this.maxHeight : 
+							 		this.state.images[this.selectedContentId].crop.height,
+
 							}, image.width / image.height)
 						}
 					}
 				},
 			}));
-		}
+		//}
 	}
 
 	_onCropComplete(crop){
@@ -363,23 +489,28 @@ class CroppableImageForm extends React.Component{
 		}));
 	}
 
-	_handleImageLoad(event){
+	_handleImageLoad(imgRef){
 		//this.setState({
-		//	imageX: event.target.getBoundingClientRect().left,
-		//	imageY: event.target.getBoundingClientRect().top,
-		//	imageWidth: event.target.width,
-		//	imageHeight: event.target.height,
+		//	imageX: imgRef.getBoundingClientRect().left,
+		//	imageY: imgRef.getBoundingClientRect().top,
+		//	imageWidth: imgRef.width,
+		//	imageHeight: imgRef.height,
 		//})
+		this.props.setupImageRef(imgRef);
 		this.setState(prevState => ({	
 			...prevState,
 			images:{
 				...prevState.images,
 				[this.selectedContentId] : {
 					...this.state.images[this.selectedContentId],
-					imageX: event.target.getBoundingClientRect().left,
-					imageY: event.target.getBoundingClientRect().top,
-					imageWidth: event.target.width,
-					imageHeight: event.target.height,
+					//imageX: imgRef.getBoundingClientRect().left,
+					//imageY: imgRef.getBoundingClientRect().top,
+					//imageWidth: imgRef.width,
+					//imageHeight: imgRef.height,
+					imageX: imgRef.clientLeft,
+					imageY: imgRef.clientTop,
+					imageWidth: imgRef.clientWidth,
+					imageHeight: imgRef.clientHeight,
 				}
 			},
 		}));
@@ -417,9 +548,13 @@ class CroppableImageForm extends React.Component{
 	}
 
 	getImageSrc(){
+		//console.log('*about to get image source');
+		//console.log('this.state.images = ', this.state.images);
 		let imageSource = 
 			(this.state.images[this.selectedContentId].src || this.props.src) || 
 			("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg");
+		//console.log('this.selectedContentId = ', this.selectedContentId);
+		//console.log('imageSource = ', imageSource);
 
 		//if(this.state.images[this.selectedContentId].srcFileRef !== null && 
 		//	this.state.images[this.selectedContentId].src === null &&
@@ -445,17 +580,152 @@ class CroppableImageForm extends React.Component{
 		return imageSource;
 	}
 
+	setCropBounds(finalRotation){		
+		//this.rotatedAspectRatio = this.props.imageElement.clientWidth / this.props.imageElement.clientHeight
+		let rotatedImageHeight = null;
+		switch(true){
+			//originally image aspect > crop aspect about to be rotated 90 or 270 degrees
+			case ((this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight > OxiAppConstants.aspectRatio) && 
+			(finalRotation === 90 || finalRotation === 270) ):
+
+				rotatedImageHeight = this.props.imageElement.clientWidth * (this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight);
+
+				this.maxHeight= 100 * rotatedImageHeight / this.props.imageElement.clientHeight;
+				this.minY = 50 - (0.5 * 100 * rotatedImageHeight / this.props.imageElement.clientHeight);
+				this.rotatedAspectRatio = this.props.imageElement.clientHeight / this.props.imageElement.clientWidth;
+				//this.rotatedAspectRatio = this.props.imageElement.naturalHeight / this.props.imageElement.naturalWidth;
+				break;
+
+			//originally image aspect > crop aspect rotated 0(360) or 180 degrees
+			case ((this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight > OxiAppConstants.aspectRatio) && 
+			(finalRotation === 180 || finalRotation === 360 || finalRotation === 0) ):
+
+				rotatedImageHeight = 
+					this.state.images[this.selectedContentId].imageHeight ||
+					(this.props.imageElement.clientWidth * (this.props.imageElement.naturalHeight / this.props.imageElement.naturalWidth));
+
+				this.maxHeight = 100 * rotatedImageHeight / this.props.imageElement.clientHeight;
+				//this.maxHeight= 100 * this.state.images[this.selectedContentId].imageHeight / this.props.imageElement.clientHeight;
+				this.minY = 50 - (0.5 * 100 * rotatedImageHeight / this.props.imageElement.clientHeight);
+				//this.rotatedAspectRatio = this.props.imageElement.clientWidth / this.props.imageElement.clientHeight;
+				this.rotatedAspectRatio = this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight;
+				break;
+
+			//originally image aspect <= crop aspect about to be rotated 90 or 270 degrees
+			case ((this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight <= OxiAppConstants.aspectRatio) && 
+			(finalRotation === 90 || finalRotation === 270) ):
+
+				rotatedImageHeight = this.props.imageElement.clientWidth * (this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight);
+
+				this.maxHeight= 100 * rotatedImageHeight / this.props.imageElement.clientHeight;
+				this.minY = 50 - (0.5 * 100 * rotatedImageHeight / this.props.imageElement.clientHeight);
+				this.rotatedAspectRatio = this.props.imageElement.clientHeight / this.props.imageElement.clientWidth;
+				//this.rotatedAspectRatio = this.props.imageElement.naturalHeight / this.props.imageElement.naturalWidth;
+				break;
+
+			//originally image aspect <= crop aspect rotated 0(360) or 180 degrees
+			case ((this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight <= OxiAppConstants.aspectRatio) && 
+			(finalRotation === 180 || finalRotation === 360 || finalRotation === 0) ):
+
+				rotatedImageHeight = 
+					this.state.images[this.selectedContentId].imageHeight ||
+					(this.props.imageElement.clientWidth * (this.props.imageElement.naturalHeight / this.props.imageElement.naturalWidth));
+
+				this.maxHeight = 100 * rotatedImageHeight / this.props.imageElement.clientHeight;
+				//this.maxHeight= 100 * this.state.images[this.selectedContentId].imageHeight / this.props.imageElement.clientHeight;
+				this.minY = 50 - (0.5 * 100 * rotatedImageHeight / this.props.imageElement.clientHeight);
+				//this.rotatedAspectRatio = this.props.imageElement.clientWidth / this.props.imageElement.clientHeight;
+				this.rotatedAspectRatio = this.props.imageElement.naturalHeight / this.props.imageElement.naturalWidth;
+				break;
+		}
+	}
+
+	getMinY(){
+
+	}
+
+	rotateImageClockwise(){
+		//swap width and height dimensions
+		//this.props.updateImageDimension(this.props.imageElement.clientHeight, this.props.imageElement.clientWidth)
+
+		//this.rotatedAspectRatio = this.props.imageElement.clientWidth / this.props.imageElement.clientHeight
+		//switch(true){
+		//	//originally wide image about to be rotated 90 or 270 degrees
+		//	case ((this.props.imageElement.clientWidth / this.props.imageElement.clientHeight > OxiAppConstants.aspectRatio) && 
+		//	(this.state.images[this.selectedContentId].rotation+90 === 90 || this.state.images[this.selectedContentId].rotation+90 === 270) ):
+//
+		//		let rotatedImageHeight = this.props.imageElement.clientWidth * (this.props.imageElement.naturalWidth / this.props.imageElement.naturalHeight);
+		//		this.maxHeight= 100 * rotatedImageHeight / this.props.imageElement.clientHeight;
+		//		this.minY = 50 - (0.5 * 100 * rotatedImageHeight / this.props.imageElement.clientHeight);
+		//		this.rotatedAspectRatio = 1 / this.rotatedAspectRatio;
+		//		break;
+//
+		//	//originally wide image rotated 0(360) or 180 degrees
+		//	case ((this.props.imageElement.clientWidth / this.props.imageElement.clientHeight > OxiAppConstants.aspectRatio) && 
+		//	(this.state.images[this.selectedContentId].rotation+90 === 180 || this.state.images[this.selectedContentId].rotation+90 === 360) ):
+//
+		//		this.maxHeight= 100 * this.state.images[this.selectedContentId].imageHeight / this.props.imageElement.clientHeight;
+		//		this.minY = 50 - (0.5 * 100 * this.state.images[this.selectedContentId].imageHeight / this.props.imageElement.clientHeight);
+		//		this.rotatedAspectRatio = 1 / this.rotatedAspectRatio;
+		//		break;
+		//}
+		this.setCropBounds(this.state.images[this.selectedContentId].rotation + 90);
+
+		this.setState(prevState => ({
+			...prevState,
+			images:{
+				...prevState.images,
+				[this.selectedContentId] : {
+					...prevState.images[this.selectedContentId],
+					crop:{
+						...prevState.images[this.selectedContentId].crop,
+						height: this.maxHeight,
+						width: (this.maxHeight * OxiAppConstants.aspectRatio * this.rotatedAspectRatio),
+						x:0,
+						y:this.minY
+					},
+					//(this.state.images[this.selectedContentId].rotation === 90 || this.state.images[this.selectedContentId].rotation === 270 ?
+					//	(...{imageHeight: this.props.imageElement.clientWidth, imageWidth: this.props.imageElement.clientHeight}) : 
+					//	(...{imageHeight: this.props.itemMapDimension.imag.clientWidth, imageWidth: this.props.imageElement.clientHeight}) ),
+					//imageHeight: prevState.images[this.selectedContentId].imageWidth,
+					//imageWidth: prevState.images[this.selectedContentId].imageHeight,
+
+					//imageHeight: image.width * (prevState.images[this.selectedContentId].imageHeight !== 0 && prevState.images[this.selectedContentId].imageHeight !== 0 ? 
+					//	(prevState.images[this.selectedContentId].imageHeight / prevState.images[this.selectedContentId].imageWidth) : 
+					//	(image.naturalHeight / image.naturalWidth)
+					//),
+					//imageWidth: image.width,
+					rotation: prevState.images[this.selectedContentId].rotation !== 270 ? (prevState.images[this.selectedContentId].rotation + 90) : 0,
+
+				}
+			}
+		}));
+	}
+
 	render(){
 		this.selectedContentId = this.props.entitiesStateReducer.contents.selected;
 		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
 		let content = null;
-		let {imageElement} = this.props
-
+		let src = this.getImageSrc();
+		//let {imageElement} = this.props
+		let validImageElement = (this.props.imageElement !== null && this.props.imageElement !== undefined);
+		//console.log('rerendering');
+		//console.log('imageElementHeight = ', this.props.imageElement.clientHeight);
+		//console.log('imageElementWidth = ', this.props.imageElement.clientWidth);
+		let customButtonStyles = {
+			'margin-top':'calc((5vh + 25px) / 4)',
+			'margin-right':'5%',			
+		}
 		if(this.state.images[this.selectedContentId]){
 			if(this.state.images[this.selectedContentId].cropping){
 				content = (
 					<ReactCrop
 						className={ReactCropStyles}
+						rotation={this.state.images[this.selectedContentId].rotation}
+						//This is a percentage of actual image height wrp <img> tag height
+						maxHeight={this.maxHeight}//{100 * this.state.images[this.selectedContentId].imageHeight / this.props.imageElement.clientHeight}
+						minY={this.minY}//{50 - (0.5 * 100 * this.state.images[this.selectedContentId].imageHeight / this.props.imageElement.clientHeight)}
+						
 						/*additionalStyles={(
 							imageElement.naturalWidth > imageElement.naturalHeight ? 
 								({
@@ -465,12 +735,17 @@ class CroppableImageForm extends React.Component{
 								({})
 						)}*/
 						cropImgRoot={this.cropImgRoot}
-						src={this.getImageSrc()}//{(this.state.images[this.selectedContentId].src || this.props.src) || ("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg")}
+						src={src}//{(this.state.images[this.selectedContentId].src || this.props.src) || ("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg")}
 						crop={this.state.images[this.selectedContentId].crop}
+						imageElementHeight={this.props.imageElement.clientHeight}
+						imageElementWidth={this.props.imageElement.clientWidth}
+						//imageHeight={this.state.images[this.selectedContentId].imageHeight}
+						//imageWidth={this.state.images[this.selectedContentId].imageWidth}
 						onImageLoaded={this._onImageLoaded}
 						onComplete={this._onCropComplete}
 						onChange={this._onCropChange}
 						setupImageRef={this.props.setupImageRef}
+						flag={this.state.flag}
 						//setupCropImgContainerRef={this.setupCropImgContainerRef}
 					/>
 				)
@@ -478,15 +753,14 @@ class CroppableImageForm extends React.Component{
 				this.state.images[this.selectedContentId].crop.height
 				content = (
 					<img 
-						style={Object.assign({}, this.props.imgStyle)} 
-						src={this.getImageSrc()}//{(this.state.src || this.props.src) || ("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg")} 
+						style={Object.assign({transform:`rotate(${this.state.images[this.selectedContentId].rotation}deg)`}, this.props.imgStyle)} 
+						src={src}//{(this.state.src || this.props.src) || ("https://www.oxisalechannel.com/" + OxiAppConstants.ContentDirectories.IMAGES + "/no_image_optimized.svg")} 
 						onClick={this.props.onImageClick} 
-						onLoad={this._handleImageLoad} 
-						ref={this.props.setupImageRef}/>
+						onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)/*(this.props.imageElement)*/} 
+						ref={this.props.setupImageRef}/>	
 				)
 			}
 		}		
-		let validImageElement = (this.props.imageElement !== null && this.props.imageElement !== undefined);
 		return (
 			<div style={this.props.imgFormStyle}>
 				<div
@@ -499,33 +773,42 @@ class CroppableImageForm extends React.Component{
 						for="fileInput" 
 						style={{
 							'margin-right':'5%',
-							'width':'7%'
+							'width':'auto'
 						}}>
-						<div 
-							className={this.props.imgFormControlStyle} 
-							style={{width:'100%'}}
-							onMouseOver={(event) => this._handleIconHover(event, 'file', true)}
-							onMouseLeave={(event) => this._handleIconHover(event, 'file', false)}>
-								<SvgIcon name={'FileUploadIcon'} hovered={this.state.fileUploadHovering}/>
-						</div>
-					</label>				
-					<div 
-						className={this.props.imgFormControlStyle} 
-						style={{
-							//width:'5%',
-							'padding-left':'1%',
-							'padding-right':'1%',
-						}}
-						onClick={this._handleAcceptCrop}>						
-						<SvgIcon name={'CropIcon'} />
-					</div>
-					<div 
-						className={this.props.imgFormControlStyle} 
-						onClick={this.props.discardChanges}
-						onMouseOver={(event) => this._handleIconHover(event, 'discard', true)}
-						onMouseLeave={(event) => this._handleIconHover(event, 'discard', false)}>							
-						<SvgIcon name={'DiscardIcon'} hovered={this.state.discardHovering}/>
-					</div>
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+							//onClickHandler={this.rotateImageClockwise}
+							title='photos'
+							iconName='FileUploadIcon'
+							customButtonStyles={customButtonStyles}
+							puDirection='SOUTH'
+							textHeight={17} />
+					</label>	
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+						onClickHandler={this.props.discardChanges}
+						title='discard'
+						iconName='DiscardIcon'
+						customButtonStyles={customButtonStyles}
+						puDirection='SOUTH' />
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+						onClickHandler={this.rotateImageClockwise}
+						title='rotate'
+						iconName='RotateClockwiseIcon'
+						customButtonStyles={customButtonStyles}
+						iconStyls={{
+							'padding-top':'1px',
+							'padding-bottom':'4px',
+						}} />
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
+						onClickHandler={this._handleAcceptCrop}
+						toggleActiveTitle='accept crop'
+						toggleInactiveTitle='start crop'
+						isToggleActive={this.state.images[this.selectedContentId].cropping}
+						iconName='CropIcon'
+						customButtonStyles={customButtonStyles} />
 					<label 
 						for="submitButton" 
 						style={{
@@ -533,24 +816,38 @@ class CroppableImageForm extends React.Component{
 							position: 'absolute',
 							right: '0px'
 						}}>
-						<div 
+						{/*<div 
 							className={this.props.imgFormControlStyle}
 							style={{width:'100%'}}
 							onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
 							onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>							
 							<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
-						</div>	
+						</div>*/}
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.d}
+							title='submit'
+							customButtonStyles={customButtonStyles} />
 					</label>
 				</div>
 
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
-					<input id="fileInput" type="file" multiple name="imageFile" onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} style={{display:'none'}} />
+					<input 
+						id="fileInput" 
+						ref={input => this.fileInput = input}
+						type="file" 
+						multiple name="imageFile" 
+						onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
+						style={{display:'none'}} />
 					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
 						Upload Image
 					</button>
 				</form>
 
-				<div style={{'text-align':'center', 'height':'calc(100% - 5vh - 25px)'}} >
+				<div style={{
+					'text-align':'center', 
+					'height':'calc(100% - 5vh - 25px)',
+					height:'calc(100% - 80px)'
+				}} >
 					<div id="imgAndItemMapdiv" /*ref={this.props.setupContentViewRef}*/ref={this.setupCropImgRoot} style={{
 						'position':'relative',
 						width:'auto',

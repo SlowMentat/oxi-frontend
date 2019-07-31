@@ -581,7 +581,7 @@ class ToleranceSettings extends React.Component{
 	}
 }
 
-function camelize(str){
+export function camelize(str){
 	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
 		return index == 0 ? match.toLowerCase() : match.toUpperCase();
 	})
@@ -884,11 +884,11 @@ export default class ProfileMenu extends React.Component{
 		//The reducer is expecting this payload to contain an id field which it uses as a key
 		//to reference the payload data in the redux state tree.  This id field needs to be
 		//added explicitly here because it is left undefined when the profile object is 
-		//returned by the server, which is refernced to dynamically build this.state.profileData fields.
+		//returned by the server, and because it is refernced to when dynamically building this.state.profileData fields.
 		let scrubbedProfileState = Object.assign({}, this.state.profileData, {id: 1});
 
-		//gotta do some string gymnastics so construct tolerance ojbect property that is compatible
-		//with the server api spec
+
+		//gotta do some string gymnastics so construct tolerance ojbect property that is compatible with the server api spec.
 		let tolerance = {};
 		for(let field of Object.keys(this.state.minTolerances)){
 			tolerance[`min${field.charAt(0).toUpperCase() + field.slice(1)}`] = this.getToleranceValues(field, true);

@@ -138,59 +138,70 @@ export default class ItemLocationMap extends React.Component{
 			<div style={this.props.viewState != OxiAppConstants.viewState.PREVIEW ? Object.assign({}, containerStyle, {'margin-top': '0px'}) : containerStyle}>
 				<div style={Object.assign({}, svgContainerStyle, this.props.itemMapDimension)}>
 					<svg onClick={(event) => this.props.simulateImageClick(event.pageX, event.pageY)} style={{height:'100%',width:'100%',left:'0px',top:'0px'}}>
-						{this.props.visibleItemsMap.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItemsMap.visibleItemsByIds).map(itemId => {
-							console.log('itemId = ', itemId);
-							console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
-							//do not return object owned properties
-							//if(this.props.visibleItemsMap.visibleItemsByIds.hasOwnProperty(itemId)){
-							if(this.props.itemIdHovered === itemId) console.log('itemIdHovered equals itemId: ', itemId)
-							if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
-								return(
-									this.props.viewState != OxiAppConstants.viewState.PREVIEW ? 
-									(
-										<DraggableCore
-											onStop={() => this._onStop(event, itemId)}
-											onStart={() => this._onStart(event, itemId)}
-											onDrag={this._handleDrag}
-											bounds="div"
-											//{...dragHandlers}
-										>
-											<circle 
-												onMouseOver={() => this._handleOnMouseOver(event, itemId)}
-												onMouseLeave={() => this._handleOnMouseLeave(event)}
-												onMouseUp={() => this._handleOnMouseUp(event, itemId)}
-												onClick={(event) => event.stopPropagation()}
-												id={itemId}
-												stroke-width='2px' 
-												stroke='black' 
-												fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'} 
-												r='2%' 
-												cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
-												cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
-												className={ItemStyles.itemPin}
-												transform={this.state.draggedItemId === itemId ? `translate(${this.state.deltaPosition.x}, ${this.state.deltaPosition.y})` : 'translate(0,0)'}
+						{
+							this.props.visibleItemsMap.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItemsMap.visibleItemsByIds)
+								.filter(itemId => {
+									return this.props.contentSelected === undefined || this.props.contentSelected === false ? //redux state not yest instantiated for entities
+										([]) :
+										this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
+											this.props.contents[this.props.contentSelected].items.includes(itemId) :
+											this.props.addedContents[this.props.contentSelected].items.includes(itemId) 
+								})
+								.map(itemId => {
+									console.log('itemId = ', itemId);
+									console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
+									//do not return object owned properties
+									//if(this.props.visibleItemsMap.visibleItemsByIds.hasOwnProperty(itemId)){
+									if(this.props.itemIdHovered === itemId) console.log('itemIdHovered equals itemId: ', itemId)
+									if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
+										return(
+											this.props.viewState != OxiAppConstants.viewState.PREVIEW ? 
+											(
+												<DraggableCore
+													onStop={() => this._onStop(event, itemId)}
+													onStart={() => this._onStart(event, itemId)}
+													onDrag={this._handleDrag}
+													bounds="div"
+													//{...dragHandlers}
 												>
-											</circle>
-										</DraggableCore>
-									) : (
-										<circle 
-											onMouseOver={() => this._handleOnMouseOver(event, itemId)}
-											onMouseLeave={() => this._handleOnMouseLeave(event)}
-											id={itemId}
-											stroke-width='2px' 
-											stroke='black' 
-											fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'}  
-											r='2%' 
-											cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
-											cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
-											>
-										</circle>
-									)
-								);
-							}else{
-								return null;
-							}
-						}) : null }
+													<circle 
+														onMouseOver={() => this._handleOnMouseOver(event, itemId)}
+														onMouseLeave={() => this._handleOnMouseLeave(event)}
+														onMouseUp={() => this._handleOnMouseUp(event, itemId)}
+														onClick={(event) => event.stopPropagation()}
+														id={itemId}
+														stroke-width='2px' 
+														stroke='black' 
+														fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'} 
+														r='2%' 
+														cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
+														cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
+														className={ItemStyles.itemPin}
+														transform={this.state.draggedItemId === itemId ? `translate(${this.state.deltaPosition.x}, ${this.state.deltaPosition.y})` : 'translate(0,0)'}
+														>
+													</circle>
+												</DraggableCore>
+											) : (
+												<circle 
+													onMouseOver={() => this._handleOnMouseOver(event, itemId)}
+													onMouseLeave={() => this._handleOnMouseLeave(event)}
+													id={itemId}
+													stroke-width='2px' 
+													stroke='black' 
+													fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'}  
+													r='2%' 
+													cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
+													cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
+													>
+												</circle>
+											)
+										);
+									}else{
+										return null;
+									}
+								}
+							) : null 
+						}
 					</svg>
 				</div>
 			</div>		

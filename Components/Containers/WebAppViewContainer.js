@@ -6,7 +6,8 @@ import {
 	replaceProfile, 
 	navigateTo,
 	removeAllEntities,
-	selectEntity
+	selectEntity,
+	getSavedItems,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
@@ -24,10 +25,12 @@ const mapStateToProps = (state, props ) => {
 		formType: state.toggleModal.modal,
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,
+		savedItemMap: state.cache.savedItemMap,
 	};
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
+	getSavedItems : () => dispatch(getSavedItems()),
 	navEventCallbacks : {
 		a : (isOwnerProfileEntityPresent) => {
 			//dispatch(setWebAppView("home"))

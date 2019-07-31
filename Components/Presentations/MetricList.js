@@ -6,6 +6,8 @@ import BodyDiagram from './BodyDiagram.js';
 
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
+import { camelize } from '../../Util/DataFormatConverter.js';
+
 
 
 
@@ -48,7 +50,7 @@ const BodyFitProjectionCentered = (ownerX, hostX) => {
 }
 
 const BodyFitProjectionOwnerAlign = (ownerX, hostX) => {
-	let hostAdjX = ((hostX - ownerX));
+	let hostAdjX = (ownerX + hostX) === undefined ? 0 : ((hostX - ownerX));
 	console.log('hostAdjX', hostAdjX);
 	return({
 		'ownerValue': 0,
@@ -76,6 +78,7 @@ class MetricGraph extends React.Component{
 		let yPercentOffset = ( 100 / (2 * this.props.sourceMetricIds.length) );
 		let pointRadius = 3;
 		let yOffsetStart = ( (yPercentOffset - pointRadius*2) / 2);
+		let {tolerances} = this.props;
 
 		let labelPosMap = {};
 
@@ -84,7 +87,7 @@ class MetricGraph extends React.Component{
 			console.log('yPercentOffset = ', yPercentOffset)
 			console.log('yOffsetStart = ', yOffsetStart)
 			console.log('sourceMetricIds = ', this.props.sourceMetricIds)
-			console.log('sourceMetrics = ', this.props.sourceMetrics)
+			console.log('this.props.sourceMetrics = ', this.props.sourceMetrics)
 			console.log('x1:  this.props.sourceMetrics[sourceMetricIds[ind-1]] = ', this.props.sourceMetrics[this.props.sourceMetricIds[ind-1]])
 			console.log('x2:  this.props.sourceMetrics[sourceMetricId] = ', this.props.sourceMetrics[sourceMetricId])
 			//let labelPosYCss = `calc((${( yOffsetStart + ( ind * ( yPercentOffset )))} / 100) * (100vh))`
@@ -92,15 +95,22 @@ class MetricGraph extends React.Component{
 			labelPosMap[sourceMetricId] = labelPosYCss;
 
 
-			let xScale = 1.65;
+			let xScale = 1;// 1.65;
 			let xOffset = this.props.sourceMetrics[sourceMetricId] >= 0 ? 0 : this.props.sourceMetrics[sourceMetricId];
+			var toleranceId = this.props.sourceMetrics[sourceMetricId] >= 0 ?
+				`max${sourceMetricId[0].toUpperCase() + sourceMetricId.slice(1)}` : 
+				`min${sourceMetricId[0].toUpperCase() + sourceMetricId.slice(1)}`;			
+
 			return(
 				<React.Fragment>
 						<div className={MetricStyles.barGraphContainer_div}>
-							<div style={{'margin-left':'calc(50% + (' + `${xScale * xOffset}` + '/100)*(300px - 13vh - 31px)/2)'}}>
+							<div style={{'margin-left':'calc(50% + (' + `${xScale * xOffset}` + '/100) * (var(--x-axis-range) + 1px)/2)'}}>
 								<div 
 									className={this.props.labelHovered === sourceMetricId ? MetricStyles['graphBar_div--highlight'] : MetricStyles['graphBar_div']} 
-									style={{'width':'calc((' + `${xScale * Math.abs(this.props.sourceMetrics[sourceMetricId])}` + '/100)*(300px - 13vh - 30px)/2)'}}>
+									style={{
+										'width':`calc((${xScale * Math.abs(this.props.sourceMetrics[sourceMetricId])}/100)*(var(--x-axis-range)/2)*${tolerances[toleranceId]}*4/var(--x-axis-range))`
+										//'width':`calc((${xScale * Math.abs(this.props.sourceMetrics[sourceMetricId])}/100))`
+									}}>
 								</div>
 							</div>
 						</div>
@@ -344,8 +354,8 @@ class MetricList extends React.Component{
 		let yOffsetStartLow = 0//( yPercentOffset );
 		let pointRadiusLow = '3';
 		let absYOffsetLow = (true ? absYOffset = (this.props.ownerLowerBodyMetricIds.length * 13) : 0);
-		console.log('this.state.labels.upperBody = ', this.state.labels.upperBody)
-		console.log('this.state.labels.lowerBody = ', this.state.labels.lowerBody)
+		//console.log('this.state.labels.upperBody = ', this.state.labels.upperBody)
+		//console.log('this.state.labels.lowerBody = ', this.state.labels.lowerBody)
 		return (
 			<React.Fragment>	
 				<div className={MetricStyles.metricGraphContainer_div}>
@@ -361,6 +371,7 @@ class MetricList extends React.Component{
 									sourceMetrics={projectedUpperBodyXCoord === null ? this.props.ownerUpperBodyMetrics : projectedUpperBodyXCoord.hostValues} 
 									updateLabelPositions={this.setUpperBodyLabelPosition}
 									labelHovered={this.state.labelHovered}
+									tolerances={this.props.tolerances}
 								/>
 								{/*<MetricGraph 
 									sourceMetricIds={this.props.hostUpperBodyMetricIds} 
@@ -384,6 +395,7 @@ class MetricList extends React.Component{
 									sourceMetrics={projectedLowerBodyXCoord === null ? this.props.ownerLowerBodyMetrics : projectedLowerBodyXCoord.hostValues}
 									updateLabelPositions={this.setLowerBodyLabelPosition} 
 									labelHovered={this.state.labelHovered}
+									tolerances={this.props.tolerances}
 								/>
 								{/*<MetricGraph 
 									sourceMetricIds={this.props.hostLowerBodyMetricIds} 

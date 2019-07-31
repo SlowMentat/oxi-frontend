@@ -5,6 +5,7 @@ import {
 	fetchEntities, 
 	showProfileMenu, 
 	createUser, 
+	createCompany,
 	addProfile, 
 	modifyProfile, 
 	postProfile,
@@ -52,8 +53,11 @@ const mapStateToProps = (state, props) => {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-	createUser: (email, password, username) => {
-		dispatch(createUser(email, password, username));
+	createUser: (formData) => {
+		dispatch(createUser(formData));
+	},
+	createCompany:(formData) => {
+		dispatch(createCompany(formData));
 	},
 	modifyProfile: (profile) => {
 		dispatch(modifyProfile(profile))

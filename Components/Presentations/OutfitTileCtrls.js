@@ -99,7 +99,7 @@ export class OutfitTileBrowseCtrls extends React.Component{
 						onClick={(e) => {
 							e.stopPropagation();
 							this.props.handleTileSelected();
-							this.props.getHostMeasurementsHandler()();
+							this.props.getHostMeasurementsHandler();
 						}}>
 					•
 					</div>

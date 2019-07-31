@@ -58,8 +58,10 @@ function FormDeck(props){
 
 					getSuggestion={props.getSuggestion}
 					getApparelTypes={props.getApparelTypes}
+					getSizeChartByItemId={props.getSizeChartByItemId}
 
 					allApparelTypes={props.allApparelTypes}
+					createSizeGroup={props.createSizeGroup}
 				/>
 			)
 		case OxiAppConstants.FormType.UPDATE_ITEM:
@@ -89,7 +91,6 @@ function FormDeck(props){
 					items={props.items}
 					clearUpdates={props.clearUpdates}
 					clearInvalidations={props.clearInvalidations}
-
 					math={props.match}
 					history={props.history}
 				/>
@@ -323,72 +324,94 @@ export class ItemForm extends React.Component{
 	_handleOnSubmit(event){
 		let matchedBrand = Object.values(this.props.brands).filter((brand) => brand.name.toLowerCase().includes(this.state.brand.toLowerCase()));
 		let matchedRetailers = Object.values(this.props.retailers).filter((retailer) => retailer.name.toLowerCase().includes(this.state.retailer.toLowerCase()));
-		//console.log('matchedBrand length', matchedBrand.length);
-		//console.log('matchedRetailers length', matchedRetailers.length);
 
-		//if(matchedBrand.length > 0){
-		//	if(matchedRetailers.length > 0){
-				let itemEntity = this.state.selectedFormType === "USER TAGS" ?
-					//Build custome user defined tag
-					Object.assign(
-						{}, 
-						OxiAppConstants.EntityTemplates.ITEM, 
-						{
-							/*positionx: this.props.itemLocation.positionx,
-							positiony: this.props.itemLocation.positiony,
-							retailer: matchedRetailers[0].id,
-							brand: matchedBrand[0].id,*/
-							positionx: this.props.itemLocation.positionx,
-							positiony: this.props.itemLocation.positiony,
-							product: {
-								handle: 'Custom Tag',
-								udr: this.state.type2SearchSelection.retailer.name,
-								uds: this.state.type2SearchSelection.size.size,
-								onlineStoreUrl: 'tbd',
-							},
-							//retailer: this.state.type2SearchSelection.retailer,
-							apparelType: this.state.type2SearchSelection.apparelType.id,
-							//...this.state.type2SearchSelection.size,
-							platform:'wearsit'
-						}
-					) :
-					//Build existing tag
-					Object.assign(
-						{}, 
-						OxiAppConstants.EntityTemplates.ITEM, 
-						{
-							id: this.state.type1SearchSelection.item.id,
-							positionx: this.props.itemLocation.positionx,
-							positiony: this.props.itemLocation.positiony,
-							product: this.state.type1SearchSelection.item.itemSnippet.product,
-							retailer: this.state.type1SearchSelection.retailer,
-							//brand: matchedBrand[0].id
-						}
-					)
+		let itemEntity = null;
+		if(this.state.selectedFormType === "USER TAGS"){
+			//Build custome user defined tag
+			itemEntity = Object.assign(
+				{}, 
+				OxiAppConstants.EntityTemplates.ITEM, 
+				{
+					/*positionx: this.props.itemLocation.positionx,
+					positiony: this.props.itemLocation.positiony,
+					retailer: matchedRetailers[0].id,
+					brand: matchedBrand[0].id,*/
+					positionx: this.props.itemLocation.positionx,
+					positiony: this.props.itemLocation.positiony,
+					product: {
+						...OxiAppConstants.EntityTemplates.CUSTOM_PRODUCT_TEMPLATE,
+						handle: 'Custom Tag',
+						udr: this.state.type2SearchSelection.retailer.name,
+						uds: this.state.type2SearchSelection.size.size,
+						onlineStoreUrl: 'tbd',
+					},
+					//retailer: this.state.type2SearchSelection.retailer,
+					apparelType: this.state.type2SearchSelection.apparelType.id,
+					//...this.state.type2SearchSelection.size,
+					platform:OxiAppConstants.PLATFORM,
+				}
+			)
+		}else{
+			let {item, size, retailer} = this.state.type1SearchSelection;
+			//Build existing tag
+			this.props.createSizeGroup({ [size.id]: size} );
+			itemEntity = Object.assign(
+				{}, 
+				OxiAppConstants.EntityTemplates.ITEM, 
+				{
+					id: item.id,
+					positionx: this.props.itemLocation.positionx,
+					positiony: this.props.itemLocation.positiony,
+					product: {
+						...OxiAppConstants.EntityTemplates.STANDARD_PRODUCT_TEMPLATE,
+						...item.itemSnippet.product,
+						//size: size,
+						retailer: retailer,
+					},
+					////Note we store size in this way rather than adding it to the product object
+					////This is done to be consistent in the way that size information is read from item entities
+					////in both preview and edit modes
+					////sizeChartDto:{
+					//	...OxiAppConstants.EntityTemplates.ITEM.sizeChartDto,
+					//	sizeGroupDtos: [{
+					//		...OxiAppConstants.EntityTemplates.SIZE_GROUP,
+					//		...size
+					//	}]
+					//}
+					sizeChartDto: null,
+					sizeGroupId: size.id,
+					//platform: item.platform,
+				}
+			)
+		}
 
-				console.log('itemEntity = ', itemEntity);
-				//this.props.submitAction(this.state.apparelType, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
-				this.props.submitAction(itemEntity);
-				//TODO:  	commenting out line below, but there is a need to handle the ids of server persisted items as UUID
-				// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
-				//this.props.editingItem(this.props.itemAllIds);
-				this.props.cancelAction();
-				//this.props.history.goBack();
-		//	}else{
-		//		console.log('input is not an approved retailer');
-		//	}
-		//}else{
-		//	console.log('input is not an approved brand');
-		//}
+		console.log('itemEntity = ', itemEntity);
+		//this.props.submitAction(this.state.apparelType, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
+		this.props.submitAction(itemEntity);
+		//TODO:  	commenting out line below, but there is a need to handle the ids of server persisted items as UUID
+		// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
+		//this.props.editingItem(this.props.itemAllIds);
+		this.props.cancelAction();
 	}
 
 	//_handleDropdownSelected(event, selectionType, valueSelected){	
-	_handleDropdownSelected(event, entryType, entryObj){	
+	_handleDropdownSelected(event, entryType, entryObj){
+		
 		event.stopPropagation();
+		//let {size} = entryObj;
+		//size !== undefined && this.state.type1SearchSelection.item.id !== undefined ? 
+		//	this.props.getSizeChartByItemId(this.state.type1SearchSelection.item.id) : 
+		//	null;
+
+
 	}
 
 	_handleDropDownOptionSelected(event, selectionType='', valueObj){
-		event.stopPropagation();
+		
+		event.stopPropagation();		
+		let {item} = valueObj;
+		item !== undefined ? this.props.getSizeChartByItemId(item.id) : null
+
 		this.setState(prevState => ({
 			...prevState,
 			[selectionType]:{
@@ -422,72 +445,79 @@ export class ItemForm extends React.Component{
 		}
 		return(
 			<div className={Styles.modal}>
-				<div 
-					id="form_containter_add_item" 
-					className={FormStyles.formViewContainer_div} 
-				>
-					<div style={{'text-align':'center', height:'25px'}}>
-						<div 
-							className={this.state.selectedFormType === this.formType.type1 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
-							onClick={event => this.setState({selectedFormType:this.formType.type1})} >
-							{this.formType.type1}
-						</div>
-						<div
-							className={this.state.selectedFormType === this.formType.type2 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
-							onClick={event => this.setState({selectedFormType:this.formType.type2})} >
-							{this.formType.type2}
-						</div>
-					</div>
-					<CSSTransition
-					    tiemout={200}
-					    classNames="retailerItemFormContainer"
-					    in={this.state.selectedFormType === this.formType.type1}
-					    unmountOnExit>	
-						<ExistingItems 
-							allApparelTypes={this.props.allApparelTypes}
-							getSuggestion={(uri) => this.props.getSuggestion(uri)}
-							fieldsObj={this.state.type1Entry} 
-							hydrateTasks={this.hydrateType1Tasks}
-							handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
-							handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
-							handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type1SearchSelection', valueObj) } />
-					</CSSTransition>
-					<CSSTransition
-					    tiemout={200}
-					    classNames="userItemFormContainer"
-					    in={this.state.selectedFormType === this.formType.type2}
-					    unmountOnExit>	
-						<CustomItems 
-							allApparelTypes={this.props.allApparelTypes}
-							updateApparelTypes ={(data) => this._updateApparelTypes(data)}
-							getApparelTypes={(uri) => this.props.getApparelTypes(uri)}
-							getSuggestion={(uri) => this.props.getSuggestion(uri)}
-							fieldsObj={this.state.type2Entry} 
-							hydrateTasks={this.hydrateType2Tasks}
-							handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
-							handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
-							handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', valueObj) }  />
-					</CSSTransition>
-					<div className={FormStyles.addItemCtrlContainer_div}>
-						<div className={FormStyles.addItem_div}>
-							<div className={FormStyles.formL3Button} onClick={() => {this._handleOnSubmit(event)}}>
-								{this.props.submitContext}
+				<CSSTransition 
+					timeout={300}
+					classNames="formViewContainer_div"
+					in={true}
+					unmountOnExit>
+					<div 
+						id="form_containter_add_item"
+						className={FormStyles.formViewContainer_div}
+					>
+						<div style={{'text-align':'center', height:'25px'}}>
+							<div 
+								className={this.state.selectedFormType === this.formType.type1 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
+								onClick={event => this.setState({selectedFormType:this.formType.type1})} >
+								{this.formType.type1}
+							</div>
+							<div
+								className={this.state.selectedFormType === this.formType.type2 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
+								onClick={event => this.setState({selectedFormType:this.formType.type2})} >
+								{this.formType.type2}
 							</div>
 						</div>
-						<div style={{width:'100%'}}>
-							<div className={FormStyles.cancelSelection_div}>
-								<div 
-									className={FormStyles.l1Button_div}
-									style={{
-										'text-align': 'right', 
-										right: '17px'
-									}}>
-									cancel
+						<CSSTransition
+						    timeout={200}
+						    classNames="retailerItemFormContainer"
+						    in={this.state.selectedFormType === this.formType.type1}
+						    unmountOnExit>	
+							<ExistingItems 
+								allApparelTypes={this.props.allApparelTypes}
+								getSuggestion={(uri) => this.props.getSuggestion(uri)}
+								fieldsObj={this.state.type1Entry} 
+								hydrateTasks={this.hydrateType1Tasks}
+								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
+								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
+								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type1SearchSelection', valueObj) } />
+						</CSSTransition>
+						<CSSTransition
+						    timeout={200}
+						    classNames="userItemFormContainer"
+						    in={this.state.selectedFormType === this.formType.type2}
+						    unmountOnExit>	
+							<CustomItems 
+								allApparelTypes={this.props.allApparelTypes}
+								updateApparelTypes ={(data) => this._updateApparelTypes(data)}
+								getApparelTypes={(uri) => this.props.getApparelTypes(uri)}
+								getSuggestion={(uri) => this.props.getSuggestion(uri)}
+								fieldsObj={this.state.type2Entry} 
+								hydrateTasks={this.hydrateType2Tasks}
+								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
+								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
+								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', valueObj) }  />
+						</CSSTransition>
+						<div className={FormStyles.addItemCtrlContainer_div}>
+							<div className={FormStyles.addItem_div}>
+								<div className={FormStyles.formL3Button} onClick={() => {this._handleOnSubmit(event)}}>
+									{this.props.submitContext}
+								</div>
+							</div>
+							<div style={{width:'100%'}}>
+								<div className={FormStyles.cancelSelection_div}>
+									<div 
+										className={FormStyles.l1Button_div}
+										style={{
+											'text-align': 'right', 
+											right: '17px'
+										}}
+										onClick={this.props.cancelAction} >
+										cancel
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				</CSSTransition>
 			</div>
 		);
 	}
@@ -768,32 +798,47 @@ export class DiscardForm extends React.Component{
 		console.log('denormOutfit = ', denormOutfit)
 		return(
 			<div className={Styles.modal}>
-				<div id="form_containter_add_item" style={{'background-color':'#fdfdfd', padding:'10px', 'border-radius':'3px', 'width':'25%'}}>
+				<div 
+					id="form_containter_add_item" 
+					style={{
+						'background-color':'#fdfdfd', 
+						padding:'10px', 
+						'border-radius':'3px', 
+						'width':'25%',
+						'min-width':'340px',
+					}}>
 					<div id="prompt">
 						<div style={{'text-align':'center','width':'75%','margin':'auto','margin-bottom':'60px'}}>
 							<div style={{'text-align':'left'}}>
-								<p> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
+								<p style={{color: '#353535'}}> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
 							</div>
 						</div>
-						<div 
-							className={FormStyles.formL3Button} 
-							style={{'margin-right': 'calc(100% - 250px)', 'display':'inline-block'}} 
-							onClick={() => {
-								this.props.submitAction(this.props.requestedNav/*, denormOutfit*/);
-								this.props.clearUpdates();
-								this.props.clearInvalidations();
-							}
-						}>
-							Continue
-						</div>
-						<div 
-							className={FormStyles.formL3Button} 
-							style={{'display':'inline-block'}} 
-							onClick={(event) => {
-								event.stopPropagation();
-								this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS);
-							}}>
-							Cancel
+						<div style={{
+							width:'75%',
+							margin: 'auto',
+							position: 'relative',
+							height: '36px'
+						}}>
+							<div 
+								className={FormStyles.formL3Button} 
+								style={{position:'absolute', left:'0px', top:'0px'}} 
+								onClick={() => {
+									this.props.submitAction(this.props.requestedNav/*, denormOutfit*/);
+									this.props.clearUpdates();
+									this.props.clearInvalidations();
+								}
+							}>
+								Continue
+							</div>
+							<div 
+								className={FormStyles.formL3Button} 
+								style={{position:'absolute', right:'0px', top:'0px'}} 
+								onClick={(event) => {
+									event.stopPropagation();
+									this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS);
+								}}>
+								Cancel
+							</div>
 						</div>
 					</div>
 				</div>

@@ -6,3 +6,9 @@ export function hextToBase64(data){
 	return btoa(convertedData);
 	//return btoa(data);
 }
+
+export function camelize(str){
+	return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
+		return index == 0 ? match.toLowerCase() : match.toUpperCase();
+	})
+}

@@ -2,7 +2,7 @@
 	background-color: rgba(0,0,0,0);
 	width:13px;
 	height:13px;
-	position:relative;
+	position:relative;    
 }
 
 :local(.axisLabelUpperBody){
@@ -31,7 +31,7 @@
     position: relative;
 	display: inline-block;
     vertical-align: top;
-	width: calc(300px - 13vh - 30px);
+	width: var(--x-axis-range);
 }
 
 :local(#leftBodyDiagramContainer, #rightBodyDiagramContainer) {
@@ -251,7 +251,7 @@ local:(.followingContainer_div){
 }
 
 :local(.metricGraphContainer_div){    
-    --tolerance-background-color: #5050502e;
+    --tolerance-background-color: #5050501a;
     --tolerance-border: dashed 1px #4a4a4a;
     /*border-top: 20px none rgb(218, 218, 218);
     border-right-width: 20px;

@@ -15,7 +15,7 @@
 
 :local(.stdOutfitNavBlock){
 	composes:stdBlock from './root.css';
-	background-color: #fdfdfd;
+	background-color: var(--main-background-color);
 	/*display: inline;*/
 	border-radius: 0px;
 	height: calc(100% - (5vh + 25px));
@@ -36,9 +36,15 @@
 	overflow-y:  scroll;  
 	overflow-x: hidden; 
 	height: 100%;
+	background-color: white;
 	/*margin-top: 25px;*/
 	composes: stdOutfitNavBlock;
 	/*grid-area: preview;*/
+}
+
+:local(.previewBrowseContainer){
+	composes:previewContainer;
+	background-color: var(--main-background-color);
 }
 
 /*:local(.outfitCtrlButton){
@@ -63,11 +69,11 @@
 :local(.outfitCtrlBtn_div){
 	composes:pressable from "./root.css";
 	position: relative;
-    background-color: rgb(74, 69, 71);
+    /*background-color: rgb(74, 69, 71);
     height: 50px;
     width: 50px;
-    border-radius: 25px;
-    margin: calc(((5vh + 25px) / 4) - 10px) auto auto;
+    border-radius: 25px;*/
+    margin: calc( ((5vh + 25px) / 4) - 5px ) auto auto;
     color: white;
 }
 

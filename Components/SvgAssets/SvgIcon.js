@@ -36,7 +36,11 @@ import FollowIcon from './Icons/FollowIcon.js';
 import RetailerIcon from './Icons/RetailerIcon.js';
 import CompTypeMaleIcon from './Icons/CompTypeMaleIcon.js';
 import CompTypeApparelIcon from './Icons/CompTypeApparelIcon.js';
-import MultiplePicIcon from './Icons/MultiplePicIcon.js'
+import MultiplePicIcon from './Icons/MultiplePicIcon.js';
+import RotateClockwiseIcon from './Icons/RotateClockwiseIcon.js';
+import AddOutfitIcon from './Icons/AddOutfitIcon.js';
+import LogoIconFitsee from './Icons/LogoIconFitsee.js';
+import DropdownIcon from './Icons/DropdownIcon.js';
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -76,6 +80,11 @@ export const SvgIcon = (props) => {
 		case 'CompTypeMaleIcon' : return(<CompTypeMaleIcon {...props}/>); break;
 		case 'CompTypeApparelIcon' : return(<CompTypeApparelIcon{...props}/>); break; 
 		case 'MultiplePicIcon' : return (<MultiplePicIcon {...props}/>); break;
+		case 'RotateClockwiseIcon' : return (<RotateClockwiseIcon {...props}/>); break;
+		case 'AddOutfitIcon' : return (<AddOutfitIcon {...props}/>); break;
+		case 'LogoIconFitsee' : return (<LogoIconFitsee {...props}/>); break;
+		case 'DropdownIcon' : return (<DropdownIcon {...props}/>); break;
+		case 'RetailerIcon' : return (<RetailerIcon {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

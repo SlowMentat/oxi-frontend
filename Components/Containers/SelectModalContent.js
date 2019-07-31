@@ -18,7 +18,10 @@ import {
 	disableAddContentButton,
 	clearClientInvalidation,
 	clearSelectMultipleEntity,
-	fetchSuggestion
+	fetchSuggestion,
+	selectAndPropogate,
+	getSizeChartByItemId,
+	createSizeGroups
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -77,6 +80,7 @@ const mapStateToProps = (state, props) => {
 		brands: state.entitiesReducer.brands.byIds,
 		retailerIds: state.entitiesReducer.retailers.allIds,
 		retailers: state.entitiesReducer.retailers.byIds,
+		outfitByIds: state.entitiesReducer.outfits.byIds,
 		requestedNav : state.requestedNavigation.location,
 		entitiesStateReducer: state.entitiesStateReducer,
 		addedEntitiesReducer: state.addedEntitiesReducer,
@@ -102,7 +106,7 @@ const mapDispatchToProps = (dispatch) => ({
 		},
 		//entity:  		is the enttiy object to discard
 		//location:  	indicates this method was invoced from a navigation action to location
-		confirmDiscardSubmitAction: (location, addedEntities) => {
+		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit) => {
 			console.log("confirmDiscardSubmitAction dispatched")
 			dispatch(setFormVisibility(null));
 			//dispatch action to removeAndPropogate added Outfit.  This assumes that there will only ever be 1 outfit entity with id = 1 in addedEntitiesReducer tree 
@@ -111,6 +115,7 @@ const mapDispatchToProps = (dispatch) => ({
 			dispatch(clearAllAddedEntitiesState(addedEntities));
 			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
 			//dispatch action to transition into preview mode
+			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, prevSelectedOutfit.id, prevSelectedOutfit.contents[0]));
 			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
 			//check if the form was created due to a navigation action.  If so, follow up with navigation.
 			if(location !== null){
@@ -170,6 +175,12 @@ const mapDispatchToProps = (dispatch) => ({
 			return new Promise((resolve, reject) => {
 				resolve(dispatch(fetchSuggestion(uri)));
 			})
+		},
+		getSizeChartByItemId:(itemId) => {
+			dispatch(getSizeChartByItemId(itemId));
+		},
+		createSizeGroup:(sizeGroup)=>{
+			dispatch(createSizeGroups(sizeGroup));
 		}
 })
 

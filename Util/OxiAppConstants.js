@@ -5,6 +5,16 @@ import { setFormVisibility, navigateTo, fetchEntities, replaceProfile} from '../
 //Constant global variables
 export const OxiAppConstants = Object.freeze({	
 	debug : false,
+	maxContentCount:6,
+	ControlConstants:{
+		ButtonTypes:{
+			a:'staticIconButton',
+			b:'dynamicIconButton',
+			c:'staticIconToggle',
+			d:'submitButton',
+			e:'popupIconButton'
+		}
+	},
 	HttpStatus : {
 		OK: 200,
 		CREATED:201,
@@ -34,6 +44,12 @@ export const OxiAppConstants = Object.freeze({
 		retailer: '/retailer',
 		designer: '/designer'
 	},
+	ListTypes:{
+		a : 'SAVED_ITEM'
+	},
+	MapTypes:{
+		a: 'SAVED_ITEM_MAP'
+	},
 	EntityTypes : {
 		PROFILE : "PROFILE",
 		OUTFIT : "OUTFIT",
@@ -44,6 +60,8 @@ export const OxiAppConstants = Object.freeze({
 		BRAND: "BRAND",
 		RETAILER: "RETAILER",
 		APPAREL_TYPE: "APPAREL_TYPE",
+		SIZE_CHART:'SIZE_CHART',
+		SIZE_GROUP:'SIZE_GROUP',
 		search:{
 			ta: 'AVAILABLE_ITEMS',
 		}
@@ -58,7 +76,8 @@ export const OxiAppConstants = Object.freeze({
 			c:'/searchUdr',
 			d:'/searchUds',
 			e:'/searchApparelTypes'
-		}
+		},
+		retailer:'/retailer',
 	},
 	appUris:{
 		a: '/allApparelTypes'
@@ -76,6 +95,8 @@ export const OxiAppConstants = Object.freeze({
 		OUTFIT : "outfitDtoes",
 		CONTENT: "contentDtos",
 		ITEM : "itemDtos",
+		SIZE_CHART: "sizeChartDtos",
+		SIZE_GROUP:"sizeGroupDtos",
 		PICTURE : "pictureDtos",
 		BRAND: "brandDtos",
 		RETAILER: "retailerDtos"	
@@ -85,6 +106,8 @@ export const OxiAppConstants = Object.freeze({
 		OUTFIT : "outfits",
 		CONTENT: "contents",
 		ITEM : "items",
+		SIZE_CHART: "sizeChartDto",
+		SIZE_GROUP:"sizeGroupDtos",
 		PICTURE : "picture",
 		BRAND: "brands",
 		RETAILER: "retailers"
@@ -118,6 +141,7 @@ export const OxiAppConstants = Object.freeze({
 		USER_CANCELED: "User Canceled",
 		USER_SUBMITTED: "User Submitted"
 	}*/
+	PLATFORM: 'wearsit',
 	EntityTemplates:{
 		OUTFIT: {
 			id: null,
@@ -140,7 +164,19 @@ export const OxiAppConstants = Object.freeze({
 			//size: {},
 			//retailer: '',
 			product:{},
-			brand: ''
+			sizeChartDto:{
+				id:null,
+				chartName:null,
+				sizeGroupDtos:[]
+			},
+			sizeGroupId:null,
+			brand: '',
+			platform:null,
+		},
+		SIZE_GROUP:{
+			id:null,
+			metric:{},
+			sizeLabel:null,
 		},
 		PICTURE: {
 			id: null,
@@ -152,6 +188,21 @@ export const OxiAppConstants = Object.freeze({
 			id: null,
 			itemId: '',
 			contentId: ''
+		},
+		CUSTOM_PRODUCT_TEMPLATE:{
+			handle:null,
+			udr:null,
+			uds:null,
+			onlineStoreUrl:null
+		},
+		STANDARD_PRODUCT_TEMPLATE:{
+			handle:null,
+			featuredImage:{
+				originalSrc:null
+			},
+			description:null,
+			size:null,
+			retailer: null	
 		}
 	},
 	ItemTypesByIconName: {

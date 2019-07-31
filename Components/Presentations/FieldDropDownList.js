@@ -70,7 +70,7 @@ const RetailerItemDropDownList = ({props}) => {
 					props.retailerItems.map(searchResult => (
 						<div 
 							className={FormStyles.ddItemSlot_div}							
-							onMouseDown = {(event) => props.dropdownOptionSelected(event, searchResult)}>
+							onMouseDown = {(event) => props.dropdownOptionSelected(event, {...searchResult, id: searchResult.id.toLowerCase()})}>
 							<div className={FormStyles.ddItemPreviewPicContainer_div} >
 								{/*<div className{FormStyles.ddItemPreviewPicGhost_div}>
 								</div>*/}
@@ -174,12 +174,12 @@ const SizeLabelDropDownList = ({props}) => {
 		<React.Fragment>
 		{
 			//props.type === 'retailerName' ? 
-				props.sizeLabelResults.map(searchResult => (
+				props.retailerSize.map(sizeGroup => (
 					<div 
 						className={FormStyles.ddRetailerSlot_div}
-						onMouseDown = {(event) => props.dropdownOptionSelected(event, searchResult.data)}>
+						onMouseDown = {(event) => props.dropdownOptionSelected(event, sizeGroup)}>
 						<div className={FormStyles.ddRetailerName_div}>
-							{searchResult.data.size}
+							{sizeGroup.sizeLabel}
 						</div>
 					</div>
 				)) /*:

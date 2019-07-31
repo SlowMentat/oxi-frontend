@@ -66,7 +66,11 @@ import {
 			RECEIVED_UDS_LABELS_SEARCH,
 			RECEIVED_ALL_APPAREL_TYPES,
 			CREATE_APPAREL_TYPE,
-			REPLACE_APPAREL_TYPE
+			REPLACE_APPAREL_TYPE,
+			RECEIVED_SIZE_GROUPS_BY_ITEM_ID,
+			REPLACE_SIZE_CHART,
+			REPLACE_SIZE_GROUP,
+			CREATE_SIZE_GROUP,
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -121,7 +125,7 @@ const iniSearchState = {
 	addItemContext: {
 		retailerItemResults:[],
 		retailerNameResults:[],
-		sizeRsults:[],
+		sizeResults:[],
 		userDefinedRetailerResults:[],
 		udrNameResults:[],
 		udsLabelResults:[],
@@ -484,7 +488,6 @@ const entities = (maxCount) => (state = {selected: false, controlDisabled : fals
 			}
 
 		case UPDATE_OUTFIT_COVERPICURI:
-			console.log('shalom')
 			return Object.assign({}, state, {
 				'byIds':{
 					...state.byIds,
@@ -588,6 +591,9 @@ const entitiesState =  (state = {isFetching: false, serverInvalidated: [], clien
 
 		case `REMOVE_CLIENT_DELETE_${action.typeSpecifier}`:
 			return removeDeletion(state, action);
+
+		case `UPDATE_PREV_SELECTED_${action.typeSpecifier}`:
+			return Object.assign({}, state, {...action.payload});
 
 		case `SELECT_${action.typeSpecifier}`:
 			//batch comment//console.log('entitiesState reducer: action = ', action)
@@ -724,7 +730,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 									entities: {
 										...scrubbedAction.payload.entities,
 										//key is passed as null value, so access must be done using index
-										[nextId] : Object.assign(entity, {id: nextId})//action.payload.entities[newEntityCount]
+										[nextId] : Object.assign(entity, {id: nextId, picture: nextId})//action.payload.entities[newEntityCount]
 									}
 								}
 							});
@@ -745,6 +751,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 						}
 					}
 				}
+
 				return Object.assign({}, state, {
 					byIds : byId(byIdsRef, scrubbedAction),
 					allIds : allIds(allIdsRef, scrubbedAction),
@@ -838,6 +845,21 @@ function buttonState(state = iniButtonState, action){
 	}
 }
 
+function mapCache(state = {}, action){
+	switch(action.type){
+		case `PUT_TO_${action.typeSpecifier}`:
+			return Object.assign({}, state, {[action.payload.itemId]: action.payload.createdOn});
+		case `REMOVE_FROM_${action.typeSpecifier}`:
+			return Object.assign({}, state, {[action.payload.itemId]: undefined});
+		case `CLEAR_${action.typeSpecifier}`:
+			return {};
+		case `REPLACE_${action.typeSpecifier}`:
+			return action.payload.newMap;
+		default:
+			return state;
+	}
+}
+
 function searchState(state = iniSearchState, action){
 	switch(action.type){
 		case RECEIVED_EXISTING_ITEMS_SEARCH:
@@ -846,6 +868,11 @@ function searchState(state = iniSearchState, action){
 				...action.payload
 			}})
 		case RECEIVED_RETAILER_NAMES_SEARCH:
+			return Object.assign({}, state, {'addItemContext': {
+				...state.addItemContext,
+				...action.payload
+			}})	
+		case RECEIVED_SIZE_GROUPS_BY_ITEM_ID:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload
@@ -882,7 +909,7 @@ const popupMenus = (state = {}, action) => {
 }
 
 export const maxOutfitViewCount = 8;
-export const maxContentViewCount = 6;
+export const maxContentViewCount = OxiAppConstants.maxContentCount;
 export const maxItemViewCount = 9;
 export const maxProfileCount = 1;
 export const maxOutfitCount = maxOutfitViewCount * 3;
@@ -910,6 +937,7 @@ let defualtMenuStoreState = {
 	positiony: 0, 
 	isVisible: false,
 };
+
 let defualtEntitiesState = {
 	isFetching:false, 
 	scrollPageHeight: 0,
@@ -920,9 +948,14 @@ let defualtEntitiesState = {
 	serverInvalidated: [], 
 	clientInvalidated: [], 
 	clientDeleted: [],
-	receivedAt: null, 
+	receivedAt: null,
+	prevSelected: false, 
 	selected: false, 
 	multipleSelected: []
+};
+
+let iniMapCacheState = {
+
 };
 
 const entitiesReducer = combineReducers({
@@ -934,7 +967,9 @@ const entitiesReducer = combineReducers({
 	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
 	apparelTypes : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.APPAREL_TYPE, defualtEntitiesStore),
 	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
-	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore)
+	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore),
+	sizeCharts: entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.SIZE_CHART, defualtEntitiesStore),
+	sizeGroups: entityReducerFactory(entities(2000), OxiAppConstants.EntityTypes.SIZE_GROUP, defualtEntitiesStore), 
 });
 
 const addedEntitiesReducer = combineReducers({
@@ -958,6 +993,10 @@ const popupMenusReducer = combineReducers({
 	help: entityReducerFactory(popupMenus, OxiAppConstants.MenuTypes.HELP, defualtMenuStoreState),
 })
 
+const cache = combineReducers({
+	savedItemMap: entityReducerFactory(mapCache, OxiAppConstants.MapTypes.a, iniMapCacheState),
+})
+
 
 const _OxiApp = combineReducers({
 	//add reducers for combining here
@@ -969,6 +1008,7 @@ const _OxiApp = combineReducers({
 	popupMenusReducer,
 	toggleModal,
 	saveToken,
+	cache,
 	contentViewState,
 	requestedNavigation,
 	entitiesStateReducer,
