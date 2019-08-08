@@ -193,7 +193,7 @@ class PagedList extends React.Component{
 								this.props.id === OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST ? 
 									60 :
 									0;
-		let {pages, lastPage} = this.props;
+		let {pages, lastPage, webAppView} = this.props;
 		let endOfPageMargin = pages[lastPage] === undefined ? 
 			0 : 
 			lastPage > 0 ? 
@@ -205,7 +205,8 @@ class PagedList extends React.Component{
 				className={this.props.scrollContainerStyle} 
 				style={{
 		    		'padding-top':'50px',
-		    		'padding-bottom':'50px'
+		    		'padding-bottom':'50px',
+		    		...(webAppView === 'profile' ? ({'background-color':'white'}) : ({}))
 		    	}}
 				ref={this.setScrollContainerRef} >
 					<div

@@ -113,8 +113,8 @@
 :local(.fitZone_div){
     height: calc(1.5vh + 4px);
     position: absolute;
-    background-color: white;
-    border: solid 1px white;
+    background-color: var(--fz-color);
+    border: solid 1px var(--fz-color);
     margin-top: -2px;
     border-left: none;
     border-right: none;
@@ -128,8 +128,8 @@
     border-radius: 2px;
     border-color: black;
     position: absolute;
-    background-color: #70ccf44d;
-    border-color: #70ccf4;
+    background-color: var(--bar-fill-color);
+    border-color: var(--bar-border-color);
 	transition: background-color 200ms ease-in-out, color 200ms ease-in-out, width 200ms ease-in-out;	
 }
 

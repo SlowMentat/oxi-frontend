@@ -201,8 +201,10 @@ a{
 }
 
 :local(.metricBlock){
-    --fz-color: white;
-    --nfz-color: #4a4a4a;
+	--fz-color: #E0FFF9;
+    --nfz-color: #747474;
+    --bar-fill-color:#70ccf4;
+    --bar-border-color:#70ccf4;
     --moulding-radius:5px;
 	/*composes: stdBlock;*/
 	border-bottom-style: none;

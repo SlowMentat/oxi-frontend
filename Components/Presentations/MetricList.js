@@ -304,8 +304,8 @@ class MetricGraph extends React.Component{
 			//get the fit zone dimensions, position
 			var fitZoneWidth = 100*(Math.abs(tolerances[toleranceMinId] - tolerances[toleranceMaxId]))/10;
 			var fitZonePosition = 100*((userMetricsDto ? tolerances[toleranceMinId] - roundedUserMetric + 5 : 5))/10;
-			var leftCurveAlign = 'var(--moulding-radius)';
-			var rightCurveAlign = 'var(--moulding-radius)';
+			var leftCurveAlign = '0px';
+			var rightCurveAlign = '0px';
 			//get corner moulding curvature:  < 0: concave,  = 0: straight, > 0: convex
 			//where concave and straight correspond to white background-color
 			//and convex correspond to gray background-color of the left/rightMoulding_divs

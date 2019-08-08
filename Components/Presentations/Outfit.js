@@ -179,7 +179,8 @@ export class Outfit extends React.Component{
 								({
 									'display':'block', 
 									'top':`calc(${outfitHeight} - 70px`
-								})} 
+								})}
+							//onMouseOver={(event) => event.stopPropagation()} 
 						>	
 							{
 								(this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) ?

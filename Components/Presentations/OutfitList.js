@@ -45,6 +45,7 @@ class PagedOutfitList extends React.Component{
     			pages={this.props.pages}
     			setNextPageURL={this.props.setNextPageURL}
 				setPrevPageURL={this.props.setPrevPageURL}
+				webAppView={this.props.view}
     			list={
     				<React.Fragment>
 						<div style={this.props.container1_div}>
