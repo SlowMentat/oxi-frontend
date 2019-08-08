@@ -298,8 +298,8 @@ class MetricPanel extends React.Component{
     							'padding-bottom': '15px',
     							'height': '165px',
     							'border-bottom-style': 'solid',
-    							'border-width': '20px',
-    							'border-color': '#6d6d6d',
+    							'border-width': '1px',
+    							'border-color': '#e2e2e2',
     							'margin-right':'-1px',
     							'position':'relative',
 							}}

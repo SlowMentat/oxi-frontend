@@ -13,7 +13,7 @@
     margin-left: 10px;
     padding-right: 10px;
     border-right: 1px solid rgb(212, 212, 212);
-    width: 13vh
+    width: 13vh;
 }
 
 :local(.axisLabelLowerBody){	
@@ -24,6 +24,7 @@
 	width: 100%;
 	height: calc(1.5vh + 4px);
     padding-top: 2px;
+    background-color: var(--nfz-color);
     transition: margin-left 200ms ease-in-out, 
 }
 
@@ -94,7 +95,30 @@
 
 }
 
+:local(.leftCornerMoulding_div){
+    position: absolute;
+    height: calc(100% + 2px);
+    margin-top: -1px;
+    width: 10px;
+    border-radius: var(--moulding-radius);
+    left: calc(-1*var(--moulding-radius));
+}
 
+:local(.rightCornerMoulding_div){
+    composes:leftCornerMoulding_div;
+    right: calc(-1*var(--moulding-radius));
+    left:unset;
+}
+
+:local(.fitZone_div){
+    height: calc(1.5vh + 4px);
+    position: absolute;
+    background-color: white;
+    border: solid 1px white;
+    margin-top: -2px;
+    border-left: none;
+    border-right: none;
+}
 
 
 :local(.graphBar_div){
@@ -326,6 +350,7 @@ local:(.followingContainer_div){
 }
 
 :local(.toleranceBoundsMin_div){
+    display: none;
     position: absolute;
     height: 100%;
     width: 25%;

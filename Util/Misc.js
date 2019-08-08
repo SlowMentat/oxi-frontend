@@ -12,3 +12,12 @@ export function camelize(str){
 		return index == 0 ? match.toLowerCase() : match.toUpperCase();
 	})
 }
+
+/* 
+*	Rounds value to the nearest specified step and trims result to the specified decimals
+*/
+export function roundTo(value, step=0.5, decimals=1){
+    step || (step = 1.0);
+    var inv = 1.0 / step;
+    return (Math.round(value * inv) / inv).toFixed(decimals);
+}

@@ -179,10 +179,10 @@ class ContentList extends React.Component {
 		return (			
 		    <React.Fragment>
 		    	<div className={ContentStyles.contentContainer}>
-		    		<AddContentButton 
+		    		{/*<AddContentButton 
 		    			shown={this.props.viewState != OxiAppConstants.viewState.PREVIEW} 
 		    			enabled={!this.props.controlDisabled} 
-		    			handleClick={this.props.onControlClick} />
+		    			handleClick={this.props.onControlClick} />*/}
 		    		{
 		    			this.props.contentIds.map((contentId) => 
 		    				<Content 
@@ -224,14 +224,14 @@ class ContentList extends React.Component {
 		    				/>)
 		    		}
 		    		{
-		    			(<DeleteContentButton 
+		    			/*(<DeleteContentButton 
 		    				style={{
 		    					right: '0px',
-    							top: '3px',
+		    			    	top: '3px',
 		    				}} 
 		    				shown={this.props.viewState != OxiAppConstants.viewState.PREVIEW} 
 		    				enabled={!this.props.controlDisabled} 
-		    				handleClick={this.props.onControlClick} />)
+		    				handleClick={this.props.onControlClick} />)*/
 		    		}
 		    	</div>
 		    </React.Fragment>

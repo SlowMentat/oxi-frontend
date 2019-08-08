@@ -1,19 +1,33 @@
-:local(.fieldList_div){    
+:local(.fieldList_div){
+    /*box-shadow: 5px 5px 17px #0000002e; */
     --profile-ctrl-contianer-width: 360px;
     --profile-ctrl-container-padding: 30px;
     --profile-ctrl-container-border-width: 1px;
-    width: var(--profile-ctrl-contianer-width);
+    width: 360px;
     margin: auto;
-    margin-top: 100px;
+    height: 714.5px;
+    margin-top: calc((100vh - 80px - var(--container-height))/2);
     display: inline-block;
     text-align: center;
     vertical-align: top;
-    border-color: #c1c1c1;
+    border-color: #dadada;
     border-style: solid;
     border-width: var(--profile-ctrl-container-border-width);
     border-radius: 3px;
-    background-color: white;
+    background-color: white; 
     padding: var(--profile-ctrl-container-padding);
+}
+
+:local(.toleranceFieldList_div){
+    composes:fieldList_div;
+    white-space: nowrap;
+    height: 714.5px;
+    width: var(--profile-ctrl-contianer-width);
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin-left: -1px;
+    border-left-color: rgb(226, 226, 226);   
+    transition: width 150ms linear;
 }
 
 :local(.fieldListTitleContainer1_div){
@@ -29,6 +43,7 @@
 }
 
 :local(.fieldListTitle_div){
+    color: #3b3739;
 	height: 30px;
     line-height: 30px;
     font-family: 'Archivo Black', sans-serif;
@@ -50,7 +65,7 @@
     margin-top: 3px;
     padding: 3.5px;
     /*height: 30px;*/
-    transition: color 200ms ease-in-out, background-color 200ms ease-in-out
+    /*transition: color 200ms ease-in-out, background-color 200ms ease-in-out*/
 }
 
 :local(.selectHighlight_div){
@@ -107,6 +122,7 @@
     composes:label from './root.css';
 	display: inline-block;
     /*font-size: 1.7rem;*/
+    font-size: 1.5rem;
     float: right;
     height: inherit;
     height:inherit;
@@ -151,8 +167,12 @@
 
 :local(.measurements_div){
     position:relative;
-    --main-height:25px;    
-    background-color: #6dd7b4ad;
+    --main-height:25px; 
+    --tick-display-cnt: 9;
+    /*--mvalue-width: calc(100%/var(--tick-display-cnt)); */  
+    --tick-border-width: 1px;
+    /*background-color: #6dd7b4ad;*/
+    background-color: #a3a3a3;
     width: 100%;
     height: var(--main-height);
     margin-top: 2px;
@@ -164,11 +184,12 @@
     top:0px;
     height: inherit;   
     line-height: var(--main-height);
-    left: calc(150px - 15px);
-    width: 30px;   
+    /*left: calc(150px - 15px);*/
+    left: calc(50% - var(--mvalue-width)/2 + 2*var(--tick-border-width));
+    /*width: 30px;   */
+    width: calc(var(--mvalue-width) - 1px);
     z-index: 1000;
-    background-color: #42424287;
-    color: white;
+    color: black;
     font-size: 13px;
     text-align: center;
     padding-left: 2px;
@@ -298,6 +319,7 @@
 
 :local(.slideLabel){
     composes:label from './root.css';
+    display: none;
     user-select:none;
     position: absolute;
     height: var(--main-height);
@@ -315,12 +337,12 @@
 
 :local(.tick_div){
     /*width: calc(((100% - 30px)/8)/2);*/
-    width: calc(((100%)/9)); 
+    width: calc(((100%)/var(--tick-display-cnt))); 
     height: var(--main-height);
     vertical-align: top;
     border-right-style: solid;
     border-right-color: white;
-    border-right-width: 1px;
+    border-right-width: var(--tick-border-width);
     vertical-align: top;
     display: inline-block;
 }
@@ -359,6 +381,7 @@
 
 :local(.slideSwitch_div){
     position: relative;
+    background-color: #525252;
     border: solid 1px #525252;
     height: inherit;
     border-radius: 12px;
@@ -366,10 +389,11 @@
 
 :local(.slide_div){    
     position: absolute;
+    /*box-shadow: inset 0px 0px 13px 0px #0000009c;*/
     width: 65%;
     height: 100%;
     border-radius: 10px;
-    background-color: #626262;
+    background-color: #f9f9f9;
     overflow: hidden;
     cursor: pointer;    
     left: 0px;

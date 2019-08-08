@@ -102,7 +102,8 @@
 :local(.itemHandleBlock) {
 	composes: stdItemBlock;
 	background-color: none;
-	color: #e0c570;
+	/*color: #e0c570;*/
+	color:#4a4547;
 	height: 25%;
     display: block;
 	padding-left: 8px;
@@ -542,8 +543,8 @@
 :local(.variantTitle_div){
 	height: 33px;
     line-height: 33px;
-    font-size: 16px;
-    font-family: Roboto;
+    font-size: 17px;
+    font-family: 'Archivo Black';
     letter-spacing: 0.08rem;
     color: #4a4a4a;
 }
@@ -562,9 +563,8 @@
 }
 
 :local(.description_div){
-	margin-top: 15px;
-    font-size: 16px;
-    font-family: Roboto;
+    margin-top: 15px;
+    font-size: 14px;
     color: #4a4a4a;
     letter-spacing: 0.09rem;
     word-spacing: 0.2rem;

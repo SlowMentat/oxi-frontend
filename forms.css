@@ -149,7 +149,7 @@ input::placeholder {
 :local(.selectable){    
     composes:control;
     --selectable-height: 35px;
-    --selectable-width:90px;
+    --selectable-width: 90px;
     width: var(--selectable-width);
     height:  var(--selectable-height);
     cursor: pointer;
@@ -163,7 +163,7 @@ input::placeholder {
     border: solid var(--submittable-border-width) #888888;
     color: #888888;
     letter-spacing: 0.05rem;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: bold;
     text-align: center;
     line-height: calc(var(--selectable-height) - 2*var(--submittable-border-width));
@@ -185,7 +185,7 @@ input::placeholder {
 
 :local(.bangTab_div--selected){
     composes:bangTab_div;
-    font-size: 1.4rem;
+    /*font-size: 1.4rem;*/
     transition: font-size 100ms;
     font-weight: bold;
     color: black;

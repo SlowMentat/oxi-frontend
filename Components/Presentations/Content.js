@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ContentStyles from '../../content.css';
-import {hextToBase64} from '../../Util/DataFormatConverter.js'
+import {hextToBase64} from '../../Util/Misc.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
 
 
