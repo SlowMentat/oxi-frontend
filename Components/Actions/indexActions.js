@@ -4,7 +4,7 @@ import fetch from 'cross-fetch'
 import axios from 'axios';
 
 //import sendAsyncRequest from '../../Util/AsyncRequest.js';
-import {sendAsyncRequest} from '../../App.js';
+//import {sendAsyncRequest} from '../../App.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {normalize, denormalize} from 'normalizr';
 import {outfitsSchema, profileSchema, contents, items} from '../../Util/Schema.js';

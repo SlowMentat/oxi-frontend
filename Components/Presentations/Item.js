@@ -1,9 +1,10 @@
 import React from 'react';
 import ItemStyles from '../../item.css';
+import ItemLiteStyles from '../../itemLite.css';
 //import DeleteIcon from '../SvgAssets/Icons/DeleteIcon.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js';
 import VisibleItemAsSeenOnList from '../../Components/Containers/VisibleItemAsSeenOnList.js';
-import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+import { SvgIcon } from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {Button} from '../../Components/Presentations/Controls.js';
@@ -52,6 +53,227 @@ const itemCellContentContainer = {
 	position: 'relative',
 }
 
+export class ItemLite extends React.Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			isExpanded: this.props.isExpanded,
+		}
+	}
+
+	render(){
+
+		const { handleMouseOver, handleMouseLeave } = this.props;
+		var { 
+			isProfileView,
+			handleOnClick,
+			retailerName,
+			handle,
+			size,	
+			isActive,
+			infoComponent,
+			toggleInfoExpand
+		} = this.props;
+
+		return(  		
+			<React.Fragment>
+  				<div className={ItemLiteStyles.itemLite_div}>
+  					<div className={ItemLiteStyles.itemContentContainer_div}>
+  						
+  						<div className={ItemLiteStyles.itemRetailerContainer_div}>
+  							<div className={ItemLiteStyles.itemRetailer_div}>
+  								{ retailerName }
+  							</div>
+  						</div>
+  						
+  						<div className={ItemLiteStyles.itemHandle_div}>
+  							{ handle }
+  						</div>
+  						
+  						<div className={ItemLiteStyles.itemControlsContainer_div}>
+  							<div style={{positionr:'relative',width:'100%'}}>
+  								<div id="bookmark" className={ItemLiteStyles.bookmarkIcon_div}>
+  									<SvgIcon name="BookmarkIcon" stroke="black"/>
+  								</div>
+  								{
+  									isActive ? 
+  									(<div 
+  										id="dropdown" 
+  										className={ItemLiteStyles.dropdownIcon_div}
+  										style={this.state.isExpanded ? ({transform:'scaleY(-1)'}) : ({}) }
+  										onClick={(event) => this.setState(prevState => ({
+  											isExpanded: !prevState.isExpanded,
+  										}))} >
+  									 	<SvgIcon name="DropdownIcon2" stokeWidth="2" stroke="var(--color1)" fill="var(--color1)" />
+  									 </div>) :
+  									null
+  								}
+  							</div>
+  						</div>
+  						
+  						<div>
+  						</div>
+		
+  					</div>
+  					<div 
+  						className={ItemLiteStyles.apparelIconContainer_div}
+  						style={isActive ? ({'background-color':'var(--color4)'}) : ({})} >
+  						
+  						<div id="apparelTypeIcon" className={ItemLiteStyles.apparelTypeIcon_div}>
+  								<SvgIcon name="TypeShirtT" stroke="var(--color1)"/>
+  						</div>
+  						
+  						<div id="selectedSizeIcon" className={ItemLiteStyles.selectedSize_div}>
+  							<span> {size} </span>
+  						</div>
+		
+  					</div>
+  				</div>
+  				{
+  					infoComponent ? infoComponent(this.state.isExpanded) : null
+  				}
+  			</React.Fragment>
+		);
+	}
+}
+
+
+
+
+export class ItemInfo extends React.Component {
+	constructor(props){
+		super(props);
+		this.state={
+			isColorOptionsOpen:false,
+			selectedColor:null,
+			selectedSize:null,			
+		};
+	}
+
+	render(){
+		var { 
+			availableSizes, 
+			availableColors,
+			imgSrc,
+			description,
+			isOpen,
+		} = this.props;
+
+		return(
+			<CSSTransition
+				    tiemout={400}
+				    classNames="expandedItemInfoContainer_div"
+				    in={isOpen}
+				   	unmountOnExit >
+
+				<div className={ItemStyles.expandedItemInfoContainer_div}>
+					<CSSTransition
+							//timeout={}
+							classNames="expandedItemInfo_div"
+							in={isOpen} 
+							unmountOnExit >
+
+						<div className={ItemStyles.expandedItemInfo_div}>
+							<div className={ItemStyles.variantOptionsContainer_div}>
+								<div className={ItemStyles.variantSizeOptionsContainer_div}>
+									<div className={ItemStyles.variantTitle_div}>
+										Size
+									</div>
+									<div className={ItemStyles.variantSizeOptions_div}>
+										{
+											availableSizes.length > 0 ? 
+												availableSizes.map(size => (
+													<div 
+														className={ItemStyles.sizeVariant_div}
+														style={size === this.state.selectedSize ? ({'background-color':'var(--color1',color:'white'}) : ({})}
+														onClick={(event) => {
+															event.stopPropagation();
+															this.setState(prevState => ({
+																...prevState,
+																selectedSize: size,
+															}))
+														}}> 
+														{size} 
+													</div>)
+												) :
+												"No sizes available"
+										}
+									</div>
+								</div>
+								<div className={ItemStyles.variantColorOptionsContainer_div}>
+									<div className={ItemStyles.variantTitle_div}>
+										Color
+									</div>
+									<div 
+										className={ItemStyles.colorVariantDropDown_div}
+										onClick={(event) => {
+											event.stopPropagation();
+											this.setState(prevState => ({
+												...prevState,
+												isColorOptionsOpen: !this.state.isColorOptionsOpen
+											}))
+										}} >
+										{this.state.selectedColor || 'select color' || "no colors"}
+									</div>
+									<div 
+										className={ItemStyles.variantColorOptions_div}
+										style={ this.state.isColorOptionsOpen ? {display:'block'} : {display:'none'}} >
+										{
+											availableColors.length > 0 ? 
+												availableColors.map(color => (
+													<div 
+														className={ItemStyles.colorVariant_div}
+														onClick={(event) => {
+															event.stopPropagation();
+															this.setState(prevState => ({
+																...prevState,
+																selectedColor: color,
+																isColorOptionsOpen: false,
+															}))
+														}}> 
+														{color} 
+													</div>)
+												) :
+												null
+										}
+									</div>
+								</div>									
+							</div>
+							<div className={ItemStyles.retailerImageContainer_div}>
+								{
+									//this.props.isExpanded ?
+									(<img 
+										src={imgSrc}
+										style={{
+											'width':'100%',
+											'vertical-align':'middle',
+											'border-radius':'4px',
+										}} />) //:
+									//null
+								}
+							</div>
+							<div className={ItemStyles.descriptionContainer_div}>
+								<div className={ItemStyles.description_div}>
+									{description}
+								</div>
+							</div>
+							<div className={ItemStyles.shopBtn_div}>
+								<Button
+									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+									onClickHandler={null}
+									title='add'
+									iconName='ShopIcon'
+									buttonHeight={26}
+									customButtonStyles={{'border-width':'0px'}}
+									puDirection='WEST' />
+							</div>
+						</div>
+					</CSSTransition>
+				</div>
+			</CSSTransition>
+		);
+	}
+}
 
 export class Item extends React.Component{
 	constructor(props){

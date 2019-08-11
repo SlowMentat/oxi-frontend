@@ -144,8 +144,12 @@ export default class ItemLocationMap extends React.Component{
 									return this.props.contentSelected === undefined || this.props.contentSelected === false ? //redux state not yest instantiated for entities
 										([]) :
 										this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-											this.props.contents[this.props.contentSelected].items.includes(itemId) :
-											this.props.addedContents[this.props.contentSelected].items.includes(itemId) 
+											this.props.contents[this.props.contentSelected] === undefined ?
+												([]) :
+												this.props.contents[this.props.contentSelected].items.includes(itemId) :
+													this.props.addedContents[this.props.contentSelected] ?
+														this.props.addedContents[this.props.contentSelected].items.includes(itemId) :
+														([])
 								})
 								.map(itemId => {
 									console.log('itemId = ', itemId);

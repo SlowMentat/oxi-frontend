@@ -17,6 +17,12 @@ html{
 }
 
 body{
+
+	--color1: #565656;
+	--color2: #d9d9d9;	
+	--color3: #a9a9a9;
+	--color4: #c4edff;
+
 	background-color: #fdfdfd;
 	height: 100%;
 	margin: 2.5px 0px 2.5px 0px;
@@ -201,10 +207,10 @@ a{
 }
 
 :local(.metricBlock){
-	--fz-color: #E0FFF9;
-    --nfz-color: #747474;
-    --bar-fill-color:#70ccf4;
-    --bar-border-color:#70ccf4;
+	--fz-color: #ffffff;
+    --nfz-color: #515151;
+    --bar-fill-color: #54c2f1a8;
+    --bar-border-color: #54c2f1;
     --moulding-radius:5px;
 	/*composes: stdBlock;*/
 	border-bottom-style: none;

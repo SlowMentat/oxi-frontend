@@ -148,8 +148,10 @@ class CroppableImageForm extends React.Component{
 		//Multiple addition
 		//Single removal (multiple removal not allowed)
 		//picture added from adding outfit
-		if(prevProps.addedContentIds.length !== this.props.addedContentIds.length || 
-			prevProps.addedContents[this.props.addedContentIds[0]].coverpicuri !== this.props.addedContents[this.props.addedContentIds[0]].coverpicuri){
+		if(
+			Object.keys(this.props.addedContents).length !== 0 && 
+			(prevProps.addedContentIds.length !== this.props.addedContentIds.length || 
+			prevProps.addedContents[this.props.addedContentIds[0]].coverpicuri !== this.props.addedContents[this.props.addedContentIds[0]].coverpicuri) ){
 
 			//console.log('CroppableImageForm#componentDidUpdate:  Changing state');		
 

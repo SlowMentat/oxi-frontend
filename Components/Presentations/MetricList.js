@@ -587,8 +587,8 @@ class MetricGraph extends React.Component{
 			var rightBottomZone = getZone(toleranceMaxDelta, { LTD: nextToleranceMinDelta, RTD: nextToleranceMaxDelta });
 			var rightStackupKey = mirroredCurvature[ getRightStackup(rightTopZone, rightBottomZone) ];
 
-			leftEdgeCurvature = curvatures[leftStackupKey](MIN_TOLERANCE);
-			rightEdgeCurvature = curvatures[rightStackupKey](MAX_TOLERANCE);
+			leftEdgeCurvature = leftStackupKey !== undefined ? curvatures[leftStackupKey](MIN_TOLERANCE) : null;
+			rightEdgeCurvature = rightStackupKey !== undefined ? curvatures[rightStackupKey](MAX_TOLERANCE) : null;
 			
 			
 			//adjustments made to align corner moldings in some edge cases

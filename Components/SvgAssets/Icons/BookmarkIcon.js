@@ -12,6 +12,7 @@ export default class BookmarkIcon extends React.Component{
 	render(){
 		let stroke = this.props.stroke || "#000";
 		let fill = this.props.fill || "none";
+		let strokeWidth = this.props.strokeWidth || "1.4";
 		return(
 			<svg 
 				width="50mm" 
@@ -22,12 +23,12 @@ export default class BookmarkIcon extends React.Component{
 				style={{'width':'100%','height':'100%'}}>
 				<g>
 					<path 
-						d="m37.5 43.75v-37.5h-25v37.5l12.5-8.3334 12.5 8.3334" 
+						d="m40.831 48.747v-47.497h-31.665v47.497l15.832-10.555 15.832 10.555" 
 						fill={fill} 
 						stroke={stroke} 
 						stroke-linecap="round" 
 						stroke-linejoin="round" 
-						stroke-width="1.4"/>
+						stroke-width={strokeWidth}/>
 				</g>
 			</svg>
 		);

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import FormStyles from '../../forms.css';
 import ControlStyles from '../../controls.css';
 import Styles from '../../root.css';
-import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
+//import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';
@@ -13,7 +13,7 @@ import {denormalizeOutfit} from '../../Util/Schema.js';
 import TypePants from '../SvgAssets/Icons/TypePants.js';
 import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
 import TypeShirtT from '../SvgAssets/Icons/TypeShirtT.js';
-import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/
+import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/ 
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 import { Route, Switch, Redirect } from 'react-router-dom';

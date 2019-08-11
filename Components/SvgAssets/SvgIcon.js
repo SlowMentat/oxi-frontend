@@ -41,6 +41,7 @@ import RotateClockwiseIcon from './Icons/RotateClockwiseIcon.js';
 import AddOutfitIcon from './Icons/AddOutfitIcon.js';
 import LogoIconFitsee from './Icons/LogoIconFitsee.js';
 import DropdownIcon from './Icons/DropdownIcon.js';
+import DropdownIcon2 from './Icons/DropdownIcon2.js';
 
 import {OxiAppConstants} from './../../Util/OxiAppConstants.js';
 
@@ -85,6 +86,7 @@ export const SvgIcon = (props) => {
 		case 'LogoIconFitsee' : return (<LogoIconFitsee {...props}/>); break;
 		case 'DropdownIcon' : return (<DropdownIcon {...props}/>); break;
 		case 'RetailerIcon' : return (<RetailerIcon {...props}/>); break;
+		case 'DropdownIcon2' : return (<DropdownIcon2 {...props}/>); break;
 		default: return(<TypeUnknown {...props}/>); break;
 	}
 }

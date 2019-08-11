@@ -1,5 +1,10 @@
 
-import { setFormVisibility, navigateTo, fetchEntities, replaceProfile} from '../Components/Actions/indexActions.js';
+import { 
+	//setFormVisibility, 
+	navigateTo, 
+	//fetchEntities, 
+	//replaceProfile
+} from '../Components/Actions/indexActions.js';
 
 
 //Constant global variables
