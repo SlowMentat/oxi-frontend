@@ -12,7 +12,9 @@ export default class HeartIcon extends React.Component{
 	render(){
 		let stroke = this.props.stroke || "#000";
 		let fill = this.props.fill || "none";
-		let strokeWidth = this.props.strokeWidth || 15;
+		let strokeWidth = this.props.strokeWidth || 2.5;
+		let style = this.props.style;// || {'width':'100%','height':'100%'};
+
 		return(
 			<svg 
 				width="50mm" 
@@ -20,7 +22,8 @@ export default class HeartIcon extends React.Component{
 				version="1.1" 
 				viewBox="0 0 50 50" 
 				xmlns="http://www.w3.org/2000/svg"	
-				className={this.props.className || null}			
+				className={this.props.className || null}
+				style={style}			
 				>
 				{/*<g>
 					<path 

@@ -110,6 +110,9 @@ export const REPLACE_SIZE_GROUP = 'REPLACE_SIZE_GROUP';
 export const REPLACE_SIZE_CHART = 'REPLACE_SIZE_CHART';
 export const CREATE_SIZE_GROUP = 'CREATE_SIZE_GROUP';
 
+export const SET_PREVIEW_FOCUS = 'SET_PREVIEW_FOCUS';
+export const UNSET_PREVIEW_FOCUS = 'UNSET_PREVIEW_FOCUS';
+
 
 //global variables
 let nextItemId = 0;
@@ -233,19 +236,10 @@ export const receivedSearchUserDefinedSizes = makeActionCreator(RECEIVED_UDS_LAB
 export const receivedAllApparelTypes = makeActionCreator(RECEIVED_ALL_APPAREL_TYPES, null, 'allApparelTypes');
 export const receivedSizeGroupsByItemId = makeActionCreator(RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
 
-/*export const updateItemContent 	= (id, itemId, contentId) => {
-	return({
-		type: UPDATE_ITEMCONTENT,
-		typeSpecifier: OxiAppConstants.EntityTypes.ITEM_CONTENT,
-		payload: {
-			entity: {
-				id: id,
-				itemId: itmeId,
-				contentId: contentId
-			}
-		}
-	})
-};*/
+export const setPreviewFocus = makeActionCreator(SET_PREVIEW_FOCUS, null, 'isFocusedPreview');
+export const unsetPreviewFocus = makeActionCreator(UNSET_PREVIEW_FOCUS, null, 'isFocusedPreview');
+
+
 //PROFILE Actions
 export const addProfile = (profileData) => {
 	let completeData = Object.assign({}, defaultProfileData, profileData)
@@ -292,11 +286,11 @@ export const loginConfig = (username, password) => {
 		}
 	);
 }
+
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
 export const requestNavigation = makeActionCreator(REQUEST_NAVIGATION, null, 'location');
 
 //Thunks dispatched by anonymous callback functions passed to Axios request interceptor
-
 export function handleUnauthorizedRequest(response){
 	return function(dispatch){
 		console.log('response', response);
@@ -721,12 +715,14 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 	console.log('destination = ', location)
 	switch(location){
 		case OxiAppConstants.navRequestMap.a.toLowerCase():
+
 			dispatch(setWebAppView(location));
 			//Fetch all entities.  
 			//TODO:  filtered fetch via queary parameters
 			
 			isOwnerProfileEntityPresent ? null : dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all'));
+			dispatch(unsetPreviewFocus());
 			break;
 		case OxiAppConstants.navRequestMap.b.toLowerCase():
 			console.log('about to dispatch fetchItemMenus()')
@@ -741,10 +737,13 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 				console.log('exception occured within dispatch to fetchItemMenus.  Reason is: ', error);
 				dispatch(handleUnauthorizedRequest(error.response));
 			})
+			
+			dispatch(unsetPreviewFocus());
 			break;
 		case OxiAppConstants.navRequestMap.c.toLowerCase():
 			dispatch(showProfileMenu(true));
 			//dispatch(setWebAppView('landing'));
+			dispatch(unsetPreviewFocus());
 			break;
 		default:
 			break;
@@ -768,8 +767,6 @@ export function navigateTo(location, isOwnerProfileEntityPresent){
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
-
-			dispatch
 
 			selectDestination(location, dispatch, isOwnerProfileEntityPresent);
 			dispatch(requestNavigation(null));

@@ -206,7 +206,7 @@ class PagedList extends React.Component{
 				style={{
 		    		'padding-top':'50px',
 		    		'padding-bottom':'50px',
-		    		...(webAppView === 'profile' ? ({'background-color':'white'}) : ({}))
+		    		...(webAppView === 'profile' ? ({/*'background-color':'white'*/}) : ({}))
 		    	}}
 				ref={this.setScrollContainerRef} >
 					<div

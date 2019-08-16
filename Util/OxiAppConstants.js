@@ -44,6 +44,11 @@ export const OxiAppConstants = Object.freeze({
 		//search : "Search",
 		//logout : "Logout"
 	},
+	fitResultValues:{
+		a:'✔',//'Perfect Fit',
+		b:'⦸',//'Bad Fit',
+		c:'⦸',//Too Tight',
+	},
 	toPortals:{
 		consumer: '/shop/browse',
 		retailer: '/retailer',
@@ -83,6 +88,19 @@ export const OxiAppConstants = Object.freeze({
 			e:'/searchApparelTypes'
 		},
 		retailer:'/retailer',
+	},
+	iconDefaults:{
+		colors:{
+			stroke:'#999999',
+			fill:'none',
+			highlights:{
+				stroke:'var(--color4)',
+				fill:'var(--color4)',				
+			}
+		},
+		dimensions:{
+			strokeWidth:"3",
+		}
 	},
 	appUris:{
 		a: '/allApparelTypes'

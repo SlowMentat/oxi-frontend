@@ -14,15 +14,17 @@ export default class EditIcon extends React.Component{
 		let writingColor = this.props.writingColor || "#505050";
 		let penColor = this.props.penColor || "#000001";
 		let borderColor = this.props.borderColor || "#000";
+		let style = this.props.style;// || {'width':'100%','height':'100%'};
+
 		return(
-			<div style={{height:'100%', width:'100%'}}>
+			<div style={style}>
 				<svg 
 					width="50mm" 
 					height="50mm" 
 					version="1.1" 
 					viewBox="0 0 50 50" 
 					xmlns="http://www.w3.org/2000/svg"				
-					style={{'width':'100%','height':'100%'}}>
+					style={style}>
 
 					<g stroke={penColor} stroke-linejoin="round">
 						<path 

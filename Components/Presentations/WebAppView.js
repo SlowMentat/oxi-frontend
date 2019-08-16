@@ -8,16 +8,20 @@ import ModalContentSelection from '../../Components/Containers/SelectModalConten
 import VisibleItemList from '../../Components/Containers/VisibleItemList.js';
 import VisibleItemListBrowse from '../../Components/Containers/VisibleItemListBrowse.js';
 import VisibleOutfitList from '../../Components/Containers/VisibleOutfitList.js';
-import ContentContainer from '../../Components/Containers/ContentContainer.js';
+import PicturePreviewContainer from '../../Components/Containers/PicturePreviewContainer.js';
 import OutfitPanelContainer from '../../Components/Containers/OutfitPanelContainer.js'
 import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js'
-import MetricTitleContainer from '../../Components/Containers/MetricTitleContainer.js';
+import ProfileTitleContainer from '../../Components/Containers/ProfileTitleContainer.js';
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
 import ProfileControlContainer from '../../Components/Containers/ProfileControlContainer.js';
 import ProfileMenuContainer from '../../Components/Containers/ProfileMenuContainer.js';
+import { MetricPanel } from '../../Components/Presentations/MetricPanel.js'
+import ProfileViewControlsContainer from '../../Components/Containers/ProfileViewControlsContainer.js';
+
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import {Button} from '../../Components/Presentations/Controls.js';
 
 //Presentation Component 
 //Constants
@@ -28,6 +32,7 @@ import OutfitNavStyles from '../../outfitNav.css';
 import Styles from '../../root.css';
 import NavStyles from '../../nav.css';
 import MetricStyles from '../../metric.css';
+import OutfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 
 //Third pary
 import isEqual from 'lodash.isequal';
@@ -121,7 +126,7 @@ class Nav extends React.Component{
 			selected: null
 		};
 
-		this.__handleClick  = this.__handleClick.bind(this);
+		this._handleClick  = this._handleClick.bind(this);
 	}
 
 	componentDidMount(){
@@ -132,9 +137,10 @@ class Nav extends React.Component{
 
 	}
 
-	__handleClick(callback){
+	_handleClick(callback){
 		callback();
 	}
+
 
 	render(){
 		/*return(
@@ -144,7 +150,7 @@ class Nav extends React.Component{
 		);*/
 		let blockList = [];
 		blockList = (
-			<div className={NavStyles.stdNavButtonContiner_div}>
+			<div className={NavStyles.stdNavButtonContainer_div}>
 				{
 					this.props.blocks.map((block) => {
 						console.log('block = ', block);
@@ -220,7 +226,9 @@ class OutfitNav extends React.Component{
 		let containerWidth = this.props.imageWidth*(OxiAppConstants.aspectRatio);
 		let browseWrapper = (wrappedStuff) => (
 			this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
-				( <div style={{'grid-area':'browse'}}>
+				( null
+
+				/*<div style={{'grid-area':'browse'}}>
 					<OutfitPanelContainer 
 						style={{
 							width:`calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`,
@@ -232,7 +240,7 @@ class OutfitNav extends React.Component{
     						'background-color': '#ffffff00',
 						}} />
 					{wrappedStuff}
-				</div>) :
+				</div>*/) :
 				wrappedStuff 
 		);
 
@@ -248,6 +256,7 @@ class OutfitNav extends React.Component{
 							}
 							containerHeight={containerHeight !== 0 ? containerHeight : null}
 							containerWidth={containerWidth !== 0 ? containerWidth : null}
+							setPreviewFocus={this.props.setPreviewFocus}
 							/*routeToHostProfile={this.props.routeToHostProfile}*/ />);
 				break;
 			case 'apparel':
@@ -278,7 +287,7 @@ class OutfitNav extends React.Component{
 	}
 }
 
-class MetricPanel extends React.Component{
+/*class MetricPanel extends React.Component{
 	constructor(props){
 		super(props);
 	}
@@ -315,7 +324,7 @@ class MetricPanel extends React.Component{
 							}
 		
 						</div>
-						<MetricTitleContainer />
+						<ProfileTitleContainer />
 						<div className={MetricStyles.metricMatch_div}>
 							<div className={MetricStyles.metricMatchLPanel_div}>
 								<div className={MetricStyles.fitIcon_div}>
@@ -343,7 +352,7 @@ class MetricPanel extends React.Component{
 			</div>
 		);
 	}
-}
+}*/
 
 export default class webAppView extends React.Component {
 	constructor(props){
@@ -357,13 +366,15 @@ export default class webAppView extends React.Component {
 			},
 			itemIdHovered: null,
 			navDestination: props.location,
+			isFocusedPreview: false,
 		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
 		this._handleItemHovered = this._handleItemHovered.bind(this);
 		this._handleImageResized = this._handleImageResized.bind(this);
 		this._handleNavBtnSelected = this._handleNavBtnSelected.bind(this);
-
+		this.setPreviewFocus = this.setPreviewFocus.bind(this);
+		this._handleAddOutfitClcik = this._handleAddOutfitClcik.bind(this);
 		this.previousLocation = props.location;
 	}
 
@@ -506,6 +517,10 @@ export default class webAppView extends React.Component {
 		})
 	}
 
+	_handleAddOutfitClcik(event){
+		if(!this.props.buttonDisabled){this.props.addOutfit(1, undefined, this.props.entitiesStateReducer);}
+	}
+
 	componentWillUpdate(nextProps){
 		// set previousLocation if props.location is not modal
 		if(nextProps.history.action !== "POP" && (!location.state || !location.state.modal)){
@@ -513,8 +528,24 @@ export default class webAppView extends React.Component {
 		}
 	}
 
+	setPreviewFocus(value){
+		this.setState(preview => ({
+			isFocusedPreview: value,
+		}));
+	}
+
 	render() {
-		const { location } =  this.props;
+		const {
+			setPreviewFocus,
+			unsetPreviewFocus,
+		} = this.props;
+
+		var { 
+			location,
+			viewState,
+			isFocusedPreview,
+		} =  this.props;
+
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
 		console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
 		let modalContent = null;
@@ -616,29 +647,82 @@ export default class webAppView extends React.Component {
 										className={Styles.containerProfile} 
 										style={
 											(this.state.imageWidth !== 0 && this.state.imageHeight !== 0) ? 
-												({'grid-template-columns': `300px 24.579% ${this.state.imageWidth + 50}px auto`}) : 
+												({'grid-template-columns': `300px 20% ${this.state.imageWidth + 50}px auto`}) : 
 												null
 										}
 									>								
 										<MetricPanel webAppView={this.props.webAppView}/>
-										<VisibleItemList 
-											visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
-											populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
-											itemIdHovered={this.state.itemIdHovered}
-											changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
-										<ContentContainer 
-											imageWidth={this.state.imageWidth}
-											imageHeight={this.state.imageHeight}									
-											imageResized={this._handleImageResized}
-											visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
-											populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
-											itemIdHovered={this.state.itemIdHovered}
-											changeItemHovered={(itemId) => this._handleItemHovered(itemId)} />
-										<OutfitNav 	
+
+										{
+											isFocusedPreview ?
+												(
+													<div 
+														className={Styles.contentContainer}
+														style={{width:'70%', 'padding-left':'400px'}} >
+
+														<PicturePreviewContainer 
+															imageWidth={this.state.imageWidth}
+															imageHeight={this.state.imageHeight}									
+															imageResized={this._handleImageResized}
+															visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+															populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
+															itemIdHovered={this.state.itemIdHovered}
+															changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
+															unsetPreviewFocus={unsetPreviewFocus} />
+
+														<VisibleItemList 
+															visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+															populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
+															itemIdHovered={this.state.itemIdHovered}
+															changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
+															imageHeight={this.state.imageHeight} />
+
+														<ProfileViewControlsContainer 
+															unsetPreviewFocus={unsetPreviewFocus} />
+
+													</div>
+												) : (
+													<div className={Styles.contentContainer}>
+														<OutfitNav 	
+															imageWidth={163.11 || this.state.imageWidth}
+															imageHeight={244.66 || this.state.imageHeight}
+															//webAppView={this.props.webAppView}
+															browseSelection="outfits"
+															setPreviewFocus={setPreviewFocus} />
+
+														<div class={Styles.controlsContianer}>
+															<div 
+																className={OutfitNavStyles.outfitCtrlBtn_div}
+																style={{
+																}}>
+																{/*<div
+																		className={OutfitNavStyles.outfitCtrlBtnContent_div}
+																		style={{
+																		}}>
+																		+
+																	</div>*/}
+																<Button
+																	buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+																	onClickHandler={this._handleAddOutfitClicked}
+																	title='add new outfit'
+																	iconName='AddOutfitIcon'
+																	expandedWidth={150}
+																	buttonHeight={40}
+																	customButtonStyles={{
+																		color:'white',
+																		'margin':'auto',		
+																	}} />
+															</div>
+														</div>
+													</div>
+												) 
+										}
+										
+										{/*<OutfitNav 	
 											imageWidth={this.state.imageWidth}
 											imageHeight={this.state.imageHeight}
 											webAppView={this.props.webAppView}
-											browseSelection="outfits"/> 
+											browseSelection="outfits"/> */}
 										<Admin/>
 									</div>
 								</div>

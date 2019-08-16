@@ -11,6 +11,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import BrowseControlStyles from '../../browseControl.css';
+import {Button} from './Controls.js';
 
 
 const makeBrowseSelection = (props) => {
@@ -88,10 +89,57 @@ class BrowseControl extends React.Component{
 	}
 
 	render(){
-		console.log('props.name = ', this.props.name);
+
+		const customButtonStyles = {
+			color:'black',
+			width:'unset',
+			'margin-bottom':'8px',
+			//'border':'solid 1px gray',
+			padding:'3px',
+			height:'calc(var(--button-height) + 2*3px + 4px)',
+			'line-height':'calc(var(--button-height) + 2*3px)', 
+		};
+
+		const ligatureStyles = {
+			//'padding-top':'1px',
+			//'padding-bottom':'4px',
+			//'border':'solid 1px var(--color3)',
+			//'border-radius':'3px',
+		}
+
+		const ligatureContainerStyles = {
+			'--lig-container-border-width':'1px',
+			'border':'solid 1px var(--color3)',
+			'border-radius':'3px',
+			'padding':'var(--lig-container-border-width)',
+			width:'calc(var(--button-height) + 4px)'
+		}
+
 		return(
-			<React.Fragment>
-				<ControlButton 
+			<React.Fragment>	
+				<div className={BrowseControlStyles.buttonContainer_div}>
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
+						//onClickHandler={this.rotateImageClockwise}
+						title='Outfits'
+						ligature="accessibility_new"
+						//iconName='RotateClockwiseIcon'
+						customButtonStyles={customButtonStyles}
+						ligatureStyles={ligatureStyles}
+						ligatureContainerStyles={ligatureContainerStyles} 
+						/>
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
+						//onClickHandler={this.rotateImageClockwise}
+						title='Apparel'
+						ligature="local_offer"
+						//iconName='RotateClockwiseIcon'
+						customButtonStyles={customButtonStyles}
+						ligatureStyles={ligatureStyles}
+						ligatureContainerStyles={ligatureContainerStyles}
+						/>
+				</div>
+				{/*<ControlButton 
 					name='Outfits' 
 					browseSelection={this.props.browseSelection} 
 					selectBrowserType={(name) => this.props.selectBrowserType(name)} 
@@ -111,7 +159,7 @@ class BrowseControl extends React.Component{
 					filterVisible={this.props.filterVisible}
 					getItems={(filter) => this.props.getItems(filter)}
 					getOutfits={(filter) => this.props.getOutfits(filter)} />
-				<BrowseFilterMenuContainer />
+				<BrowseFilterMenuContainer />*/}
 			</React.Fragment>
 		);
 	}

@@ -52,11 +52,11 @@ import {
 	buildItemContentsObject
 } from '../../Util/Schema.js';
 import {normalize, denormalize} from 'normalizr';
-import ContentView from '../../Components/Presentations/ContentView.js';
+import PicturePreview from '../../Components/Presentations/PicturePreview.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 const mapStateToProps = (state, props) => {
-	console.log('state.addedEntities in ContentContainer = ', state.addedEntitiesReducer);
+	console.log('state.addedEntities in PicturePreviewContainer = ', state.addedEntitiesReducer);
 	return {
 		viewState: state.contentViewState.viewState,
 		//contentViewed: state.shownContentView.shownContentId,
@@ -205,7 +205,7 @@ const mapDispatchToProps = (dispatch) => ({
 			let responseData = response.data.length === 0 ? [response.data] : response.data
 			//normalize response data and create a new outfit node in entitiesReducer tree
 			let normalizedJson = normalize(responseData, schema);
-			console.log('ContentContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
+			console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
 			const selectAddedContentId = (dispatch, schemaType) => {
 				let addedContentIds = [];
 				let entityType = "";
@@ -274,7 +274,7 @@ const mapDispatchToProps = (dispatch) => ({
 		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.ITEM));
 		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.PROFILE));
 	
-		console.log('ContentContainer#createResponseHandler: clearing all clientInvalidations');
+		console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations');
 		switch(true){
 			case entitiesStateReducer.profile.clientInvalidated.length > 0:
 				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PROFILE));
@@ -301,7 +301,7 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 		let responseData = response.data.length === 0 ? [response.data] : response.data
 		//normalize response data and create a new outfit node in entitiesReducer tree
 		let normalizedJson = normalize(responseData, schema);
-		console.log('ContentContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
+		console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
 		const selectAddedContentId = (dispatch, schemaType) => {
 			let createdContentIds = [];
 			let entityType = "";
@@ -385,7 +385,7 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.ITEM));
 		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.PROFILE));
 
-		console.log('ContentContainer#createResponseHandler: clearing all clientInvalidations');
+		console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations');
 		switch(true){
 			case entitiesStateReducer.profile.clientInvalidated.length > 0:
 				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PROFILE));
@@ -407,5 +407,5 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 	}
 }
 
-const ContentContainer = connect(mapStateToProps, mapDispatchToProps)(ContentView);
-export default ContentContainer;
+const PicturePreviewContainer = connect(mapStateToProps, mapDispatchToProps)(PicturePreview);
+export default PicturePreviewContainer;

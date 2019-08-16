@@ -1,5 +1,4 @@
-import 'babel-polyfill';
-import React from 'react';
+import 'babel-polyfill';import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
@@ -27,7 +26,7 @@ import FilledModal from './Components/Presentations/Modal.js';
 import ModalContentSelection from './Components/Containers/SelectModalContent.js'
 import VisibleItemList from './Components/Containers/VisibleItemList.js'
 import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js'
-import ContentContainer from './Components/Containers/ContentContainer.js'
+import PicturePreviewContainer from './Components/Containers/PicturePreviewContainer.js'
 import WebAppView from './Components/Containers/WebAppViewContainer.js'
 import { SiteNav } from './Components/Presentations/WebAppView.js'
 import LandingPageContainer from './Components/Containers/LandingPageContainer.js';
@@ -88,22 +87,22 @@ axios.interceptors.response.use((response) => store.dispatch(handleUnauthorizedR
 axios.interceptors.request.use(insertCsrfToken);
 
 
-function navButton(props){
-	return(
-		<div className={Styles.navButton}>
+//function navButton(props){
+//	return(
+//		<div className={Styles.navButton}>
+//
+//		</div>
+//	);
+//}
 
-		</div>
-	);
-}
 
-
-function OutfitFormContent(props){
-	return(
-		<div>
-			<p>Outfit Form Content</p>
-		</div>
-	);
-}
+//function OutfitFormContent(props){
+//	return(
+//		<div>
+//			<p>Outfit Form Content</p>
+//		</div>
+//	);
+//}
 
 
 class App extends React.Component {

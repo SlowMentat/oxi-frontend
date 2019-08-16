@@ -985,7 +985,7 @@ class ImageEdit extends React.Component{
 }
 
 
-class ContentView extends React.Component{
+class PicturePreview extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
@@ -1134,4 +1134,4 @@ class ContentView extends React.Component{
 	}
 }
 
-export default ContentView;
+export default PicturePreview;

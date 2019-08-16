@@ -1,4 +1,4 @@
-:local(.contentContainer) {
+:local(.contentListContainer) {
 	composes:stdBlock from './root.css';
     position: relative;
 	display:inline-block;

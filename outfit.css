@@ -11,6 +11,8 @@
 :local(.stdOutfitBlock){
 	composes:stdBlock from './root.css';
     --outfit-tile-width: 200px;
+    display: inline-block;
+    vertical-align: top;
 	position:relative;
 	width:var(--outfit-tile-width);
 	height:calc(200px * 3/2);

@@ -178,7 +178,7 @@ class ContentList extends React.Component {
 
 		return (			
 		    <React.Fragment>
-		    	<div className={ContentStyles.contentContainer}>
+		    	<div className={ContentStyles.contentListContainer}>
 		    		{/*<AddContentButton 
 		    			shown={this.props.viewState != OxiAppConstants.viewState.PREVIEW} 
 		    			enabled={!this.props.controlDisabled} 

@@ -102,8 +102,11 @@ export default class ItemList extends React.Component{
 		    			</div>
 		    		</div>
 		    	</div>
-		    	<div style={{position:'relative'}}>
-		    		<TransitionGroup>
+				<div 
+					className={ItemStyles.itemsContainer_div}
+					style={{height: this.props.imageHeight}} >
+		    		<div style={{position:'relative', height:'100%'}}>
+		    		<TransitionGroup component={null}>
 			    		{
 			    			this.props.itemIds.map((itemId, ind) => {
 			    			//this.state.itemIds.map((itemId) => {
@@ -221,6 +224,7 @@ export default class ItemList extends React.Component{
 			    			})
 			    		}
 			    	</TransitionGroup>
+		    		</div>
 		    	</div>
 		    </div>
 		);

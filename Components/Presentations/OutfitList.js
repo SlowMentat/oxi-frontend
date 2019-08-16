@@ -45,7 +45,7 @@ class PagedOutfitList extends React.Component{
     			pages={this.props.pages}
     			setNextPageURL={this.props.setNextPageURL}
 				setPrevPageURL={this.props.setPrevPageURL}
-				webAppView={this.props.view}
+				webAppView={this.props.webAppView}
     			list={
     				<React.Fragment>
 						<div style={this.props.container1_div}>
@@ -67,7 +67,7 @@ class PagedOutfitList extends React.Component{
 											getCoverPic={this.props.getCoverPic}
 											username={this.props.outfits[outfitId].username}
 											contentIds={this.props.outfits[outfitId]["contents"]}
-											webAppView={this.props.view}
+											webAppView={this.props.webAppView}
 											editOutfit={() => this.props.editOutfit(
 												this.props.outfits[outfitId], 
 												this.props.entitiesStateReducer, 
@@ -76,7 +76,8 @@ class PagedOutfitList extends React.Component{
 												this.props.items)}
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
-											containerWidth={this.props.containerWidth}
+											//containerWidth={this.props.containerWidth}
+											setPreviewFocus={this.props.setPreviewFocus}
 										/> :
 										null)
 									) : null}
@@ -94,7 +95,7 @@ class PagedOutfitList extends React.Component{
 											webAppView={null}
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
-											containerWidth={this.props.containerWidth}
+											//containerWidth={this.props.containerWidth}
 										/>
 									) : null}
 								</div>
@@ -116,7 +117,7 @@ class OutfitList extends React.Component{
 	render(){
 		//This seams sloppy but there should never be more than 1 outfit in the addedEntitiesReducer tree
 		let contentId = undefined;
-		console.log('view = ', this.props.view);
+		console.log('webAppView = ', this.props.webAppView);
 		let customButtonStyles = {
 			color:'white',
 			'margin':'auto',		
@@ -125,43 +126,49 @@ class OutfitList extends React.Component{
 			<React.Fragment>
 				<TransitionGroup style={{'height':'100%'}}>
 					{(
-						this.props.view === OxiAppConstants.navRequestMap.a.toLowerCase() ?
-		    				(<PagedOutfitList container1_div={container1_div} container2_div={container2_div} {...this.props} />) :
-		    				(<PagedOutfitList container1_div={{'height':'100%'}} container2_div={{'height':'100%'}} {...this.props} />)
+						this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() ?
+		    				(<PagedOutfitList 
+		    					container1_div={container1_div} 
+		    					container2_div={container2_div} 
+		    					{...this.props} />) :
+		    				(<PagedOutfitList 
+		    					container1_div={{'height':'100%'}} 
+		    					container2_div={{'height':'100%'}} 
+		    					{...this.props} />)
 		    		)}
 		    	</TransitionGroup>
-		    	{
-		    		this.props.viewState !== OxiAppConstants.viewState.PREVEIW && this.props.webAppView === 'profile' ? 
-		    			(<div id='makeOutfitCoverBtnContiner' className={outfitCoverBtnStyle.makeOutfitCoverBtnContainer_div}>
-		    				<div 
-		    					id='makeOutfitCoverBtn' 
-		    					className={outfitCoverBtnStyle.makeOutfitCoverBtn_div}		    			
-								onClick={() => {
-									new Promise((resolve, reject) => {
-										resolve( this.props.changeOutfitCoverPic({ 
-											id: this.props.entitiesStateReducer.outfits.selected,
-											coverpicuri: this.props.pictures[this.props.contents[this.props.selectedContentId].picture].smalluri 
-										}) );
-									});
-								}}
-							>
-								<Button
-									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
-									//onClickHandler={this.props.discardChanges}
-									title='make cover'
-									iconName='OutfitCoverIcon'
-									expandedWidth={125}
-									buttonHeight={40}
-									customButtonStyles={customButtonStyles} />
-		    					{/*<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
-		    					<div className={outfitCoverBtnStyle.makeOutfitCoverTextCtnr_div}>
-		    						<div className={outfitCoverBtnStyle.makeOutfitCoverText_div}>
-		    							Make outfit cover
-		    						</div>
-		    					</div>*/}
-		    				</div>
-		    			</div>) :
-		    			null
+		    	{null
+		    		//this.props.viewState !== OxiAppConstants.viewState.PREVEIW && this.props.webAppView === 'profile' ? 
+		    		//	(<div id='makeOutfitCoverBtnContiner' className={outfitCoverBtnStyle.makeOutfitCoverBtnContainer_div}>
+		    		//		<div 
+		    		//			id='makeOutfitCoverBtn' 
+		    		//			className={outfitCoverBtnStyle.makeOutfitCoverBtn_div}		    			
+					//			onClick={() => {
+					//				new Promise((resolve, reject) => {
+					//					resolve( this.props.changeOutfitCoverPic({ 
+					//						id: this.props.entitiesStateReducer.outfits.selected,
+					//						coverpicuri: this.props.pictures[this.props.contents[this.props.selectedContentId].picture].smalluri 
+					//					}) );
+					//				});
+					//			}}
+					//		>
+					//			<Button
+					//				buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+					//				//onClickHandler={this.props.discardChanges}
+					//				title='make cover'
+					//				iconName='OutfitCoverIcon'
+					//				expandedWidth={125}
+					//				buttonHeight={40}
+					//				customButtonStyles={customButtonStyles} />
+		    		//			{/*<SvgIcon name='OutfitCoverIcon' style={{display:'inline-block'}}/>
+		    		//			<div className={outfitCoverBtnStyle.makeOutfitCoverTextCtnr_div}>
+		    		//				<div className={outfitCoverBtnStyle.makeOutfitCoverText_div}>
+		    		//					Make outfit cover
+		    		//				</div>
+		    		//			</div>*/}
+		    		//		</div>
+		    		//	</div>) :
+		    		//	null
 		    	}
 		    </React.Fragment>
 		);

@@ -33,7 +33,24 @@
     padding-top: 20px;
 }
 
+:local(.itemsContainer_div){
+	width:400px;
+	height: 100%;
+	border:solid 1px var(--color2);
+	border-radius: 5px;
+	border-left: none;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+	padding: 17px;
+	background-color: white
+}
+
 :local(.itemBlock){	
+	/*grid-area: itemmenu;*/
+	display: inline-block;
+	vertical-align: top;
+    width: 400px;
+
 	--item-height: calc(((((((((100vh - 40px) - 40px) - 80px) - 80px) - 25px) - 5vh) - 12px) / 6) - 1px);
 	
 	--button-icon-stroke: #4a4547;
@@ -51,7 +68,9 @@
 
 	--item-transition-total: calc(var(--item-transition-period) + var(--item-transition-delay));
 	--eif-transition-start: calc(var(--item-transition-total) + var(--item-info-transition-period));
-	padding-left: 75px;
+	
+
+
 }
 
 :local(.stdItemBlock){
@@ -217,7 +236,8 @@
 
 .itemContainer_div{
 	composes:itemBrowseInitialize-enter-active from './itemBrowse.css';
-	height: var(--item-height);
+	/*height: var(--item-height);*/
+	height: calc((100% - 25px - 5vh)/6 - 4px);
 	width: 100%;
 	transition: transform var(--item-transition-period) linear var(--item-transition-delay);
 	will-change: transform;
@@ -390,7 +410,8 @@
 	/*--variable-A: calc(100vh - 180px - 5vh - 25px);*/
 	--expanded-item-content-width: 93%;
 	--variable-A: 100%;
-    height: calc((5/6)*var(--variable-A) - (80px + 12px)/6);
+    /*height: calc((5/6)*var(--variable-A) - (80px + 12px)/6);*/
+    height:600%;
     width: 100%;
     border: solid 1px var(--color2);
     border-top: none;

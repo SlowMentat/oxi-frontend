@@ -71,6 +71,8 @@ import {
 			REPLACE_SIZE_CHART,
 			REPLACE_SIZE_GROUP,
 			CREATE_SIZE_GROUP,
+			SET_PREVIEW_FOCUS,
+			UNSET_PREVIEW_FOCUS,
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -807,12 +809,16 @@ function entityReducerFactory(reducerFunction, reducerName, defualtStoreState){
 	}
 }
 
-function contentViewState(state = {'shownContentId' : null, 'viewState' : OxiAppConstants.viewState.PREVIEW}, action){
+function contentViewState(state = {'isFocusedPreview': false, 'shownContentId' : null, 'viewState' : OxiAppConstants.viewState.PREVIEW}, action){
 	switch(action.type){
 		case PREVIEW_CONTENT:
 			return Object.assign({}, state, action.payload);
 		case EDIT_CONTENT_VIEW:
 			return Object.assign({}, state, action.payload);
+		case SET_PREVIEW_FOCUS:
+			return Object.assign({}, state, {'isFocusedPreview': true});
+		case UNSET_PREVIEW_FOCUS:
+			return Object.assign({}, state, {'isFocusedPreview': false});
 		default:
 			return state;
 	}

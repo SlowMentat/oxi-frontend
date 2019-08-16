@@ -29,6 +29,7 @@
 }
 
 :local(.metricGraphBarsContainer_div){
+    overflow: hidden;
     position: relative;
 	display: inline-block;
     vertical-align: top;
@@ -118,6 +119,7 @@
     margin-top: -2px;
     border-left: none;
     border-right: none;
+    transition: background-color 80ms linear, border-color 80ms linear;
 }
 
 
@@ -130,15 +132,24 @@
     position: absolute;
     background-color: var(--bar-fill-color);
     border-color: var(--bar-border-color);
-	transition: background-color 200ms ease-in-out, color 200ms ease-in-out, width 200ms ease-in-out;	
+	transition: 
+        background-color 100ms linear,
+        border-color 100ms linear, 
+        color 200ms ease-in-out, 
+        width 200ms ease-in-out;	
 }
 
 :local(.graphBar_div--highlight){
 	composes:graphBar_div;
-	background-color: #70ccf4c9;
+	background-color: #70ccf4e9;
 	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;	
 }
 
+:local(.graphBarNoFit_div--highlight){
+    composes:graphBar_div;
+    background-color: #b1b1b1cd;
+    transition: background-color 200ms ease-in-out, color 200ms ease-in-out;    
+}
 
 :local(.labelFormatting_div){
 	composes:defaultCursor from "./root.css";
@@ -189,9 +200,11 @@
 
 :local(.metricsDataHeader_div){
 	/*height: calc(5vh + 28px);*/
-    height: 45px;
+    --default-pic-icon-size: 48px;
+    --profile-pic-border: 2px;
+    --details-container-height: calc(var(--default-pic-icon-size) + 2*var(--profile-pic-border));
     color: rgb(11; 11; 115);
-    margin: 10px 0px 0px 20px;
+    margin: 10px 0px 0px 10px;
     font-size: 2em;
 }
 
@@ -202,45 +215,50 @@
 }
 
 :local(.profilePic_div){
-	width: 45px;
-    height: 45px;
+    width: calc(var(--details-container-height));
+    padding: 0px;
+    height: calc(var(--details-container-height));
     border-style: solid;
     border-radius: 6px;
     border-color: rgb(112, 204, 244);
     left: 25px;
+    border-width: var(--profile-pic-border);
 }
 
 :local(.profileDetails_div){
 	display: inline-block;
     vertical-align: top;
     margin-left: 10px;
-    height: 45px;
+    margin-top: var(--profile-pic-border);
+    height: var(--default-pic-icon-size);
     /* width: calc(100% - 10px - 45px); */
     position: relative;
-    width: calc(300px - 50px - 10px - 20px - 2px);
+    /*width: calc(300px - 50px - 10px - 20px - 2px);*/
 }
 
 local:(.profileOwnerName_div){
+    color: red; 
 	display: inline;
     right: 25%;
-    height: 25px;
+    height: calc(var(--default-pic-icon-size)/2);
     font-size: 2.5rem;
     vertical-align: top;
-    line-height: 25px;
+    line-height: calc(var(--default-pic-icon-size)/2);
 }
 
 local:(.followingContainer_div){
-	height: 20px;
-    padding-left: 2px;
+	height: calc(var(--default-pic-icon-size)/2);
+    /*padding-left: 2px;*/
 }
 
 :local(.followingStats_div){
 	display: inline-block;
     height: 100%;
     vertical-align: top;
+    min-width: 32px;
 }
 
-:local(.followingHeader_div){
+:local(.followingIcon_div){
 	display: inline-block;
     height: 100%;
     color: #656565;
@@ -248,17 +266,18 @@ local:(.followingContainer_div){
     font-size: 1.3rem;
     line-height: 20px;
     vertical-align: top;
+    margin-left: 10px;
 }
 
 :local(.followingValue_div){
 	display: inline-block;
-    color: #4a4a4a;
+    color: var(--color3);
     text-align: left;
     font-size: 1.2rem;
     letter-spacing: 0.2rem;
     font-weight: bold;
-    padding-left: 12px;
-    line-height: 20px;
+    /*padding-left: 12px;*/
+    line-height: calc(var(--default-pic-icon-size)/2);
     height: 100%;
     vertical-align: top;
 }
@@ -288,7 +307,7 @@ local:(.followingContainer_div){
 }
 
 :local(.bodyDiagramContainer_div){
-    position: absolute;
+    /*position: absolute;*/
     bottom: 0px;
     --body-height: calc((100vh - 80px - 165px - 20px - 6px - 45px)*0.5);
     height: var(--body-height);
@@ -316,21 +335,34 @@ local:(.followingContainer_div){
 }
 
 :local(.fitIcon_div){
-    position: absolute;
+    /*position: absolute;*/
     --match-icon-width: 70px;
+    margin: auto;
+    margin-top: calc(50px - var(--match-icon-width)/2);
     width: var(--match-icon-width);
     height: var(--match-icon-width);
     right: calc(-1*var(--match-icon-width)/2);
     top: calc((100% - var(--match-icon-width))/2);
     border-radius: calc(var( --match-icon-width)/2);
-    background-color: #fdd835;
+    /*border-radius: 7px;*/
+    background-color: var(--color5);
     color: black;
-    line-height: var(--match-icon-width);
+    line-height: calc(var(--match-icon-width) - 1px);
+    padding-left: 1px;
     text-align: center;
-    font-size: 1.4rem;
+    font-size: 2.2rem;
     font-weight: bold;
     font-family: Roboto;
     letter-spacing: 0.08rem;
+    --fit-transition-delay: 0ms;
+    --fit-transition-period: 75ms;
+    transition: 
+        background-color var(--fit-transition-period) linear var(--fit-transition-delay), 
+        border-radius var(--fit-transition-period) linear var(--fit-transition-delay),
+        width var(--fit-transition-period) linear var(--fit-transition-delay),
+        height var(--fit-transition-period) linear var(--fit-transition-delay),
+        line-height var(--fit-transition-period) linear var(--fit-transition-delay),
+        margin-top var(--fit-transition-period) linear var(--fit-transition-delay);
 }
 
 :local(.comparisonTypeIconContainer_div){

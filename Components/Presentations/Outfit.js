@@ -42,18 +42,24 @@ export class Outfit extends React.Component{
 
 	_handleTileClicked(event){
 		switch(this.props.webAppView){
+
+			//Navigated to Browse
 			case OxiAppConstants.navRequestMap.a.toLowerCase():
 				if(!this.props.isSelected){
 					this.props.onClickContextBrowse(this.props.id, null);
 				}
 				break;
+
+			//Navigated to Profile
 			case OxiAppConstants.navRequestMap.b.toLowerCase():
 				if(!this.props.isSelected && this.props.viewState === OxiAppConstants.viewState.PREVIEW){			
 					//call selectAndPropogate
 					this.props.onClickContextProfile(this.props.id, this.props.contentIds[0]);
 				}
+				this.props.setPreviewFocus();
 				event.stopPropagation();
 				break;
+
 			default:
 				break;
 		}
@@ -100,10 +106,10 @@ export class Outfit extends React.Component{
 			}
 		}*/
 		let contextualStyles = null;
-		let outfitHeight = this.props.containerHeight/3;
+		let outfitHeight = this.props.containerHeight;///3;
 		let outfitWidth = outfitHeight*(2/3);
-		let isHome = this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase()
-		contextualStyles = isHome ?
+		let isBrowse = this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase()
+		contextualStyles = isBrowse ?
 			contextualStyles = {
 				'display':'inline-block',
 				'margin':'80px 50px 0px 50px'
@@ -111,7 +117,9 @@ export class Outfit extends React.Component{
 			this.props.containerHeight !== null ? 
 				contextualStyles ={
 					height:`calc(${outfitHeight}px)`,
-					width:`calc(${outfitWidth}px)`
+					width:`calc(${outfitWidth}px)`,
+					'margin-left':'130px',
+					'margin-bottom':'50px',
 				} :
 				null;
 
@@ -124,7 +132,7 @@ export class Outfit extends React.Component{
 		
 			>
 				{
-					isHome ? 
+					isBrowse ? 
 						(<div 
 							className={this.props.isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
 							style={{'padding':'0px'}}>
@@ -188,7 +196,7 @@ export class Outfit extends React.Component{
 								(<OutfitTileBrowseCtrls 
 									navToHostProfile={this.props.navToHostProfile} 
 									routeToHostProfile={this.props.routeToHostProfile}
-									username={isHome ? this.props.username : null}
+									username={isBrowse ? this.props.username : null}
 									getHostMeasurementsHandler={() => {this.props.getHostMeasurements(this.props.id)}}
 									handleTileSelected={this._handleTileClicked}/>)
 							}

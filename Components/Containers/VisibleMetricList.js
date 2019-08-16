@@ -19,7 +19,7 @@ const getVisibleMetrics = (profile, blackList) => {
 	return ownerProfileMetrics;	
 }
 
-const mapStateToProps = (state, username) => {
+const mapStateToProps = (state, props) => {
 	//TODO:  This needs to be scrubbed server side at the DTO level
 	/*let scrubbedOwnerProfile = Object.assign({}, state.entitiesReducer.profile.byIds.owner, {
 		id:undefined, 

@@ -22,9 +22,9 @@ export default class CompTypeApparelIcon extends React.Component{
 				xmlns="http://www.w3.org/2000/svg"
 				style={style}
 				>
-				<g stroke="#000">
+				<g stroke={stroke}>
 					<g display="none" opacity=".37821">
-						<g fill="none" stroke-width=".26458px">
+						<g fill={fill} stroke-width=".26458px">
 							<path d="M 48.75,48.75 25,25"/>
 							<path d="M 48.75,1.25 25,25"/>
 							<path d="M 1.25,48.75 25,25"/>

@@ -89,3 +89,9 @@
     background: #70ccf44d;
 	transition: background-color 100ms ease-in-out, width 100ms ease-in-out;
 }
+
+:local(.buttonContainer_div){
+	margin-top: 25px;
+	float: right;
+	margin-right: 30px;
+}

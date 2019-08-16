@@ -715,8 +715,9 @@ class CroppableImageForm extends React.Component{
 		//console.log('imageElementHeight = ', this.props.imageElement.clientHeight);
 		//console.log('imageElementWidth = ', this.props.imageElement.clientWidth);
 		let customButtonStyles = {
-			'margin-top':'calc((5vh + 25px) / 4)',
-			'margin-right':'5%',			
+			//'margin-top':'calc((5vh + 25px) / 4)',
+			'margin-top':'8px',
+			//'margin-right':'5%',			
 		}
 		if(this.state.images[this.selectedContentId]){
 			if(this.state.images[this.selectedContentId].cropping){
@@ -765,71 +766,13 @@ class CroppableImageForm extends React.Component{
 		}		
 		return (
 			<div style={this.props.imgFormStyle}>
+				
 				<div
 					className={FormStyles.controlContainerStyle} 
 					style={{
 						width:`${validImageElement ? this.props.imageElement.clientWidth : 0}px`,
 						display: (validImageElement && this.props.imageElement.clientWidth > 0) ? 'inline-flex' :  'none'
 					}} >
-					<label 
-						for="fileInput" 
-						style={{
-							'margin-right':'5%',
-							'width':'auto'
-						}}>
-						<Button
-							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-							//onClickHandler={this.rotateImageClockwise}
-							title='photos'
-							iconName='FileUploadIcon'
-							customButtonStyles={customButtonStyles}
-							puDirection='SOUTH'
-							textHeight={17} />
-					</label>	
-					<Button
-						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-						onClickHandler={this.props.discardChanges}
-						title='discard'
-						iconName='DiscardIcon'
-						customButtonStyles={customButtonStyles}
-						puDirection='SOUTH' />
-					<Button
-						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-						onClickHandler={this.rotateImageClockwise}
-						title='rotate'
-						iconName='RotateClockwiseIcon'
-						customButtonStyles={customButtonStyles}
-						iconStyls={{
-							'padding-top':'1px',
-							'padding-bottom':'4px',
-						}} />
-					<Button
-						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
-						onClickHandler={this._handleAcceptCrop}
-						toggleActiveTitle='accept crop'
-						toggleInactiveTitle='start crop'
-						isToggleActive={this.state.images[this.selectedContentId].cropping}
-						iconName='CropIcon'
-						customButtonStyles={customButtonStyles} />
-					<label 
-						for="submitButton" 
-						style={{
-							'width':'20%',
-							position: 'absolute',
-							right: '0px'
-						}}>
-						{/*<div 
-							className={this.props.imgFormControlStyle}
-							style={{width:'100%'}}
-							onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
-							onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>							
-							<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
-						</div>*/}
-						<Button
-							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.d}
-							title='submit'
-							customButtonStyles={customButtonStyles} />
-					</label>
 				</div>
 
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
@@ -847,9 +790,88 @@ class CroppableImageForm extends React.Component{
 
 				<div style={{
 					'text-align':'center', 
-					'height':'calc(100% - 5vh - 25px)',
+					//'height':'calc(100% - 5vh - 25px)',
 					height:'calc(100% - 80px)'
 				}} >
+
+					<div
+						//className={FormStyles.controlContainerStyle} 
+						style={{
+							position:'absolute',
+							left: '275px',
+    						//top: 'calc(25px + 5vh + 3*(24px + 8px))',
+    						top: 'calc(25px + 5vh)',
+							'text-align':'center', 
+							'z-index':'100',
+							//width:`${validImageElement ? this.props.imageElement.clientWidth : 0}px`,
+							//display: (validImageElement && this.props.imageElement.clientWidth > 0) ? 'inline-flex' :  'none'
+						}} >
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+							onClickHandler={this.props.discardChanges}
+							title='discard'
+							iconName='DiscardIcon'
+							ligature="cancel"
+							customButtonStyles={customButtonStyles}
+							puDirection='SOUTH' />
+						<label 
+							for="fileInput" 
+							style={{
+								//'margin-right':'5%',
+								'width':'auto'
+							}}>
+							<Button
+								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+								//onClickHandler={this.rotateImageClockwise}
+								title='photos'
+								iconName='FileUploadIcon'
+								ligature="add_a_photo"
+								customButtonStyles={customButtonStyles}
+								puDirection='SOUTH'
+								textHeight={17} />
+						</label>	
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+							onClickHandler={this.rotateImageClockwise}
+							title='rotate'
+							ligature="rotate_right"
+							iconName='RotateClockwiseIcon'
+							customButtonStyles={customButtonStyles}
+							iconStyls={{
+								'padding-top':'1px',
+								'padding-bottom':'4px',
+							}} />
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
+							onClickHandler={this._handleAcceptCrop}
+							toggleActiveTitle='accept crop'
+							toggleInactiveTitle='start crop'
+							isToggleActive={this.state.images[this.selectedContentId].cropping}
+							iconName='CropIcon'
+							ligature="crop"
+							customButtonStyles={customButtonStyles} />
+						<label 
+							for="submitButton" 
+							style={{
+								//'width':'20%',
+								//position: 'absolute',
+								//right: '0px'
+							}}>
+							{/*<div 
+								className={this.props.imgFormControlStyle}
+								style={{width:'100%'}}
+								onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
+								onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>							
+								<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
+							</div>*/}
+							<Button
+								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
+								//title='submit'
+								ligature="cloud_upload"
+								customButtonStyles={customButtonStyles} />
+						</label>
+					</div>
+
 					<div id="imgAndItemMapdiv" /*ref={this.props.setupContentViewRef}*/ref={this.setupCropImgRoot} style={{
 						'position':'relative',
 						width:'auto',

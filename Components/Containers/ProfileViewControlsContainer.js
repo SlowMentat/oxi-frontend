@@ -24,7 +24,7 @@ import {
 	navigateTo,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import OutfitList from '../../Components/Presentations/OutfitList.js';
+import ProfileViewControls from '../../Components/Presentations/ProfileViewControls.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
 
 
@@ -36,53 +36,32 @@ const mapStateToProps = (state, props) => {
 	console.log('filteredOutfits = ',filteredOutfits);
 	console.log('props = ', props);
 	return ({
+		// Outfits
 		outfits : filteredOutfits.byIds,
 		outfitIds : filteredOutfits.allIds,
 		addedOutfits : state.addedEntitiesReducer.outfits.byIds,
 		addedOutfitIds : state.addedEntitiesReducer.outfits.allIds,
-		//addedContentIds	: state.addedEntitiesReducer.contents.allIds,
-		controlDisabled: state.entitiesReducer.outfits.controlDisabled,
-		selectedId: state.entitiesStateReducer.outfits.selected,
-		//selectedAddedId: state.entitiesStateReducer.outfits.selected,
-		//view: props.view,
-		viewState: state.contentViewState.viewState,
-		webAppView: state.appView.webAppView,
+		selectedOutfitId: state.entitiesStateReducer.outfits.selected,
+
+		// Contents
 		contents : state.entitiesReducer.contents.byIds,
 		selectedContentId : state.entitiesStateReducer.contents.selected,
+
+		//Items
 		items : state.entitiesReducer.items.byIds,
 
-		currentPage: state.entitiesStateReducer.outfits.currentPage,
-		lastPage: state.entitiesStateReducer.outfits.lastPage,
-		isFetching: state.entitiesStateReducer.outfits.isFetching,
-
-		prevPageURL: state.entitiesStateReducer.outfits.prevPageURL,
-		nextPageURL: state.entitiesStateReducer.outfits.nextPageURL,
-		scrollPageHeight: state.entitiesStateReducer.outfits.scrollPageHeight,
-		pages: state.entitiesReducer.outfits.pages,
+		// Pictures
 		pictures: state.entitiesReducer.pictures.byIds,
 
+		// State
 		entitiesStateReducer: state.entitiesStateReducer,
+		controlDisabled: state.entitiesReducer.outfits.controlDisabled,
+		viewState: state.contentViewState.viewState,
+		webAppView: state.appView.webAppView,
 	});
 }
 
 const mapDispatchToProps = (dispatch, state) => ({
-	onClickContextProfile : (outfitId, targetChildId) => {
-		console.log("view Outfit div clicked")
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));
-	},
-	onClickContextBrowse : (outfitId, targetChildId) => {
-		console.log("outfit tile selected");
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
-	},
-	getHostMeasurements : (outfitId) => {
-		//fetch for the outfit's user's profile metrics (findProfileByOutfitId)
-		console.log('clicked', outfitId);
-		dispatch(fetchMetrics(outfitId));
-				
-	},
-	focusOnAddedOutift : (addedOutfitId) => dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.OUTFIT, addedOutfitId)),
-	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
-	//TODO remove
 	editOutfit : (outfit, entitiesStateReducer, contents, selectedContentId, items) => {
 		console.log('editOutfit:  outfit = ', outfit);
 		dispatch(disableAddOutfit(true));
@@ -120,11 +99,6 @@ const mapDispatchToProps = (dispatch, state) => ({
 		//dispatch(selectContent(outfit.contents[0]));
 		dispatch(editContentView(OxiAppConstants.viewState.EDIT));
 	},	
-	setScrollPageHeight: (scrollPageHeight) => dispatch(setEntityScrollPageHeight(OxiAppConstants.EntityTypes.OUTFIT, scrollPageHeight)),
-	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.OUTFIT, page)),
-	setNextPageURL: (URL) => dispatch(setNextPageURL(OxiAppConstants.EntityTypes.OUTFIT, URL)),
-	setPrevPageURL: (URL) => dispatch(setPrevPageURL(OxiAppConstants.EntityTypes.OUTFIT, URL)),
-	//TODO remove 
 	changeOutfitCoverPic: (modifiedProperties) => {
 		return new Promise((resolve, reject) => {
 			resolve(dispatch(patchEntity(OxiAppConstants.EntityTypes.OUTFIT, modifiedProperties)));
@@ -133,23 +107,10 @@ const mapDispatchToProps = (dispatch, state) => ({
 			dispatch(updateOutfitCoverpicuri(modifiedProperties));
 		});
 	},	
-	navToHostProfile : (hostUsername) => {	
-		//Deselect everything
-		/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
-		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
-		dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
-		//remove all entitiy data from entitiesReducer branch
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
-	
+	goBack: () => {
 		dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
 	},
-	compareHostMeasurements: (outfitId) => {
-
-	}
 })
 
-const VisibleOutfitList = connect(mapStateToProps, mapDispatchToProps)(OutfitList);
-export default VisibleOutfitList;
+const ProfileViewControlsContainer = connect(mapStateToProps, mapDispatchToProps)(ProfileViewControls);
+export default ProfileViewControlsContainer;

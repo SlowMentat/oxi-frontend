@@ -13,13 +13,16 @@ export default class ShopIcon extends React.Component{
 		let stroke = this.props.stroke || "#4a4547";
 		let fill = this.props.fill || "#4a4547";
 		let strokeWidth = this.props.strokeWidth || "2";
+		let style = this.props.style;// || {'width':'100%','height':'100%'};
 		return(
 			<svg 
 				width="50" 
 				height="50" 
 				version="1.1" 
 				viewBox="0 0 50 50"	
-				style={{'width':'100%','height':'100%'}}>
+				//style={{'width':'100%','height':'100%'}}
+				style={style}
+				>
 				<g stroke-linecap="round">
 					<g stroke-dashoffset="85.709">
 						<circle 

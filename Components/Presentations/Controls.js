@@ -50,23 +50,38 @@ class StaticIconButton extends React.Component{
 	}
 
 	render(){
+		var { 
+			ligature,
+			ligatureStyles,
+			ligatureContainerStyles,
+		} = this.props;
 		return(
 			<div
 				className={ControlStyles.sib_div}
 				style={
 					Object.assign({
-						'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
-						'--button-height':`${this.props.buttonHeight}px`
+						color:'unset',
+						//'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
+						'--button-height':`${this.props.buttonHeight}px`,
+						//'width':'unset',
 					}, this.props.customButtonStyles)
 				}
-				onClick={this.props.onClickHandler}
+				onClick={(event) => this.props.onClickHandler(event)}
 				onMouseOver={(event) => this._handleMouseOver(event)}
-				onMouseLeave={(event) => this._handleMouseLeave(event)} >					
-				<SvgIcon 
-					className={ControlStyles.sibIcon_svg}
-					style={this.props.iconStyles}
-					name={this.props.iconName} 
-					hovered={null/*this.state.discardHovering*/}/>
+				onMouseLeave={(event) => this._handleMouseLeave(event)} >
+				{
+					ligature.length > 0 ? 
+						(
+							<div className={ControlStyles.ligatureContainer_div} style={ligatureContainerStyles} >
+								<i class="material-icons" style={ligatureStyles}>{ligature}</i>
+							</div>
+						) :
+						(<SvgIcon 
+							className={ControlStyles.sibIcon_svg}
+							style={this.props.iconStyles}
+							name={this.props.iconName} 
+							hovered={null/*this.state.discardHovering*/}/>)
+				}
 				<div 
 					className={ControlStyles.sibTitle_div} 
 				>
@@ -91,6 +106,9 @@ StaticIconButton.propTypes = {
 	customButtonStyles: PropTypes.Object,
 	iconStyles: PropTypes.Object,
 	buttonPadding: PropTypes.number,
+	ligature: PropTypes.string,
+	ligatureStyles: PropTypes.Object,
+	ligatureContainerStyles: PropTypes.Object,
 }
 
 StaticIconButton.defaultProps = {
@@ -98,16 +116,20 @@ StaticIconButton.defaultProps = {
 	iconName: '',
 	borderColor: '#969696',
 	borderWidth: 0,
-	buttonHeight: 30,
+	buttonHeight: 24,
 	onClickHandler: (event) => console.log('non onClick event handler provided'),
 	//onHoverHandler: (event) => console.log('non onHover event handler provided'),
 	customButtonStyles: {},
 	iconStyles: {
+		display:'inline-block',
    		width: 'var(--button-line-height)',
    		//'padding-bottom': '4px',
    		height: 'var(--button-line-height)',
 	},
-	buttonPadding: 0
+	buttonPadding: 0,
+	ligature:'',
+	ligatureStyles: {color: 'black'},
+	ligatureContainerStyles: {}
 }
 
 
@@ -142,6 +164,12 @@ class DynamicIconButton extends React.Component{
 	}
 
 	render(){
+
+		var { 
+			ligature,
+			ligatureStyles
+		} = this.props;
+
 		return(
 			<CSSTransition
 			    tiemout={600}
@@ -159,14 +187,18 @@ class DynamicIconButton extends React.Component{
 							'--expanded-width': `${this.props.expandedWidth}px`
 						}, this.props.customButtonStyles)
 					}
-					onClick={this.props.onClickHandler}
+					onClick={(event) => this.props.onClickHandler(event)}
 					onMouseOver={(event) => this._handleMouseOver(event)}
-					onMouseLeave={(event) => this._handleMouseLeave(event)} >					
-					<SvgIcon 
-						className={ControlStyles.dibIcon_svg}
-						style={this.props.iconStyles}
-						name={this.props.iconName} 
-						hovered={null/*this.state.discardHovering*/}/>
+					onMouseLeave={(event) => this._handleMouseLeave(event)} >	
+					{
+						ligature.length > 0 ? 
+							(<i class="material-icons" style={ligatureStyles}>{ligature}</i>) :
+							(<SvgIcon 
+								className={ControlStyles.dibIcon_svg}
+								style={this.props.iconStyles}
+								name={this.props.iconName} 
+								hovered={null/*this.state.discardHovering*/}/>)
+					}
 					<div 
 						className={ControlStyles.dibTitle_div} 
 					>
@@ -245,12 +277,15 @@ class PopupIconButton extends React.Component{
 	}
 
 	render(){
+
+		var { ligature, ligatureStyles } = this.props;
+
 		return(
 			<div
 				className={ControlStyles.pib_div}
 				style={
 					Object.assign({
-						'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
+						//'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
 						'--button-height':`${this.props.buttonHeight}px`,
 						'--button-padding':`${this.props.buttonPadding}px`,
 						'--pu-text-left-align-hover': this.leftAlign,
@@ -259,14 +294,19 @@ class PopupIconButton extends React.Component{
 						'--pu-text-padding': `${this.props.textPadding}px`,
 					}, this.props.customButtonStyles)
 				}
-				onClick={this.props.onClickHandler}
+				onClick={(event) => this.props.onClickHandler(event)}
 				onMouseOver={(event) => this._handleMouseOver(event)}
-				onMouseLeave={(event) => this._handleMouseLeave(event)} >					
-				<SvgIcon 
-					className={ControlStyles.pibIcon_svg}
-					style={this.props.iconStyles}
-					name={this.props.iconName} 
-					hovered={null/*this.state.discardHovering*/}/>
+				onMouseLeave={(event) => this._handleMouseLeave(event)} >	
+				{
+					ligature.length > 0 ? 
+						(<i class="material-icons" style={ligatureStyles}>{ligature}</i>) :
+						(<SvgIcon 
+							className={ControlStyles.pibIcon_svg}
+							style={this.props.iconStyles}
+							name={this.props.iconName} 
+							hovered={null/*this.state.discardHovering*/}/>)
+				}				
+				
 				<CSSTransition
 					tiemout={600}
 					classNames="pibTitle_div"
@@ -300,7 +340,7 @@ PopupIconButton.defaultProps = {
 	borderColor: '#cacaca',
 	borderWidth: 1,
 	textHeight: 17,
-	textPadding: 3,
+	textPadding: 0,//3,
 	textBackgroundColor: '#4a4547',
 	iconStyles:{		
    		width:'100%',
@@ -335,6 +375,9 @@ class StaticIconToggle extends React.Component{
 	}
 
 	render(){
+
+		var { ligature } = this.props;
+
 		return(
 			<StaticIconButton { ...Object.assign( {}, this.props, { title :(this.props.isToggleActive ? this.props.toggleActiveTitle : this.props.toggleInactiveTitle) } ) } />
 		);
@@ -368,7 +411,7 @@ class SubmitButton extends React.Component{
 				className={ControlStyles.l3Button}
 				style={
 					Object.assign({
-						'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
+						//'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
 						'--button-height':`${this.props.buttonHeight}px`
 					}, this.props.customButtonStyles)
 				}
@@ -402,6 +445,7 @@ export class Button extends React.Component{
 	}
 
 	render(){
+
 		let button = null;
 		switch(this.props.buttonType){
 			case OxiAppConstants.ControlConstants.ButtonTypes.a:

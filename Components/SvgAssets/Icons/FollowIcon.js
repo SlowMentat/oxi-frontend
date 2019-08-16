@@ -13,13 +13,14 @@ export default class FollowIcon extends React.Component{
 		let stroke = this.props.stroke || "#000";
 		let fill = this.props.fill || "none";
 		let strokeWidth = this.props.strokeWidth || "2";
+		let style = this.props.style;// || {'width':'100%','height':'100%'};
 		return(
 			<svg 
 				width="50" 
 				height="50" 
 				version="1.1" 
 				viewBox="0 0 50 50"	
-				style={{'width':'100%','height':'100%'}}>	
+				style={style}>	
 				<g fill="none" stroke={stroke} stroke-width={strokeWidth}>
 					<path d="m35.84 23.596c-2.9277 1.5582-3.7811 4.4374-3.7811 4.4374v16.281h15.875v-16.281s-0.8534-2.8792-3.7811-4.4374c-2.3594 1.3532-5.9531 1.3532-8.3125 0z" opacity=".993"/>
 					<path d="m34.705 7.9999c2.4944-2.4944 8.0884-2.4944 10.583 0 2.4944 2.4944 2.4944 8.0884 0 10.583-2.4944 2.4944-8.0884 2.4944-10.583 0-2.4944-2.4944-2.4944-8.0884 0-10.583z" opacity=".993"/>

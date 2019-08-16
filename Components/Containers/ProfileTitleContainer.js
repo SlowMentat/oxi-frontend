@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import {} from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import MetricTitle from '../../Components/Presentations/MetricTitle.js';
+import ProfileTitle from '../../Components/Presentations/ProfileTitle.js';
 
 const mapStateToProps = (state) => {
 	return ({
@@ -13,5 +13,5 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
 })
 
-const MetricTitleContainer = connect(mapStateToProps, mapDispatchToProps)(MetricTitle);
-export default MetricTitleContainer;
+const ProfileTitleContainer = connect(mapStateToProps, mapDispatchToProps)(ProfileTitle);
+export default ProfileTitleContainer;

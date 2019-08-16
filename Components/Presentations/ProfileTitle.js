@@ -11,11 +11,14 @@ const metricTitleContainer_div = {
     'font-size': '2em',
 }
 
-const MetricTitle = ({ownerName = '', hostName = ''}) => {
+const ligatureStyles = {};
+
+const ProfileTitle = ({ownerName = '', hostName = ''}) => {
 	return (
 	    <div className={MetricStyles.metricsDataHeader_div}>
 	    	<div className={MetricStyles.profilePicContainer_div}>
 	    		<div className={MetricStyles.profilePic_div}>
+					<i class="material-icons" style={{'font-size':'48px'}}> account_box </i>
 	    		</div>
 	    	</div>
 	    	<div className={MetricStyles.profileDetails_div}>
@@ -24,17 +27,18 @@ const MetricTitle = ({ownerName = '', hostName = ''}) => {
 		    	</div>
 		    	<div className={MetricStyles.followingContainer_div}>
 		    		<div className={MetricStyles.followingStats_div}>
-		    			<div className={MetricStyles.followingHeader_div}>
-		    			Following
-		    			</div>
 		    			<div className={MetricStyles.followingValue_div}> 
 		    			 50M
+		    			</div>
+		    			<div className={MetricStyles.followingIcon_div}>
+		    				<i class="material-icons" style={ligatureStyles}> group </i>
 		    			</div>
 		    		</div>
 		    		{
 		    			ownerName !== hostName ? 
 		    				(<div className={MetricStyles.followingBtn_div}>
-		    					<SvgIcon name="FollowIcon" stroke='#666' strokeWidth={2} />
+		    					
+		    					{/*<SvgIcon name="FollowIcon" stroke='#666' strokeWidth={2} />*/}
 		    				</div>) :
 		    				null
 		    		}
@@ -44,4 +48,4 @@ const MetricTitle = ({ownerName = '', hostName = ''}) => {
 	);
 }
 
-export default MetricTitle;
+export default ProfileTitle;

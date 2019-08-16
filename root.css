@@ -22,6 +22,10 @@ body{
 	--color2: #d9d9d9;	
 	--color3: #a9a9a9;
 	--color4: #c4edff;
+	--color5: #fdd835;
+	--colorBorder: #c1c1c1;
+
+	--color-generic-icon: #4f4f4f;
 
 	background-color: #fdfdfd;
 	height: 100%;
@@ -132,23 +136,23 @@ a{
 }
 
 .containerProfile{
-	display: grid;
-	--column-width-item: 24.579%;
+	/*display: grid;*/
+	--column-width-browse: 20%;
 	--column-width-metric: 300px;
 	--column-width-preview: 27%;
-	--column-width-browse: auto;
+	--column-width-item: auto;
 	background-color: var(--main-background-color);
 	/*grid-template-columns: auto 250px 45% 20%;*/
 	grid-template-columns: 
 		var(--column-width-metric) 
-		var(--column-width-item) 
+		var(--column-width-browse)
 		var(--column-width-preview) 
-		var(--column-width-browse);
+		var(--column-width-item); 
 	/*grid-template-columns: 300px 28.579% 27% auto;*/
     grid-template-rows: calc(100vh - 80px - 40px) 40px;
     grid-gap: 0px;
     grid-template-areas: 
-    	"metric itemMenu preview browse"
+    	"metric browse preview itemmenu"
  		"admin admin admin admin";
 	height:100%;
 }
@@ -187,7 +191,7 @@ a{
 :local(.headerBlock){
 	z-index: 1000;
 	background-color: var(--main-background-color);
-	border-bottom: solid 1px #c1c1c1;
+	/*border-bottom: solid 1px #c1c1c1;*/
 	/*grid-area: nav;*/
 	top: 0;
 	width: 100%;
@@ -206,7 +210,54 @@ a{
     padding-bottom: 12.5px;
 }
 
+:local(.contentContainer){
+	position: relative;
+	margin-right: 0px;
+    width: calc(100% - 300px);
+    margin-left: 300px;
+    padding-left: 200px;
+
+	position: relative;
+    /*width: 65%;*/
+    height: calc(100% - 40px);
+    /* height: 100%; */
+    /*margin: auto;
+    padding-left: 350px;*/
+}
+
+:local(.controlsContianer){
+	/*position: absolute;
+	top: calc(25px + 5vh);
+	width: 35px;
+	left: calc(350px - 35px);*/
+
+	position: absolute;
+    top: calc(25px + 5vh);
+    width: 45px;
+    left: 200px;
+    height: 270px;
+    border-right: solid 1px var(--color2);
+    padding-right: 5px;
+}
+
+:local(.controlsContainerTitle){    
+	position: absolute;
+    right: 0px;
+    margin-top: 0px;
+    height: 36px;
+    line-height: 36px;
+    font-size: 18px;
+    width: 175px;
+    padding-left: 15px;
+    border-bottom: solid 1px #d9d9d9;
+}
+
+
 :local(.metricBlock){
+	position: absolute;
+	left: 7px;
+	height: calc(100vh - 80px - 40px - 8px);
+
 	--fz-color: #ffffff;
     --nfz-color: #515151;
     --bar-fill-color: #54c2f1a8;
@@ -216,7 +267,7 @@ a{
 	border-bottom-style: none;
     border-width: 20px;
     border-color: #dadada;
-    height:100%;
+    /*height:100%;*/
     /*height: calc((100vh - 80px - 40px - 100px - 10px)/2);*/
     /*height: calc(.47*(100vh - 80px -165px));*/
     /*background-color: white;*/
@@ -227,9 +278,16 @@ a{
     /*border-right-style: solid;*/
 }
 
+:local(.titleContainer_div){
+	border: solid 1px var(--colorBorder);
+    background-color: white;
+    border-radius: 5px;
+}
+
 :local(.metricContainer_div){
+	--comp-icon-fill:var(--color-generic-icon);
 	position:relative;
-	height: calc(100% - 16px + 40px);
+	/*height: calc(100% - 16px + 40px);*/
     border-style: solid;
     border-width: 1px;
     border-color: #c1c1c1;
@@ -273,7 +331,9 @@ a{
 
 :local(.previewBlock){
 	composes: stdBlock;
-	grid-area: preview;
+	/*grid-area: preview;*/
+	display: inline-block;
+	vertical-align: top;
 	padding: 0px;
 	height: calc(100% - 80px);
 	/*background-color: rgba(28, 32, 35, 0);*/

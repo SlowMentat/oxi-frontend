@@ -13,6 +13,8 @@ export default class BookmarkIcon extends React.Component{
 		let stroke = this.props.stroke || "#000";
 		let fill = this.props.fill || "none";
 		let strokeWidth = this.props.strokeWidth || "1.4";
+		let style = this.props.style || {'width':'100%','height':'100%'};
+
 		return(
 			<svg 
 				width="50mm" 
@@ -20,7 +22,7 @@ export default class BookmarkIcon extends React.Component{
 				version="1.1" 
 				viewBox="0 0 50 50" 
 				xmlns="http://www.w3.org/2000/svg"				
-				style={{'width':'100%','height':'100%'}}>
+				style={style}>
 				<g>
 					<path 
 						d="m40.831 48.747v-47.497h-31.665v47.497l15.832-10.555 15.832 10.555" 

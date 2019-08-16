@@ -8,6 +8,8 @@ import {
 	removeAllEntities,
 	selectEntity,
 	getSavedItems,
+	unsetPreviewFocus,
+	setPreviewFocus,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
@@ -20,12 +22,14 @@ const mapStateToProps = (state, props ) => {
 		webAppView: state.appView.webAppView,
 		browseSelection: state.browseState.browseSelection,
 		viewState: state.contentViewState.viewState,
+		isFocusedPreview: state.contentViewState.isFocusedPreview,
 		/*hostProfile: state.entitiesReducer.profile.byIds.host,*/
 		owner: state.entitiesReducer.profile.byIds.owner,
 		formType: state.toggleModal.modal,
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,
 		savedItemMap: state.cache.savedItemMap,
+		buttonDisabled: state.buttonState.addOutfit.disabled,
 	};
 }
 
@@ -81,7 +85,9 @@ const mapDispatchToProps = (dispatch, props) => ({
 				}
 			})
 		}
-	}
+	},
+	setPreviewFocus: () => dispatch(setPreviewFocus()),
+	unsetPreviewFocus: () => dispatch(unsetPreviewFocus()),
 })
 
 const AppView = connect(mapStateToProps, mapDispatchToProps)(WebAppView);
