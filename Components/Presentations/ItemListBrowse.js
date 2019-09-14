@@ -4,7 +4,7 @@ import React from 'react';
 import PagedListContainer from '../../Components/Containers/PagedListContainer.js';
 
 //Presentation Component
-import {Item} from './Item.js';
+import {Item, ItemBrowse, ItemBrowseInfo} from './Item.js';
 import PagedList from './PagedList.js';
 
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -74,7 +74,11 @@ export default class ItemListBrowse extends React.Component{
 		    				</div>
 		    			</div>
 		    		</div>*/}
-		    		<div>
+		    		<div 
+		    			style={{
+		    				width: '500px',
+    						'margin-left': '400px',
+		    			}}>
 		    			<TransitionGroup>
 					   		{
 					   			this.props.itemIds.map((itemId) => {
@@ -90,12 +94,13 @@ export default class ItemListBrowse extends React.Component{
 					   							onExit={(element) => {console.log(itemId, ' exited.  Element is: ', element)}}
 					   							unmountOnExit >
 					   							{
-					   								(state) => (state === 'unmounted' ? null : (<Item 
+					   								(state) => (state === 'unmounted' ? null : (<ItemBrowse
 					   									key={itemId}
 					   									item={this.props.items[itemId]} 
 					   									selectedAllIds={this.props.multipleSelectedAllIds}
 					   									onSelect={this.props.createHandleMulSel} 
 					   									onDeselect={this.props.createHandleMulDesel}
+					   									clearSelectMultipleEntity={this.props.clearSelectMultipleEntity}
 					   									brands={this.props.brands} 
 					   									retailers={this.props.retailers}
 					   									itemIdHovered={this.props.itemIdHovered}

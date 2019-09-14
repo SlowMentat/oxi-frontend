@@ -161,7 +161,8 @@ export default class ItemList extends React.Component{
 			    										expandedViewState={this.state.expandedItemId !== false}
 			    										//sizeGroupIndLUT={this.state.sizeGroupIndLUT}
 			    										compareMetrics={this.props.compareMetrics}
-			    										sizeGroups={this.props.sizeGroups} />) 
+			    										sizeGroups={this.props.sizeGroups}
+			    										getCoverPic={this.props.getCoverPic} />) 
 			    								)
 			    							}
 			    						</CSSTransition>
@@ -217,7 +218,8 @@ export default class ItemList extends React.Component{
 			    										sizeGroupIndLUT={this.state.sizeGroupIndLUT}
 			    										compareMetrics={this.props.compareMetrics}
 			    										expandedViewState={this.state.expandedItemId !== false}
-			    										sizeGroups={this.props.sizeGroups} />))
+			    										sizeGroups={this.props.sizeGroups}
+			    										getCoverPic={this.props.getCoverPic} />))
 			    							}
 			    						</CSSTransition>
 			    					));

@@ -30,49 +30,29 @@ const mapStateToProps = (state, props ) => {
 		requestType: state.toggleModal.prevRequestType,
 		savedItemMap: state.cache.savedItemMap,
 		buttonDisabled: state.buttonState.addOutfit.disabled,
+
+
+		//Router location state
+  		pathname: state.router.location.pathname,
+  		search: state.router.location.search,
+  		hash: state.router.location.hash,		
 	};
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
 	getSavedItems : () => dispatch(getSavedItems()),
 	navEventCallbacks : {
+		//Browse
 		a : (isOwnerProfileEntityPresent) => {
-			//dispatch(setWebAppView("home"))
-			/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
-			dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
-
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
-			dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
-			console.log('in navEventCallback for navRequestMap.a');
 			dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase(), isOwnerProfileEntityPresent));
 		},
+		//Profil e
 		b : (profileId) => {
-			/*dispatch(setWebAppView("profile"));
-			//fetch owners outfits 
-			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, ''));
-			//fetch owners body info
-			dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, ''));*/
-			//Clear existing store
-
-			//Deselect everything
-			//dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
-			//dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
-			//dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
-			////remove all entitiy data from entitiesReducer branch
-			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
-			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
-			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
-			//dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
-			console.log('in navEventCallback for navRequestMap.b');
 			dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
 		},
-		c : () => {
-			//dispatch(setWebAppView("settings"))
-			//dispatch(navigateTo(OxiAppConstants.navRequestMap.landing.toLowerCase()));
-			dispatch(navigateTo(OxiAppConstants.navRequestMap.c.toLowerCase()));
+		//Fitting
+		c : (isOwnerProfileEntityPresent) => {
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.c.toLowerCase(), isOwnerProfileEntityPresent));
 		},
 		search : () => {
 			dispatch(setWebAppView("search"))

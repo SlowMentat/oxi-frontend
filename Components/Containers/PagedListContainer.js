@@ -5,7 +5,7 @@ import {
 	showMenu,
 	fetchEntities,
 	removeAllEntities,
-	fetchContentsByItemId,
+	fetchContentsWithOutfitByItemId,
 	fetchPagedItems,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -21,7 +21,7 @@ const mapStateToProps = (state, props) => ({
 const mapDispatchToProps = (dispatch) => ({
 	getContentsByItemId: (URL) => {
 		return new Promise((resolve, reject) => {
-			resolve(dispatch(fetchContentsByItemId(URL)));
+			resolve(dispatch(fetchContentsWithOutfitByItemId(URL)));
 		})
 		.then((response) => {
 

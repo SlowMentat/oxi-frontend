@@ -60,7 +60,8 @@ class StaticIconButton extends React.Component{
 				className={ControlStyles.sib_div}
 				style={
 					Object.assign({
-						color:'unset',
+						//color:'unset',
+						color: '#565656',
 						//'border':`solid ${this.props.borderWidth}px ${this.props.borderColor}`,
 						'--button-height':`${this.props.buttonHeight}px`,
 						//'width':'unset',

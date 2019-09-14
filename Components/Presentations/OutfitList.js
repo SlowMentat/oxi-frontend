@@ -31,6 +31,10 @@ class PagedOutfitList extends React.Component{
 	}
 
 	render(){
+		var {
+
+		} = this.props;
+
 		return(
 			<PagedListContainer
     			scrollContainerStyle={this.props.scrollContainerStyle}
@@ -78,6 +82,11 @@ class PagedOutfitList extends React.Component{
 											containerHeight={this.props.containerHeight}
 											//containerWidth={this.props.containerWidth}
 											setPreviewFocus={this.props.setPreviewFocus}
+											//profileIds={this.props.profileIds}
+											unlike={this.props.unlike}
+											like={this.props.like}
+											outfit={this.props.outfits[outfitId]}
+											//likeCountIdsSize={this.props.likeCountIdsSize}
 										/> :
 										null)
 									) : null}
@@ -127,14 +136,19 @@ class OutfitList extends React.Component{
 				<TransitionGroup style={{'height':'100%'}}>
 					{(
 						this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() ?
-		    				(<PagedOutfitList 
-		    					container1_div={container1_div} 
-		    					container2_div={container2_div} 
-		    					{...this.props} />) :
-		    				(<PagedOutfitList 
-		    					container1_div={{'height':'100%'}} 
-		    					container2_div={{'height':'100%'}} 
-		    					{...this.props} />)
+		    				(
+		    					<PagedOutfitList 
+		    						container1_div={container1_div} 
+		    						container2_div={container2_div} 
+		    						{...this.props} 
+		    					/>
+		    				) : (
+		    					<PagedOutfitList 
+		    						container1_div={{'height':'100%'}} 
+		    						container2_div={{'height':'100%'}} 
+		    						{...this.props} 
+		    					/>
+		    				)
 		    		)}
 		    	</TransitionGroup>
 		    	{null

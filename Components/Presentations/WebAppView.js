@@ -67,7 +67,7 @@ export function SiteNav(props){
     	<div className={Styles.headerBlock}>
     		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
     		{
-    			props.webAppView !== 'landing' ?
+    			/*props.webAppView !== 'landing' ?*/
     				(
     					<React.Fragment>
     						<div className={Styles.logoContainer_div}>
@@ -77,15 +77,30 @@ export function SiteNav(props){
     							/>
     						</div>
     						<div className={NavStyles.navBanner_div}>
-    							<Nav 
-    								blocks={Object.keys(OxiAppConstants.navRequestMap)} 
-    								callBacks={props.navEventCallbacks} 
-    								webAppView={props.webAppView} 
-    								match={props.match}
-    								ownerUsernamePath={props.ownerUsernamePath}/>
+    							{
+    								props.webappview === 'landing' ?
+    									(
+    										<div style={{float:'right', width:'0px'}}>
+    											<div className={NavStyles.landingCtrl_div}>
+    												<div className={NavStyles.landingBtnContainer_div}>
+    													<div className={NavStyles.landingBtn_div}>
+    														Login
+    													</div>
+    												</div>
+    											</div>
+    										</div>
+    									):(
+    										<Nav 
+    											blocks={Object.keys(OxiAppConstants.navRequestMap)} 
+    											callBacks={props.navEventCallbacks} 
+    											webAppView={props.webAppView} 
+    											match={props.match}
+    											ownerUsernamePath={props.ownerUsernamePath} />
+    									)
+    							}
     						</div>
     					</React.Fragment>
-    				) : (
+    				) /*: (
     					<React.Fragment>
     						<div className={NavStyles.landingLogoContainer_div}>
     							<div className={NavStyles.landingLogo_div}>
@@ -112,7 +127,7 @@ export function SiteNav(props){
     							</div>
     						</div>    						
     					</React.Fragment>
-    				)
+    				)*/
     		}
     	</div>
 	);
@@ -376,6 +391,33 @@ export default class webAppView extends React.Component {
 		this.setPreviewFocus = this.setPreviewFocus.bind(this);
 		this._handleAddOutfitClcik = this._handleAddOutfitClcik.bind(this);
 		this.previousLocation = props.location;
+
+		var {
+			pathname,
+			owner,
+		} = this.props;
+
+		switch(true){
+			//Browse
+			case pathname === OxiAppConstants.routeURIs.browse || pathname === OxiAppConstants.routeURIs.shop:
+				//Make request to server to initialize /browse page data
+				//this.props.navEventCallbacks.a(this.props.profile !== undefined);
+				this.props.navEventCallbacks.a(owner !== undefined);
+				break;
+			//Profile
+			case RegExp(`^${OxiAppConstants.routeURIs.profile}/*`).test(pathname):
+				//Make request to server to initialize /profile/* page data
+				this.props.navEventCallbacks.b();
+				break;
+			//Fitting
+			case RegExp(`^${OxiAppConstants.routeURIs.fitting}/*`).test(pathname):
+				//Make request to server to initialize /profile/* page data
+				this.props.navEventCallbacks.c(owner !== undefined);
+				break;
+			default:
+				break;
+
+		}
 	}
 
 	/*shouldComponentUpdate(nextProps, nextState) {
@@ -542,6 +584,7 @@ export default class webAppView extends React.Component {
 
 		var { 
 			location,
+			pathname,
 			viewState,
 			isFocusedPreview,
 		} =  this.props;
@@ -593,7 +636,7 @@ export default class webAppView extends React.Component {
 		let ownerUsernamePath = this.props.owner ? `/${this.props.owner.username}` : '';
 		return(
 			<React.Fragment>
-				<Switch location={isModal ? this.previousLocation : location}>
+				<Switch pathname >{/*location={isModal ? this.previousLocation : location}>*/}
 					{/*<Route 
 						path="/"
 						render={() => (
@@ -605,6 +648,7 @@ export default class webAppView extends React.Component {
 					/>*/}
 					{/*<Redirect to={`${this.props.match.url}/${this.props.webAppView}`}/>*/}
 					<Route
+						push
 						path={`${this.props.match.url}/${OxiAppConstants.navRequestMap.a.toLowerCase()}`}
 						render={(props) => (
 							//Fetch all necesary data from the api server for the /browse page
@@ -633,6 +677,7 @@ export default class webAppView extends React.Component {
 						)}
 					/>
 					<Route
+						push
 						path={`${this.props.match.url}/${OxiAppConstants.navRequestMap.b.toLowerCase()}/:username`}
 						render={(props) => (
 							<div>
@@ -731,6 +776,7 @@ export default class webAppView extends React.Component {
 						)}
 					/>
 					<Route
+						push
 						path={`${this.props.match.url}/${OxiAppConstants.navRequestMap.c.toLowerCase()}`}
 						render={(props) => (
 							<div>							
@@ -752,7 +798,9 @@ export default class webAppView extends React.Component {
 							</div>
 						)} 
 					/>
-					<Route render={props => <div>This URI does not exist</div>} />
+					<Route 
+						push
+						render={props => <div>This URI does not exist</div>} />
 				</Switch>
 				{this.props.formType !== 'HIDDEN' ? modalContent : null}
 			</React.Fragment>

@@ -22,6 +22,8 @@ import {
 	updateOutfitCoverpicuri,
 	removeAllEntities,
 	navigateTo,
+	postLike,
+	postUnlike,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -62,6 +64,10 @@ const mapStateToProps = (state, props) => {
 		pictures: state.entitiesReducer.pictures.byIds,
 
 		entitiesStateReducer: state.entitiesStateReducer,
+
+		likeCountIds: state.entitiesReducer.likeCount.byIds,
+		//profileIds: state.entitiesReducer.profile.byIds,
+		//likeCountIdsSize: state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.likeCountIds.length : null,
 	});
 }
 
@@ -148,6 +154,12 @@ const mapDispatchToProps = (dispatch, state) => ({
 	},
 	compareHostMeasurements: (outfitId) => {
 
+	},
+	like: (outfitId, outfit) => {
+		dispatch(postLike(outfitId, outfit));
+	},
+	unlike: (outfitId, outfit) => {
+		dispatch(postUnlike(outfitId, outfit));
 	}
 })
 

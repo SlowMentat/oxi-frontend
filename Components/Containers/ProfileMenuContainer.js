@@ -47,6 +47,9 @@ const mapDispatchToProps = (dispatch) => ({
 	postProfile: (profile) => {
 		dispatch(postProfile(profile))
 	},
+	getProfileData: () => {
+		fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', '')
+	}
 })
 
 const ProfileMenuContainer = connect(mapStateToProps, mapDispatchToProps)(ProfileMenu);

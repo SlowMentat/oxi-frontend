@@ -34,15 +34,16 @@
 }
 
 :local(.itemsContainer_div){
-	width:400px;
+	width: 375px;
 	height: 100%;
-	border:solid 1px var(--color2);
+	/*border:solid 1px #c1c1c1;*/
 	border-radius: 5px;
 	border-left: none;
 	border-top-left-radius: 0px;
 	border-bottom-left-radius: 0px;
 	padding: 17px;
-	background-color: white
+    padding-top: 0px;
+	background-color: var(--main-background-color);
 }
 
 :local(.itemBlock){	

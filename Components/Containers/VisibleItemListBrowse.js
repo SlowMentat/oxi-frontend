@@ -10,13 +10,14 @@ import {
 	clientDeleteEntities,
 	modifyContent,
 	fetchEntities,
-	fetchContentsByItemId,
+	fetchContentsWithOutfitByItemId,
 	removeAllEntities,
 	setEntityScrollPageHeight,
 	setCurrentEntityPage,
 	setNextPageURL,
 	setPrevPageURL,
-	fetchImage
+	fetchImage,
+	selectEntity
 } from '../../Components/Actions/indexActions.js';
 import ItemListBrowse from '../../Components/Presentations/ItemListBrowse.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
@@ -80,16 +81,22 @@ const mapDispatchToProps = dispatch => ({
 	},
 	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds)),
 	getContentsByItemId: (itemId) => {
+
 		return new Promise((resolve, reject) => {
-			//
-			resolve(dispatch(fetchContentsByItemId(itemId)));
+			resolve(dispatch(fetchContentsWithOutfitByItemId(itemId)));
 		})
 		.then((response) => {
-
+			//var outfitIds = response.data['_embedded'].contentDtoes.map(content => content.outfitId);
+			//console.log('outfits = ' + outfitIds);
+			//dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'ids', null, 0, 10, {params:outfitIds}));
+		},(error) => {
+			//Rejected
+			console.log(error);
 		});	
 	},	
 	removeContentEntities: () => dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT)),
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
+	clearSelectMultipleEntity: () => dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM)),
 })
 
 const VisibleItemListBrowse = connect(mapStateToProps, mapDispatchToProps)(ItemListBrowse);

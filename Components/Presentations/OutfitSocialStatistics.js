@@ -11,14 +11,16 @@ import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 export const OutfitSocialStatistics = (props) => (
 	<div className={props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? OutfitStyles.likesContainer_div : OutfitStyles.likesContainerHome_div} >
-		<div className={OutfitStyles.likesStats_div}>
-			<div className={OutfitStyles.likesHeader_div}>
-				Likes
-			</div>
-			<div className={OutfitStyles.likesValue_div}>
-				3.6k
-			</div>
-		</div>
+		{
+			//<div className={OutfitStyles.likesStats_div}>
+			//	<div className={OutfitStyles.likesHeader_div}>
+			//		Likes
+			//	</div>
+			//	<div className={OutfitStyles.likesValue_div}>
+			//		3.6k
+			//	</div>
+			//</div>
+		}
 		<div className={OutfitStyles.likesBtn_div} >
 				<SvgIcon className={OutfitStyles.likesBtn_svg} name="HeartIcon" fill="none" stroke="#666" strokeWidth="3"/>
 		</div>

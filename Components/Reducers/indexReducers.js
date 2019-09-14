@@ -1,5 +1,7 @@
-import {combineReducers} from 'redux'
+import {combineReducers} from 'redux';
+import { connectRouter } from 'connected-react-router';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+
 import {
 			ADD_PROFILE,
 			ADD_OUTFIT,	
@@ -11,6 +13,7 @@ import {
 			CREATE_ITEMCONTENT,
 			CREATE_CONTENT,
 			CREATE_OUTFIT,
+			CREATE_LIKE_COUNT,
 			DISABLE_BUTTON,
 			DISABLE_CONTENT_BUTTON,
 			EDIT_CONTENT_VIEW,
@@ -67,12 +70,14 @@ import {
 			RECEIVED_ALL_APPAREL_TYPES,
 			CREATE_APPAREL_TYPE,
 			REPLACE_APPAREL_TYPE,
+			REPLACE_LIKE_COUNT,
 			RECEIVED_SIZE_GROUPS_BY_ITEM_ID,
 			REPLACE_SIZE_CHART,
 			REPLACE_SIZE_GROUP,
 			CREATE_SIZE_GROUP,
 			SET_PREVIEW_FOCUS,
 			UNSET_PREVIEW_FOCUS,
+			TOGGLE_OUTFIT_IS_LIKED,
 		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
@@ -500,6 +505,18 @@ const entities = (maxCount) => (state = {selected: false, controlDisabled : fals
 				}
 			});
 
+		case TOGGLE_OUTFIT_IS_LIKED:
+			return Object.assign({}, state, {
+				'byIds':{
+					...state.byIds,
+					[action.payload.id] : {
+						...state.byIds[action.payload.id],
+						isLiked: !state.byIds[action.payload.id].isLiked
+					}
+				}
+			});
+			break;
+
 		case `MODIFY_${action.typeSpecifier}_PROPERITIES`:
 			/*let modifiedEntities = {};
 			for(let modification of action.payload.modifiedProperties){
@@ -919,6 +936,7 @@ export const maxContentViewCount = OxiAppConstants.maxContentCount;
 export const maxItemViewCount = 9;
 export const maxProfileCount = 1;
 export const maxOutfitCount = maxOutfitViewCount * 3;
+export const maxLikeCount = maxOutfitCount;
 export const maxContentCount = maxContentViewCount * maxOutfitCount;
 export const maxPictureCount = maxContentCount;
 export const maxItemCount = maxItemViewCount * maxContentCount;
@@ -971,6 +989,7 @@ const entitiesReducer = combineReducers({
 	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
 	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
 	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
+	likeCount: entityReducerFactory(entities(maxLikeCount), OxiAppConstants.EntityTypes.LIKE_COUNT, defualtEntitiesStore),
 	apparelTypes : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.APPAREL_TYPE, defualtEntitiesStore),
 	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
 	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore),
@@ -1004,7 +1023,9 @@ const cache = combineReducers({
 })
 
 
-const _OxiApp = combineReducers({
+const createRootReducer = (history) => combineReducers({
+	//reducer used by conected-react-router
+	router: connectRouter(history),
 	//add reducers for combining here
 	buttonState,
 	browseState,
@@ -1024,4 +1045,4 @@ const _OxiApp = combineReducers({
 	//editableContentView
 })
 
-export default _OxiApp
+export default createRootReducer

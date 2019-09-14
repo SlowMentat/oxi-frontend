@@ -33,7 +33,7 @@ export const OxiAppConstants = Object.freeze({
 	outfitFormRoot : document.getElementById('outfitForm'),
 	modalRoot : document.getElementById('modalRoot'),
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
-	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
+	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
 	webAppBaseURL : 'https://www.oxisalechannel.com',
 	aspectRatio : (2 / 3),
 	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1
@@ -43,6 +43,10 @@ export const OxiAppConstants = Object.freeze({
 		c : "Fitting",
 		//search : "Search",
 		//logout : "Logout"
+	},
+	browseSelection:{
+		a: 'outfits',
+		b: 'apparel',
 	},
 	fitResultValues:{
 		a:'✔',//'Perfect Fit',
@@ -72,6 +76,7 @@ export const OxiAppConstants = Object.freeze({
 		APPAREL_TYPE: "APPAREL_TYPE",
 		SIZE_CHART:'SIZE_CHART',
 		SIZE_GROUP:'SIZE_GROUP',
+		LIKE_COUNT: 'LIKE_COUNT',
 		search:{
 			ta: 'AVAILABLE_ITEMS',
 		}
@@ -79,6 +84,8 @@ export const OxiAppConstants = Object.freeze({
 	routeURIs:{
 		login:'/user/account/login',
 		browse: '/shop/browse',
+		profile: '/shop/profile',
+		fitting:'/shop/fitting',
 		shop: '/shop',
 		search:{
 			a:'/searchItems',
@@ -116,6 +123,7 @@ export const OxiAppConstants = Object.freeze({
 	EmbeddedEntityPropertyNames : {	
 		PROFILE : "profileDto",
 		OUTFIT : "outfitDtoes",
+		CONTENT_WITH_OUTFIT: "contentWithOutfitDtoes",
 		CONTENT: "contentDtos",
 		ITEM : "itemDtos",
 		SIZE_CHART: "sizeChartDtos",
@@ -128,12 +136,14 @@ export const OxiAppConstants = Object.freeze({
 		PROFILE : "profile",
 		OUTFIT : "outfits",
 		CONTENT: "contents",
+		CONTENT_WITH_OUTFIT: "contents",
 		ITEM : "items",
 		SIZE_CHART: "sizeChartDto",
 		SIZE_GROUP:"sizeGroupDtos",
 		PICTURE : "picture",
 		BRAND: "brands",
-		RETAILER: "retailers"
+		RETAILER: "retailers",
+		LIKE_COUNT: 'likeCount',
 	},
 	ContentDirectories : {
 		IMAGES: 'Graphics'

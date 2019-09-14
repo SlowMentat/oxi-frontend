@@ -14,10 +14,14 @@ var showOutfitTileControls = {
 export class Outfit extends React.Component{
 	constructor(props){
 		super(props);
+		var {
+			coverpic,
+			hovering,
+		} = props;
 		this.state = {
-			coverpic:null,
-			base64Image:null,
-			hovering: false
+			coverpic: coverpic || null,
+			base64Image: null,
+			hovering: hovering || false
 		};
 
 		this._handleTileClicked = this._handleTileClicked.bind(this);
@@ -105,16 +109,50 @@ export class Outfit extends React.Component{
 				this.props.getCoverPic(this.props.modifiedOutfitProperites.coverpicuri, this._handleImageReceived, 'small')
 			}
 		}*/
+
+		const {
+			editOutfit,
+			navToHostProfile,
+			routeToHostProfile,
+			getHostMeasurements,
+		} = this.props;
+
+		var {
+			contents,
+			webAppView,
+			outfit,
+			containerHeight,
+			isLiked,
+			likeCount,
+			like,
+			unlike,
+			id, 				//outfit id
+			viewState,
+			username,
+			isSelected,
+			webAppView
+		} = this.props;
+
 		let contextualStyles = null;
-		let outfitHeight = this.props.containerHeight;///3;
+		let outfitHeight = containerHeight;///3;
 		let outfitWidth = outfitHeight*(2/3);
-		let isBrowse = this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase()
+		let isBrowse = webAppView === OxiAppConstants.navRequestMap.a.toLowerCase();
+
+		var fill = "none";
+		var stroke = "#666";
+		//var isLiked = profileIds.owner ? profileIds.owner.likeCountIds.includes(likeCount.toUpperCase()) : false
+		
+		if(isLiked){
+			fill = "var(--color7)";
+			stroke = "var(--color5)";
+		}
+
 		contextualStyles = isBrowse ?
 			contextualStyles = {
 				'display':'inline-block',
 				'margin':'80px 50px 0px 50px'
 			} :
-			this.props.containerHeight !== null ? 
+			containerHeight !== null ? 
 				contextualStyles ={
 					height:`calc(${outfitHeight}px)`,
 					width:`calc(${outfitWidth}px)`,
@@ -125,36 +163,70 @@ export class Outfit extends React.Component{
 
 		return(
 			<div 
-				//className={this.props.isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
+				//className={isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
 				className={OutfitStyles.stdOutfitBlock} 
 				style={contextualStyles} 
-				onClick={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this._handleTileClicked : null}
+				onClick={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this._handleTileClicked : null}
 		
 			>
 				{
 					isBrowse ? 
-						(<div 
-							className={this.props.isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
-							style={{'padding':'0px'}}>
-							<div className={OutfitStyles.outfitUsername_div}>
-								{this.props.username !== undefined && this.props.username !== null ? this.props.username.toUpperCase() : null}
+						(
+							<div 
+								className={isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
+								style={{'padding':'0px'}} >
+								<div className={OutfitStyles.outfitUsername_div}>
+									{username !== undefined && username !== null ? username.toUpperCase() : "Username"}
+								</div>
+								<div 
+									className={OutfitStyles.likesBtn_div}
+									onClick={(event) => {
+										isLiked ?
+											unlike(id, outfit) :
+											like(id, outfit)
+									}} >
+										<SvgIcon 
+											className={OutfitStyles.likesBtn_svg} 
+											name="HeartIcon" 
+											fill={fill}
+											stroke={stroke} 
+											strokeWidth="3" />
+								</div>
 							</div>
-						</div>) :
-						(<div className={this.props.isSelected ? OutfitStyles['outfitMultiPicContainer_div--selected'] : OutfitStyles.outfitMultiPicContainer_div}>
-							<div className={OutfitStyles.outfitMultiPic_div}>
-								{
-									Object.keys(this.props.contents).length > 1 ? 
-										(<SvgIcon 
-											style={{
-												width:'100%', 
-												height:'100%'
-											}} 
-											name="MultiplePicIcon" 
-											stroke={this.props.isSelected ? '#FFF' : '#000'}/>) :
-										null
-								}
+						) : (
+							<div className={isSelected ? OutfitStyles['outfitMultiPicContainer_div--selected'] : OutfitStyles.outfitMultiPicContainer_div}>
+								<div className={OutfitStyles.outfitMultiPic_div}>
+									{
+										Object.keys(contents).length > 1 ? 
+											(<SvgIcon 
+												style={{
+													width:'100%', 
+													height:'100%'
+												}} 
+												name="MultiplePicIcon" 
+												stroke={isSelected ? '#FFF' : '#000'}/>) :
+											null
+									}
+								</div>
 							</div>
-						</div>)
+						)
+				}
+				{
+					//<div 
+					//	className={isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
+					//	style={{'padding':'0px'}} >
+					//	<div className={OutfitStyles.outfitUsername_div}>
+					//		{username !== undefined && username !== null ? username.toUpperCase() : "Username"}
+					//	</div>
+					//	<div className={OutfitStyles.likesBtn_div} >
+					//			<SvgIcon 
+					//				className={OutfitStyles.likesBtn_svg} 
+					//				name="HeartIcon" 
+					//				fill="none" 
+					//				stroke="#666" 
+					//				strokeWidth="3" />
+					//	</div>
+					//</div>
 				}
 				<div
 					onMouseOver={this._handleOnMouseOver}
@@ -171,18 +243,18 @@ export class Outfit extends React.Component{
 						}}
 					/>
 					<CSSTransition 
-						key={this.props.id}
+						key={id}
 					    tiemout={200}
 					    classNames="outfitMenuContainer"
-					    in={(this.state.hovering && this.props.viewState === OxiAppConstants.viewState.PREVIEW)}
+					    in={(this.state.hovering && viewState === OxiAppConstants.viewState.PREVIEW)}
 					    unmountOnExit >
 						<div 
-							className={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
+							className={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
 								OutfitStyles.outfitMenuContainer : 
-									!this.props.isSelected ? 
+									!isSelected ? 
 										OutfitStyles.outfitTileMask : 
 										null } 
-							style={(this.props.viewState === OxiAppConstants.viewState.PREVIEW) ? 
+							style={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
 								showOutfitTileControls : 
 								({
 									'display':'block', 
@@ -191,19 +263,23 @@ export class Outfit extends React.Component{
 							//onMouseOver={(event) => event.stopPropagation()} 
 						>	
 							{
-								(this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && this.props.viewState === OxiAppConstants.viewState.PREVIEW) ?
-								(<OutfitEditDelete editOutfit={this.props.editOutfit}/>) :
-								(<OutfitTileBrowseCtrls 
-									navToHostProfile={this.props.navToHostProfile} 
-									routeToHostProfile={this.props.routeToHostProfile}
-									username={isBrowse ? this.props.username : null}
-									getHostMeasurementsHandler={() => {this.props.getHostMeasurements(this.props.id)}}
-									handleTileSelected={this._handleTileClicked}/>)
+								(webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && viewState === OxiAppConstants.viewState.PREVIEW) ?
+									( <OutfitEditDelete editOutfit={editOutfit}/> ) : 
+									(
+										<OutfitTileBrowseCtrls 
+											navToHostProfile={navToHostProfile} 
+											routeToHostProfile={routeToHostProfile}
+											username={isBrowse ? username : null}
+											getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
+											handleTileSelected={this._handleTileClicked}/>
+									)
 							}
 						</div>
 					</CSSTransition>
 				</div>
-				<OutfitSocialStatistics webAppView={this.props.webAppView}/>
+				{
+					//<OutfitSocialStatistics webAppView={webAppView}/>
+				}
 			</div>
 		);
 	}

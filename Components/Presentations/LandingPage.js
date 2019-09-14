@@ -843,6 +843,7 @@ export default class LandingPage extends React.Component{
 	}
 
 	render() {
+		console.log("TEST: rendering landing page");
 		return(
 			<React.Fragment>
 				<SiteNav match={this.props.match} webAppView={!this.props.profileMenu ? 'landing' : ''}/>

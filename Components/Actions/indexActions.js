@@ -7,7 +7,7 @@ import axios from 'axios';
 //import {sendAsyncRequest} from '../../App.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {normalize, denormalize} from 'normalizr';
-import {outfitsSchema, profileSchema, contents, items} from '../../Util/Schema.js';
+import {outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits} from '../../Util/Schema.js';
 import {buildItemContentsObject} from '../../Util/Schema.js'
 import Cookies from 'universal-cookie';
 import qs from 'qs';
@@ -41,6 +41,7 @@ export const DELETE_OUTFIT			= "DELETE_" 	+ OxiAppConstants.EntityTypes.OUTFIT;
 export const SELECT_PAGE 			= "SELECT_PAGE";
 export const CREATE_PICTURE			= "CREATE_"		+ OxiAppConstants.EntityTypes.PICTURE;
 export const CREATE_APPAREL_TYPE	= "CREATE_"		+ OxiAppConstants.EntityTypes.APPAREL_TYPE;
+export const CREATE_LIKE_COUNT		= 'CREATE_'		+ OxiAppConstants.EntityTypes.LIKE_COUNT;
 export const SET_BROWSER_SELECTION   = "SET_BROWSER_SELECTION";
 
 //Action on for entities added to client
@@ -68,6 +69,7 @@ export const REPLACE_BRAND			= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.BRAND
 export const REPLACE_RETAILER		= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.RETAILER;
 export const REPLACE_PICTURE		= 'REPLACE_' 			+ OxiAppConstants.EntityTypes.PICTURE;
 export const REPLACE_APPAREL_TYPE   = 'REPLACE_'			+ OxiAppConstants.EntityTypes.APPAREL_TYPE;
+export const REPLACE_LIKE_COUNT		= 'REPLACE_'			+ OxiAppConstants.EntityTypes.LIKE_COUNT;
 
 //Async action types
 export const REQUEST_LOGIN 			= "REQUEST_LOGIN";
@@ -112,6 +114,8 @@ export const CREATE_SIZE_GROUP = 'CREATE_SIZE_GROUP';
 
 export const SET_PREVIEW_FOCUS = 'SET_PREVIEW_FOCUS';
 export const UNSET_PREVIEW_FOCUS = 'UNSET_PREVIEW_FOCUS';
+
+export const TOGGLE_OUTFIT_IS_LIKED = 'TOGGLE_OUTFIT_IS_LIKED';
 
 
 //global variables
@@ -175,6 +179,7 @@ export const deleteOutfit 		= makeActionCreator(DELETE_OUTFIT, OxiAppConstants.E
 //export const addOutfit 			= makeActionCreator(ADD_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'id', 'likes', 'comments', 'coverpicuri', 'contents', 'profile');
 export const addOutfit 			= makeActionCreator(ADD_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entity');
 export const modifyOutfit 		= makeActionCreator(MODIFY_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, 'entity');
+export const toggleOutfitIsLiked= makeActionCreator(TOGGLE_OUTFIT_IS_LIKED, OxiAppConstants.EntityTypes.OUTFIT, 'id')
 
 //ITEM Actions
 export const createItem 		= makeActionCreator(CREATE_ITEM, OxiAppConstants.EntityTypes.ITEM, 'entities');
@@ -229,6 +234,9 @@ export const updateOutfitCoverpicuri = makeActionCreator(UPDATE_OUTFIT_COVERPICU
 export const createApparelTypes = makeActionCreator(CREATE_APPAREL_TYPE, OxiAppConstants.EntityTypes.APPAREL_TYPE, 'entities');
 export const replaceApparelTypes = makeActionCreator(REPLACE_APPAREL_TYPE, OxiAppConstants.EntityTypes.APPAREL_TYPE, 'entities');
 
+export const createLikeCount = makeActionCreator(CREATE_LIKE_COUNT, OxiAppConstants.EntityTypes.LIKE_COUNT, 'entities');
+export const replaceLikeCount = makeActionCreator(REPLACE_LIKE_COUNT, OxiAppConstants.EntityTypes.LIKE_COUNT, 'entities');
+
 export const receivedSearchExistingItem = makeActionCreator(RECEIVED_EXISTING_ITEMS_SEARCH, null, 'retailerItemResults');
 export const receivedSearchRetailers = makeActionCreator(RECEIVED_RETAILER_NAMES_SEARCH, null, 'retailerNameResults');
 export const receivedSearchUserDefinedRetailers = makeActionCreator(RECEIVED_UDR_NAMES_SEARCH, null, 'udrNameResults');
@@ -238,7 +246,6 @@ export const receivedSizeGroupsByItemId = makeActionCreator(RECEIVED_SIZE_GROUPS
 
 export const setPreviewFocus = makeActionCreator(SET_PREVIEW_FOCUS, null, 'isFocusedPreview');
 export const unsetPreviewFocus = makeActionCreator(UNSET_PREVIEW_FOCUS, null, 'isFocusedPreview');
-
 
 //PROFILE Actions
 export const addProfile = (profileData) => {
@@ -259,7 +266,7 @@ export const modifyProfile = makeActionCreator(MODIFY_PROFILE, OxiAppConstants.E
 
 export const cookies = new Cookies();
 
-const postConfig = (url, data) => {
+const postConfig = (url, data, params, headers) => {
 	//let authScheme = cookies.get('auth_scheme') !== null ? cookies.get('auth_scheme') : '';
 	//let authToken = '';// cookies.get('auth_token') !== null ? cookies.get('auth_token') : '';
 	return {
@@ -269,9 +276,11 @@ const postConfig = (url, data) => {
 		headers:{
 			//'content-type': 'application/x-www-form-urlencoded',
 			'content-type': 'application/json;charset=UTF-8',
+			...headers
 			//'Authorization':(authScheme + authToken)
 		},
 		data: data,
+		params: params,
 		url
 	};
 }
@@ -283,6 +292,11 @@ export const loginConfig = (username, password) => {
 			//'X-CSRF-TOKEN' : cookies.get('csrf_token'),
 			'username' : username,
 			'password' : password
+		},
+		{
+		},
+		{
+			'content-type':'application/x-www-form-urlencoded'
 		}
 	);
 }
@@ -714,6 +728,7 @@ export const setCreateAccountView = (accountType) => {
 function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 	console.log('destination = ', location)
 	switch(location){
+
 		case OxiAppConstants.navRequestMap.a.toLowerCase():
 
 			dispatch(setWebAppView(location));
@@ -724,6 +739,7 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all'));
 			dispatch(unsetPreviewFocus());
 			break;
+
 		case OxiAppConstants.navRequestMap.b.toLowerCase():
 			console.log('about to dispatch fetchItemMenus()')
 			//Get the Brand and Retailer Lists
@@ -737,14 +753,24 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 				console.log('exception occured within dispatch to fetchItemMenus.  Reason is: ', error);
 				dispatch(handleUnauthorizedRequest(error.response));
 			})
-			
+
 			dispatch(unsetPreviewFocus());
 			break;
+
 		case OxiAppConstants.navRequestMap.c.toLowerCase():
-			dispatch(showProfileMenu(true));
+			if(isOwnerProfileEntityPresent){
+				dispatch(showProfileMenu(true));
+			}else{
+				dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', '')).then(response => {
+					dispatch(showProfileMenu(true));
+				}).catch(reason => {
+					console.log(reason)
+				});
+			}
 			//dispatch(setWebAppView('landing'));
 			dispatch(unsetPreviewFocus());
 			break;
+
 		default:
 			break;
 	}
@@ -927,6 +953,34 @@ export function getSavedItems(){
 	}
 }
 
+export function postLike(outfitId, outfit){
+	return function(dispatch){
+		return axios.post(`${OxiAppConstants.serviceURL}/like/${outfitId}`).then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+
+				dispatch(replaceLikeCount({[response.data.id]: response.data}));
+				dispatch(toggleOutfitIsLiked(outfitId));
+			}else{
+				console.log("request failed");
+			}
+		});
+	}	
+}
+
+export function postUnlike(outfitId, username){
+	return function(dispatch){
+		return axios.post(`${OxiAppConstants.serviceURL}/unlike/${outfitId}`).then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+
+				dispatch(replaceLikeCount({[response.data.id]: response.data}));
+				dispatch(toggleOutfitIsLiked(outfitId));
+			}else{
+				console.log("request failed");
+			}
+		});
+	}
+}
+
 export function fetchMetrics(outfitId){
 	return function(dispatch){
 		dispatch(requestEntities(OxiAppConstants.EntityTypes.PROFILE));
@@ -1000,7 +1054,7 @@ export function getSizeChartByItemId(itemId){
 	}	
 }
 
-export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=10){
+export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=10, config={}){
 	return function(dispatch){
 		dispatch(requestEntities(entityType));
 		let URI = '';
@@ -1085,6 +1139,8 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						dispatch(replaceProfile({'owner' : response.data}));
 
+					}else{
+						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
 					}
 				});
 				break;
@@ -1093,7 +1149,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				URI = linkURL ? '' : '/outfits';
 				username = linkURL ? '' : username;
 				console.log(`requestParams = ${requestParams}, URI = ${URI}, username = ${username}, linkURL = ${linkURL}`)
-				return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`)
+				return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`, config)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
@@ -1102,10 +1158,14 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						dispatch(receiveEntities(entityType.toLowerCase(), null));
 						//normalize received json payload
 						let normalizedJson = normalize(json, outfitsSchema);						
-						console.log('entitiesStateReducer', normalizedJson); 						
+						console.log('entitiesStateReducer', normalizedJson); 
+
 						//Manually build itemContents join table
 						let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
-						dispatch(createItemContent(itemContentJson));							
+						let likeCount = normalizedJson.entities[OxiAppConstants.JsonPropertyNames.LIKE_COUNT]
+						
+						dispatch(createItemContent(itemContentJson));	
+						dispatch(createLikeCount(likeCount));
 
 						mergeResponseEntities(dispatch, normalizedJson);
 						let outfitKeys = Object.keys(normalizedJson.entities.outfits);
@@ -1158,8 +1218,10 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 
 						mergeResponseEntities(dispatch, normalizedJson);
 						let outfitKeys = Object.keys(normalizedJson.entities.outfits);
+						return response;
 						//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
 					}else{
+						throw 'Unexpected response status received when fetching contents:  ' + response.status;
 						//handleUnauthorizedRequest(response);
 					}
 				})
@@ -1185,6 +1247,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 					console.log(error.config);
 				});
 				break;
+
 			case OxiAppConstants.EntityTypes.ITEM:
 				URI = linkURL ? '' : '/items';
 				customReqParams = (URI === '') ? '' : `?filter=${filter}&page=${pageStart}&size=${pageSize}`;
@@ -1200,7 +1263,9 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 									'size': currentObject.size,
 									'retailer': currentObject.retailer,
 									'brand': currentObject.brand,
+									'product':currentObject.product,
 									'coverpicuri':currentObject.coverpicuri,
+									'outfitId':currentObject.outfitId,
 								}
 							}));
 						},{});
@@ -1267,7 +1332,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 	}
 }
 
-export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSize=50) => {
+export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=0, pageSize=50) => {
 	return function(dispatch){
 		dispatch(requestEntities(OxiAppConstants.EntityTypes.CONTENT));
 		let pageStart = 0;
@@ -1277,12 +1342,12 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 		return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?page=${pageStart}&size=${pageSize}`)
 		.then((response) => {
 			if(response.status === OxiAppConstants.HttpStatus.OK){
-				let json = response.data._embedded.contentDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
+				let json = response.data._embedded[OxiAppConstants.EmbeddedEntityPropertyNames.CONTENT_WITH_OUTFIT];//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
 				console.log("json");
 				console.log(json);
 				dispatch(receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
 				//normalize received json payload
-				let normalizedJson = normalize(json, contents);
+				let normalizedJson = normalize(json, contentWithOutfitSchema);
 
 				console.log('entitiesStateReducer', normalizedJson); 
 				
@@ -1304,11 +1369,12 @@ export const fetchContentsByItemId = (itemId, linkURL=null, pageStart=0, pageSiz
 
 				//mergeResponseEntities(dispatch, normalizedJson);
 				//dispatch(replaceContents(normalizedJson.entities.contents));
-				dispatch(createContent(normalizedJson.entities.contents));
-				dispatch(createPictures(normalizedJson.entities.picture))
+				//dispatch(createPictures(normalizedJson.entities.picture));
+				dispatch(createContent(normalizedJson.entities[OxiAppConstants.JsonPropertyNames.CONTENT_WITH_OUTFIT]));
 				/*let contentKeys = Object.keys(normalizedJson.entities.contents);
 				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null*/
 				//selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
+				return response;
 			}else{
 				//handleUnauthorizedRequest(response);
 			}
@@ -1396,6 +1462,11 @@ export function mergeResponseEntities(dispatch, normalizedJson){
 	
 				containsOutfits = true;
 				dispatch(replaceOutfits(normalizedJson.entities[entity]));	
+				break;
+
+			case OxiAppConstants.JsonPropertyNames.LIKE_COUNT:
+
+				dispatch(replaceLikeCount(normalizedJson.entities[entity]));
 				break;
 	
 			case OxiAppConstants.JsonPropertyNames.CONTENT:

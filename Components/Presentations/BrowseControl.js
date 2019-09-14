@@ -90,6 +90,12 @@ class BrowseControl extends React.Component{
 
 	render(){
 
+		var {
+			browseSelection
+		} = this.props;
+
+		var isOutfitBrowse = browseSelection === 'outfits';
+
 		const customButtonStyles = {
 			color:'black',
 			width:'unset',
@@ -99,6 +105,11 @@ class BrowseControl extends React.Component{
 			height:'calc(var(--button-height) + 2*3px + 4px)',
 			'line-height':'calc(var(--button-height) + 2*3px)', 
 		};
+
+		const customButtonHighlightStyles = {
+			...customButtonStyles,
+			color:'#116285',
+		}
 
 		const ligatureStyles = {
 			//'padding-top':'1px',
@@ -115,28 +126,56 @@ class BrowseControl extends React.Component{
 			width:'calc(var(--button-height) + 4px)'
 		}
 
+		const ligatureContainerHighlightedStyles = {
+			...ligatureContainerStyles,
+			'border':'solid 1px var(--color6)',
+			color:'var(--color6)',
+		}
+
 		return(
 			<React.Fragment>	
 				<div className={BrowseControlStyles.buttonContainer_div}>
 					<Button
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
-						//onClickHandler={this.rotateImageClockwise}
+						onClickHandler={() => {
+							this.props.selectBrowserType('outfits');
+							//this.props.getOutfits('all')
+						}}
 						title='Outfits'
 						ligature="accessibility_new"
 						//iconName='RotateClockwiseIcon'
-						customButtonStyles={customButtonStyles}
+						customButtonStyles={
+							browseSelection === OxiAppConstants.browseSelection.a ?
+						 		customButtonHighlightStyles :
+						 		customButtonStyles
+						 }
 						ligatureStyles={ligatureStyles}
-						ligatureContainerStyles={ligatureContainerStyles} 
+						ligatureContainerStyles={
+							browseSelection === OxiAppConstants.browseSelection.a ? 
+								ligatureContainerHighlightedStyles :
+								ligatureContainerStyles
+						} 
 						/>
 					<Button
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
-						//onClickHandler={this.rotateImageClockwise}
+						onClickHandler={() => {
+							this.props.selectBrowserType('apparel');
+							this.props.getItems('all');
+						}}
 						title='Apparel'
 						ligature="local_offer"
 						//iconName='RotateClockwiseIcon'
-						customButtonStyles={customButtonStyles}
+						customButtonStyles={
+							browseSelection === OxiAppConstants.browseSelection.b ?
+						 		customButtonHighlightStyles :
+						 		customButtonStyles
+						 }
 						ligatureStyles={ligatureStyles}
-						ligatureContainerStyles={ligatureContainerStyles}
+						ligatureContainerStyles={
+							browseSelection === OxiAppConstants.browseSelection.b ? 
+								ligatureContainerHighlightedStyles :
+								ligatureContainerStyles
+						}
 						/>
 				</div>
 				{/*<ControlButton 

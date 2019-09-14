@@ -468,7 +468,8 @@ class ToleranceSettings extends React.Component{
 		//	2*var(--profile-ctrl-container-padding) - 
 		//	2*var(--profile-ctrl-container-border-width)
 
-		//this.tickPixelDelta = 298/(this.props.ticks.length - 1);		
+		//this.tickPixelDelta = 298/(this.props.ticks.length - 1);	
+		this.filteredFieldNames = Object.keys(this.props.displayedProfileData);	
 		var calcWidth = (this.props.ticks.length  - 1) * this.tickPixelDelta;
 		if(this.props.width !== calcWidth){
 			this.props.updateWidth(calcWidth);
@@ -763,24 +764,28 @@ export default class ProfileMenu extends React.Component{
 			preset3: 'Loose',
 		}
 
-		this.profile = this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile;
-		this.filteredFieldNames =  Object.keys(this.profile.userMetricsDto).filter(field => field != 'id')
-		//.filter(field => field != 'height')
-		.filter(field => field != 'bodyShape')
-		.filter(field => field != 'mens')
-		.filter(field => field != 'username')
-		.filter(field => field != 'womens')
-		.filter(field => field != 'apparelInterest')
-		.filter(field => field != 'country')
-		.filter(field => field != 'toleranceDto')
-		.filter(field => field != 'dateOfBirth');
-
-		//construct a filtered userMetrics Object 
-		this.filteredUserMetrics = {};
-
-		this.filteredFieldNames.map((key, id) => {
-			Object.assign(this.filteredUserMetrics, {[key]: this.profile.userMetricsDto[key]})
-		})
+		//this.profile = this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile;
+		//this.filteredFieldNames =  this.props.profile !== undefined ? 
+		//	Object.keys(this.profile.userMetricsDto)
+		//		.filter(field => field != 'id')
+		//		//.filter(field => field != 'height')
+		//		.filter(field => field != 'bodyShape')
+		//		.filter(field => field != 'mens')
+		//		.filter(field => field != 'username')
+		//		.filter(field => field != 'womens')
+		//		.filter(field => field != 'apparelInterest')
+		//		.filter(field => field != 'country')
+		//		.filter(field => field != 'toleranceDto')
+		//		.filter(field => field != 'dateOfBirth') : 
+		//	([]);
+//
+//
+		////construct a filtered userMetrics Object 
+		//this.filteredUserMetrics = {};
+//
+		//this.filteredFieldNames.map((key, id) => {
+		//	Object.assign(this.filteredUserMetrics, {[key]: this.profile.userMetricsDto[key]})
+		//})
 
 		//object methods
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
@@ -799,6 +804,99 @@ export default class ProfileMenu extends React.Component{
 		this.updateTolerances = this.updateTolerances.bind(this);
 		this.getToleranceMinMax = this.getToleranceMinMax.bind(this);
 		this.updateWidth = this.updateWidth.bind(this);
+		this.getStateIniData = this.getStateIniData.bind(this);
+
+		//var minToleranceFields = {};
+		//var maxToleranceFields = {};
+		//let {iniMeasurements, displayedProfileData} = getAccurateAndDisplayMeasurements(this.props.test, this.filteredUserMetrics, this.decimals, this.scale)
+//
+		//if(!this.props.test){
+		//	//let toleranceKeys = Object.keys(this.profile.toleranceDto);
+		//	//var { minToleranceFields, maxToleranceFields } = getToleranceMinMax('min', 'max', toleranceKeys, this.scale, this.ticks, this.profile.toleranceDto, this.profile.userMetricsDto, this.decimals);
+		//	var { minToleranceFields, maxToleranceFields } = this.getToleranceMinMax('min', 'max');
+		//}else{	
+		//	for(let field of Object.keys(displayedProfileData)){
+		//		//values int ticks indecese 
+		//		minToleranceFields = Object.assign({}, minToleranceFields, {[field]: 0 });
+		//		maxToleranceFields = Object.assign({}, maxToleranceFields, {[field]: (this.ticks.length-1) });
+		//	}
+		//}
+//
+		//let bodyData = this.props.test ?
+		//	({
+		//		'bodyShape': 'female',
+		//		'womens':false,
+		//		'mens':false,	
+		//	}) : 
+		//	this.profile !== undefined ?
+		//		({
+		//			'bodyShape': this.profile.userMetricsDto.bodyShape,
+		//			'womens': this.profile.userMetricsDto.womens,
+		//			'mens': this.profile.userMetricsDto.mens,	
+		//		}) :
+		//		({});
+
+		var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData } = this.getStateIniData();
+
+		this.recentProfileIni = false;
+
+		this.state = {
+			minTolerances: minToleranceFields,
+			maxTolerances: maxToleranceFields,
+			'prevSelectedField':'',
+			'selectedField':'',
+			'fieldListTitle':this.menuPage1,
+			units: 'cm',
+			gridWidth:360,
+			'profileData':{
+				'username': this.profile !== undefined ? this.profile.username : null,
+
+				userMetricsDto: {
+					id:null,
+					//'bodyShape': this.props.isTest ? 'female' : this.profile.bodyShape,
+					//'womens':false,
+					//'mens':false,	
+					...bodyData,
+					...iniMeasurements
+				},
+				profileStatsDto:null//{
+				//	id:null,
+				//	following:null,
+				//	likes:null,
+				//	points:null,
+				//	lastUpdate:null
+				//}
+			},
+			displayedProfileData
+		}
+	}
+
+	getStateIniData(){
+
+		this.profile = this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile;
+		this.prevProfile = this.profile;
+
+		this.filteredFieldNames =  this.props.profile !== undefined ? 
+			Object.keys(this.profile.userMetricsDto)
+				.filter(field => field != 'id')
+				//.filter(field => field != 'height')
+				.filter(field => field != 'bodyShape')
+				.filter(field => field != 'mens')
+				.filter(field => field != 'username')
+				.filter(field => field != 'womens')
+				.filter(field => field != 'apparelInterest')
+				.filter(field => field != 'country')
+				.filter(field => field != 'toleranceDto')
+				.filter(field => field != 'dateOfBirth') : 
+			([]);
+
+
+		//construct a filtered userMetrics Object 
+		this.filteredUserMetrics = {};
+
+		this.filteredFieldNames.map((key, id) => {
+			Object.assign(this.filteredUserMetrics, {[key]: this.profile.userMetricsDto[key]})
+		})
 
 		var minToleranceFields = {};
 		var maxToleranceFields = {};
@@ -822,41 +920,15 @@ export default class ProfileMenu extends React.Component{
 				'womens':false,
 				'mens':false,	
 			}) : 
-			({
-				'bodyShape': this.profile.userMetricsDto.bodyShape,
-				'womens': this.profile.userMetricsDto.womens,
-				'mens': this.profile.userMetricsDto.mens,	
-			});
+			this.profile !== undefined ?
+				({
+					'bodyShape': this.profile.userMetricsDto.bodyShape,
+					'womens': this.profile.userMetricsDto.womens,
+					'mens': this.profile.userMetricsDto.mens,	
+				}) :
+				({});
 
-		this.state = {
-			minTolerances: minToleranceFields,
-			maxTolerances: maxToleranceFields,
-			'prevSelectedField':'',
-			'selectedField':'',
-			'fieldListTitle':this.menuPage1,
-			units: 'cm',
-			gridWidth:360,
-			'profileData':{
-				'username':this.profile.username,
-
-				userMetricsDto: {
-					id:null,
-					//'bodyShape': this.props.isTest ? 'female' : this.profile.bodyShape,
-					//'womens':false,
-					//'mens':false,	
-					...bodyData,
-					...iniMeasurements
-				},
-				profileStatsDto:null//{
-				//	id:null,
-				//	following:null,
-				//	likes:null,
-				//	points:null,
-				//	lastUpdate:null
-				//}
-			},
-			displayedProfileData
-		}
+		return { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData };
 	}
 
 	updateTolerances(toleranceType, key, value){
@@ -968,7 +1040,7 @@ export default class ProfileMenu extends React.Component{
 		let maxToleranceFields = {};
 		let minPrefixLength = minPrefix.length;
 		let maxPrefixLength = maxPrefix.length;
-		var { userMetricsDto, toleranceDto } = this.profile;
+		var { userMetricsDto, toleranceDto } = this.profile !== undefined ? this.profile : ({ userMetricsDto: {}, toleranceDto: {} });
 
 		const calcTicks = (deltaTick, originTick) => {
 			return (deltaTick + originTick);
@@ -1320,6 +1392,24 @@ export default class ProfileMenu extends React.Component{
 		//.filter(field => field != 'country')
 		//.filter(field => field != 'toleranceDto')
 		//.filter(field => field != 'dateOfBirth');
+
+		if (this.prevProfile !== this.props.profile ){
+			var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData } = this.getStateIniData();
+			this.setState(prevState =>({
+				...prevState,
+				minTolerances: minToleranceFields,
+				maxTolerances: maxToleranceFields,
+				profileData:{
+					...prevState.profileData,
+					userMetricsDto:{
+						...prevState.profileData.userMetricsDto,
+						...bodyData,
+						...iniMeasurements
+					}
+				},
+				displayedProfileData
+			}))
+		}
 
 
 		if(this.state.units === 'cm'){

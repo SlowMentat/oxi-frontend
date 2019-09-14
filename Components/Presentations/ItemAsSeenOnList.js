@@ -10,7 +10,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 
-class ItemSample extends React.Component{
+class ItemAsSeenOn extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
@@ -36,40 +36,38 @@ class ItemSample extends React.Component{
 	render(){
 		let imageWidth = 65;
 		let borderWidth = 2;
+		var {
+			username,
+			likes,
+			following,
+		} = this.props.contentWithOutfit;
+
 		return(
-			<div style={{
-				'margin-top': '10px',
-    			'height': '50px',
-			}}>
-				<div style={{
-					'display': 'inline-block',
-    				'width': '50px',
-    				'margin-left': '25px',
-    				'vertical-align': 'top',
-				}}>
-					<div style={{
-						'position': 'absolute',
-    					'width': `${imageWidth}px`,
-    					'height': `calc(${imageWidth}px*(3/2))`,
-    					'border-style': 'solid',
-    					'border-color': '#ff5597',
-    					'border-radius': '3px',
-    					'border-width': `${borderWidth}px`,
-					}}>
-						<img 
-							src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
-							style={{
-								width:`calc(${imageWidth} - (${borderWidth}px*2))`,
-								height:`calc((${imageWidth}px)*3/2 - (${borderWidth}px*2))`
-							}}/>
+			<div 
+				className={AsSeenOnStyles.itemAsSeenOnContainer_div} >
+				<div className={AsSeenOnStyles.itemAsSeenOn_div} >
+					<div className={AsSeenOnStyles.imageContainer_div}>
+						<img className={AsSeenOnStyles.image_img} src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} />
 					</div>
 				</div>
-				<div style={{
-					'display': 'inline-block',
-   					'vertical-align': 'top',
-   					'margin-left': '30px',
-				}}>
-					{this.props.contentId}
+				<div className={AsSeenOnStyles.infoContainer_div}>
+					<div className={AsSeenOnStyles.infoName_div}>
+						{ username }
+					</div>
+					<div className={AsSeenOnStyles.infoSocial_div}>
+						<div className={AsSeenOnStyles.infoLikes_div}>
+							likes
+							<span className={AsSeenOnStyles.infoLikes_span}>
+								{ this.props.contentWithOutfit[OxiAppConstants.JsonPropertyNames.LIKE_COUNT].count }
+							</span>
+						</div>
+						<div className={AsSeenOnStyles.infoFollowing_div}>
+							Following
+							<span className={AsSeenOnStyles.infoFollowing_span}>
+								235235
+							</span>
+						</div>
+					</div>
 				</div>
 			</div>
 		);
@@ -99,14 +97,17 @@ class ItemAsSeenOnList extends React.Component{
 				setPrevPageURL={this.props.setPrevPageURL}
     			list={this.props.contentIds.map((contentId => {
 					return(
-						<ItemSample 
+						<ItemAsSeenOn 
 							contentId={contentId}
+							contentWithOutfit = {this.props.contents[contentId]}
     						prevPageURL={this.props.prevPageURL}
     						nextPageURL={this.props.nextPageURL}
     						coverpicuri={
     							(this.props.pictures[ this.props.contents[contentId].picture ] !== undefined) ? 
     								this.props.pictures[ this.props.contents[contentId].picture ].smalluri :
-    								null
+    									this.props.contents[contentId].coverpicuri !== undefined ?
+    										this.props.contents[contentId].coverpicuri :
+    										null
     							}
     						getCoverPic={this.props.getCoverPic}
 						/>

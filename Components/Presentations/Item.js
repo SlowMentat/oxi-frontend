@@ -53,6 +53,23 @@ const itemCellContentContainer = {
 	position: 'relative',
 }
 
+const parseVariants = (variants) => {
+	var availableSizes = [];
+	var availableColors = [];
+
+	variants !== undefined ?
+		variants.edges.map(variant => {
+			var variantInfo = variant.node.displayName.trim().split('-')[1].split('/');
+
+			availableSizes = variantInfo[1] ? [...availableSizes, variantInfo[1]] : availableSizes;
+
+			availableColors = variantInfo[2] ? [...availableColors, variantInfo[2]] : availableColors;
+		}):
+		null;
+
+	return {availableSizes, availableColors};
+}
+
 export class ItemLite extends React.Component{
 	constructor(props){
 		super(props);
@@ -93,7 +110,7 @@ export class ItemLite extends React.Component{
   				<div 
   					className={ItemLiteStyles.itemLite_div}
   					onMouseOver={(event) => onSizeHover(event)} >
-  					
+
   					<div className={ItemLiteStyles.itemContentContainer_div}>
   						
   						<div className={ItemLiteStyles.itemRetailerContainer_div}>
@@ -103,7 +120,7 @@ export class ItemLite extends React.Component{
   						</div>
   						
   						<div className={ItemLiteStyles.itemHandle_div}>
-  							{ 'test test'}
+  							{ handle}
   						</div>
   						
   						<div className={ItemLiteStyles.itemControlsContainer_div}>
@@ -167,8 +184,6 @@ export class ItemLite extends React.Component{
 		);
 	}
 }
-
-
 
 
 export class ItemInfo extends React.Component {
@@ -306,6 +321,345 @@ export class ItemInfo extends React.Component {
 	}
 }
 
+export class ItemBrowse extends React.Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			coverpicuri: null,
+			base64Image:null,
+		};
+
+		this._handleImageReceived = this._handleImageReceived.bind(this);
+
+	}
+
+	componentDidUpdate(prevProps, prevState){
+		var { coverpicuri } = this.props.item;
+		if(coverpicuri !== null && coverpicuri !== undefined){
+			if(coverpicuri !== prevState.coverpicuri) this.props.getCoverPic(coverpicuri, this._handleImageReceived, 'small');
+		}
+	}
+
+	_handleImageReceived(event, data){
+		this.setState({
+			coverpicuri: this.props.item.coverpicuri,
+			base64Image: 'data:image/jpeg;base64,' + data
+		});
+	}
+
+	render(){
+
+		const { 
+			handleMouseOver, 
+			handleMouseLeave,
+			collapseItem, 
+			expandItem,
+			onBookmarkClicked,
+			onSizeHover,
+			removeContentEntities,
+			getContentsByItemId,
+			onDeselect,
+			onSelect,
+			clearSelectMultipleEntity
+		} = this.props;
+
+		var { 
+			id,
+			item,
+			isProfileView,
+			handleOnClick,
+			isSaved,
+			toggleInfoExpand,
+			isExpanded,			
+			apparelTypeIcon,
+			selectedAllIds,
+		} = this.props;
+
+		var {
+			//retailerName,
+			handle,
+			sizeLabel,
+			metric,
+			coverpicuri,
+			product
+		} = item !== undefined ? item : {};
+
+		var {
+			udr, 			//platform = wearsit
+			onlineStoreUrl, //platform = wearsit
+			uds, 			//platform = wearsit
+			handle,			//platform = wearsit
+			description,	//platform = wearsit || anything
+			featuredImage,	//platform != wearsit 
+			//size,			//platform != wearsit
+			vendor, 		//platform != wearsit
+			variants,		//platform != wearsit			
+		} = product !== undefined ? product : {};
+
+		var { availableSizes, availableColors } = parseVariants(variants);
+
+		var isSelected = item !== undefined ? selectedAllIds.includes(item.id) : [];
+
+		return(		
+			<React.Fragment>
+  				<div 
+  					className={ItemLiteStyles.itemLite_div}
+  					style={{
+						'margin-bottom': '15px',
+						height:'125px',
+  					}}
+  					onMouseOver={(event) => onSizeHover(event)}
+					onClick={(event) => {
+						removeContentEntities();
+						getContentsByItemId();
+						//onDeselect(selectedAllIds.filter(id => id != item.id)[0]);
+						if(isSelected === true){
+							onDeselect(item.id)
+						}else{
+							clearSelectMultipleEntity(); 
+							onSelect(item.id);
+						}
+					}} >
+
+  					<div className={ItemLiteStyles.itemContentContainer_div}>
+  						<div
+  							style={{
+  								position:'absolute',
+  								height:'100%',
+  								//width:'100%',
+  								right:'0px',
+  								padding:'5px',
+  							}}
+  						>
+  							<img 
+  								src={
+  									featuredImage !== undefined ? 
+  										featuredImage.originalSrc :   										
+										this.state.base64Image === null ? 
+											(OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : 
+											(this.state.base64Image)
+  								}
+								style={{
+									//'position':'absolute',
+									'height':'100%',
+									'left':'0%',
+									'vertical-align':'middle',
+									'border-radius':'4px',
+								}} 
+							/>
+  						</div>
+  						<div className={ItemLiteStyles.itemRetailerContainer_div}>
+  							<div className={ItemLiteStyles.itemRetailer_div}>
+  								{ vendor || udr }
+  							</div>
+  						</div>
+  						
+  						<div className={ItemLiteStyles.itemHandle_div}>
+  							{ handle }
+  						</div>
+  						
+  						<div className={ItemLiteStyles.itemControlsContainer_div}>
+  							<div style={{positionr:'relative',width:'100%'}}>
+  								<div 
+  									id="bookmark" 
+  									className={ItemLiteStyles.bookmarkIcon_div}
+  									onClick={(event) => {
+  										event.stopPropagation();
+  										onBookmarkClicked(event)
+  									}} >
+  									<SvgIcon 
+  										name="BookmarkIcon" 
+  										stroke="var(--button-icon-stroke)"
+  										//fill = {isSaved ? "var(--button-icon-stroke)" : null} 
+  									/>
+  								</div>
+  								{
+  									//isActive ? 
+  									(<div 
+  										id="dropdown" 
+  										className={ItemLiteStyles.dropdownIcon_div}
+  										//style={this.props.isExpanded ? ({transform:'scaleY(-1)'}) : ({}) }
+  										//onClick={(event) => {
+										//	event.stopPropagation();
+										//	isExpanded ?
+										//		collapseItem() :
+										//		expandItem(id.toLowerCase());
+										//}}
+  										>
+  									 	<SvgIcon name="DropdownIcon2" stokeWidth="2" stroke="var(--color1)" fill="var(--color1)" />
+  									 </div>) /*:
+  									null*/
+  								}
+  							</div>
+  						</div>
+  						
+  						<div>
+  						</div>
+		
+  					</div>
+  					{
+  					//<div 
+  					//	className={ItemLiteStyles.apparelIconContainer_div}
+  					//	style={/*isActive ? */({'background-color':'var(--color4)'})/* : ({})*/} >
+  					//	
+  					//	<div id="apparelTypeIcon" className={ItemLiteStyles.apparelTypeIcon_div}>
+  					//			{/*<SvgIcon name={apparelTypeIcon} stroke="var(--color1)"/>*/}
+  					//	</div>
+  					//	
+  					//	<div 
+  					//		id="selectedSizeIcon" 
+  					//		className={ItemLiteStyles.selectedSize_div} >
+  					//		<span> XX </span>
+  					//	</div>
+		//
+  					//</div>
+  					}
+  				</div>
+  				{
+					isSelected ?
+						( <VisibleItemAsSeenOnList selectedItemId={ item.id } /> ) :
+						null
+  				}
+  				
+  			</React.Fragment>
+		);
+	}
+}
+
+export class ItemBrowseInfo extends React.Component {
+	constructor(props){
+		super(props);
+		this.state={
+			isColorOptionsOpen:false,
+			selectedColor:null,
+			selectedSize:null,			
+		};
+	}
+
+	render(){
+		var { 
+			availableSizes, 
+			availableColors,
+			//imgSrc,
+			description,
+			isExpanded,
+			//item
+		} = this.props;
+
+
+		return(
+			<React.Fragment>
+				<CSSTransition
+					    tiemout={400}
+					    classNames="expandedItemInfoContainer_div"
+					    in={isExpanded}
+					   	unmountOnExit >
+	
+					<div className={ItemStyles.expandedItemInfoContainer_div} style={this.props.styles}>
+						<CSSTransition
+								//timeout={}
+								classNames="expandedItemInfo_div"
+								in={isExpanded} 
+								unmountOnExit >
+	
+							<div className={ItemStyles.expandedItemInfo_div}>
+								<div className={ItemStyles.variantOptionsContainer_div}>
+									<div className={ItemStyles.variantSizeOptionsContainer_div}>
+										<div className={ItemStyles.variantTitle_div}>
+											Size
+										</div>
+										<div className={ItemStyles.variantSizeOptions_div}>
+											{
+												availableSizes.length > 0 ? 
+													availableSizes.map(size => (
+														<div 
+															className={ItemStyles.sizeVariant_div}
+															style={size === this.state.selectedSize ? ({'background-color':'var(--color1',color:'white'}) : ({})}
+															onClick={(event) => {
+																event.stopPropagation();
+																this.setState(prevState => ({
+																	...prevState,
+																	selectedSize: size,
+																}))
+															}}> 
+															{size} 
+														</div>)
+													) :
+													"No sizes available"
+											}
+										</div>
+									</div>
+									<div className={ItemStyles.variantColorOptionsContainer_div}>
+										<div className={ItemStyles.variantTitle_div}>
+											Color
+										</div>
+										<div 
+											className={ItemStyles.colorVariantDropDown_div}
+											onClick={(event) => {
+												event.stopPropagation();
+												this.setState(prevState => ({
+													...prevState,
+													isColorOptionsOpen: !this.state.isColorOptionsOpen
+												}))
+											}} >
+											{this.state.selectedColor || 'select color' || "no colors"}
+										</div>
+										<div 
+											className={ItemStyles.variantColorOptions_div}
+											style={ this.state.isColorOptionsOpen ? {display:'block'} : {display:'none'}} >
+											{
+												availableColors.length > 0 ? 
+													availableColors.map(color => (
+														<div 
+															className={ItemStyles.colorVariant_div}
+															onClick={(event) => {
+																event.stopPropagation();
+																this.setState(prevState => ({
+																	...prevState,
+																	selectedColor: color,
+																	isColorOptionsOpen: false,
+																}))
+															}}> 
+															{color} 
+														</div>)
+													) :
+													null
+											}
+										</div>
+									</div>									
+								</div>
+	
+								<div className={ItemStyles.retailerImageContainer_div}>
+								</div>
+	
+								<div className={ItemStyles.descriptionContainer_div}>
+									<div className={ItemStyles.description_div}>
+										{description}
+									</div>
+								</div>
+	
+								<div className={ItemStyles.shopBtn_div}>
+									<Button
+										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
+										onClickHandler={null}
+										title='add'
+										iconName='ShopIcon'
+										buttonHeight={26}
+										customButtonStyles={{'border-width':'0px'}}
+										puDirection='WEST' />
+								</div>
+	
+							</div>
+						</CSSTransition>
+					</div>
+				</CSSTransition>
+				{
+				}
+			</React.Fragment>
+		);
+	}
+}
+
 export class Item extends React.Component{
 	constructor(props){
 		super(props)		
@@ -327,7 +681,9 @@ export class Item extends React.Component{
 	componentDidMount(){
 		//if coverpicuri filename exists, call get request for content coverpic data
 		//console.log("coverpicuri = ", this.props.item.coverpicuri)
-		if(this.props.item.coverpicuri !== null && this.props.item.coverpicuri !== undefined) this.props.getCoverPic(this.props.item.coverpicuri, this._handleImageReceived);
+		if(this.props.item.coverpicuri !== null && this.props.item.coverpicuri !== undefined){
+			this.props.getCoverPic(this.props.item.coverpicuri, this._handleImageReceived);
+		}
 	}
 
 	_handleImageReceived(event, data){
@@ -448,7 +804,7 @@ export class Item extends React.Component{
 				break;
 		}
 
-		var availableSizes = [];
+		/*var availableSizes = [];
 		var availableColors = [];
 
 		variants !== undefined ?
@@ -456,40 +812,11 @@ export class Item extends React.Component{
 				var variantInfo = variant.node.displayName.trim().split('-')[1].split('/');
 
 				availableSizes = variantInfo[1] ? [...availableSizes, variantInfo[1]] : availableSizes;
-					//[
-					//	...availableSizes, 
-					//	(<div 
-					//		className={ItemStyles.sizeVariant_div}
-					//		onClick={(event) => {
-					//			event.stopPropagation();
-					//			this.setState(prevState => ({
-					//				...prevState,
-					//				selectedSize: variantInfo[1],
-					//			}))
-					//		}}> 
-					//		{variantInfo[1]} 
-					//	</div>)
-					//] :
-					//availableSizes;
 
 				availableColors = variantInfo[2] ? [...availableColors, variantInfo[2]] : availableColors;
-					//[
-					//	...availableColors, 
-					//	(<div 
-					//		className={ItemStyles.colorVariant_div} 
-					//		onClick={(event) => {
-					//			event.stopPropagation();
-					//			this.setState(prevState => ({
-					//				...prevState,
-					//				selectedColor: variantInfo[2],
-					//			}))
-					//		}}> 
-					//		{variantInfo[2]} 
-					//	</div>)
-					//] :
-					//availableColors;
 			}):
-			null
+			null*/
+		var {availableSizes, availableColors} = parseVariants(variants);
 
 		return(
 			<CSSTransition
@@ -562,159 +889,7 @@ export class Item extends React.Component{
 							}
 						</div>
 					</CSSTransition>
-					{
-//
-					//<a 
-					//	className={ItemStyles.itemTypeBlock}
-					//	style={platform !== OxiAppConstants.PLATFORM ? ({'background-color':'#54c2f1'}) : ({})}>
-					//	<SvgIcon 
-					//		//name={this.props.item.apparelType.iconName !== undefined ? this.props.item.apparelType.iconName : null}
-					//		name={this.props.apparelTypeByIds !== undefined && platform === OxiAppConstants.PLATFORM ? this.props.apparelTypeByIds[this.props.item.apparelType].iconName : null}
-					//		fill={fill}
-					//		stroke={stroke}/>
-					//</a>
-					//<a 
-					//	className={ItemStyles.itemSizeBlock} 
-					//	style={platform !== OxiAppConstants.PLATFORM ? ({
-					//			'border-top-right-radius': '4px',
-					//			'border-bottom-right-radius': '4px',
-					//			'background-color':'#54c2f1'
-					//		}) : ({
-					//			'border-top-right-radius': '4px',
-					//			'border-bottom-right-radius': '4px',
-					//		})
-					//	}
-					//	onMouseOver={(event) => {
-					//		platform !== OxiAppConstants.PLATFORM ? 
-					//			this.props.compareMetrics(size.metric) :
-					//			null;
-					//	}}
-					//>
-					//		<div style={{...itemCellContainer, 'margin-top': 'calc(50% - 4px)'}}>
-					//		<div className={ItemStyles.itemSize_div}>	
-					//			{
-					//				platform === OxiAppConstants.PLATFORM ? 
-					//					uds : 
-					//					size.sizeLabel
-					//			}
-					//		</div>
-					//	</div>
-					//</a>
-//
-					}
-					{
-//
-					//	//TODO:  this is only rendered when browsing apparel.  clean this up by putting in a separate item component
-					//	(this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() && this.props.browseSelection === 'apparel') ?
-					//		(
-					//			<div style={{
-					//				display: 'inline-block',
-					//				'vertical-align':'top',
-					//				width:'calc(75px + 6px)',
-					//				'border-left':'6px solid #fdfdfd',
-					//			}}>
-					//				<img src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} style={{width:'75px',height:'112.5px'}}/>
-					//			</div>
-					//		) : 
-					//		null
-//					
-					}
-					
-					{
-//					
-					//Original Item
-					//<div className={isProfileView ? ItemStyles.sourceInfoProfile_div : ItemStyles.sourceInfo}>
-					//	<div className={ItemStyles.itemInfoBlock_div} href={onlineStoreUrl} target="_blank">
-					//		<div style={{}}>
-					//			<div className={ItemStyles.itemRetailerHomeGradientContainer_div}>
-					//				<div className={ItemStyles.itemRetailerHomeGradient_div}>
-					//				</div>
-					//			</div>
-					//			<div className={ItemStyles.retailerName_div}>	
-					//				{platform === OxiAppConstants.PLATFORM ? udr : "retailer"/*retailer*/}
-					//			</div>
-					//			<div className={ItemStyles.itemRetailerEndGradientContainer_div}>
-					//				<div 
-					//					className={ItemStyles.itemRetailerEndGradient_div}
-					//					style={isProfileView ? ({width:'65px'}) : ({})}>
-					//					<div className={ItemStyles.ellipsisContainer_div}>
-					//						<div className={ItemStyles.ellipsis_div}>
-					//							...
-					//						</div>
-					//					</div>
-					//				</div>
-					//			</div>
-					//		</div>
-					//	</div>
-					//	<div className={ItemStyles.itemHandleBlock} href={onlineStoreUrl} target="_blank">
-					//		<div style={itemCellContainer}>
-					//			<div>	
-					//				{handle}
-					//			</div>
-					//		</div>
-					//	</div>
-					//	<div className={ItemStyles.itemControlsContainer_div}>
-					//		<div>
-					//			<div className={ItemStyles.itemButtonContainer_div}>
-					//				{
-					//					this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-					//					(
-					//						<div 
-					//							className={ItemStyles.itemButton_div}
-					//							onClick={(event) => {
-					//								event.stopPropagation();
-					//								!this.props.isSaved ? 
-					//									(this.props.saveItem !== undefined ? this.props.saveItem(this.props.item.id) : null) :
-					//									(this.props.unsaveItem !== undefined ? this.props.unsaveItem(this.props.item.id) : null);
-					//							}} >
-					//									<SvgIcon 
-					//										name="BookmarkIcon" 
-					//										fill = {this.props.isSaved ? "var(--button-icon-stroke)" : null}
-					//										stroke="var(--button-icon-stroke)" />
-					//						</div>
-					//					) : 
-					//					null
-					//				}{
-					//					platform !== OxiAppConstants.PLATFORM ? 
-					//						(
-					//							<div 
-					//								className={ItemStyles.itemButton_div}
-					//								style={{
-					//									position:'absolute', 
-					//									right:'1px', 
-					//									top:'0px',
-					//									transform: `rotation(${this.props.isExpanded ? '180' : '0'}deg)`,
-					//								}}>
-					//								<Button
-					//									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //popup icon button
-					//									onClickHandler={(event) => {
-					//										event.stopPropagation();
-					//										this.props.isExpanded ?
-					//											this.props.collapseItem() :
-					//											this.props.expandItem(this.props.item.id.toLowerCase());
-					//									}}
-					//									buttonHeight={26}
-					//									//textHeight={26}
-					//									buttonPadding={0}
-					//									title='more'
-					//									iconName='DropdownIcon'
-					//									iconStyles={{
-					//										width:'100%', 
-					//										height:'100%'
-					//									}}
-					//									customButtonStyles={{'border-width':'0px'}}
-					//									puDirection='WEST' />
-					//							</div>
-					//						) : 
-					//						null
-					//				}
-					//			</div>
-					//		</div>
-					//	</div>
-					//</div>
-//					
-					}
-	
+
 					<ItemLite 
 						id={item.id}
 						isProfileView={isProfileView}
@@ -769,106 +944,6 @@ export class Item extends React.Component{
 									) :
 									null
 					}
-					{/*
-						(platform !== OxiAppConstants.PLATFORM) ? 
-							(
-	
-								<CSSTransition
-								    tiemout={400}
-								    classNames="expandedItemInfoContainer_div"
-								    in={this.props.isExpanded}
-								   	unmountOnExit 
-								>
-									<div className={ItemStyles.expandedItemInfoContainer_div}>
-										<CSSTransition
-												//timeout={}
-												classNames="expandedItemInfo_div"
-												in={this.props.isExpanded} 
-												unmountOnExit
-										>
-											<div className={ItemStyles.expandedItemInfo_div}>
-											<div className={ItemStyles.variantOptionsContainer_div}>
-												<div className={ItemStyles.variantSizeOptionsContainer_div}>
-													<div className={ItemStyles.variantTitle_div}>
-														Size
-													</div>
-													<div className={ItemStyles.variantSizeOptions_div}>
-														{
-															//variants.edges !== undefined ?
-															//	variants.edges.map(variant => {
-															//		var variantInfo = variant.node.displayName.trim().split('-')[1].split('/');
-															//		var vSize = variantInfo[1];
-															//		var vColor = variantInfo[2];
-															//		return(
-															//			<div className={ItemStyles.sizeVariant_div}>
-															//				{vSize}
-															//			</div>
-															//		);
-															//	}):
-															//	null
-															availableSizes.length > 0 ? availableSizes : "no sizes"
-														}
-													</div>
-												</div>
-												<div className={ItemStyles.variantColorOptionsContainer_div}>
-													<div className={ItemStyles.variantTitle_div}>
-														Color
-													</div>
-													<div style={{position:'relative'}}>
-														<div 
-															className={ItemStyles.colorVariantDropDown_div}
-															onClick={(event) => {
-																event.stopPropagation();
-																this.setState(prevState => ({
-																	...prevState,
-																	isColorOptionsOpen: !this.state.isColorOptionsOpen
-																}))
-															}}>
-															{this.state.selectedColor || 'select color' || "no colors"}
-														</div>
-														<div 
-															className={ItemStyles.variantColorOptions_div}
-															style={ this.state.isColorOptionsOpen ? {display:'block'} : {display:'none'} }>
-															{ availableColors.length > 0 ? availableColors : null }
-														</div>
-													</div>
-												</div>									
-											</div>
-											<div className={ItemStyles.retailerImageContainer_div}>
-												{
-													//this.props.isExpanded ?
-													(<img 
-														src={featuredImage.originalSrc}
-														style={{
-															'width':'100%',
-															'vertical-align':'middle',
-															'border-radius':'4px',
-														}} />) //:
-													//null
-												}
-											</div>
-											<div className={ItemStyles.descriptionContainer_div}>
-												<div className={ItemStyles.description_div}>
-													{description}
-												</div>
-											</div>
-											<div className={ItemStyles.shopBtn_div}>
-												<Button
-													buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-													onClickHandler={null}
-													title='add'
-													iconName='ShopIcon'
-													buttonHeight={26}
-													customButtonStyles={{'border-width':'0px'}}
-													puDirection='WEST' />
-											</div>
-											</div>
-										</CSSTransition>
-									</div>
-								</CSSTransition>
-							) : 
-							null
-					*/}
 				</div>	
 			</CSSTransition>	
 		);	

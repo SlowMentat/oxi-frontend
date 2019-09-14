@@ -13,7 +13,8 @@ import {
 	removeFromMap,
 	postSaveItem,
 	deleteSavedItem,
-	replaceProfile
+	replaceProfile,
+	fetchImage,
 } from '../../Components/Actions/indexActions.js';
 import ItemList from '../../Components/Presentations/ItemList.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
@@ -168,6 +169,7 @@ const mapDispatchToProps = dispatch => ({
 	compareMetrics: (metrics) => {
 		dispatch(replaceProfile({'host' : {'userMetricsDto': metrics}}));
 	},
+	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 })
 
 const VisibleItemList = connect(mapStateToProps, mapDispatchToProps)(ItemList);

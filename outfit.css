@@ -169,21 +169,24 @@
     vertical-align: top;
     padding-left: 8px;
     padding-right: 8px;*/
-    top: 0px;
-    width: 25%;
-    height: 100%;
-    position: relative;
-    display: inline-block;
-    vertical-align: top;
-    right: 0px;
+    bottom: 0px;
+    width: 50px;
+    /*height: 100%;*/
+    position: absolute;
+    padding: 13px;
+    padding-bottom:5px;
+    /*display: inline-block;
+    vertical-align: top;*/
+    left: 0px;
 }
 
 :local(.likesBtn_svg){
 	/*top: 25%;*/
 	height: 100%;
 	/*width: 100%;*/
-    width: auto;
+    width: 100%;
 	/*position: absolute;*/
+    cursor:pointer;
 }
 
 /*==========TRANSITION GROUP CLASSES==========*/
@@ -355,4 +358,5 @@
     font-family: 'Archivo Black', sans-serif;
     writing-mode: vertical-lr;
     text-orientation: upright;
+    /*position: relative;*/
 }

@@ -23,6 +23,8 @@ body{
 	--color3: #a9a9a9;
 	--color4: #c4edff;
 	--color5: #fdd835;
+	--color6: #24b0ed;
+	--color7: #fdd835ad;
 	--colorBorder: #c1c1c1;
 
 	--color-generic-icon: #4f4f4f;
@@ -60,7 +62,7 @@ a{
 
 :local(.logoContainer_div){
 	/*width: 100%;*/
-	width:300px;
+	width:307px;
     transition: width 175ms linear;
     height: 78%;
     margin-top: 8px;

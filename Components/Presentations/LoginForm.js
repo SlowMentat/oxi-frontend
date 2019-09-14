@@ -62,7 +62,7 @@ export default class LoginForm extends React.Component{
 				cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
 				axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 				this.props.cancelAction !== undefined ? this.props.cancelAction() : null;
-				this.props.history !== undefined ? this.props.history.goBack() : null;
+				//this.props.history !== undefined ? this.props.history.goBack() : null;
 				if(this.props.afterLoginSuccess !== undefined){
 					this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
 					this.setState(prevState => ({

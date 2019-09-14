@@ -1,10 +1,11 @@
-import 'babel-polyfill';import React from 'react';
+import 'babel-polyfill';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { createLogger } from 'redux-logger';
-import { Provider } from 'react-redux';
+import { Provider, ReactReduxContext  } from 'react-redux';
 import Cookies from 'universal-cookie';
 import fetch from 'cross-fetch';
 import axios from 'axios';
@@ -23,35 +24,49 @@ import FormDeck from './Components/Presentations/Forms.js';
 import FilledModal from './Components/Presentations/Modal.js';
 
 //Container Components
-import ModalContentSelection from './Components/Containers/SelectModalContent.js'
-import VisibleItemList from './Components/Containers/VisibleItemList.js'
-import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js'
-import PicturePreviewContainer from './Components/Containers/PicturePreviewContainer.js'
-import WebAppView from './Components/Containers/WebAppViewContainer.js'
-import { SiteNav } from './Components/Presentations/WebAppView.js'
+import ModalContentSelection from './Components/Containers/SelectModalContent.js';
+import VisibleItemList from './Components/Containers/VisibleItemList.js';
+import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js';
+import PicturePreviewContainer from './Components/Containers/PicturePreviewContainer.js';
+import WebAppView from './Components/Containers/WebAppViewContainer.js';
+import { SiteNav } from './Components/Presentations/WebAppView.js';
 import LandingPageContainer from './Components/Containers/LandingPageContainer.js';
 
 //Reducers
-import _OxiApp from './Components/Reducers/indexReducers.js';
+//import _OxiApp from './Components/Reducers/indexReducers.js';
+import createRootReducer from './Components/Reducers/indexReducers.js';
 import {showModal, setFormVisibility, setXcsrfToken, fetchEntities, handleUnauthorizedRequest, insertCsrfToken, cookies} from './Components/Actions/indexActions.js';
 
 //See instructions when adding enhancers and middlewares
 import { devToolsEnhancer } from 'redux-devtools-extension';
 import { composeWithDevTools } from 'redux-devtools-extension';
+//import devTools from 'remote-redux-devtools';
+import { createBrowserHistory } from 'history';
+import { routerMiddleware } from 'connected-react-router';
+import { ConnectedRouter } from 'connected-react-router'
 
 import {OxiAppConstants} from './Util/OxiAppConstants.js';
 
 import LoginPage from './Components/Presentations/LoginPage.js';
 
+export const history = createBrowserHistory();
 
 const loggerMiddleware = createLogger();
-const middleware = [thunkMiddleware, loggerMiddleware];
+
+const middleware = [
+	routerMiddleware(history), //for dispatching history actions
+	thunkMiddleware, 
+	loggerMiddleware,
+];
+
 const composeEnhancers = composeWithDevTools({
   // Specify name here, actionsBlacklist, actionsCreators and other options if needed
 });
 //log initial store state
 //subscribe logging callback to store state change
-const store = createStore(_OxiApp,
+const store = createStore(
+	createRootReducer(history), //root reducer with router state
+	//_OxiApp,
 	{
 		toggleModal : {
 			'modal':'HIDDEN',
@@ -63,9 +78,10 @@ const store = createStore(_OxiApp,
 		saveToken : {},
 		entitiesReducer : {
 		}
-	}, composeEnhancers(applyMiddleware(...middleware), /*other store enhancers if any*/) 
+	}, composeEnhancers(applyMiddleware(...middleware),/*other store enhancers if any*/) 
 	//devToolsEnhancer(/*Specify name here, actionsBlacklist, actionsCreators and other options if needed*/)
 );
+
 console.log("Initialized Store")
 console.log(store.getState());
 const unsubscribeStore = store.subscribe(() => console.log(store.getState()));
@@ -123,50 +139,72 @@ class App extends React.Component {
 	}
 
 	render() {
-
+		return(	
+			<React.Fragment>	
+				<Switch>
+					<Route push={true} path={OxiAppConstants.routeURIs.shop} component={WebAppView} />
+					<Route push={true} path={OxiAppConstants.routeURIs.login} component={WebAppView} />
+					<Route push={true} path={'/account/user/confirm/user/login'} render={props => (<LoginPage/>)} />
+					<Route path={this.props.match.url} render={({match, location, history}) => (
+						<div id="LandingPageContainer_div">
+							{/*<SiteNav webAppView='landing'/>*/}
+							<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
+						</div>
+					)} />
+				</Switch>
+			</React.Fragment>
+		);
+		store.getState.router.location.pathnam
 		// first route based on URIs other than / in the address border-radius
 
 		// find route based on toPortal stat property
-		switch(this.state.toPortal){
-			case OxiAppConstants.toPortals.consumer:
-				return (
-					<React.Fragment>
-						<Redirect push={true} to={OxiAppConstants.routeURIs.browse}/>
-	    				<Route path={this.props.match.url + 'shop'} component={ WebAppView }/>
-	    			</React.Fragment>
-				);
-				break;
-			case OxiAppConstants.toPortals.retailer:
-				return <Redirect to='/retailer'/>;
-				break;
-			case OxiAppConstants.toPortals.designer:
-				return <Redirect to='/designer'/>;
-				break;
-			default: // Default to landing page or predefined urls 
-				return(	
-					<React.Fragment>	
-						<Switch>
-							<Route push={true} path={OxiAppConstants.routeURIs.shop} component={WebAppView} />
-							<Route push={true} path={OxiAppConstants.routeURIs.login} component={WebAppView} />
-							<Route push={true} path={'/account/user/confirm/user/login'} render={props => (<LoginPage/>)} />
-							<Route path={this.props.match.url} render={({match, location, history}) => (
-								<div id="LandingPageContainer_div">
-									{/*<SiteNav webAppView='landing'/>*/}
-									<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
-								</div>
-							)} />
-						</Switch>
-					</React.Fragment>
-				);
-		}
+		//switch(this.state.toPortal){
+		//	case OxiAppConstants.toPortals.consumer:
+		//		return (
+		//			<React.Fragment>
+		//				<Redirect push={true} to={OxiAppConstants.routeURIs.browse}/>
+	   	//			<Route path={this.props.match.url + 'shop'} component={ WebAppView }/>
+	   	//		</React.Fragment>
+		//		);
+		//		break;
+		//	case OxiAppConstants.toPortals.retailer:
+		//		return <Redirect push to='/retailer'/>;
+		//		break;
+		//	case OxiAppConstants.toPortals.designer:
+		//		return <Redirect push to='/designer'/>;
+		//		break;
+		//	default: // Default to landing page or predefined urls 
+		//		return(	
+		//			<React.Fragment>	
+		//				<Switch>
+		//					<Route push={true} path={OxiAppConstants.routeURIs.shop} component={WebAppView} />
+		//					<Route push={true} path={OxiAppConstants.routeURIs.login} component={WebAppView} />
+		//					<Route push={true} path={'/account/user/confirm/user/login'} render={props => (<LoginPage/>)} />
+		//					<Route path={this.props.match.url} render={({match, location, history}) => (
+		//						<div id="LandingPageContainer_div">
+		//							{/*<SiteNav webAppView='landing'/>*/}
+		//							<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
+		//						</div>
+		//					)} />
+		//				</Switch>
+		//			</React.Fragment>
+		//		);
+		//}
 	}
 }
 
+	//<Provider store={store}>
+	//	<BrowserRouter>
+	//		<Route path="/" component={App} />
+	//	</BrowserRouter>
+	//</Provider>,
+	//document.getElementById('root')
 ReactDOM.render(
-	<Provider store={store}>
-		<BrowserRouter>
-			<Route path="/" component={App} />
-		</BrowserRouter>
+
+	<Provider store={store} context={ReactReduxContext}>
+		<ConnectedRouter history={history}  context={ReactReduxContext}>
+			<Route path="/" component={App}/>
+		</ConnectedRouter>
 	</Provider>,
 	document.getElementById('root')
 );

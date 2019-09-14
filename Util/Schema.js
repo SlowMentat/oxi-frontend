@@ -20,9 +20,14 @@ export const content = new schema.Entity(OxiAppConstants.JsonPropertyNames.CONTE
 	[OxiAppConstants.JsonPropertyNames.PICTURE] : picture
 }, {idAttribute : 'id'});
 
+export const likeCountSchema = new schema.Entity(OxiAppConstants.JsonPropertyNames.LIKE_COUNT, {idAttribute : 'id'});
+
 export const outfit = new schema.Entity(OxiAppConstants.JsonPropertyNames.OUTFIT, {
-	[OxiAppConstants.JsonPropertyNames.CONTENT] : [content]
+	[OxiAppConstants.JsonPropertyNames.CONTENT] : [content],
+	[OxiAppConstants.JsonPropertyNames.LIKE_COUNT] : likeCountSchema
 }, {idAttribute : 'id'});
+
+export const contentWithOutfit = new schema.Entity(OxiAppConstants.JsonPropertyNames.CONTENT_WITH_OUTFIT, {}, {idAttribute : 'id'})
 
 //export const outfitSchema = new schema.Entity(outfit);
 export const outfitsSchema = new schema.Array(outfit);
@@ -34,6 +39,8 @@ export const contents = new schema.Array(content);
 export const items = new schema.Array(item);
 
 export const sizeGroups = new schema.Array(sizeGroup); 
+
+export const contentWithOutfitSchema = new schema.Array(contentWithOutfit);
 
 
 
