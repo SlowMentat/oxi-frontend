@@ -1,0 +1,91 @@
+{
+  "name": "oxi",
+  "version": "1.0.0",
+  "description": "poc",
+  "main": "site.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "jest",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "jest": {
+    "verbose": true
+  },
+  "author": "Deven Bryant <chromosome24@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.1",
+    "connected-react-router": "^6.5.2",
+    "core-js": "^2.6.9",
+    "cross-fetch": "^2.2.3",
+    "flux-standard-action": "^2.1.1",
+    "lodash": "^4.17.15",
+    "lodash.isequal": "^4.5.0",
+    "node-sass": "^4.12.0",
+    "normalizr": "^3.4.1",
+    "prop-types": "^15.7.2",
+    "qs": "^6.8.0",
+    "react": "^16.9.0",
+    "react-cropper": "^1.2.0",
+    "react-dom": "^16.9.0",
+    "react-draggable": "^3.3.2",
+    "react-image-crop": "^4.0.4",
+    "react-media": "^1.9.2",
+    "react-redux": "^7.1.0",
+    "react-router-dom": "^4.3.1",
+    "react-transition-group": "^2.9.0",
+    "redux": "^3.7.2",
+    "redux-logger": "^3.0.6",
+    "redux-promise-middleware": "^5.1.1",
+    "redux-thunk": "^2.3.0",
+    "requirejs": "^2.3.6",
+    "universal-cookie": "^2.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@storybook/addon-actions": "^5.1.11",
+    "@storybook/addon-links": "^5.1.11",
+    "@storybook/addons": "^5.1.11",
+    "@storybook/react": "^5.1.11",
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^23.6.0",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "eslint": "^5.16.0",
+    "eslint-plugin-react": "^7.14.3",
+    "html-webpack-plugin": "^2.30.1",
+    "jest": "^23.6.0",
+    "redux-devtools-extension": "^2.13.8",
+    "regenerator-runtime": "^0.13.3",
+    "style-loader": "^0.19.1",
+    "webpack": "^3.12.0",
+    "webpack-combine-loaders": "^2.0.4"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions",
+              "safari >= 7"
+            ]
+          },
+          "include": [
+            "transform-es2015-arrow-functions",
+            "es6.map"
+          ],
+          "exclude": [
+            "transform-regenerator",
+            "es6.set"
+          ]
+        }
+      ]
+    ]
+  }
+}
