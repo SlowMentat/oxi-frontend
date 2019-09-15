@@ -353,7 +353,7 @@ function allIds(state = [], action){
 	}
 }
 
-const entities = (maxCount) => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
+export const entities = (maxCount) => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
 	let byIdsRef = {};
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
@@ -570,7 +570,7 @@ function filterInvalidated(state=[], action){
 	return duplicatesFiltered;
 }
 
-const entitiesState =  (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
+export const entitiesState =  (state = {isFetching: false, serverInvalidated: [], clientInvalidated: [], receivedAt: null, selected: false, multipleSelected: []}, action) => {
 	let pageNumbers = null;
 	let length = null;
 
@@ -662,7 +662,7 @@ const entitiesState =  (state = {isFetching: false, serverInvalidated: [], clien
 	}
 }
 
-const localEntities = maxCount => (state = {selected: false, count : 0, byIds : {}, allIds : []}, action) => {
+export const localEntities = maxCount => (state = {selected: false, count : 0, byIds : {}, allIds : []}, action) => {
 	let byIdsRef = {};
 	let allIdsRef = [];
 	//Check if excedes max number of entities.  If so trim data to maxCount.
@@ -817,7 +817,7 @@ const localEntities = maxCount => (state = {selected: false, count : 0, byIds : 
 
 //This reducer factory returns a wrapper function that invokes 'reducerFunction' 
 //only when the value of the action object's "targetEntity' key equals "reducerName"
-function entityReducerFactory(reducerFunction, reducerName, defualtStoreState){
+export function entityReducerFactory(reducerFunction, reducerName, defualtStoreState){
 	return (state = defualtStoreState, action) => {
 		const {typeSpecifier} =  action;
 		const isInitializationCall = state === undefined;
