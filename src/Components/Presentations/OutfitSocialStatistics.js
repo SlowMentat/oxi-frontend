@@ -22,7 +22,12 @@ export const OutfitSocialStatistics = (props) => (
 			//</div>
 		}
 		<div className={OutfitStyles.likesBtn_div} >
-				<SvgIcon className={OutfitStyles.likesBtn_svg} name="HeartIcon" fill="none" stroke="#666" strokeWidth="3"/>
+				<SvgIcon 
+					className={OutfitStyles.likesBtn_svg} 
+					name="HeartIcon" 
+					fill="none" 
+					stroke="#666" 
+					strokeWidth="3" />
 		</div>
 		{/*<div className={OutfitStyles.likesBtn_div} >
 				<SvgIcon className={OutfitStyles.likesBtn_svg} name="FollowIcon" fill="none" stroke="#666" strokeWidth="2.5"/>
