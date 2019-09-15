@@ -225,7 +225,7 @@ function outfit(state={}, action){
 	}
 }
 
-function byId(state = {}, action){
+export function byId(state = {}, action){
 	switch(action.type){
 		//action typed performed on "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
@@ -281,7 +281,7 @@ function byId(state = {}, action){
 	}
 }
 
-function allIds(state = [], action){
+export function allIds(state = [], action){
 	switch(action.type){
 		//action typed performed on "entitiesReducer"
 		case `CREATE_${action.typeSpecifier}`:
