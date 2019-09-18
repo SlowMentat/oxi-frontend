@@ -1,10 +1,10 @@
 
-import { 
-	//setFormVisibility, 
-	navigateTo, 
-	//fetchEntities, 
-	//replaceProfile
-} from '../Components/Actions/indexActions.js';
+//import { 
+//	//setFormVisibility, 
+//	navigateTo, 
+//	//fetchEntities, 
+//	//replaceProfile
+//} from '../Components/Actions/indexActions.js';
 
 
 //Constant global variables
@@ -159,14 +159,14 @@ export const OxiAppConstants = Object.freeze({
 		LOGIN: 'Login',
 		DISCARD_EDITS:'DiscardEdits',
 	},
-	requestToBatchedDispatchMap : {
-		outfits: {
-			get: (dispatch) => {
-				//navigate to browse
-				dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase()));
-			},
-		}
-	},
+	//requestToBatchedDispatchMap : {
+	//	outfits: {
+	//		get: (dispatch) => {
+	//			//navigate to browse
+	//			dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase()));
+	//		},
+	//	}
+	//},
 	Intent:{
 		DISCARD_EDITS: 'discardEdits'
 	},/*

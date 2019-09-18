@@ -9,6 +9,14 @@ module.exports = {
 		filename: "App.js",
 		path: path.resolve(__dirname, 'shop')
 	},
+	externals: {
+	  lodash: {
+	    commonjs: 'lodash',
+	    commonjs2: 'lodash',
+	    amd: 'lodash',
+	    root: '_'
+	  }
+	},
 	resolve: {
 		extensions: ['.js', '.jsx']
 	},
