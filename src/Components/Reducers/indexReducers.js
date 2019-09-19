@@ -2,83 +2,85 @@ import {combineReducers} from 'redux';
 import { connectRouter } from 'connected-react-router';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
-import {
-			ADD_PROFILE,
-			ADD_OUTFIT,	
-			ADD_CONTENT,
-			ADD_CONTENTS,
-			ADD_ITEM,
-			ADD_ITEMCONTENT,
-			CREATE_ITEM,
-			CREATE_ITEMCONTENT,
-			CREATE_CONTENT,
-			CREATE_OUTFIT,
-			CREATE_LIKE_COUNT,
-			DISABLE_BUTTON,
-			DISABLE_CONTENT_BUTTON,
-			EDIT_CONTENT_VIEW,
-			INVALIDATE_ENTITIES,
-			MODIFYITEM,
-			MODIFYCONTENT,
-			MODIFYOUTFIT,
-			MODIFYPROFILE,
-			MODIFY_ITEM,
-			MODIFY_CONTENT,
-			MODIFY_OUTFIT,
-			MODIFY_PROFILE,
-			PREVIEW_CONTENT,
-			REQUEST_ENTITIES, 	
-			RECEIVE_ENTITIES,
-			REMOVE_ADDED_CONTENT,
-			REMOVE_ADDED_ITEM,
-			REMOVE_ADDED_OUTFIT,
-			REMOVE_PROFILE,
-			REMOVE_OUTFIT,
-			REMOVE_CONTENT,
-			REMOVE_ITEM,
-			REMOVE_ITEMCONTENT,
-			REPLACE_RETAILER,
-			REPLACE_BRAND,
-			REQUEST_NAVIGATION,
-			SELECT_CONTENT,
-			SELECT_WEB_APP_VIEW,
-			SELECT_PAGE,
-			SELECT_OUTFIT,
-			SELECT_ITEM,
-			SELECT_NEW_PROFILE,
-			SELECT_ADDED_OUTFIT,
-			SELECT_ADDED_CONTENT,
-			SELECT_NEW_ITEM,
-			SET_LP_PROFILE_MENU,	
-			SET_VISIBLE_FORM, 	
-			SET_XCSRF_TOKEN,
-			SHOW_MODAL, 
-			SHOW_CONTENT_VIEW,	
-			UPDATE_ITEM,
-			UPDATE_CONTENT,
-			SET_BROWSER_SELECTION,
-			SET_POSITION_HELP,
-			SET_POSITION_FILTER,
-			SET_VISIBLE_HELP,
-			SET_VISIBLE_FILTER,
-			UPDATE_OUTFIT_COVERPICURI,
-			SET_LP_CREATE_ACCOUNT_VIEW,
-			RECEIVED_EXISTING_ITEMS_SEARCH,
-			RECEIVED_RETAILER_NAMES_SEARCH,
-			RECEIVED_UDR_NAMES_SEARCH,
-			RECEIVED_UDS_LABELS_SEARCH,
-			RECEIVED_ALL_APPAREL_TYPES,
-			CREATE_APPAREL_TYPE,
-			REPLACE_APPAREL_TYPE,
-			REPLACE_LIKE_COUNT,
-			RECEIVED_SIZE_GROUPS_BY_ITEM_ID,
-			REPLACE_SIZE_CHART,
-			REPLACE_SIZE_GROUP,
-			CREATE_SIZE_GROUP,
-			SET_PREVIEW_FOCUS,
-			UNSET_PREVIEW_FOCUS,
-			TOGGLE_OUTFIT_IS_LIKED,
-		} from '../../Components/Actions/indexActions.js'
+import * as types from '../Actions/Types.js';
+
+//import {
+//			ADD_PROFILE,
+//			ADD_OUTFIT,	
+//			ADD_CONTENT,
+//			ADD_CONTENTS,
+//			ADD_ITEM,
+//			ADD_ITEMCONTENT,
+//			CREATE_ITEM,
+//			CREATE_ITEMCONTENT,
+//			CREATE_CONTENT,
+//			CREATE_OUTFIT,
+//			CREATE_LIKE_COUNT,
+//			DISABLE_BUTTON,
+//			DISABLE_CONTENT_BUTTON,
+//			EDIT_CONTENT_VIEW,
+//			INVALIDATE_ENTITIES,
+//			MODIFYITEM,
+//			MODIFYCONTENT,
+//			MODIFYOUTFIT,
+//			MODIFYPROFILE,
+//			MODIFY_ITEM,
+//			MODIFY_CONTENT,
+//			MODIFY_OUTFIT,
+//			MODIFY_PROFILE,
+//			PREVIEW_CONTENT,
+//			REQUEST_ENTITIES, 	
+//			RECEIVE_ENTITIES,
+//			REMOVE_ADDED_CONTENT,
+//			REMOVE_ADDED_ITEM,
+//			REMOVE_ADDED_OUTFIT,
+//			REMOVE_PROFILE,
+//			REMOVE_OUTFIT,
+//			REMOVE_CONTENT,
+//			REMOVE_ITEM,
+//			REMOVE_ITEMCONTENT,
+//			REPLACE_RETAILER,
+//			REPLACE_BRAND,
+//			REQUEST_NAVIGATION,
+//			SELECT_CONTENT,
+//			SELECT_WEB_APP_VIEW,
+//			SELECT_PAGE,
+//			SELECT_OUTFIT,
+//			SELECT_ITEM,
+//			SELECT_NEW_PROFILE,
+//			SELECT_ADDED_OUTFIT,
+//			SELECT_ADDED_CONTENT,
+//			SELECT_NEW_ITEM,
+//			SET_LP_PROFILE_MENU,	
+//			SET_VISIBLE_FORM, 	
+//			SET_XCSRF_TOKEN,
+//			SHOW_MODAL, 
+//			SHOW_CONTENT_VIEW,	
+//			UPDATE_ITEM,
+//			UPDATE_CONTENT,
+//			SET_BROWSER_SELECTION,
+//			SET_POSITION_HELP,
+//			SET_POSITION_FILTER,
+//			SET_VISIBLE_HELP,
+//			SET_VISIBLE_FILTER,
+//			UPDATE_OUTFIT_COVERPICURI,
+//			SET_LP_CREATE_ACCOUNT_VIEW,
+//			RECEIVED_EXISTING_ITEMS_SEARCH,
+//			RECEIVED_RETAILER_NAMES_SEARCH,
+//			RECEIVED_UDR_NAMES_SEARCH,
+//			RECEIVED_UDS_LABELS_SEARCH,
+//			RECEIVED_ALL_APPAREL_TYPES,
+//			CREATE_APPAREL_TYPE,
+//			REPLACE_APPAREL_TYPE,
+//			REPLACE_LIKE_COUNT,
+//			RECEIVED_SIZE_GROUPS_BY_ITEM_ID,
+//			REPLACE_SIZE_CHART,
+//			REPLACE_SIZE_GROUP,
+//			CREATE_SIZE_GROUP,
+//			SET_PREVIEW_FOCUS,
+//			UNSET_PREVIEW_FOCUS,
+//			TOGGLE_OUTFIT_IS_LIKED,
+//		} from '../../Components/Actions/indexActions.js'
 
 //import all reducers here
 
@@ -149,10 +151,10 @@ const iniSearchState = {
 
 const toggleModal = (state = iniState, action) => {
 	switch(action.type){
-		case SET_VISIBLE_FORM:
+		case types.SET_VISIBLE_FORM:
 			action.payload.otherData === undefined ? action.payload.otherData = state.otherData : null
 			return Object.assign({}, state, action.payload);
-		case SHOW_MODAL:
+		case types.SHOW_MODAL:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -161,7 +163,7 @@ const toggleModal = (state = iniState, action) => {
 
 const saveToken = (state = iniTokenState, action) => {
 	switch(action.type){
-		case SET_XCSRF_TOKEN:
+		case types.SET_XCSRF_TOKEN:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -170,7 +172,7 @@ const saveToken = (state = iniTokenState, action) => {
 
 /*const pageView = (state = {page: home}, action) => {
 	switch(action.type){
-		case SELECT_PAGE:
+		case types.SELECT_PAGE:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -180,7 +182,7 @@ const saveToken = (state = iniTokenState, action) => {
 
 const browseState = (state = {'browseSelection' : 'outfits'}, action) => {
 	switch(action.type){
-		case SET_BROWSER_SELECTION:
+		case types.SET_BROWSER_SELECTION:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -189,7 +191,7 @@ const browseState = (state = {'browseSelection' : 'outfits'}, action) => {
 
 const appView = (state = {"webAppView": "landing"}, action) => {
 	switch(action.type){
-		case SELECT_WEB_APP_VIEW:
+		case types.SELECT_WEB_APP_VIEW:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -198,7 +200,7 @@ const appView = (state = {"webAppView": "landing"}, action) => {
 
 const requestedNavigation = (state= {'location':null}, action) => {
 	switch(action.type){
-		case REQUEST_NAVIGATION:
+		case types.REQUEST_NAVIGATION:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -207,9 +209,9 @@ const requestedNavigation = (state= {'location':null}, action) => {
 
 const landingPage = (state = {'profileMenu': false, 'createAccountView': 'none'}, action) => {
 	switch(action.type){
-		case SET_LP_PROFILE_MENU:
+		case types.SET_LP_PROFILE_MENU:
 			return Object.assign({}, state, action.payload);
-		case SET_LP_CREATE_ACCOUNT_VIEW:
+		case types.SET_LP_CREATE_ACCOUNT_VIEW:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -218,7 +220,7 @@ const landingPage = (state = {'profileMenu': false, 'createAccountView': 'none'}
 
 function outfit(state={}, action){
 	switch(action){
-		case CREATE_OUTFIT:
+		case types.CREATE_OUTFIT:
 			return Object.assign({}, state, );
 		default:
 			return state;
@@ -494,7 +496,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 				} );
 			}
 
-		case UPDATE_OUTFIT_COVERPICURI:
+		case types.UPDATE_OUTFIT_COVERPICURI:
 			return Object.assign({}, state, {
 				'byIds':{
 					...state.byIds,
@@ -505,7 +507,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 				}
 			});
 
-		case TOGGLE_OUTFIT_IS_LIKED:
+		case types.TOGGLE_OUTFIT_IS_LIKED:
 			return Object.assign({}, state, {
 				'byIds':{
 					...state.byIds,
@@ -828,13 +830,13 @@ export function entityReducerFactory(reducerFunction, reducerName, defualtStoreS
 
 function contentViewState(state = {'isFocusedPreview': false, 'shownContentId' : null, 'viewState' : OxiAppConstants.viewState.PREVIEW}, action){
 	switch(action.type){
-		case PREVIEW_CONTENT:
+		case types.PREVIEW_CONTENT:
 			return Object.assign({}, state, action.payload);
-		case EDIT_CONTENT_VIEW:
+		case types.EDIT_CONTENT_VIEW:
 			return Object.assign({}, state, action.payload);
-		case SET_PREVIEW_FOCUS:
+		case types.SET_PREVIEW_FOCUS:
 			return Object.assign({}, state, {'isFocusedPreview': true});
-		case UNSET_PREVIEW_FOCUS:
+		case types.UNSET_PREVIEW_FOCUS:
 			return Object.assign({}, state, {'isFocusedPreview': false});
 		default:
 			return state;
@@ -844,13 +846,13 @@ function contentViewState(state = {'isFocusedPreview': false, 'shownContentId' :
 //maybe find better naming
 function entitiesModified(state = {isFetching:false, serverInvalidated: false, clientInvalidated: false, entities:[]}, action){
 	switch(action.type){
-		case SERVER_INVALIDATE_ENTITIES:
+		case types.SERVER_INVALIDATE_ENTITIES:
 			return Object.assign({}, state, {serverInvalidated: true});
-		case CLIENT_INVALIDATE_ENTITIES:
+		case types.CLIENT_INVALIDATE_ENTITIES:
 			return Object.assign({}, state, {clientInvalidated: true});
-		case REQUEST_ENTITIES:
+		case types.REQUEST_ENTITIES:
 			return Object.assign({}, state, {isFetching:true , serverInvalidated: false, clientInvalidated: false})
-		case RECEIVE_ENTITIES:
+		case types.RECEIVE_ENTITIES:
 			return Object.assign({}, state, {isFetching:false , serverInvalidated: false, clientInvalidated: false, lastUpdated: action.recivedAt})
 		default:
 			return state;
@@ -859,9 +861,9 @@ function entitiesModified(state = {isFetching:false, serverInvalidated: false, c
 
 function buttonState(state = iniButtonState, action){
 	switch(action.type){
-		case DISABLE_BUTTON:
+		case types.DISABLE_BUTTON:
 			return Object.assign({}, state, {'addOutfit': action.payload});
-		case DISABLE_CONTENT_BUTTON:
+		case types.DISABLE_CONTENT_BUTTON:
 			return Object.assign({}, state, {'addContent' : action.payload});
 		default:
 			return state;
@@ -885,32 +887,32 @@ function mapCache(state = {}, action){
 
 function searchState(state = iniSearchState, action){
 	switch(action.type){
-		case RECEIVED_EXISTING_ITEMS_SEARCH:
+		case types.RECEIVED_EXISTING_ITEMS_SEARCH:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload
 			}})
-		case RECEIVED_RETAILER_NAMES_SEARCH:
+		case types.RECEIVED_RETAILER_NAMES_SEARCH:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload
 			}})	
-		case RECEIVED_SIZE_GROUPS_BY_ITEM_ID:
+		case types.RECEIVED_SIZE_GROUPS_BY_ITEM_ID:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload
 			}})	
-		case RECEIVED_UDR_NAMES_SEARCH:
+		case types.RECEIVED_UDR_NAMES_SEARCH:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload
 			}})	
-		case RECEIVED_UDS_LABELS_SEARCH:
+		case types.RECEIVED_UDS_LABELS_SEARCH:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload
 			}})
-		case RECEIVED_ALL_APPAREL_TYPES:
+		case types.RECEIVED_ALL_APPAREL_TYPES:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
 				...action.payload

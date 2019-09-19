@@ -181,7 +181,7 @@ a{
     text-transform: capitalize;
 }
 
-.metricsContainer_div{
+:local(.metricsContainer_div){
 	position: absolute;
     left: 0px;
     height: calc(100vh - 80px - 40px);

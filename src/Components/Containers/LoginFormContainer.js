@@ -25,6 +25,15 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 import { withRouter } from 'react-router-dom';
 
+const requestToBatchedDispatchMap = {
+	outfits: {
+		get: (dispatch) => {
+			//navigate to browse
+			dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase()));
+		},
+	}
+};
+
 const mapStateToProps = (state, props) => {
 
 	return {
@@ -37,7 +46,7 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch) => ({
 		afterLoginSuccess:  (requestUrl, requestType) => {
 			if(requestUrl !== null && requestUrl !== undefined && requestUrl !== ''){
-				OxiAppConstants.requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceURL+'/', "").split('?')[0]][requestType](dispatch);
+				requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceURL+'/', "").split('?')[0]][requestType](dispatch);
 			}
 			else{
 				//redirected to login from verification email.  Navigate to Measurmeents to complete profile.
