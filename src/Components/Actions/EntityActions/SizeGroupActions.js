@@ -5,3 +5,4 @@ import * as types from '../Types.js'
 
 export const createSizeGroups	= makeActionCreator(types.CREATE_SIZE_GROUP, OxiAppConstants.EntityTypes.SIZE_GROUP, 'entities');
 export const replaceSizeGroups	= makeActionCreator(types.REPLACE_SIZE_GROUP, OxiAppConstants.EntityTypes.SIZE_GROUP, 'entities');
+export const addSizeGroup		= makeActionCreator(types.ADD_SIZE_GROUP, OxiAppConstants.EntityTypes.ADD_SIZE_GROUP, 'entity');
