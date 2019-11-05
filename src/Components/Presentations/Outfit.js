@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import OutfitStyles from '../../outfit.css';
+import OutfitStyles from '../../outfit.scss';
 import {OutfitEditDelete, OutfitTileBrowseCtrls} from './OutfitTileCtrls.js';
 import {OutfitSocialStatistics} from './OutfitSocialStatistics.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -135,7 +135,7 @@ export class Outfit extends React.Component{
 
 		let contextualStyles = null;
 		let outfitHeight = containerHeight;///3;
-		let outfitWidth = outfitHeight*(2/3);
+		let outfitWidth = outfitHeight * OxiAppConstants.aspectRatio;
 		let isBrowse = webAppView === OxiAppConstants.navRequestMap.a.toLowerCase();
 
 		var fill = "none";
@@ -144,27 +144,32 @@ export class Outfit extends React.Component{
 		
 		if(isLiked){
 			fill = "var(--color7)";
-			stroke = "var(--color5)";
+			stroke = isSelected ? "var(--color5)" : '#aaa';
 		}
 
 		contextualStyles = isBrowse ?
 			contextualStyles = {
-				'display':'inline-block',
-				'margin':'80px 50px 0px 50px'
+				//'display':'inline-block',
+				////'margin-top':'80px'
+				//'margin-right': '50px',
+				//'margin-bottom': '0px',
+				//'margin-left': '50px',
+				////'margin':'80px 50px 0px 50px'
 			} :
 			containerHeight !== null ? 
 				contextualStyles ={
 					height:`calc(${outfitHeight}px)`,
 					width:`calc(${outfitWidth}px)`,
-					'margin-left':'130px',
-					'margin-bottom':'50px',
+					//'margin-left':'130px',
+					//'margin-bottom':'50px',
+					//'margin-top':'40px',
 				} :
 				null;
 
 		return(
 			<div 
 				//className={isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
-				className={OutfitStyles.stdOutfitBlock} 
+				className={isBrowse ? OutfitStyles.stdOutfitBlock : OutfitStyles.stdOutfitBlockProfile_div} 
 				style={contextualStyles} 
 				onClick={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this._handleTileClicked : null}
 		
@@ -271,7 +276,9 @@ export class Outfit extends React.Component{
 											routeToHostProfile={routeToHostProfile}
 											username={isBrowse ? username : null}
 											getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
-											handleTileSelected={this._handleTileClicked}/>
+											handleTileSelected={this._handleTileClicked}
+											toggleMetricPanel={this.props.toggleMetricPanel}
+										/>
 									)
 							}
 						</div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FormStyles from '../../forms.css';
-import Styles from '../../root.css';
+import FormStyles from '../../forms.scss';
+import Styles from '../../root.scss';
 import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -88,13 +88,14 @@ export default class LoginForm extends React.Component{
 					(<Redirect to={`${OxiAppConstants.routeURIs.browse}`}/>) :
 					(<div className={(this.props.isModal === undefined || this.props.isModal === true) ? Styles.modal : Styles.loginPage_div}>
 						<div 
-							id="form_containter_add_item" 
+							id="form_container_add_item" 
 							style={{
-								'background-color':'#fdfdfd', 
-								padding:'10px', 
-								'border-radius':'3px', 
-								'--user-dd-field-color': '#4c4c4c',
+								//'background-color':'#fdfdfd', 
+								//padding:'10px', 
+								//'border-radius':'3px', 
+								//'--user-dd-field-color': '#4c4c4c',
 							}}
+							className={FormStyles.loginFormViewContainer_div}
 						>
 							<form className={FormStyles.loginForm} action="" method="POST">
 								<InputTextField 

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 
 import {OxiAppConstants} from '../../../Util/OxiAppConstants.js'
 
+import Styles from '../../../root.scss';
+
 
 export default class LogoIconFitsee extends React.Component{
 	constructor(props){
@@ -13,6 +15,8 @@ export default class LogoIconFitsee extends React.Component{
 		let stroke = this.props.stroke || "#000";
 		let fill = this.props.fill || "none";
 		let strokeWidth = this.props.strokeWidth || "2";
+		//#70ccf4 old blue
+		//#fdd835 yellow
 		return(
 			<svg 
 				width="50mm" 
@@ -20,10 +24,12 @@ export default class LogoIconFitsee extends React.Component{
 				version="1.1" 
 				viewBox="0 0 50 50" 
 				xmlns="http://www.w3.org/2000/svg"
-				style={this.props.style} >
+				style={this.props.style}
+				className={Styles.logo_svg} >
+
 				<g>
-					<rect x="10.532" y="18.942" width="15.762" height="7.5392" ry="2.007" fill="none" stroke="#70ccf4" stroke-dashoffset="85.709" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-					<rect x="9.9066" y="3.6042" width="37.012" height="10.33" ry="2.4574" fill="#fdd835" fill-rule="evenodd" stroke-opacity="0"/>
+					<rect x="10.532" y="18.942" width="15.762" height="7.5392" ry="2.007" fill="none" stroke="var(--color8)" stroke-dashoffset="85.709" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+					<rect x="9.9066" y="3.6042" width="37.012" height="10.33" ry="2.4574" fill="#35c8fd" fill-rule="evenodd" stroke-opacity="0"/>
 					<g fill="none" stroke-linecap="round" stroke-linejoin="round">
 						<path d="m16.839 35.5h2.5" stroke="#fff" stroke-width="2"/>
 						<path d="m20 40.5c0 3.75 3.75 3.75 5 3.75m-12.5-6v2.25c0 2.1839 0.56224 3.6342 2.5 3.75m5-3.75v-7.5" stroke="#fffffe" stroke-width="3"/>

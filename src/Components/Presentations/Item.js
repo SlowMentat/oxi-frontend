@@ -1,6 +1,7 @@
 import React from 'react';
-import ItemStyles from '../../item.css';
-import ItemLiteStyles from '../../itemLite.css';
+import ItemStyles from '../../item.scss';
+import PropTypes from 'prop-types';
+import ItemLiteStyles from '../../itemLite.scss';
 //import DeleteIcon from '../SvgAssets/Icons/DeleteIcon.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js';
 import VisibleItemAsSeenOnList from '../../Components/Containers/VisibleItemAsSeenOnList.js';
@@ -53,21 +54,38 @@ const itemCellContentContainer = {
 	position: 'relative',
 }
 
-const parseVariants = (variants) => {
+//Compatible only for variant data returned by Shopity API
+export const parseVariants = (variants) => {
 	var availableSizes = [];
 	var availableColors = [];
 
 	variants !== undefined ?
 		variants.edges.map(variant => {
-			var variantInfo = variant.node.displayName.trim().split('-')[1].split('/');
+			var variantInfo = variant.node.displayName.trim().split('-')[1].split('/').map(val => val.trim());
 
-			availableSizes = variantInfo[1] ? [...availableSizes, variantInfo[1]] : availableSizes;
+			switch(true){
+				//size and color is available (size comes in both uppercase and lowercase. ['xs', 'XS'])
+				case variantInfo.length === 3:
+					availableSizes = variantInfo[1] ? [...(availableSizes.filter(size => (size != variantInfo[1]))), variantInfo[1]] : availableSizes;
+					availableColors = variantInfo[2] ? [...(availableColors.filter(color => (color != variantInfo[2]))), variantInfo[2]] : availableColors;
+					break;
+				//size is available (size comes in just lowercase ['xs'])
+				case vaiantInfo.length === 1:
+					availableSizes = variantInfo[0] ? [...(availableSizes.filter(size => (size != variantInfo[0]))), variantInfo[0]] : availableSizes;
+			}
 
-			availableColors = variantInfo[2] ? [...availableColors, variantInfo[2]] : availableColors;
 		}):
 		null;
 
 	return {availableSizes, availableColors};
+}
+
+parseVariants.propTypes = {
+	variants: PropTypes.Object,
+}
+
+parseVariants.defaultProps = {
+	variants: undefined,
 }
 
 export class ItemLite extends React.Component{
@@ -214,10 +232,10 @@ export class ItemInfo extends React.Component {
 
 				<div className={ItemStyles.expandedItemInfoContainer_div} style={this.props.styles}>
 					<CSSTransition
-							//timeout={}
-							classNames="expandedItemInfo_div"
-							in={isExpanded} 
-							unmountOnExit >
+						//timeout={}
+						classNames="expandedItemInfo_div"
+						in={isExpanded} 
+						unmountOnExit >
 
 						<div className={ItemStyles.expandedItemInfo_div}>
 							<div className={ItemStyles.variantOptionsContainer_div}>
@@ -263,7 +281,18 @@ export class ItemInfo extends React.Component {
 									</div>
 									<div 
 										className={ItemStyles.variantColorOptions_div}
-										style={ this.state.isColorOptionsOpen ? {display:'block'} : {display:'none'}} >
+										style={ 
+											this.state.isColorOptionsOpen ? 
+											{
+												height:'95px'
+											} : 
+											{
+												height:'0px',
+												padding: '0px',
+												border: 'none',
+											}
+										} 
+									>
 										{
 											availableColors.length > 0 ? 
 												availableColors.map(color => (
@@ -309,9 +338,11 @@ export class ItemInfo extends React.Component {
 									onClickHandler={null}
 									title='add'
 									iconName='ShopIcon'
+									iconStyles={{width:'100%',height:'100%',padding:'0px'}}
 									buttonHeight={26}
 									customButtonStyles={{'border-width':'0px'}}
-									puDirection='WEST' />
+									puDirection='WEST' 
+								/>
 							</div>
 						</div>
 					</CSSTransition>
@@ -403,11 +434,12 @@ export class ItemBrowse extends React.Component{
 		return(		
 			<React.Fragment>
   				<div 
-  					className={ItemLiteStyles.itemLite_div}
-  					style={{
-						'margin-bottom': '15px',
-						height:'125px',
-  					}}
+  					className={ItemLiteStyles.itemLiteBrowse_div}
+  					//className={ItemLiteStyles.itemLite_div}
+  					//style={{
+					//	'margin-bottom': '15px',
+					//	height:'125px',
+  					//}}
   					onMouseOver={(event) => onSizeHover(event)}
 					onClick={(event) => {
 						removeContentEntities();
@@ -606,7 +638,18 @@ export class ItemBrowseInfo extends React.Component {
 										</div>
 										<div 
 											className={ItemStyles.variantColorOptions_div}
-											style={ this.state.isColorOptionsOpen ? {display:'block'} : {display:'none'}} >
+											style={ 
+												this.state.isColorOptionsOpen ? 
+													{
+														height:'95px'
+													} : 
+													{
+														height:'0px',
+														padding: '0px',
+														border: 'none',
+													}
+											} 
+										>
 											{
 												availableColors.length > 0 ? 
 													availableColors.map(color => (
@@ -713,10 +756,11 @@ export class Item extends React.Component{
 			collapseItem,
 			saveItem,
 			unsaveItem,
-			compareMetrics
+			compareMetrics,
+			selectedId,
 		} = this.props;
 
-		var {
+		const {
 			isSaved,
 			item,
 			isExpanded,
@@ -724,7 +768,7 @@ export class Item extends React.Component{
 			apparelTypeByIds,
 		} = this.props;
 
-		var {
+		const {
 			product, 
 			platform, 
 			sizeGroupId,		//Note:  sizeGroupId is only defined in Retailer retailer
@@ -733,7 +777,7 @@ export class Item extends React.Component{
 		
 		if(product === undefined || product === null) return null;
 
-		var {
+		const {
 			udr, 			//platform = wearsit
 			onlineStoreUrl, //platform = wearsit
 			uds, 			//platform = wearsit
@@ -745,9 +789,13 @@ export class Item extends React.Component{
 			variants,		//platform != wearsit
 		} = product;
 
+		var { size } = product;
+
+		//size = size ? size : this.props.sizeGroups[sizeGroupId];
+		size = size === null ? 8 : size;
+
 		//Note:  sizes will only be defined in Retailer Items
-		var size = this.props.sizeGroups[sizeGroupId];
-		var isActive = platform !== OxiAppConstants.PLATFORM;
+		const isActive = (platform !== OxiAppConstants.PLATFORM || platform === null) && size !== undefined;  //NOTE: this is accomodating for a bug in the server that allows platform to be null
 
 
 
@@ -775,7 +823,8 @@ export class Item extends React.Component{
 		//console.log('handle = ', handle);
 		let fill = "#FFF";
 		let stroke = "#FFF";
-		let isSelected = this.props.selectedAllIds.includes(this.props.item.id);
+		let isSelected = this.props.selectedAllIds.includes(item.id);
+		let isCurrentSelection = item.id === selectedId;
 		var itemContainerStyles = null;
 		let isProfileView = (this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase());
 	
@@ -790,10 +839,13 @@ export class Item extends React.Component{
 
 				//itemContainerStyles = isExpanded ?
 				//	ItemStyles.expandedItemContainer_div : 
-					itemContainerStyles = ItemStyles.itemContainer_div
+					itemContainerStyles = isCurrentSelection ?
+						ItemStyles['itemContainerPreview_div--selected'] : 
+						ItemStyles.itemContainer_div
 				break;
 			//Browse webAppView
 			case this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase():
+
 				itemContainerStyles = !isSelected ? 
 					ItemStyles.itemContainer_div :
 					this.props.browseSelection === 'apparel' ?
@@ -825,21 +877,22 @@ export class Item extends React.Component{
 			    in={this.props.expandedViewState && !isExpanded}
 			>
 				<div 
-					className={itemContainerStyles}
+					className={isExpanded ? ItemStyles['itemContainerPreview_div--opened'] : itemContainerStyles}
 					onMouseOver={this.props._handleMouseOver.bind(this)}
 					onMouseLeave={this.props._handleMouseLeave.bind(null)} 
-					style={
-						!isProfileView ? 
-						{} : 
-						isExpanded ? 
-							({
-								//width: '100%', 
-								transform: `translateY(calc(-${this.props.index}*(var(--item-height) )))`,	//18px is the margin-bottom for item 
-								position: 'absolute', 
-								//top: '0px', 
-								'z-index':'100'
-							}) : ({})
-					}
+					style={{'--index':`${this.props.index}`}}
+					//style={
+					//	!isProfileView ? 
+					//	{} : 
+					//	isExpanded ? 
+					//		({
+					//			//width: '100%', 
+					//			transform: `translateY(calc(-${this.props.index}*(var(--item-height) + 6px)))`,	//18px is the margin-bottom for item 
+					//			position: 'absolute', 
+					//			//top: '0px', 
+					//			'z-index':'100'
+					//		}) : ({})
+					//}
 					onClick={(event) => {
 						if(this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() && this.props.browseSelection === 'apparel'){
 							this.props.removeContentEntities();
@@ -897,7 +950,7 @@ export class Item extends React.Component{
 						retailerName={ vendor || udr}
 						handle={handle || 'custom item'}
 						sizeLabel={isActive ? size.sizeLabel : uds}
-						metric={size.metric}
+						metric={size ? size.metric : null}
 						isActive={isActive}
 						isSaved={isSaved}
 						isExpanded={isExpanded}

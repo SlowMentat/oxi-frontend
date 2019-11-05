@@ -1,5 +1,5 @@
 import React from 'react';
-import MetricStyles from '../../metric.css';
+import MetricStyles from '../../metric.scss';
 import {OxiAppConstants} from  '../../Util/OxiAppConstants.js'
 
 import {CreateAccountField} from '../../Components/Presentations/LandingPage.js';
@@ -11,11 +11,11 @@ import axios from 'axios';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 //CSS Styles
-import Styles from '../../root.css';
-import NavStyles from '../../nav.css';
-import FormStyles from '../../forms.css';
-import CreateAccountStyles from '../../createAccount.css';
-import ProfileMenuStyles from '../../profileMenu.css';
+import Styles from '../../root.scss';
+import NavStyles from '../../nav.scss';
+import FormStyles from '../../forms.scss';
+import CreateAccountStyles from '../../createAccount.scss';
+import ProfileMenuStyles from '../../profileMenu.scss';
 
 //SVG
 import {stepOne} from '../../Content/SvgLandingPage'

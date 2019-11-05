@@ -6,11 +6,12 @@ import BrowseControlContainer from '../../Components/Containers/BrowseControlCon
 import ProfileTitleContainer from '../../Components/Containers/ProfileTitleContainer.js';
 import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js';
 
-import MetricStyles from '../../metric.css';
+import MetricStyles from '../../metric.scss';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import Styles from '../../root.css';
+import Styles from '../../root.scss';
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { Button } from './Controls.js';
 
 
 
@@ -18,7 +19,7 @@ export class MetricPanel extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			fitResult: null
+			fitResult: null,
 		}
 
 		this.setFitResult = this.setFitResult.bind(this);
@@ -29,13 +30,48 @@ export class MetricPanel extends React.Component{
 	}
 
 	render(){
+		//methods
+		const {
+			toggleMetricPanel,
+		} = this.props;
+
+		//variables
+		const {
+			webAppView,
+			isFocusedPreview,
+			isOpen,
+		} = this.props;
+
 		return(
-			<div className={Styles.metricBlock}>
-			<CSSTransition
-			    tiemout={600}
-			    classNames="metricContainer_div"
-			    in={true}
-			    unmountOnExit >
+			<div
+				style={
+					isOpen ?  
+						({left:'7px'}) :
+						({})
+				} 
+				className={
+					isFocusedPreview ?
+						Styles.metricBlockPreview :
+						Styles.metricBlock
+				}
+			>
+				<div className={Styles.expandMetricBtn_div}>
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
+						onClickHandler={(event) => {toggleMetricPanel(event)}}
+						toggleActiveTitle='close'
+						toggleInactiveTitle='open'
+						isToggleActive={isOpen}
+						iconName='Metrics Panel'
+						ligature={isOpen ? 'expand_less' : 'expand_more'}
+						customButtonStyles={{transform: 'rotate(270deg)'}}
+					/>
+				</div>
+				<CSSTransition
+				    tiemout={600}
+				    classNames="metricContainer_div"
+				    in={true}
+				    unmountOnExit >
 			    	<React.Fragment>
 			    		<div className={Styles.titleContainer_div}>
 			    			<div 
@@ -51,7 +87,7 @@ export class MetricPanel extends React.Component{
 								}}
 							>
 								<ProfileTitleContainer />
-								{this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+								{webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
 									//<ProfileControlContainer /> :
 									(
 										<div className={Styles.points_div}>

@@ -1,3 +1,6 @@
+
+@import "root";
+
 input{
 	border: 0px;
     height: 100%;
@@ -16,16 +19,33 @@ input::placeholder {
 	font-family: Roboto, cursive;
 }
 
+.inputTextContainer_div input::placeholder {
+    @include desktop_rules {
+        color: white;
+    }
+
+    @include mobile_rules {
+        color: var(--color2);
+    }
+}
+
 .stdFormInput{
 	border-radius: 2px;
-    margin: 5px;
     padding: 7px;
     /*background-color: var(--user-dd-field-color);*/
-    margin-left: 17px;
-    margin-right: 17px;
     color: white;
-    margin-top: 17px;
     height: 45px;
+
+
+    @include desktop_rules {
+        margin: 5px;
+        margin-left: 17px;
+        margin-right: 17px;
+        margin-top: 17px;
+    }
+
+    @include mobile_rules {
+    }
 }
 
 /*
@@ -43,7 +63,7 @@ input::placeholder {
 }
 
 :local(.stdFormBlk){
-	composes:stdBlock from './root.css';
+	composes:stdBlock from './root.scss';
 	display: inline;
 	border-radius: 2px;
 	height: 20px;
@@ -51,8 +71,19 @@ input::placeholder {
 	color: white;
 }
 
+:local(.imageUploadPreviewContainer_div){
+
+    @include desktop_rules {
+        height: 100%;
+    }
+
+    @include mobile_rules {
+        height: calc(100% - 40px);
+    }
+}
+
 :local(.imageUploadPreview) {
-	composes: stdFormBlk;
+	/*composes: stdFormBlk;*/
 	display: block;
 	height: 100%;
     padding: 0px;
@@ -65,7 +96,7 @@ input::placeholder {
 }
 
 :local(.imgFormControlStyle){
-    composes: pressable from "./root.css";
+    composes: pressable from "./root.scss";
 	display: inline-block;
 	margin-right: 5%;
 	margin-top: calc((5vh + 25px) / 4);
@@ -79,6 +110,101 @@ input::placeholder {
     color:black;
     text-align:center;
     font-size:70%;
+}
+
+:local(.previewImageContainer_div){
+    position: relative;
+    width: auto;
+    max-height: 100%;
+    height: 100%;
+
+    @include desktop_rules {
+        padding-top: calc(5vh + 25px);
+    }
+
+    @include mobile_rules {
+        padding-top: 40px;
+    }
+}
+
+:local(.image_img){
+
+    height: 100%;
+    display: block;
+    object-fit: contain;
+
+    @include desktop_rules {
+        /*padding-top: calc(5vh + 25px);*/
+        max-width: calc((100vh - 200px) * 2/3);
+        border-radius: 4px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        float: right;
+    }
+
+    @include mobile_rules {
+        height: 100%;
+        max-width: calc((100vh - 80px - 40px - 40px)*2/3);
+        display: block;
+        border-radius: 4px;
+        margin: auto;
+    }
+}
+
+:local(.itemLocationMapContainer_div){
+    position: absolute;
+    /*height: 100%;*/
+    max-height: calc(100vh - 200px - 5vh - 25px - 2vh - 6px);
+    width: 100%;
+    text-align: center;
+    top: 0px;
+    left: 0px;
+
+    @include desktop_rules {
+        margin-top: calc(5vh + 25px);
+        height: 100%;
+    }
+
+    @include mobile_rules {
+        margin-top: 40px;
+        --max-width: calc((100vh - 80px - 40px - 40px)*2/3);
+        max-height: calc(100vh - 80px - 40px - 40px);
+    }
+}
+
+:local(.itemLocationMapContainerPreview_div){
+    composes:itemLocationMapContainer_div;
+    margin-top: 0px;
+}
+
+:local(.itemMapSvgContainer_div){    
+    height: 100%;
+    width: calc(( 100vh - 200px - 7vh  - 25px - 6px) * 2 / 3);
+    max-height: calc(100% * 3/2);
+    margin: auto;
+    background-color: #e91e6300;
+
+    @include desktop_rules {
+        max-height: calc(100vh - 200px - 80px );
+        float: right;
+    }
+
+    @include mobile_rules {
+        max-height: calc(150%);
+        max-width: calc(((((100vh - 80px) - 40px) - 40px) * 2) / 3);
+        background-color: rgba(233, 30, 99, 0);
+        margin: auto;
+    }
+}
+
+:local(.contentListContainer_div){
+    @include desktop_rules {
+        float: right;
+    }
+
+    @include mobile_rules {
+        margin:auto
+    }
 }
 
 :local(.outfitFormControl){
@@ -109,15 +235,25 @@ input::placeholder {
     --retailer-dd-field-color: #4e4e4e;
     --user-dd-field-color: #4e4e4e;
     --form-lr-padding: 27px;
-    position: relative;
     overflow: hidden;
     background-color: #fdfdfd;
     padding-top: 10px;
     padding-bottom: 10px;   
-    border-radius: 3px;
-    width: 600px;
-    height: 780px;
     --form-view-width: calc(100% - 20px);
+
+    @include desktop_rules {
+        width: 600px;
+        height: 780px;
+        border-radius: 3px;
+        position: relative;
+    }
+
+    @include mobile_rules {
+        height: calc(100vh - #{$pageHeaderHeight});
+        width: 100%;
+        position: absolute;
+        bottom: 0px;
+    }
 }
 
 .formViewContainer_div-enter{
@@ -140,6 +276,37 @@ input::placeholder {
     width: 0px;
     height: 0px;
     transition: width 200ms ease-out, height 200ms ease-out;
+}
+
+.loginFormViewContainer_div{
+    background-color: #fdfdfd;
+    padding: 10px;
+    border-radius: 3px;
+    --user-dd-field-color: #4c4c4c;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        position: absolute;
+        bottom: 80px;
+    }
+}
+
+.discardFormViewContainer_div{
+    background-color: rgb(253, 253, 253);
+    padding: 10px;
+    border-radius: 3px;
+    width: 25%;
+    min-width: 340px;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        position: absolute;
+        bottom: 80px;
+    }
 }
 
 :local(.control){
@@ -222,22 +389,45 @@ input::placeholder {
 }
 
 :local(.addItemForm){
-    /*--form-lr-padding: 27px;*/
     border-radius: 2px;
-    /*border-style: solid;*/
     border-color: #212121;
     border-width: 1px;
-    /*padding-top: 10px;*/
     width: 100%;
     position: absolute;
-    padding-left:var(--form-lr-padding);
-    padding-right:var(--form-lr-padding);
+    
+    @include desktop_rules {
+        padding-left:var(--form-lr-padding);
+        padding-right:var(--form-lr-padding);
+    }
+
+    @include mobile_rules {
+        padding: 0px;
+    }
+}
+
+:local(.nameFieldContainer_div){
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        width: 90vw;
+        margin: auto;
+        margin-top: 15px
+    }
 }
 
 :local(.nameField){
 	composes:stdFormInput;
-	text-align:right;
+	text-align: right;
     text-transform: capitalize;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        margin: unset;
+
+    }
 }
 
 :local(.passwordField){
@@ -260,7 +450,7 @@ input::placeholder {
 }
 
 :local(.l3Button){
-	composes:stdButton from './root.css';
+	composes:stdButton from './root.scss';
     composes:submittable; 
     text-transform: unset;
 }
@@ -274,17 +464,26 @@ input::placeholder {
 :local(.dropDownContainer){
     /*display: block;*/
     border-style: solid;
-    height: 400px;
     border-width: 2px;
 	border-color: #e6e6e6;
-    margin-left: 17px;
-    margin-right: 17px;
-    margin-top: -7px;
     overflow-y: scroll;
     transition: height 200ms;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     background-color: #f1f1f1;
+
+    @include desktop_rules {
+        margin-left: 17px;
+        margin-right: 17px;
+        margin-top: -7px;
+        height: 400px;
+    }
+
+    @include mobile_rules {
+        width: 100%;
+        margin: unset;
+        height: calc(50vh - #{$pageHeaderHeight});
+    }
 }
 
 :local(.dropDownContainer--hidden){
@@ -293,6 +492,12 @@ input::placeholder {
     overflow: hidden;
     height: 0px;
     transition: height 200ms;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+    }
 }
 
 :local(.dropdownItemContainer){
@@ -312,10 +517,87 @@ input::placeholder {
 
 :local(.controlContainerStyle){
     position: relative;
-    display:  inline-flex;
     height:  calc(5vh + 25px);
     width: 75%;
-    float: right;
+    float: right;    
+
+    @include desktop_rules {
+        display: inline-flex;
+    }
+
+    @include mobile_rules {
+        display: none;
+    }
+}
+
+:local(.imgEditAndCtrlContainer_div){
+    text-align: center;
+
+    @include desktop_rules {
+         height: calc(100% - 80px);
+    }
+
+    @include mobile_rules {
+         height: 100%;
+    }
+}
+
+:local(.imgEditContainer_div){
+    position: relative;
+    width: auto;
+    height: 100%;
+    text-align: center;
+    max-height: 100%;
+
+    @include desktop_rules {
+        background-color: #39372f;
+        float: right;
+    }
+
+    @include mobile_rules {
+        background-color: #f9f9f9;
+    }
+}
+
+:local(.imgEditControls_div){
+    position: absolute;
+    z-index: 100;
+
+    @include desktop_rules {
+        left: 275px;
+        top: calc(25px + 5vh);
+        text-align: center; 
+    }
+
+    @include mobile_rules {
+        bottom: 0px;
+        width: 100vw;
+        left: 0px;
+        height: 40px;
+        text-align: left;
+        padding-top: 7.5px
+    }
+}
+
+:local(.imgEdit_img){
+
+    height: 100%;
+    display: block;
+    border-radius: 4px;
+    object-fit: contain;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+
+    @include desktop_rules {
+        max-width: calc((100vh - 200px) * 2/3);
+        float: right;
+    }
+
+    @include mobile_rules {
+        margin: auto;
+        max-width: 100vw;
+        border-radius: 4px;
+    }
 }
 
 
@@ -377,17 +659,31 @@ input::placeholder {
 :local(.formText){
     font-weight: bold;
     font-family: Roboto;
-    font-size: 15px;
     letter-spacing: 0.05rem;
     color:#6b6b6b;
+
+    @include desktop_rules {
+        font-size: 15px;
+    }
+
+    @include mobile_rules {
+    }
 }
 
-:local(.ddItemSlot_div){
-    --dd-item-slot-height: 110px;
+:local(.ddItemSlot_div){;
     --dd-item-title: 30px;
-    --dd-item-description: calc(var(--dd-item-slot-height) - var(--dd-item-title));
     margin-top: 10px;
     cursor: pointer;
+
+    @include desktop_rules {
+        --dd-item-slot-height: 110px;
+        --dd-item-description: calc(var(--dd-item-slot-height) - var(--dd-item-title));
+    }
+
+    @include mobile_rules {
+        --dd-item-slot-height: 80px;
+        --dd-item-description: calc(var(--dd-item-slot-height) - var(--dd-item-title) - 3px);
+    }
 }
 
 :local(.ddItemPreviewPicContainer_div){
@@ -434,20 +730,34 @@ input::placeholder {
     composes:formText;
     height: var(--dd-item-title);
     line-height: var(--dd-item-title);
-    font-size: 21px;
     text-transform: capitalize;
+
+    @include desktop_rules {
+        font-size: 21px;
+    }
+
+    @include mobile_rules {
+        font-size: 17px;
+    }
 }
 
 :local(.ddItemDescription_div){
     composes:formText;
     position: relative;
-    font-size: 14px;
     height: var(--dd-item-description);
     /*color: #879094;*/
     color:#717171;
     font-weight: unset;
     letter-spacing: .08rem;
     overflow-y: hidden;
+
+    @include desktop_rules {
+        font-size: 14px;
+    }
+
+    @include mobile_rules {
+        font-size: 13px;
+    }
 }
 
 :local(.ddTextOverflow_div){

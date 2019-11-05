@@ -1,3 +1,5 @@
+@import "root";
+
 :local(.contentContainer_div){
 	overflow-y: scroll;
     overflow-x: hidden;
@@ -9,10 +11,19 @@
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
     padding-top: 15px;
-    border-top-style: none;
     margin-top: -15px;
-    margin-bottom: 15px;
     background-color: var(--main-background-color);
+
+    @include desktop_rules {
+        border-top-style: none;
+        margin-bottom: 15px;
+    }
+
+    @include mobile_rules {
+        background-color:  #eeeeee;
+        border-bottom: none;
+        margin-top: 0px;
+    }
 }
 
 :local(.itemAsSeenOnContainer_div){
@@ -35,7 +46,13 @@
     border-width: 2px;
 }
 
-:local(.image_img){
+/*:local(.image_img){
+    height: 119px;
+    border-radius: 4px;
+}*/
+
+:local(.imageApparel_img){
+    /*composes: image_img from './forms.scss';*/
     height: 119px;
     border-radius: 4px;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import MetricStyles from '../../metric.css';
+import MetricStyles from '../../metric.scss';
 import Metric from './Metric.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
@@ -13,12 +13,18 @@ const metricTitleContainer_div = {
 
 const ligatureStyles = {};
 
-const ProfileTitle = ({ownerName = '', hostName = ''}) => {
+const ProfileTitle = (props/*{ownerName = '', hostName = ''}*/) => {
+	const {
+		ownerName,
+		hostName,
+		isMobile,
+	} = props;
+
 	return (
 	    <div className={MetricStyles.metricsDataHeader_div}>
 	    	<div className={MetricStyles.profilePicContainer_div}>
 	    		<div className={MetricStyles.profilePic_div}>
-					<i class="material-icons" style={{'font-size':'48px'}}> account_box </i>
+					<i class="material-icons" style={isMobile ? ({'font-size':'48px', 'color':'#ffffff5c'}) : ({'font-size':'48px'})}> account_box </i>
 	    		</div>
 	    	</div>
 	    	<div className={MetricStyles.profileDetails_div}>

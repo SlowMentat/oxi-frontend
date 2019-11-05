@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContentStyles from '../../content.css';
+import ContentStyles from '../../content.scss';
 import {hextToBase64} from '../../Util/Misc.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
 
@@ -20,7 +20,7 @@ export class Content extends React.Component{
 	componentDidMount(){
 		//if thumbnail filename exists, call get request for content coverpic data
 		console.log("thumbnail = ", this.props.thumbnail)
-		if(this.props.thumbnail !== null && this.props.thumbnail !== undefined) this.props.getCoverPic(this.props.thumbnail, this._handleImageReceived);
+		if(this.props.thumbnail !== null && this.props.thumbnail !== undefined && this.props.thumbnail !== 'blob') this.props.getCoverPic(this.props.thumbnail, this._handleImageReceived);
 	}
 
 	_handleOnClick(event){

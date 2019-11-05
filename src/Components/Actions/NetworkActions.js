@@ -101,6 +101,41 @@ export const receivedAllApparelTypes = scaffolding.makeActionCreator(types.RECEI
 export const receivedSizeGroupsByItemId = scaffolding.makeActionCreator(types.RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
 
 
+//Modifies content.picture json with the json data returned from Posting image data to server
+//Also updates each content's coverpicuri if picture object has been updated.
+//@param {Object} contentJson:  the [contents] json body to be modified
+//@param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
+function graftPictureJson(contentsJson, picturesJson){
+	if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
+		//Case when a single new content is posted.  the returned picture json object has id and contentId properties = null.
+		if(picturesJson[0].contentId === null){
+			picturesJson[0].contentId = undefined;
+			//set picture and coverpicuri properties
+			contentsJson[0] = Object.assign({}, contentsJson[0], {
+				coverpicuri: picturesJson[0].thumbnailuri,
+				picture: picturesJson[0]
+			});
+		}else{
+			for(let pkey of Object.keys(picturesJson)){
+				for(let ckey of Object.keys(contentsJson)){
+					if(contentsJson[ckey].id === picturesJson[pkey].contentId){
+						//set id property of picture json to undefined if server returns as null (new Picture entity)
+						//if(picturesJson[pkey].id === null) picturesJson[pkey].id = undefined;
+						//remove content property from the picture json object returned by the server
+						picturesJson[pkey].contentId = undefined;
+						//set picture and coverpicuri properties
+						contentsJson[ckey] = Object.assign({}, contentsJson[ckey], {
+							coverpicuri: picturesJson[pkey].thumbnailuri,
+							picture: picturesJson[pkey]
+						});
+					}
+				}
+			}			
+		}
+	}
+	return contentsJson;
+}
+
 export function createCompany(formData){
 	return function(dispatch){
 		
@@ -314,10 +349,16 @@ export function fetchImage(filename, callback, picture){
 			}
 		})
 
-		request.get(OxiAppConstants.serviceURL + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
-		//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
-		.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
-		.then(response => callback(null, response, picture));
+		if(filename.split(':', 2)[0].toLowerCase() === 'blob'){
+			request.get(filename)
+			.then(response => callback(null, response, picture));
+
+		}else{
+			return request.get(OxiAppConstants.serviceURL + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
+			//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
+			.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
+			.then(response => callback(null, response, picture));
+		}
 	}
 }
 

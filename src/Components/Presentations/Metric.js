@@ -1,5 +1,5 @@
 import React from 'react';
-import MetricStyles from '../../metric.css';
+import MetricStyles from '../../metric.scss';
 import {OxiAppConstants} from  '../../Util/OxiAppConstants.js'
 
 

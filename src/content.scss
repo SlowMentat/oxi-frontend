@@ -1,9 +1,10 @@
+@import "root";
+
 :local(.contentListContainer) {
-	composes:stdBlock from './root.css';
+	composes:stdBlock from './root.scss';
     position: relative;
 	display:inline-block;
 	/*border-radius: 2px;*/
-	height:80px;
 	/*width:50%;*/
 	font-size: 80%;
 	/*background-color: #ececec;*/
@@ -16,6 +17,14 @@
     border-width: 2px;
     border-radius: 5px;
     border-color: #212121;*/
+
+    @include desktop_rules {  
+        height: 80px;
+    }
+
+    @include mobile_rules {
+        height: 40px;
+    }
 }
 
 :local(.stdCotnentBulletContainer_div){
@@ -27,38 +36,47 @@
 }
 
 :local(.stdContentBullet_div){
-    composes:pressable from "./root.css";
+    composes:pressable from "./root.scss";
     display: inline-block;
     height: 10px;
     width: 10px;
     background-color: #a1a1a1;
     border-radius:2px;
-    margin-top: calc(34px - 5px);
+
+    @include desktop_rules { 
+        margin-top: calc(34px - 5px);
+    }
+
+    @include mobile_rules {
+        margin-top: calc(15px - 5px);
+    }
 }
 
 :local(.contentBullet_div--selected){
     composes:stdContentBullet_div;
-    height:15px;
+    background-color: #4a4547;
+    /*height:15px;
     width:15px;
-    margin-top: calc(34px - 7.5px);
+    margin-top: calc(34px - 7.5px);*/
 }
 
 :local(.stdContentBulletCover_div){
     composes:stdContentBullet_div;
-    border-radius: 5px;
-    background-color: #4a4547;
+    /*border-radius: 5px;
+    background-color: #4a4547;*/
 }
 
 :local(.contentBulletCover_div--selected){
     composes:stdContentBulletCover_div;
-    height:15px;
+    border-radius: 5px;
+    /*height:15px;
     width:15px;
     margin-top: calc(34px - 7.5px);
-    border-radius: 7.5px;
+    border-radius: 7.5px;*/
 }
 
 :local(.stdContentBlock){
-	composes:stdBlock from './root.css';	
+	composes:stdBlock from './root.scss';	
 	display:inline-flex;
     width: 50px;
     height: 50px;
@@ -85,7 +103,7 @@
 }
 
 /*:local(.addContentButton){
-	composes:stdButton from './root.css';
+	composes:stdButton from './root.scss';
     position: absolute;
     display: inline-flex;
     margin-left: calc(-75px);
@@ -116,7 +134,7 @@
 }
 
 :local(.addContentBtnContainer_div){
-    composes:pressable from "./root.css";
+    composes:pressable from "./root.scss";
 }
 
 :local(.deleteContentBtn_div){

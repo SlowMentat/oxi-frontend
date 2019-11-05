@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitNav.css';
-import Styles from '../../root.css';
-import NavStyles from '../../nav.css';
-import ControlStyles from '../../controls.css';
+import OutfitNavStyles from '../../outfitnav.scss';
+import Styles from '../../root.scss';
+import NavStyles from '../../nav.scss';
+import ControlStyles from '../../controls.scss';
 
 import {Button} from '../../Components/Presentations/Controls.js';
 

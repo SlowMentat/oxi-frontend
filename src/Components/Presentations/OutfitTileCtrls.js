@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitNav.css';
-import Styles from '../../root.css';
-import NavStyles from '../../nav.css';
-import OutfitStyles from '../../outfit.css';
+import OutfitNavStyles from '../../outfitnav.scss';
+import Styles from '../../root.scss';
+import NavStyles from '../../nav.scss';
+import OutfitStyles from '../../outfit.scss';
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
@@ -100,6 +100,7 @@ export class OutfitTileBrowseCtrls extends React.Component{
 							e.stopPropagation();
 							this.props.handleTileSelected();
 							this.props.getHostMeasurementsHandler();
+							this.props.toggleMetricPanel(e, true);
 						}}>
 					•
 					</div>

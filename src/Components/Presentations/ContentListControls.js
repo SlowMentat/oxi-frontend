@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ContentStyles from '../../content.css';
+import ContentStyles from '../../content.scss';
 import {hextToBase64} from '../../Util/Misc.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';

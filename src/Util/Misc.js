@@ -21,3 +21,65 @@ export function roundTo(value, step=0.5, decimals=1){
     var inv = 1.0 / step;
     return (Math.round(value * inv) / inv).toFixed(decimals);
 }
+
+
+
+/**
+ * Convert array-like or iterable object to an array.
+ * @param {*} value - The value to convert.
+ * @returns {Array} Returns a new array.
+ */
+export function toArray(value) {
+  return Array.from ? Array.from(value) : slice.call(value);
+}
+
+/**
+ * Transform array buffer to Data URL.
+ * @param {ArrayBuffer} arrayBuffer - The array buffer to transform.
+ * @param {string} mimeType - The mime type of the Data URL.
+ * @returns {string} The result Data URL.
+ */
+export function arrayBufferToDataURL(arrayBuffer, mimeType) {
+  const chunks = [];
+
+  // Chunk Typed Array for better performance (#435)
+  const chunkSize = 8192;
+  let uint8 = new Uint8Array(arrayBuffer);
+
+  while (uint8.length > 0) {
+    // XXX: Babel's `toConsumableArray` helper will throw error in IE or Safari 9
+    // eslint-disable-next-line prefer-spread
+    chunks.push(String.fromCharCode.apply(null, toArray(uint8.subarray(0, chunkSize))));
+    //chunks.push(String.fromCharCode.apply(null,  new Uint8Array(chunkSize)) );
+    uint8 = uint8.subarray(chunkSize);
+  }
+
+  return `data:${mimeType};base64,${btoa(chunks.join(''))}`;
+}
+
+
+/*
+* The ongoingTouchIndexById() function below scans through the ongoingTouches array to 
+* find the touch matching the given identifier, then returns that touch's index into the array.
+*/
+export function ongoingTouchIndexById(idToFind, ongoingTouches){
+  for(let i = 0; i < ongoingTouches.length; i++){
+    var id = ongoingTouches[i].identifier;
+    if(id == idToFind){
+      return i;
+    }
+  }
+  return -1; //not found
+}
+
+/*
+* Some browsers (mobile Safari, for one) re-use touch objects between events, 
+* so it's best to copy the bits you care about, rather than referencing the entire object.
+*/
+export function copyTouch(touch){
+  return {
+    identifier: touch.identifier,
+    pageX: touch.pageX,
+    pageY: touch.pageY,
+  }
+}

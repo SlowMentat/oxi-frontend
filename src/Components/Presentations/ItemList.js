@@ -1,5 +1,5 @@
 import React from 'react';
-import ItemStyles from '../../item.css';
+import ItemStyles from '../../item.scss';
 import {Item} from './Item.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -104,128 +104,131 @@ export default class ItemList extends React.Component{
 		    	</div>
 				<div 
 					className={ItemStyles.itemsContainer_div}
-					style={{height: this.props.imageHeight}} >
+					//style={{height: this.props.imageHeight}} 
+				>
 		    		<div style={{position:'relative', height:'100%'}}>
-		    		<TransitionGroup component={null}>
-			    		{
-			    			this.props.itemIds.map((itemId, ind) => {
-			    			//this.state.itemIds.map((itemId) => {
-			    				//console.log("itemId [from ItemList] = ", itemId);
-
-			    				//var item = this.props.items[itemId];
-			    				//buildSizeGroupIndLUT(item);
-
-			    				return (this.props.items[itemId] === undefined ?
-			    					false : 
-			    					(			    					
-			    						<CSSTransition
-			    							key={itemId}
-			    							timeout={200}
-			    							classNames="itemInitialize"
-			    							onExit={(element) => {console.log(itemId, ' exited.  Element is: ', element)}}
-			    							unmountOnExit >
-			    							{
-			    								(state) => (state === 'unmounted' ? 
-			    									null : 
-			    									( <Item 
-			    										key={itemId}
-			    										index={ind}
-			    										item={this.props.items[itemId]} 
-			    										selectedAllIds={this.props.multipleSelectedAllIds}
-			    										onSelect={this.props.createHandleMulSel(itemId)} 
-			    										onDeselect={this.props.createHandleMulDesel(itemId)}
-			    										brands={this.props.brands} 
-			    										retailers={this.props.retailers}
-			    										itemIdHovered={this.props.itemIdHovered}
-			    										webAppView={this.props.webAppView}
-			    										viewState={this.props.viewState}
-			    										_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
-			    										_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
-			    										apparelTypeByIds={this.props.apparelTypeByIds}
-			    										saveItem={this.props.saveItem}
-			    										unsaveItem={this.props.unsaveItem}
-			    										isSaved={this.props.savedItemMap[itemId.toUpperCase()] !== undefined}
-			    										expandItem={(id) => {
-			    											this.setState(prevState => ({
-			    												...prevState, 
-			    												'expandedItemId': id,
-			    											}));
-			    										}}
-			    										collapseItem ={() => {
-			    											this.setState(prevState => ({
-			    												...prevState, 
-			    												'expandedItemId': false,
-			    											}));
-			    										}}
-			    										isExpanded={this.state.expandedItemId === itemId}
-			    										expandedViewState={this.state.expandedItemId !== false}
-			    										//sizeGroupIndLUT={this.state.sizeGroupIndLUT}
-			    										compareMetrics={this.props.compareMetrics}
-			    										sizeGroups={this.props.sizeGroups}
-			    										getCoverPic={this.props.getCoverPic} />) 
-			    								)
-			    							}
-			    						</CSSTransition>
-			    					)
-			    				);
-			    			})
-			    		}
-			    		{
-			    			this.props.addedItemIds.map((itemId) => {
-			    			//this.state.addedItemIds.map((itemId) => {
-			    				//console.log("itemId [from addedItemList] = ", itemId);
-
-			    				//var item = this.props.items[itemId];
-			    				//buildSizeGroupIndLUT(item);
-
-			    				return (this.props.addedItems[itemId] === undefined ? 
-			    					null : 
-			    					(
-			    						<CSSTransition
-			    							key={itemId}
-			    							tiemout={200}
-			    							classNames="itemInitialize"
-			    							unmountOnExit >
-			    							{
-			    								(state) => (state === 'unmounted' ? 
-			    									null : 
-			    									(<Item 
-			    										item={this.props.addedItems[itemId]}
-			    										selectedAllIds={this.props.multipleSelectedAllIds}
-			    										onSelect={this.props.createHandleMulSel(itemId)} 
-			    										onDeselect={this.props.createHandleMulDesel(itemId)}
-			    										brands={this.props.brands} 
-			    										retailers={this.props.retailers}
-			    										itemIdHovered={this.props.itemIdHovered}
-			    										viewState={this.props.viewState}
-			    										webAppView={this.props.webAppView}
-			    										_handleMouseOver={(event) => this.props.changeItemHovered(itemId)}
-			    										_handleMouseLeave={(event) => this.props.changeItemHovered(null)} 
-			    										apparelTypeByIds={this.props.apparelTypeByIds}
-			    										expandItem={(id) => {
-			    											this.setState(prevState => ({
-			    												...prevState, 
-			    												'expandedItemId': id,
-			    											}));
-			    										}}
-			    										collapseItem ={() => {
-			    											this.setState(prevState => ({
-			    												...prevState, 
-			    												'expandedItemId': false,
-			    											}));
-			    										}}
-			    										isExpanded={this.state.expandedItemId === itemId}
-			    										sizeGroupIndLUT={this.state.sizeGroupIndLUT}
-			    										compareMetrics={this.props.compareMetrics}
-			    										expandedViewState={this.state.expandedItemId !== false}
-			    										sizeGroups={this.props.sizeGroups}
-			    										getCoverPic={this.props.getCoverPic} />))
-			    							}
-			    						</CSSTransition>
-			    					));
-			    			})
-			    		}
-			    	</TransitionGroup>
+		    			<TransitionGroup component={null}>
+			    			{
+			    				this.props.itemIds.map((itemId, ind) => {
+			    				//this.state.itemIds.map((itemId) => {
+			    					//console.log("itemId [from ItemList] = ", itemId);
+	
+			    					//var item = this.props.items[itemId];
+			    					//buildSizeGroupIndLUT(item);
+	
+			    					return (this.props.items[itemId] === undefined ?
+			    						false : 
+			    						(			    					
+			    							<CSSTransition
+			    								key={itemId}
+			    								timeout={200}
+			    								classNames="itemInitialize"
+			    								onExit={(element) => {console.log(itemId, ' exited.  Element is: ', element)}}
+			    								unmountOnExit >
+			    								{
+			    									(state) => (state === 'unmounted' ? 
+			    										null : 
+			    										( <Item 
+			    											key={itemId}
+			    											index={ind}
+			    											item={this.props.items[itemId]} 
+			    											selectedAllIds={this.props.multipleSelectedAllIds}
+			    											selectedId={this.props.selectedId}
+			    											onSelect={this.props.createHandleMulSel(itemId)} 
+			    											onDeselect={this.props.createHandleMulDesel(itemId)}
+			    											brands={this.props.brands} 
+			    											retailers={this.props.retailers}
+			    											itemIdHovered={this.props.itemIdHovered}
+			    											webAppView={this.props.webAppView}
+			    											viewState={this.props.viewState}
+			    											_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
+			    											_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
+			    											apparelTypeByIds={this.props.apparelTypeByIds}
+			    											saveItem={this.props.saveItem}
+			    											unsaveItem={this.props.unsaveItem}
+			    											isSaved={this.props.savedItemMap[itemId.toUpperCase()] !== undefined}
+			    											expandItem={(id) => {
+			    												this.setState(prevState => ({
+			    													...prevState, 
+			    													'expandedItemId': id,
+			    												}));
+			    											}}
+			    											collapseItem ={() => {
+			    												this.setState(prevState => ({
+			    													...prevState, 
+			    													'expandedItemId': false,
+			    												}));
+			    											}}
+			    											isExpanded={this.state.expandedItemId === itemId}
+			    											expandedViewState={this.state.expandedItemId !== false}
+			    											//sizeGroupIndLUT={this.state.sizeGroupIndLUT}
+			    											compareMetrics={this.props.compareMetrics}
+			    											sizeGroups={this.props.sizeGroups}
+			    											getCoverPic={this.props.getCoverPic} />) 
+			    									)
+			    								}
+			    							</CSSTransition>
+			    						)
+			    					);
+			    				})
+			    			}
+			    			{
+			    				this.props.addedItemIds.map((itemId) => {
+			    				//this.state.addedItemIds.map((itemId) => {
+			    					//console.log("itemId [from addedItemList] = ", itemId);
+	
+			    					//var item = this.props.items[itemId];
+			    					//buildSizeGroupIndLUT(item);
+	
+			    					return (this.props.addedItems[itemId] === undefined ? 
+			    						null : 
+			    						(
+			    							<CSSTransition
+			    								key={itemId}
+			    								tiemout={200}
+			    								classNames="itemInitialize"
+			    								unmountOnExit >
+			    								{
+			    									(state) => (state === 'unmounted' ? 
+			    										null : 
+			    										(<Item 
+			    											item={this.props.addedItems[itemId]}
+			    											selectedAllIds={this.props.multipleSelectedAllIds}
+			    											selectedId={this.props.selectedId}
+			    											onSelect={this.props.createHandleMulSel(itemId)} 
+			    											onDeselect={this.props.createHandleMulDesel(itemId)}
+			    											brands={this.props.brands} 
+			    											retailers={this.props.retailers}
+			    											itemIdHovered={this.props.itemIdHovered}
+			    											viewState={this.props.viewState}
+			    											webAppView={this.props.webAppView}
+			    											_handleMouseOver={(event) => this.props.changeItemHovered(itemId)}
+			    											_handleMouseLeave={(event) => this.props.changeItemHovered(null)} 
+			    											apparelTypeByIds={this.props.apparelTypeByIds}
+			    											expandItem={(id) => {
+			    												this.setState(prevState => ({
+			    													...prevState, 
+			    													'expandedItemId': id,
+			    												}));
+			    											}}
+			    											collapseItem ={() => {
+			    												this.setState(prevState => ({
+			    													...prevState, 
+			    													'expandedItemId': false,
+			    												}));
+			    											}}
+			    											isExpanded={this.state.expandedItemId === itemId}
+			    											sizeGroupIndLUT={this.state.sizeGroupIndLUT}
+			    											compareMetrics={this.props.compareMetrics}
+			    											expandedViewState={this.state.expandedItemId !== false}
+			    											sizeGroups={this.props.sizeGroups}
+			    											getCoverPic={this.props.getCoverPic} />))
+			    								}
+			    							</CSSTransition>
+			    						));
+			    				})
+			    			}
+			    		</TransitionGroup>
 		    		</div>
 		    	</div>
 		    </div>

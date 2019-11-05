@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import OutfitStyles from '../../outfit.css';
+import OutfitStyles from '../../outfit.scss';
 import {OutfitEditDelete} from './OutfitTileCtrls.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';

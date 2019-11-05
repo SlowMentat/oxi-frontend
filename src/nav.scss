@@ -1,3 +1,5 @@
+@import "root";
+
 :local(.navContainer) {
 	height: 100%;	
 	/*display: grid;
@@ -18,46 +20,75 @@
 }
 
 :local(.stdNavButtonContainer_div){
-    padding-top: 40px;
-    width: 45%;
-    margin: auto;
     height: 100%;
     /* margin-left: 330px; */
-    text-align: center;
-    padding-left: 50px;
+
+    @include desktop_rules {
+        padding-top: 40px;
+        text-align: center;
+        width: 45%;
+        margin: auto;
+        padding-left: 50px; 
+    }
+
+    @include mobile_rules {
+        text-align: left;
+        width: unset;
+    }  
 }
 
 :local(.stdNavButtonBlock){
-	composes:stdBlock from './root.css';
+	composes:stdBlock from './root.scss';
 	display:inline-block;
 	position: relative;
 	border-radius: 0px;
 	height:100%;
 	font-size: 83%;
 	text-align: center;
-	width:20%;
 	/*background-color: #00BCD4;*/
 	color: #3b3739;
-	margin-bottom: 5px;
     vertical-align: top;
+
+    @include desktop_rules {
+        width:20%;
+        margin-bottom: 5px;
+    }
+
+    @include mobile_rules {
+        padding: unset;
+        margin: unset;
+        width: calc((100vw - 80px)/3 - 10px)
+    }
 }
 
 :local(.navButtonText_div){
-	position: absolute;
-    font-size: 14px;
-    line-height: 14px;
+    position: absolute;
     font-family: Roboto;
     text-transform: uppercase;
-    letter-spacing:2px;
+    letter-spacing: 2px;
+    font-size: 1.15rem;
     height: 25px;
-    margin: 0 25% 0px 25%;
+    line-height: 25px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    @include desktop_rules {
+        margin-top: unset;
+        margin: 0 25% 0px 25%;
+        /*font-size: 14px;*/
+    }
+
+    @include mobile_rules {
+        margin: 0px 0px 0px 0px;
+        margin-top: calc(79px/2 - 12.5px/3);
+    }
 }
 
 :local(.navButtonText_div--selected){
 	composes: navButtonText_div;
-	border-bottom-style: solid;
-    border-width: 1px;
-    border-color: #6dd7b4;
+    color: white;
+    background-color: #4a4a4a;
+    border-radius: 4px;
 }
 
 :local(.home) {
@@ -115,30 +146,54 @@
 
 :local(.landingCtrl_div){
 	position: absolute;
-    width: 200px;
-    margin-left: -200px;
-    top: 0px;
     height: 50px;
     color: white;
+
+    @include desktop_rules {
+        width: 200px;
+        margin-left: -200px;
+        top: 0px;
+    }
+
+    @include mobile_rules {
+        left: 0px;
+        bottom: 6px;
+    }
 }
 
 :local(.landingBtnContainer_div){	
 	position: relative;
     height: 50px;
     width: 100px;
-    margin-top: 20px;
+    margin-top: 20px; 
 }
 
 :local(.landingBtn_div){
-	position: absolute;
-    bottom: 0px;
-    border: solid 3px #86868666;
+    position: absolute;
     border-radius: 3px;
-    width: 100%;
-    height: 40px;
-    line-height: 16px;
     font-size: 16px;
-    font-family: sans-serif;
     text-align: center;
-    padding-top: 10px;
+    color: #c5c5c5;
+
+    @include desktop_rules {
+        bottom: 0px;
+        border: solid 3px #86868666;
+        width: 100%;
+        height: 40px;
+        line-height: 16px;
+        font-family: sans-serif;
+        padding-top: 10px;
+    }
+
+    @include mobile_rules {
+        font-family: Roboto;
+        border: solid 2px #86868666;
+        height: 25px;
+        line-height: 21px;
+        padding: 0px;
+        width: auto;
+        padding-left: 7.5px;
+        padding-right: 7.5px;
+        margin-left: 10px;
+    }
 }

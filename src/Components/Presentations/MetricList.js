@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import MetricStyles from '../../metric.css';
+import MetricStyles from '../../metric.scss';
 import Metric from './Metric.js';
 import BodyDiagram from './BodyDiagram.js';
 
@@ -24,6 +24,7 @@ const upperBodySection_div = {
     'margin': '0px auto 0px 0px',
     //'padding-top': '15px',
     'margin-left': '0px',
+    height:'100%',
 }
 
 const lowerBodySection_div = {
@@ -1001,7 +1002,7 @@ class MetricList extends React.Component{
 			<React.Fragment>	
 				<div className={MetricStyles.metricGraphContainer_div}>
 					<div id='upperBodySection' style={upperBodySection_div}>
-						<div>
+						<div style={{height:'100%'}}>
 							<Labels 
 								labelToPositionMap={{...this.state.labels.upperBody, ...this.state.labels.lowerBody}} 
 								_handleOnHover={(label, event) => this._handleOnHover(label, event)}
@@ -1061,7 +1062,7 @@ class MetricList extends React.Component{
 					}
 				</div>
 	
-				<div className={MetricStyles.bodyDiagramContainer_div}>
+				<div className={MetricStyles.mbodyDiagramContainer_div}>
 					<div style={{'height':'100%'}}>
 						<BodyDiagram 
 							bodyShape={

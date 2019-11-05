@@ -17,9 +17,9 @@ import {
 	denormalizeOutfit, 
 	buildItemContentsObject
 } from '../../Util/Schema.js';
-import FormStyles from '../../forms.css';
-import Styles from '../../root.css';
-import ContentStyles from '../../content.css';
+import FormStyles from '../../forms.scss';
+import Styles from '../../root.scss';
+import ContentStyles from '../../content.scss';
 import VisibleContentList from '../Containers/VisibleContentList.js';
 //import ProfileTileContainer from '../Containers/ProfileTileContainer.js';
 import CroppableImageForm from '../../Util/CroppableImageForm.js';
@@ -58,13 +58,19 @@ export default class ProfileViewControls extends React.Component{
 		} = this.props;
 
 		var isEditting = viewState === OxiAppConstants.viewState.EDIT.toLowerCase();
-		var bottonDisplay = isEditting ? 'none' : 'block';
+		var buttonDisplay = isEditting ? 'none' : 'inline-block';
+		const customButtonStyles = {
+			display: buttonDisplay,
+			'margin-left':'5%',
+			'vertical-align':'top',
+		}
 
 		return(
 			<React.Fragment>
 				<div 
-					className={Styles.controlsContianer}
-					style={{left: '275px'}}>
+					className={Styles.controlsContainerPreviewMode}
+					//style={{left: '275px'}}
+				>
 					<div className={Styles.controlsContainerTitle}>
 						{(isEditting ? 'Editting' : null)}
 					</div>
@@ -77,7 +83,9 @@ export default class ProfileViewControls extends React.Component{
 						title=''
 						ligature="arrow_back"
 						iconName={null}
-						customButtonStyles={{display:bottonDisplay, 'margin-top':'8px'}} />
+						//customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}} 
+						customButtonStyles={customButtonStyles}
+					/>
 					<Button
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
 						onClickHandler={(event) => {
@@ -86,7 +94,9 @@ export default class ProfileViewControls extends React.Component{
 						title=''
 						ligature="edit"
 						iconName={null}
-						customButtonStyles={{display:bottonDisplay, 'margin-top':'8px'}} />
+						customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}}
+						customButtonStyles={customButtonStyles}
+					/>
 					<Button
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
 						onClickHandler={() => {
@@ -101,7 +111,9 @@ export default class ProfileViewControls extends React.Component{
 						//ligature="collections"
 						ligature="portrait"
 						iconName={null}
-						customButtonStyles={{display:bottonDisplay, 'margin-top':'8px'}} />
+						customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}}
+						customButtonStyles={customButtonStyles}
+					/>
 				</div>				
 			</React.Fragment>
 		);

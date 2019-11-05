@@ -11,7 +11,7 @@
 }
 
 :local(.makeOutfitCoverBtn_div){
-    composes: pressable from "./root.css";
+    composes: pressable from "./root.scss";
     padding-bottom: 7px;
     padding-top: 7px;
     /*background-color: #fdfdfd;

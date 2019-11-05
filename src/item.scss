@@ -1,3 +1,6 @@
+
+@import "root";
+
 :local(.itemContainer) {
 	height: 75px;
 	margin-bottom:8px;	
@@ -34,25 +37,37 @@
 }
 
 :local(.itemsContainer_div){
-	width: 375px;
-	height: 100%;
-	/*border:solid 1px #c1c1c1;*/
-	border-radius: 5px;
-	border-left: none;
-	border-top-left-radius: 0px;
-	border-bottom-left-radius: 0px;
-	padding: 17px;
-    padding-top: 0px;
-	background-color: var(--main-background-color);
+
+    @include desktop_rules {
+        width: 375px;
+        border-radius: 5px;
+        border-left: none;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        background-color: var(--main-background-color);
+        height: calc(100% - 60px);
+        position: unset;
+        padding: 17px;
+        padding-top: 0px;
+    }
+
+    @include mobile_rules {
+        width: 100%;
+        position: absolute;
+        top: 0px;
+        background-color: unset;
+        margin-top: 40px;
+        padding: 0px;
+        height: 0px;
+    }
 }
 
 :local(.itemBlock){	
 	/*grid-area: itemmenu;*/
-	display: inline-block;
+	/*display: inline-block;*/
 	vertical-align: top;
     width: 400px;
-
-	--item-height: calc(((((((((100vh - 40px) - 40px) - 80px) - 80px) - 25px) - 5vh) - 12px) / 6) - 1px);
+    height: calc(100% - 80px);
 	
 	--button-icon-stroke: #4a4547;
 	--size-block-width: 70px;
@@ -70,12 +85,20 @@
 	--item-transition-total: calc(var(--item-transition-period) + var(--item-transition-delay));
 	--eif-transition-start: calc(var(--item-transition-total) + var(--item-info-transition-period));
 	
+    @include desktop_rules {
+        display: inline-block;
+        --item-height: calc(((((((((100vh - 40px) - 40px) - 80px) - 80px) - 25px) - 5vh) - 12px) / 6) - 1px);
+    }
 
+    @include mobile_rules {
+        /*background-color: unset;*/
+        --item-height: calc(100vw / 3.2360679775);
+    }
 
 }
 
 :local(.stdItemBlock){
-	composes:stdBlock from './root.css';
+	composes:stdBlock from './root.scss';
 	/*margin-bottom: 3px;
 	margin-top: 3px;
 	border-radius: 2px;
@@ -236,19 +259,29 @@
 
 
 .itemContainer_div{
-	composes:itemBrowseInitialize-enter-active from './itemBrowse.css';
+	/*composes:itemBrowseInitialize-enter-active from './itemBrowse.scss';*/
 	/*height: var(--item-height);*/
-	height: calc((100% - 25px - 5vh)/6 - 4px);
 	width: 100%;
 	transition: transform var(--item-transition-period) linear var(--item-transition-delay);
 	will-change: transform;
-	margin-bottom: 12px;
-	/*height: 100px;
-	width: 500px
-	margin-auto;
-	margin-bottom: 12px;
-	border-radius: 3px;*/
+
+    @include desktop_rules {
+        height: calc((100% - 25px - 5vh)/6 - 4px);
+        margin-bottom: 12px;
+        width: 100%;
+    }
+
+    @include mobile_rules {
+        display: none;
+        height: calc(100vw / 3.2360679775);
+        position: absolute;
+        /* top: -35px; */
+        /* top: 20px; */
+        /*calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775))*/
+        margin: unset;
+    }
 };
+
 
 .itemContainer_div-enter{
 	opacity: 1;
@@ -277,18 +310,43 @@
 
 :local(.itemContainerEdit_div--selected){
 	composes:itemContainer_div;
-    border-style: solid;
-    border-color: #6dd7b4;
-    border-width: 3px;
-    border-top-left-radius: 18px;
-    border-bottom-left-radius: 18px;
-    border-right: none;
-    margin-left: -3px;
+
+    @include desktop_rules {
+        //border-style: solid;
+        //border-color: #6dd7b4;
+        //border-width: 3px;
+        //border-top-left-radius: 18px;
+        //border-bottom-left-radius: 18px;
+        //border-right: none;
+        //margin-left: -3px;
+    }
+
+    @include mobile_rules {
+        width: 100vw;
+        margin: unset;
+        display: block;
+        bottom: calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775));
+        background-color: white;
+    }
 }
 
 :local(.itemContainerPreview_div--selected){
 	composes:itemContainerEdit_div--selected;
-	border-color: red;
+}
+
+:local(.itemContainerPreview_div--opened){
+    composes:itemContainerPreview_div--selected;
+    z-index: 100;
+
+    @include desktop_rules {
+        transform: translateY( calc(-1*var(--index)*(var(--item-height) + 6px)) );
+        position: absolute;
+    }
+
+    @include mobile_rules {
+        transform: translateY(var(--item-height) - calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775)));
+        bottom: unset;
+    }
 }
 
 :local(.itemContainerBrowse_div--selected){
@@ -330,13 +388,20 @@
 }
 
 :local(.shopBtn_div){
-	composes:pressable from "./root.css";
+	composes:pressable from "./root.scss";
 	position: absolute;
     width: 35px;
     height: 35px;
     bottom: 2px;
     right: 0px;
     bottom: 0px;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        top: 0px;
+    }
 }
 
 .shopMask_div:hover{
@@ -409,20 +474,30 @@
 
 .expandedItemInfoContainer_div{
 	/*--variable-A: calc(100vh - 180px - 5vh - 25px);*/
+    white-space: pre-wrap;
 	--expanded-item-content-width: 93%;
 	--variable-A: 100%;
     /*height: calc((5/6)*var(--variable-A) - (80px + 12px)/6);*/
-    height:600%;
     width: 100%;
     border: solid 1px var(--color2);
     border-top: none;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     /*background-color: #f9f9f9;*/
-    background-color: white;
     position: relative;
     z-index: 100;
     /*transition: transform var(--item-info-transition-period) linear var(--item-transition-total);*/
+
+    @include desktop_rules {
+        height:600%;
+        background-color: white;
+    }
+
+    @include mobile_rules {
+        height: calc(100vh - (100vw / 3.2360079775) - 120px);
+        overflow-y: scroll;
+        background-color: #f9f9f9;
+    }
 }
 
 .expandedItemInfoContainer_div-enter{
@@ -468,12 +543,19 @@
 }
 
 :local(.variantOptionsContainer_div){
-	height: 175px;
     width: var(--expanded-item-content-width);
     --variant-size-option-height: 27px;
     margin: auto;
     padding-top: 25px;
     margin-bottom: 15px;
+
+    @include desktop_rules {
+        height: 175px;
+    }
+
+    @include mobile_rules {
+        /*min-height: 175px;*/
+    }
 }
 
 :local(.variantSizeOptionsContainer_div){
@@ -501,6 +583,7 @@
     display: block;
     top: 0px;
     height: 95px;
+    height: 0px;
     width: 100%;
     --border-color-vco: #d6d6d6;
     border-right: 1px solid var(--border-color-vco);
@@ -510,6 +593,7 @@
     border-top: none;
     padding-top: 5px;
     overflow-y: scroll;
+    transition: height 100ms linear;
 }
 
 :local(.colorVariantDropDown_div){

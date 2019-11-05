@@ -1,3 +1,6 @@
+
+@import "root";
+
 :local(.outfitContainer) {
 	height: 53px;	
 	/*display: grid;*/
@@ -9,7 +12,7 @@
 }
 
 :local(.stdOutfitBlock){
-	composes:stdBlock from './root.css';
+	//composes:stdBlock from './root.scss';
     --outfit-tile-width: 200px;
     display: inline-block;
     vertical-align: top;
@@ -17,19 +20,90 @@
 	width:var(--outfit-tile-width);
 	height:calc(200px * 3/2);
 	margin:auto;
-	margin-top: 40px;
 	border-radius: 2px;
     border-width: 1px;
     border-color: #212121;
 	font-size: 80%;
 	vertical-align: top;
-	padding:0px;
+    padding:0px;   
+
+    @include desktop_rules {
+        margin-left : 130px;
+        margin-bottom : 50px;
+        /*margin-top : 40px; */
+        margin-top: 80px;     
+    }
+
+    @include mobile_rules {
+        margin-top: 30px;    
+        margin-left: calc(50px + (300px - 200px)/2);
+    }
 }
 
-:local(.outfitMenuBlock){
-	margin-right: -23px;
-	margin-top: -25px;
+:local(.stdOutfitBlockProfile_div){
+    composes:stdOutfitBlock;
+
+    @include desktop_rules {
+        margin-right : 50px;
+        margin-bottom : 0px;
+        margin-left : 50px;
+        margin-top : 40px;
+    }
+
+    @include mobile_rules {
+        margin-top: 30px;
+        max-width: calc(160px * 2/3);
+        max-height: calc(160px);
+        margin-left: 43.5px;
+    }
 }
+
+:local(.outfitMenuBlockContainer1_div){
+    height: 100%;
+
+    @include desktop_rules {
+        padding-left: 200px;
+        padding-right: 200px;  
+    }
+
+    @include mobile_rules {
+        /*padding-left: 50px;*/
+    }
+}
+
+:local(.outfitMenuBlockContainer2_div) {
+    width: 900px;
+    margin: auto;
+    height: 100%;   
+
+    /*mobile*/
+    /*@media screen and (max-aspect-ratio: 1/1){
+        width: unset;
+    }*/
+
+    @include mobile_rules {
+        width: unset;
+    }
+}
+
+
+:local(.outfitMenuBlock){
+    margin-right: -23px;
+    margin-top: -25px;
+}
+
+:local(.outfitMenuBlockProfile){
+    composes: outfitMenuBlock;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        width: calc(2*(160px * 2/3) + (5/2)*43.5px);
+        margin: auto;
+    }
+}
+
 
 :local(.Outfit__div--selected){
 	composes:stdOutfitBlock;
@@ -145,7 +219,7 @@
     font-size: 1.2rem;
     letter-spacing: 0.2rem;
     font-weight: bold;
-    padding-left: 12px
+    padding-left: 12px;
 }
 
 /*Social Statistics CSS*/
@@ -249,7 +323,7 @@
 }
 
 .editOutfitBtnContainer3_div{
-	composes:pressable from "./root.css";
+	composes:pressable from "./root.scss";
     width: 100%;
     height: 100%;
     text-align: center;
@@ -341,6 +415,14 @@
     background-color: #4a4a4a;
     border-color: #4a4a4a;
     transition: background-color 150ms, color 150ms,  border-color 150ms;
+
+    /*@include desktop_rules {
+        display: block;
+    }
+
+    @include mobile_rules {
+        display: none;
+    }*/
 }
 
 :local(.outfitMultiPic_div){
@@ -354,7 +436,7 @@
 	height: 100%;
     width: 100%;
     line-height: 50px;
-    font-size: 2.0em;
+    font-size: 1.5rem;
     font-family: 'Archivo Black', sans-serif;
     writing-mode: vertical-lr;
     text-orientation: upright;

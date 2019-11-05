@@ -10,7 +10,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js',
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import BrowseControlStyles from '../../browseControl.css';
+import BrowseControlStyles from '../../browseControl.scss';
 
 
 const makeBrowseSelection = (props) => {

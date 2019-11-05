@@ -30,6 +30,29 @@ export const OxiAppConstants = Object.freeze({
 		CONFLICT:409,
 		CUSTOM_REDIRECT:902
 	},
+	encodingPrefixes:{
+		JPEG:{
+			BASE64: 'data:image/jpeg;base64,',
+		}
+	},
+	exifTags:{
+		0x010e: 'imageDescription',	
+		0x010f: 'make',	
+		0x0110: 'model',	
+		0x0112: 'orientation',	
+		0x011a: 'xResolution',	
+		0x011b: 'yResolution',	
+		0x0128: 'resolutionUnit',	
+		0x0131: 'software',	
+		0x0132: 'dateTime',	
+		0x013e: 'whitePoint',	
+		0x013f: 'primaryChromaticities',	
+		0x0211: 'yCbCrCoefficients',	
+		0x0213: 'yCbCrPositioning',	
+		0x0214: 'referenceBlackWhite',	
+		0x8298: 'copyright',	
+		0x8769: 'exifOffset',	
+	},
 	outfitFormRoot : document.getElementById('outfitForm'),
 	modalRoot : document.getElementById('modalRoot'),
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FormStyles from '../../forms.css';
-import Styles from '../../root.css';
+import FormStyles from '../../forms.scss';
+import Styles from '../../root.scss';
 import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';

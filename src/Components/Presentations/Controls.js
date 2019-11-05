@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FormStyles from '../../forms.css';
-import ControlStyles from '../../controls.css';
-//import Styles from '../../root.css';
+import FormStyles from '../../forms.scss';
+import ControlStyles from '../../controls.scss';
+//import Styles from '../../root.scss';
 //import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -33,6 +33,7 @@ class StaticIconButton extends React.Component{
 
 		this._handleMouseLeave = this._handleMouseLeave.bind(this);
 		this._handleMouseOver = this._handleMouseOver.bind(this);
+		this.setupRootRef = this.setupRootRef.bind(this);
 	}
 
 	_handleMouseLeave(event){
@@ -49,12 +50,21 @@ class StaticIconButton extends React.Component{
 		}))
 	}
 
+	setupRootRef(el){
+		const { innerRootRef } = this.props;
+		//invokes innerRootRef callback passing reference to root eleement
+		innerRootRef ? innerRootRef(el) : null;
+	}
+
 	render(){
+
 		var { 
 			ligature,
 			ligatureStyles,
 			ligatureContainerStyles,
+			iconOutlined,
 		} = this.props;
+
 		return(
 			<div
 				className={ControlStyles.sib_div}
@@ -67,6 +77,7 @@ class StaticIconButton extends React.Component{
 						//'width':'unset',
 					}, this.props.customButtonStyles)
 				}
+				ref={this.setupRootRef}
 				onClick={(event) => this.props.onClickHandler(event)}
 				onMouseOver={(event) => this._handleMouseOver(event)}
 				onMouseLeave={(event) => this._handleMouseLeave(event)} >
@@ -74,7 +85,7 @@ class StaticIconButton extends React.Component{
 					ligature.length > 0 ? 
 						(
 							<div className={ControlStyles.ligatureContainer_div} style={ligatureContainerStyles} >
-								<i class="material-icons" style={ligatureStyles}>{ligature}</i>
+								<i class={(iconOutlined ? "material-icons-outlined" : "material-icons")} style={ligatureStyles}>{ligature}</i>
 							</div>
 						) :
 						(<SvgIcon 
@@ -110,6 +121,8 @@ StaticIconButton.propTypes = {
 	ligature: PropTypes.string,
 	ligatureStyles: PropTypes.Object,
 	ligatureContainerStyles: PropTypes.Object,
+	iconOutlined: PropTypes.bool,
+	innerRootRef: PropTypes.func,
 }
 
 StaticIconButton.defaultProps = {
@@ -130,7 +143,9 @@ StaticIconButton.defaultProps = {
 	buttonPadding: 0,
 	ligature:'',
 	ligatureStyles: {color: 'black'},
-	ligatureContainerStyles: {}
+	ligatureContainerStyles: {},
+	iconOutlined: false,
+	innerRootRef: (el) => null,
 }
 
 
@@ -390,6 +405,7 @@ StaticIconToggle.propTypes = {
 	toggleActiveTitle: PropTypes.string,
 	toggleInactiveTitle: PropTypes.string,
 	isToggleActive: PropTypes.bool,
+	//toggleStateCallback: PropTypes.func,
 }
 
 StaticIconToggle.defaultProps = {
@@ -397,6 +413,7 @@ StaticIconToggle.defaultProps = {
 	toggleActiveTitle: 'toggle',
 	toggleInactiveTitle: '!toggle',
 	isToggleActive: false,
+	//toggleStateCallback: undefined //if toggleStateCallback is provided this means the toggle state will be handled externally, otherwise manage toggle state within this component
 }
 
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FormStyles from '../../forms.css';
-import Styles from '../../root.css';
+import FormStyles from '../../forms.scss';
+import Styles from '../../root.scss';
 import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -207,7 +207,9 @@ class DropDownField extends React.Component{
 			({'border-color':'var(--retailer-dd-field-color)'}) : 
 			({'border-color':'var(--user-dd-field-color)'});*/
 		return(
-			<div>
+			<div
+				className={FormStyles.nameFieldContainer_div}
+			>
 				<InputTextField 
 					context={this.props.context}
 					textValue={this.props.inputValue}
@@ -451,7 +453,7 @@ export class ItemForm extends React.Component{
 					in={true}
 					unmountOnExit>
 					<div 
-						id="form_containter_add_item"
+						id="form_container_add_item"
 						className={FormStyles.formViewContainer_div}
 					>
 						<div style={{'text-align':'center', height:'25px'}}>
@@ -744,7 +746,7 @@ class CustomItems extends React.Component{
 				this.state.isAuthenticated ? 
 					(<Redirect to={`${OxiAppConstants.webAppBaseURL}${OxiAppConstants.routeURIs.browse}`}/>) :
 					(<div className={(this.props.isModal === undefined || this.props.isModal === true) ? Styles.modal : null}>
-						<div id="form_containter_add_item" style={{'background-color':'#fdfdfd', padding:'10px', 'border-radius':'3px', 'width':'25%'}}>
+						<div id="form_container_add_item" style={{'background-color':'#fdfdfd', padding:'10px', 'border-radius':'3px', 'width':'25%'}}>
 							<form className={FormStyles.loginForm} action="" method="POST">
 								<InputTextField 
 									type="User Name" 
@@ -799,14 +801,16 @@ export class DiscardForm extends React.Component{
 		return(
 			<div className={Styles.modal}>
 				<div 
-					id="form_containter_add_item" 
-					style={{
-						'background-color':'#fdfdfd', 
-						padding:'10px', 
-						'border-radius':'3px', 
-						'width':'25%',
-						'min-width':'340px',
-					}}>
+					id="form_container_add_item" 
+					//style={{
+					//	'background-color':'#fdfdfd', 
+					//	padding:'10px', 
+					//	'border-radius':'3px', 
+					//	'width':'25%',
+					//	'min-width':'340px',
+					//}}
+					className={FormStyles.discardFormViewContainer_div}
+				>
 					<div id="prompt">
 						<div style={{'text-align':'center','width':'75%','margin':'auto','margin-bottom':'60px'}}>
 							<div style={{'text-align':'left'}}>

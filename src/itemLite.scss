@@ -1,3 +1,5 @@
+@import "root";
+
 div{
 	font-family: Roboto, cursive;
     letter-spacing: 0.08rem;
@@ -12,7 +14,6 @@ div{
 
 	--apparel-icon-container-width: 51px;
 
-	background-color: white;
 	position: relative;
 	width: var(--item-width);
 	height: 100%;
@@ -26,6 +27,28 @@ div{
 	/*margin-top: 22px;*/
 
 	cursor: default;
+
+	@include desktop_rules {
+		background-color: white;
+    }
+
+    @include mobile_rules {
+		background-color: none;
+    }
+}
+
+:local(.itemLiteBrowse_div){
+	composes: itemLite_div;
+
+	@include desktop_rules {
+		margin-bottom: 15px;
+		height: 125px;
+    }
+
+    @include mobile_rules {
+		height: 125px;
+		border-bottom: none;
+    }
 }
 
 :local(.underLine_div){

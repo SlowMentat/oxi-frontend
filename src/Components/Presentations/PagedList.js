@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Styles from '../../root.scss';
+import OutfitNavStyles from '../../outfitNav.scss';
 
 //CSS Styles
 
@@ -202,12 +204,18 @@ class PagedList extends React.Component{
 		return(
 			<div 
 				id={this.props.id} 
-				className={this.props.scrollContainerStyle} 
-				style={{
-		    		'padding-top':'50px',
-		    		'padding-bottom':'50px',
-		    		...(webAppView === 'profile' ? ({/*'background-color':'white'*/}) : ({}))
-		    	}}
+				//className={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this.props.scrollContainerStyle : OutfitNavStyles.previewContainerMobile} 
+				className={ this.props.scrollContainerStyle } 
+				style={ (webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+					({
+						/*'background-color':'white'*/
+					}) : 
+					({
+						'padding-top': '50px',
+						'padding-bottom': '150px',
+					}))
+				}
+		    	/*className={Styles.pagedListContainer_div}*/
 				ref={this.setScrollContainerRef} >
 					<div
 						style={{

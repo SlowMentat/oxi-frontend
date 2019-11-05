@@ -50,63 +50,9 @@ export const setPreviewFocus = scaffolding.makeActionCreator(types.SET_PREVIEW_F
 export const unsetPreviewFocus = scaffolding.makeActionCreator(types.UNSET_PREVIEW_FOCUS, null, 'isFocusedPreview');
 
 
-//---------------------------------------------------------------------------------------------------------------------------------------
-//ASYNCHRONOUS Actions
-//export const requestLogin = scaffolding.makeActionCreator(types.REQUEST_LOGIN, "", 'usersname', 'password');
-//export const requestEntities = scaffolding.makeActionCreator(types.REQUEST_ENTITIES, "", '');
-
-/*export const receiveProfile = scaffolding.makeActionCreator(types.RECEIVED_PROFILE, OxiAppConstants.EntityTypes.PROFILE, '' );
-export const receiveOutfit = scaffolding.makeActionCreator(types.RECEIVED_OUTFIT, OxiAppConstants.EntityTypes.OUTFIT, '' );
-export const receiveContent = scaffolding.makeActionCreator(types.RECEIVED_CONTENT, OxiAppConstants.EntityTypes.CONTENT, '' );
-export const receiveItem = scaffolding.makeActionCreator(types.RECEIVED_ITEM, OxiAppConstants.EntityTypes.ITEM, '' );
-export const receivePicture = scaffolding.makeActionCreator(types.RECEIVED_PICTURE, OxiAppConstants.EntityTypes.PICTURE, '' );
-export const receiveRetailer = scaffolding.makeActionCreator(types.RECEIVED_RETAILER, OxiAppConstants.EntityTypes.RETAILER, '' );
-export const receiveBrand = scaffolding.makeActionCreator(types.RECEIVED_BRAND, OxiAppConstants.EntityTypes.BRAND, '' );*/
-
-
-
-
-
-//========ENTITY PAGED IDS MODIFICATION ACTIONS========
-
-
-
-/*export const receiveEntities = (entityType, json, error) => {
-	return(error ? {
-		type: RECEIVE_ENTITIES,
-		payload:{
-			entityType: entityType.toLowerCase(),
-			entities: json.entities,
-			receivedAt: Date.now(),
-			isFetching: false,
-			error: true,
-		} :
-		{
-			type: RECEIVE_ENTITIES,
-			payload:{
-				entityType: entityType.toLowerCase(),
-				entities: json.entities,
-				receivedAt: Date.now(),
-				isFetching: false,
-				error: false,
-			}
-		} 
-	});
-};*/
-/*
-export const requestEntities = (entityType) => {
-	return({
-		type: REQUEST_ENTITIES,
-		payload:{
-			entityType: entityType.toLowerCase(),
-			isFetching: true,
-		} 
-	});
-};*/
-
 export const showProfileMenu = (shown) => {
 	return({
-		type: SET_LP_PROFILE_MENU,
+		type: types.SET_LP_PROFILE_MENU,
 		payload:{
 			'profileMenu':shown
 		}
@@ -115,7 +61,7 @@ export const showProfileMenu = (shown) => {
 
 export const setCreateAccountView = (accountType) => {
 	return({
-		type: SET_LP_CREATE_ACCOUNT_VIEW,
+		type: types.SET_LP_CREATE_ACCOUNT_VIEW,
 		payload: {
 			'createAccountView': accountType
 		}
@@ -252,42 +198,6 @@ export function createUser(email, password, username){
 		})
 		//.then(response => callback(event, response));		
 	}
-}
-
-
-//Modifies content.picture json with the json data returned from Posting image data to server
-//Also updates each content's coverpicuri if picture object has been updated.
-//@param {Object} contentJson:  the [contents] json body to be modified
-//@param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
-function graftPictureJson(contentsJson, picturesJson){
-	if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
-		//Case when a single new content is posted.  the returned picture json object has id and contentId properties = null.
-		if(picturesJson[0].contentId === null){
-			picturesJson[0].contentId = undefined;
-			//set picture and coverpicuri properties
-			contentsJson[0] = Object.assign({}, contentsJson[0], {
-				coverpicuri: picturesJson[0].thumbnailuri,
-				picture: picturesJson[0]
-			});
-		}else{
-			for(let pkey of Object.keys(picturesJson)){
-				for(let ckey of Object.keys(contentsJson)){
-					if(contentsJson[ckey].id === picturesJson[pkey].contentId){
-						//set id property of picture json to undefined if server returns as null (new Picture entity)
-						//if(picturesJson[pkey].id === null) picturesJson[pkey].id = undefined;
-						//remove content property from the picture json object returned by the server
-						picturesJson[pkey].contentId = undefined;
-						//set picture and coverpicuri properties
-						contentsJson[ckey] = Object.assign({}, contentsJson[ckey], {
-							coverpicuri: picturesJson[pkey].thumbnailuri,
-							picture: picturesJson[pkey]
-						});
-					}
-				}
-			}			
-		}
-	}
-	return contentsJson;
 }
 
 

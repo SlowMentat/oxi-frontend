@@ -1,3 +1,5 @@
+@import "root";
+
 :local(.browseSelection_div){
 	width: 75%;
 	margin: auto;
@@ -91,7 +93,47 @@
 }
 
 :local(.buttonContainer_div){
-	margin-top: 25px;
-	float: right;
-	margin-right: 30px;
+
+	@include desktop_rules {
+		margin-top: 25px;
+		margin-right: 30px;
+		float: right;
+	}
+
+	@include mobile_rules {
+		margin: unset;
+		text-align: center;
+		padding-top: ($mobileFooterHeight - 34px) / 2;
+	}
+}
+
+:local(.customButtonStyles){
+	padding: 3px;
+	height: calc(var(--button-height) + 2*3px + 4px);
+	line-height: calc(var(--button-height) + 2*3px);
+
+	@include desktop_rules {
+		width: unset;
+		margin-bottom: 8px;
+	}
+
+	@include mobile_rules {
+		width: 50%;
+		margin: unset;
+    	display: inline-block;
+	}
+}
+
+:local(.ligatureContainerStyles){
+	--lig-container-border-width: 1px;
+	border: solid 1px var(--color3);
+	border-radius: 3px;
+	padding: var(--lig-container-border-width);
+	width: calc(var(--button-height) + 4px);
+	
+	@include desktop_rules {
+	}
+
+	@include mobile_rules {
+	}	
 }

@@ -1,3 +1,8 @@
+@import "root";
+
+$metricCount: 13;
+$metricLabelPadding: 2px;
+
 :local(.metricNodeBlock) {
 	background-color: rgba(0,0,0,0);
 	width:13px;
@@ -14,6 +19,14 @@
     padding-right: 10px;
     border-right: 1px solid rgb(212, 212, 212);
     width: 13vh;
+
+    @include desktop_rules { 
+        width: 13vh;
+    }
+
+    @include mobile_rules {
+        width: 17vh;
+    }
 }
 
 :local(.axisLabelLowerBody){	
@@ -22,18 +35,33 @@
 
 :local(.barGraphContainer_div){
 	width: 100%;
-	height: calc(1.5vh + 4px);
+	/*height: calc(1.5vh + 4px);*/
     padding-top: 2px;
     background-color: var(--nfz-color);
-    transition: margin-left 200ms ease-in-out, 
+    transition: margin-left 200ms ease-in-out;
+
+    @include desktop_rules {
+        height: calc(1.5vh + 2 * #{$metricLabelPadding});
+    }
+
+    @include mobile_rules {
+        height: calc(100vh / (2 * #{$metricCount}));
+    } 
 }
 
 :local(.metricGraphBarsContainer_div){
     overflow: hidden;
     position: relative;
 	display: inline-block;
-    vertical-align: top;
-	width: var(--x-axis-range);
+    vertical-align: top;	
+
+    @include desktop_rules {
+        width: var(--x-axis-range);
+    }
+
+    @include mobile_rules {
+        width: calc(300px - 13vh - 60px);
+    } 
 }
 
 :local(#leftBodyDiagramContainer, #rightBodyDiagramContainer) {
@@ -63,7 +91,7 @@
 
 
 
-:local(#female; #male){	
+:local(#female #male){	
     display: inline-block;
     width:40px;
     margin-right:10px
@@ -112,7 +140,7 @@
 }
 
 :local(.fitZone_div){
-    height: calc(1.5vh + 4px);
+    /*height: calc(1.5vh + 4px);*/
     position: absolute;
     background-color: var(--fz-color);
     border: solid 1px var(--fz-color);
@@ -120,11 +148,19 @@
     border-left: none;
     border-right: none;
     transition: background-color 80ms linear, border-color 80ms linear;
+
+    @include desktop_rules {
+        height: calc(1.5vh + (2 * #{$metricLabelPadding}) )
+    }
+
+    @include mobile_rules {
+        height: calc(100vh / (2 * #{$metricCount}))
+    }
 }
 
 
 :local(.graphBar_div){
-	height:1.5vh;
+	/*height:1.5vh;*/
     border-style: solid;
     border-width: 1px;
     border-radius: 2px;
@@ -137,6 +173,14 @@
         border-color 100ms linear, 
         color 200ms ease-in-out, 
         width 200ms ease-in-out;	
+
+    @include desktop_rules {
+        height: calc(1.5vh);
+    }
+
+    @include mobile_rules {
+        height: calc(100vh / (2 * #{$metricCount}) - (2 * #{$metricLabelPadding}));
+    }
 }
 
 :local(.graphBar_div--highlight){
@@ -152,20 +196,32 @@
 }
 
 :local(.labelFormatting_div){
-	composes:defaultCursor from "./root.css";
+	composes:defaultCursor from "./root.scss";
+    --padding-top: $metricLabelPadding;
+    --padding-bottom: $metricLabelPadding;
 	cursor:default;
 	background-color: #0000;
 	color: black;
-	padding-top: 2px;
-	padding-bottom: 2px;
-    font-size: 1.5vh;
-    line-height: 1.5vh;
-    height: calc(1.5vh + 4px);
+    /*font-size: 1.5vh;*/
+    /*line-height: 1.5vh;
+    height: calc(1.5vh + 4px);*/
     margin-left: -10px;
     margin-right: -10px;
     padding-left: 10px;
     padding-right: 10px;
 	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;	
+
+    @include desktop_rules {
+        height: calc(1.5vh + 2 * #{$metricLabelPadding});
+        line-height: calc(1.5vh + 2 * #{$metricLabelPadding});
+        font-size: 1.5vh;
+    }
+
+    @include mobile_rules {
+        height: calc(100vh / (2 * #{$metricCount}));
+        line-height: calc(100vh / (2 * #{$metricCount}));
+        font-size: 2.1vh;
+    }
 }
 
 :local(.labelFormatting_div--hovered){
@@ -203,9 +259,16 @@
     --default-pic-icon-size: 48px;
     --profile-pic-border: 2px;
     --details-container-height: calc(var(--default-pic-icon-size) + 2*var(--profile-pic-border));
-    color: rgb(11; 11; 115);
-    margin: 10px 0px 0px 10px;
     font-size: 2em;
+
+    @include desktop_rules {
+        color: rgb(11, 11, 115);
+        margin: 10px 0px 0px 10px;
+    }
+
+    @include mobile_rules {        
+        color: #0b0b73;
+    }
 }
 
 :local(.profilePicContainer_div){
@@ -220,9 +283,16 @@
     height: calc(var(--details-container-height));
     border-style: solid;
     border-radius: 6px;
-    border-color: rgb(112, 204, 244);
     left: 25px;
     border-width: var(--profile-pic-border);
+
+    @include desktop_rules {
+        border-color: rgb(112, 204, 244);
+    }
+
+    @include mobile_rules {        
+        border-color: #ffffff5c;
+    }
 }
 
 :local(.profileDetails_div){
@@ -236,18 +306,31 @@
     /*width: calc(300px - 50px - 10px - 20px - 2px);*/
 }
 
-local:(.profileOwnerName_div){
-    color: red; 
+:local(.profileOwnerName_div){
 	display: inline;
     right: 25%;
     height: calc(var(--default-pic-icon-size)/2);
-    font-size: 2.5rem;
     vertical-align: top;
     line-height: calc(var(--default-pic-icon-size)/2);
+
+    @include desktop_rules {
+        font-size: 2.5rem;
+    }
+
+    @include mobile_rules {       
+        font-family: Roboto;
+        color: #ffffffd1;
+        font-size: 1.7rem;
+    }
 }
 
-local:(.followingContainer_div){
+:local(.followingContainer_div){
 	height: calc(var(--default-pic-icon-size)/2);
+
+    @include mobile_rules {   
+        margin-top: -30px;
+    }
+
     /*padding-left: 2px;*/
 }
 
@@ -304,15 +387,29 @@ local:(.followingContainer_div){
     border-bottom-color: rgb(218, 218, 218);
     border-left-color: rgb(218, 218, 218);*/
     position: relative;
+
+    @include desktop_rules{
+        height: calc(90% - 100px);
+    }
 }
 
-:local(.bodyDiagramContainer_div){
+:local(.mbodyDiagramContainer_div){
     /*position: absolute;*/
     bottom: 0px;
-    --body-height: calc((100vh - 80px - 165px - 20px - 6px - 45px)*0.5);
-    height: var(--body-height);
-    width: calc(var(--body-height)/1.2);
+    --body-height: calc((100vh - 80px - 165px - 20px - 6px - 45px)*0.5);    
     left: calc(150px - var(--body-height)/1.2/2);
+
+    /*web*/
+    @media screen and (min-aspect-ratio: 1/1){
+        height: var(--body-height);
+        width: calc(var(--body-height)/1.2);
+    }
+
+    /*mobile*/
+    @media screen and (max-aspect-ratio: 1/1){
+        height: fit-content;
+        width: 100%;
+    }
 }
 
 :local(.metricMatch_div){    

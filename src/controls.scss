@@ -1,3 +1,4 @@
+@import "root";
 
 :local(.localText){
    /* color: #565656;*/
@@ -9,7 +10,7 @@
 
 /*dynamic icon button classes*/
 :local(.dib_div){  
-    composes: pressable from "./root.css";
+    composes: pressable from "./root.scss";
     --button-height: 24px;
     --button-padding: 0px;/*calc(var(--button-height)/13);*/
     --expanded-width: 100px;
@@ -84,7 +85,7 @@
 
 /*pupup icon button classes*/
 :local(.pib_div){  
-    composes: pressable from "./root.css";
+    composes: pressable from "./root.scss";
     composes: dib_div;
     overflow: unset;
     position: relative;
@@ -159,6 +160,12 @@
     transition-delay: unset;
     /*width: auto;*/
     width:var(--button-height);
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+    }
 }
 
 :local(.sibIcon_svg){
@@ -219,7 +226,7 @@
 }
 
 :local(.l3Button){
-    composes:stdButton from './root.css';
+    composes:stdButton from './root.scss';
     composes:submittable; 
     text-transform: unset;
 }

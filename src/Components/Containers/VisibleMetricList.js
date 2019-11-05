@@ -9,7 +9,7 @@ const getVisibleMetrics = (profile, blackList) => {
 	let ownerProfileMetrics = {};
 	if(profile !== null && profile !== undefined ){
 		ownerProfileMetrics = Object.assign({}, profile.userMetricsDto);
-		console.log('ownerProfileMetrics', ownerProfileMetrics);
+		//console.log('ownerProfileMetrics', ownerProfileMetrics);
 		let i = 0;
 		for(let ind of blackList){
 			delete ownerProfileMetrics[blackList[i]];
@@ -53,10 +53,10 @@ const mapStateToProps = (state, props) => {
 	let filteredHostUpperBodyMetrics = getVisibleMetrics(state.entitiesReducer.profile.byIds.host, [...blackList, ...lowerBodyMetrics]);
 	let filteredHostLowerBodyMetrics = getVisibleMetrics(state.entitiesReducer.profile.byIds.host, [...blackList, ...upperBodyMetrics]);
 
-	console.log('filteredOwnerUpperBodyMetrics = ', filteredOwnerUpperBodyMetrics)
-	console.log('filteredOwnerLowerBodyMetrics = ', filteredOwnerLowerBodyMetrics)
-	console.log('filteredHostUpperBodyMetrics = ', filteredHostUpperBodyMetrics)
-	console.log('filteredHostLowerBodyMetrics = ', filteredHostLowerBodyMetrics)
+	//console.log('filteredOwnerUpperBodyMetrics = ', filteredOwnerUpperBodyMetrics)
+	//console.log('filteredOwnerLowerBodyMetrics = ', filteredOwnerLowerBodyMetrics)
+	//console.log('filteredHostUpperBodyMetrics = ', filteredHostUpperBodyMetrics)
+	//console.log('filteredHostLowerBodyMetrics = ', filteredHostLowerBodyMetrics)
 
 	return ({
 		ownerUpperBodyMetrics : filteredOwnerUpperBodyMetrics,

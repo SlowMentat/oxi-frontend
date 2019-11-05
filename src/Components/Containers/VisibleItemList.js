@@ -128,6 +128,7 @@ const mapStateToProps = (state, props) => {
 		viewState: state.contentViewState.viewState,
 		webAppView: state.appView.webAppView,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
+		selectedId: state.entitiesStateReducer.items.selected,
 		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],
 		savedItemMap: state.cache.savedItemMap,
 		sizeGroups: state.entitiesReducer.sizeGroups.byIds,

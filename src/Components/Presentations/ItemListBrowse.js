@@ -10,7 +10,7 @@ import PagedList from './PagedList.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
-import ItemStyles from '../../itemBrowse.css';
+import ItemStyles from '../../itemBrowse.scss';
 
 
 
@@ -75,10 +75,8 @@ export default class ItemListBrowse extends React.Component{
 		    			</div>
 		    		</div>*/}
 		    		<div 
-		    			style={{
-		    				width: '500px',
-    						'margin-left': '400px',
-		    			}}>
+		    			className={ItemStyles.itemListBrowseContainer_div}
+		    		>
 		    			<TransitionGroup>
 					   		{
 					   			this.props.itemIds.map((itemId) => {

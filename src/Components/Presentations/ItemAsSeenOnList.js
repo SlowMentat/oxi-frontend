@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import AsSeenOnStyles from '../../itemAsSeenOnList.css';
+import AsSeenOnStyles from '../../itemAsSeenOnList.scss';
 
 //Presentation Component 
 import PagedList from './PagedList.js';
@@ -47,7 +47,7 @@ class ItemAsSeenOn extends React.Component{
 				className={AsSeenOnStyles.itemAsSeenOnContainer_div} >
 				<div className={AsSeenOnStyles.itemAsSeenOn_div} >
 					<div className={AsSeenOnStyles.imageContainer_div}>
-						<img className={AsSeenOnStyles.image_img} src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} />
+						<img className={AsSeenOnStyles.imageApparel_img/*.image_img*/} src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} />
 					</div>
 				</div>
 				<div className={AsSeenOnStyles.infoContainer_div}>

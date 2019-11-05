@@ -10,7 +10,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js',
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import BrowseControlStyles from '../../browseControl.css';
+import BrowseControlStyles from '../../browseControl.scss';
 import {Button} from './Controls.js';
 
 
@@ -20,6 +20,7 @@ const makeBrowseSelection = (props) => {
 }
 
 const ControlButton = (props) => {
+
 	console.log('props.name = ', props.name);
 	console.log('props.browseSelection = ', props.browseSelection);
 
@@ -86,28 +87,35 @@ const ControlButton = (props) => {
 class BrowseControl extends React.Component{
 	constructor(props){
 		super(props);
+
+		this.setInnerRootStyles = this.setInnerRootStyles.bind(this);
+	}
+
+	setInnerRootStyles(el){
+		el ? el.className = BrowseControlStyles.customButtonStyles : null;
 	}
 
 	render(){
-
-		var {
-			browseSelection
+		//variable 
+		const {
+			isMobile,
+			browseSelection,
 		} = this.props;
 
 		var isOutfitBrowse = browseSelection === 'outfits';
 
 		const customButtonStyles = {
 			color:'black',
-			width:'unset',
-			'margin-bottom':'8px',
-			//'border':'solid 1px gray',
-			padding:'3px',
-			height:'calc(var(--button-height) + 2*3px + 4px)',
-			'line-height':'calc(var(--button-height) + 2*3px)', 
+			//width:'unset',
+			//'margin-bottom':'8px',
+			////'border':'solid 1px gray',
+			//padding:'3px',
+			//height:'calc(var(--button-height) + 2*3px + 4px)',
+			//'line-height':'calc(var(--button-height) + 2*3px)', 
 		};
 
 		const customButtonHighlightStyles = {
-			...customButtonStyles,
+			//...customButtonStyles,
 			color:'#116285',
 		}
 
@@ -127,7 +135,7 @@ class BrowseControl extends React.Component{
 		}
 
 		const ligatureContainerHighlightedStyles = {
-			...ligatureContainerStyles,
+			//...ligatureContainerStyles,
 			'border':'solid 1px var(--color6)',
 			color:'var(--color6)',
 		}
@@ -136,6 +144,7 @@ class BrowseControl extends React.Component{
 			<React.Fragment>	
 				<div className={BrowseControlStyles.buttonContainer_div}>
 					<Button
+						innerRootRef={this.setInnerRootStyles}
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
 						onClickHandler={() => {
 							this.props.selectBrowserType('outfits');
@@ -144,19 +153,21 @@ class BrowseControl extends React.Component{
 						title='Outfits'
 						ligature="accessibility_new"
 						//iconName='RotateClockwiseIcon'
-						customButtonStyles={
-							browseSelection === OxiAppConstants.browseSelection.a ?
-						 		customButtonHighlightStyles :
-						 		customButtonStyles
-						 }
-						ligatureStyles={ligatureStyles}
+						//customButtonStyles={
+						//	{...BrowseControlStyles.customButtonStyles}
+						//	//browseSelection === OxiAppConstants.browseSelection.a ?
+						// 	//	customButtonHighlightStyles :
+						// 	//	customButtonStyles
+						//}
 						ligatureContainerStyles={
 							browseSelection === OxiAppConstants.browseSelection.a ? 
 								ligatureContainerHighlightedStyles :
 								ligatureContainerStyles
-						} 
-						/>
+						}
+						ligatureStyles={ligatureStyles}
+					/>
 					<Button
+						innerRootRef={this.setInnerRootStyles}
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
 						onClickHandler={() => {
 							this.props.selectBrowserType('apparel');
@@ -165,18 +176,19 @@ class BrowseControl extends React.Component{
 						title='Apparel'
 						ligature="local_offer"
 						//iconName='RotateClockwiseIcon'
-						customButtonStyles={
-							browseSelection === OxiAppConstants.browseSelection.b ?
-						 		customButtonHighlightStyles :
-						 		customButtonStyles
-						 }
-						ligatureStyles={ligatureStyles}
+						//customButtonStyles={
+						//	{...BrowseControlStyles.customButtonStyles}
+						//	//browseSelection === OxiAppConstants.browseSelection.b ?
+						// 	//	customButtonHighlightStyles :
+						// 	//	customButtonStyles
+						// }
 						ligatureContainerStyles={
 							browseSelection === OxiAppConstants.browseSelection.b ? 
 								ligatureContainerHighlightedStyles :
 								ligatureContainerStyles
 						}
-						/>
+						ligatureStyles={ligatureStyles}
+					/>
 				</div>
 				{/*<ControlButton 
 					name='Outfits' 

@@ -78,6 +78,23 @@ const mapStateToProps = (state, props) => {
 		clientInvalidatedOutfits: state.entitiesStateReducer.outfits.clientInvalidated,
 		clientInvalidatedContents: state.entitiesStateReducer.contents.clientInvalidated,
 		clientInvalidatedItems: state.entitiesStateReducer.items.clientInvalidated,
+
+		//***TODO:  eventually consolidate all the props above with the props below ***
+		//current entities
+		pictures: 		state.entitiesReducer.pictures,
+		contents: 		state.entitiesReducer.contents,
+		outfits: 		state.entitiesReducer.outfits,
+
+		//added entities
+		addedContents: 	state.addedEntitiesReducer.contents,
+		addedOutfits: 	state.addedEntitiesReducer.outfits,
+
+		//application state
+		contentState: 	state.entitiesStateReducer.contents,
+		outfitState: 	state.entitiesStateReducer.outfits,
+		itemState: 		state.entitiesStateReducer.items,
+		pictureState: 	state.entitiesStateReducer.pictures,
+
 	};
 }
 //TODO:  consolidate all the http request functions below :(

@@ -1,12 +1,15 @@
 import React from 'react';
-import OutfitStyles from '../../outfit.css';
+import OutfitStyles from '../../outfit.scss';
 import outfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
+import Styles from '../../root.scss';
+
 import Outfit from './Outfit.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import PagedListContainer from '../../Components/Containers/PagedListContainer.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import {Button} from '../../Components/Presentations/Controls.js';
+import ProfileTitleContainer from '../../Components/Containers/ProfileTitleContainer.js';
 
 //Presentation Component 
 import PagedList from './PagedList.js';
@@ -20,7 +23,7 @@ const container1_div = {
 const container2_div = {
 	'width': '900px',
     'margin': 'auto',
-    'height': '100%',	
+    'height': '100%',
 }
 
 
@@ -31,8 +34,8 @@ class PagedOutfitList extends React.Component{
 	}
 
 	render(){
-		var {
-
+		const {
+			webAppView,
 		} = this.props;
 
 		return(
@@ -52,9 +55,34 @@ class PagedOutfitList extends React.Component{
 				webAppView={this.props.webAppView}
     			list={
     				<React.Fragment>
-						<div style={this.props.container1_div}>
-		    				<div style={this.props.container2_div}>
-								<div className={OutfitStyles.outfitMenuBlock}>	  
+
+			    		<div 
+			    			style={webAppView !== OxiAppConstants.navRequestMap.b.toLowerCase() ? ({display:'none'}) : ({})}
+			    			className={Styles.mobileTitleContainer_div}
+			    		>
+			    			<div 
+			    				className={Styles.userTitle_div}
+								//style={{
+    							//	'padding-bottom': '15px',
+    							//	'height': '165px',
+    							//	'margin-right':'-1px',
+    							//	'position':'relative',
+								//}}
+							>
+								<ProfileTitleContainer isMobile={true}/>
+								<div className={Styles.points_div}>
+									12649
+								</div>										
+							</div>
+						</div>
+						<div className={OutfitStyles.outfitMenuBlockContainer1_div}>
+		    				<div className={OutfitStyles.outfitMenuBlockContainer2_div}>
+								<div className={
+										this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+											OutfitStyles.outfitMenuBlockProfile : 
+											OutfitStyles.outfitMenuBlock
+									}
+								>	  
 									{this.props.outfitIds !== undefined ? this.props.outfitIds.map((outfitId) => 
 										(this.props.outfits[outfitId] !== undefined ? <Outfit 
 											key={outfitId} 
@@ -87,6 +115,7 @@ class PagedOutfitList extends React.Component{
 											like={this.props.like}
 											outfit={this.props.outfits[outfitId]}
 											//likeCountIdsSize={this.props.likeCountIdsSize}
+											toggleMetricPanel={this.props.toggleMetricPanel}
 										/> :
 										null)
 									) : null}
@@ -105,6 +134,7 @@ class PagedOutfitList extends React.Component{
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
 											//containerWidth={this.props.containerWidth}
+											//toggleMetricPanel={this.props.toggleMetricPanel}
 										/>
 									) : null}
 								</div>
@@ -143,11 +173,33 @@ class OutfitList extends React.Component{
 		    						{...this.props} 
 		    					/>
 		    				) : (
-		    					<PagedOutfitList 
-		    						container1_div={{'height':'100%'}} 
-		    						container2_div={{'height':'100%'}} 
-		    						{...this.props} 
-		    					/>
+
+								<React.Fragment>
+								{
+			    					//<div className={Styles.mobileTitleContainer_div}>
+			    					//	<div 
+			    					//		className={Styles.userTitle_div}
+									//		//style={{
+    								//		//	'padding-bottom': '15px',
+    								//		//	'height': '165px',
+    								//		//	'margin-right':'-1px',
+    								//		//	'position':'relative',
+									//		//}}
+									//	>
+									//		<ProfileTitleContainer isMobile={true}/>
+									//		<div className={Styles.points_div}>
+									//			12649
+									//		</div>										
+									//	</div>
+									//</div>
+								}
+		    						<PagedOutfitList 
+		    							container1_div={{'height':'100%'}} 
+		    							container2_div={{'height':'100%'}} 
+		    							{...this.props} 
+		    						/>
+								</React.Fragment>
+
 		    				)
 		    		)}
 		    	</TransitionGroup>

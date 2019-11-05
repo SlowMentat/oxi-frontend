@@ -35,7 +35,7 @@ input{
 }
 
 :local(.submitButton){
-	composes:stdButton from '../../root.css';    
+	composes:stdButton from '../../root.scss';    
 	height: 40px;
     background-color: #1c2023;
     font-size: 80%;

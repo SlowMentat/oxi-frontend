@@ -21,11 +21,11 @@ import axios from 'axios';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 //CSS Styles
-import Styles from '../../root.css';
-import NavStyles from '../../nav.css';
-import FormStyles from '../../forms.css';
-import CreateAccountStyles from '../../createAccount.css';
-import ProfileMenuStyles from '../../profileMenu.css';
+import Styles from '../../root.scss';
+import NavStyles from '../../nav.scss';
+import FormStyles from '../../forms.scss';
+import CreateAccountStyles from '../../createAccount.scss';
+import ProfileMenuStyles from '../../profileMenu.scss';
 
 //Constants
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -114,7 +114,7 @@ const InputTextField = ({props}) => {
 				placeholder={props.placeholder} 
 				onChange={props.onChange} 
 				className={props.inputStyle}
-				style={props.selectedFieldName === props.name ? ({'border-color':'white'}) : ({})}
+				//style={props.selectedFieldName === props.name ? ({'border-color':'white'}) : ({})}
 				onFocus={props.onSelect} />
 		</div>	
 	);
@@ -149,7 +149,7 @@ export const CreateAccountField = ({props}) => (
 	<div className={CreateAccountStyles.inputContainer_div}>
 		<InputTextField props={{
 			containerStyle: CreateAccountStyles.inputTextContainer_div, 
-			inputStyle: CreateAccountStyles.inputText_input, 
+			inputStyle: (props.selectedFieldName === props.name ? CreateAccountStyles['inputText_input--selected'] : CreateAccountStyles.inputText_input), 
 			name: props.name, 
 			placeholder: props.placeholder, 
 			onChange: props.onChange,
@@ -168,7 +168,7 @@ export const CreateAccountField = ({props}) => (
 							'background-color':'#b46262', 
 							position:'absolute', 
 							top: '10px',
-							left: 't0px'
+							left: 'calc(50% - 5px)'
 						}} />
 				}
 			</div>
@@ -443,7 +443,10 @@ class CreateAccountForm extends React.Component{
 															}}/>
 														{
 															field === 'password' ? 
-																(<div style={{height:'68px', 'padding-top':'10px'}}>
+																(<div 
+																	//style={{height:'68px', 'padding-top':'10px'}}
+																	className={CreateAccountStyles.invalidInputPromptContainer_div}
+																>
 																	{
 																		!(this.state.fieldCompleteness[field].validPasswordLength && 
 																			this.state.fieldCompleteness[field].validPasswordLowercase && 
@@ -464,8 +467,15 @@ class CreateAccountForm extends React.Component{
 												);
 											})
 										}
-										<div className={CreateAccountStyles.inputContainer_div} style={{'margin-top':'35px', 'height':'30px'}}>
-											<div className={CreateAccountStyles.inputTextContainer_div}>
+										<div 
+											//className={CreateAccountStyles.inputContainer_div} 
+											className={CreateAccountStyles.submitContainer_div}
+											//style={{
+											//	'margin-top':'35px', 'height':'30px',
+//
+											//}}
+										>
+											<div className={CreateAccountStyles.termsTextContainer_div}>
 												<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
 													<div className={CreateAccountStyles.inputAcceptTerms_div}>
 														<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
@@ -474,16 +484,16 @@ class CreateAccountForm extends React.Component{
 												</div>
 												<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
 													<div className={CreateAccountStyles.textAcceptTerms_div}>
-														I agree to the Wearsit Terms of Service
+														<p>By clicking submit, you are agreeing to the <a style={{color:'var(--color6)'}}>Fitsee Terms of Service</a></p>
 													</div>
 												</div>
 											</div>
-											<div className={CreateAccountStyles.validatorIconContainer_div}>										
+											<div className={CreateAccountStyles.submitBtnContainer1_div}>										
 												<div className={CreateAccountStyles.submitBtnContainer_div}>
 													<div
 														className={CreateAccountStyles.submitBtn_div} 
 														onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-														Continue
+														SUBMIT
 													</div>
 												</div>
 											</div>
@@ -721,17 +731,22 @@ class CreateAccount extends React.Component{
 		return(
 			<div>
 				<div 
-					style={{
-						height: '100vh', 
-						'background-color':'#212121',
-						'padding-top':'200px'
-					}}>
+					className={CreateAccountStyles.CreateAccount_div}
+					//style={{
+					//	height: '100vh', 
+					//	'background-color':'#212121',
+					//	'padding-top':'200px'
+					//}}
+				>
 					<div>
-						<div style={{
-							'width': '800px',
-    						'margin': 'auto',
-    						'padding-left': '50px',
-						}}>
+						<div
+							className={CreateAccountStyles.createAccountFormContainer_div} 
+							//style={{
+							//	'width': '800px',
+    						//	'margin': 'auto',
+    						//	'padding-left': '50px',
+							//}}
+						>
 							<div>
 								<CreateAccountForm 
 									style={getStartedStyle} 
@@ -780,11 +795,12 @@ class Portal extends React.Component{
 			>
 				<div 
 					className={Styles.portalMask_div}
-					style={(this.state.isMouseOver && this.props.highlight) ? ({display:'none'}) : ({display: 'block'})}>
+					//style={(this.state.isMouseOver && this.props.highlight) ? ({display:'none'}) : ({display: 'block'})}
+				>
 				</div>
 				<div 
 					className={Styles.portalGraphicContainer_div}
-					style={(this.state.isMouseOver && this.props.highlight) ? ({'border-color': this.props.highlight}) : ({})}
+					//style={(this.state.isMouseOver && this.props.highlight) ? ({'border-color': this.props.highlight}) : ({})}
 				>
 					<div>
 					</div>
@@ -792,31 +808,25 @@ class Portal extends React.Component{
 				<div 
 					className={Styles.portalContentContainer_div}
 				>
-					<div>
+					<div className={Styles.portalHeaderContainer_div}>
 						<div 
 							className={Styles.portalHeader_div} 
-							style={this.state.isMouseOver ? ({color: this.props.highlight}) : ({})}
+							//style={this.state.isMouseOver ? ({color: this.props.highlight}) : ({})}
 						>
 							<h2>{this.props.title}</h2>
 						</div>
 						<div className={Styles.portalDescription_div}>
 							<p>{this.props.description}</p>
 						</div>
-						<div 
-							className={Styles.signUpBtnContainer_div} 
-							style={{    
-								'text-align':'right',
-								'font-size':'18px',
-								'position':'relative',
-								'height':'calc(200px - (36px + 69px + 5px))',
-							}} >
+						<div className={Styles.signupBtnContainer_div} >
 							<div 
 								className={Styles.signupBtn_div} 
-								style={this.state.isMouseOver ? ({'display': 'block'}) :  ({'display':'none'}) }
+								//style={this.state.isMouseOver ? ({'display': 'block'}) :  ({'display':'none'}) }
 								onClick={(event) => {
 									event.stopPropagation();
 									this.props.navToCreateAccount()
-								}}>
+								}}
+							>
 								<div className={Styles.signupBtnText_div} >
 									{this.props.actionIndicator}
 								</div>
@@ -847,7 +857,7 @@ export default class LandingPage extends React.Component{
 		return(
 			<React.Fragment>
 				<SiteNav match={this.props.match} webAppView={!this.props.profileMenu ? 'landing' : ''}/>
-				<div>				
+				<div style={{width:'100vw'}}>				
 					{
 						this.props.profileMenu ? null/*(
 								<ProfileMenu 
@@ -861,14 +871,23 @@ export default class LandingPage extends React.Component{
 							(this.props.createAccountView === 'none' || this.props.createAccountView === '') ? (
 									<div>
 										<div 
-											style={{
-												height: '100vh', 
-												'background-color':'#212121',
-												'padding-top':'200px'
-											}}
+											className={Styles.landingPageContainer_div}
+											//style={{
+											//	height: '100vh', 
+											//	'background-color':'#212121',
+											//	'padding-top':'200px'
+											//}}
 										>
 											{/*<Description/>*/}
-											<div style={{height: '100%', 'width':'900px', margin:'auto', 'margin-top': '25px'}}>
+											<div 
+												className={Styles.landingPageCTA_div}
+												//style={{
+												//	height: '100%', 
+												//	'width':'900px', 
+												//	margin:'auto', 
+												//	'margin-top': '25px',
+												//}}
+											>
 												<Portal 
 													title="Shopper"
 													description="Discover new styles, be confident in the fit, and get rewarded.  Join the community of shoppers, designers, and retailers to streamline your online shopping experience."
@@ -878,7 +897,7 @@ export default class LandingPage extends React.Component{
 													enterPortal={() => this.props.navStateToBrowse(this.props.handlePortalSelect, (this.props.profile !== undefined))}
 													navToCreateAccount={() => this.props.navToCreateAccount('shopper')}
 												/>
-												<Portal 
+												{/*<Portal 
 													title="E-Retailer"
 													description="Get your apparel noticed.  Leverage our community affiliate program to increase exposure and gain insights on what's trending."
 													infoLink={null}
@@ -895,13 +914,15 @@ export default class LandingPage extends React.Component{
 													actionIndicator="create account"
 													enterPortal={() => (console.log('designer portal clicked'))}
 													navToCreateAccount={this.props.navToCreateAccount}
-												/>
+												/>*/}
 											</div>
 										</div>
-										<CreateAccountForm 
-											style={getStartedStyle} 
-											createUser={this.props.createUser} /> 
-										<HowItWorks/>
+										{
+											//<CreateAccountForm 
+											//	style={getStartedStyle} 
+											//	createUser={this.props.createUser} /> 
+											//<HowItWorks/>
+										}
 									</div>
 								) : 
 								this.props.createAccountView === 'shopper' ? (

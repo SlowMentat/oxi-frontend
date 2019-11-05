@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-
+import test from '../../test.scss';
 //Container Components
 import ModalContentSelection from '../../Components/Containers/SelectModalContent.js';
 import VisibleItemList from '../../Components/Containers/VisibleItemList.js';
@@ -28,10 +28,10 @@ import {Button} from '../../Components/Presentations/Controls.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitNav.css';
-import Styles from '../../root.css';
-import NavStyles from '../../nav.css';
-import MetricStyles from '../../metric.css';
+import OutfitNavStyles from '../../outfitnav.scss';
+import Styles from '../../root.scss';
+import NavStyles from '../../nav.scss';
+import MetricStyles from '../../metric.scss';
 import OutfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 
 //Third pary
@@ -73,12 +73,13 @@ export function SiteNav(props){
     						<div className={Styles.logoContainer_div}>
     							<SvgIcon 
     								name='LogoIconFitsee' 
-    								style={logo_svg}
+    								className={Styles.logo_svg}
+    								//style={logo_svg}
     							/>
     						</div>
     						<div className={NavStyles.navBanner_div}>
     							{
-    								props.webappview === 'landing' ?
+    								props.webAppView === 'landing' ?
     									(
     										<div style={{float:'right', width:'0px'}}>
     											<div className={NavStyles.landingCtrl_div}>
@@ -92,10 +93,12 @@ export function SiteNav(props){
     									):(
     										<Nav 
     											blocks={Object.keys(OxiAppConstants.navRequestMap)} 
-    											callBacks={props.navEventCallbacks} 
-    											webAppView={props.webAppView} 
-    											match={props.match}
-    											ownerUsernamePath={props.ownerUsernamePath} />
+    											{...props}
+    											//callBacks={props.navEventCallbacks} 
+    											//webAppView={props.webAppView} 
+    											//match={props.match}
+    											//ownerUsernamePath={props.ownerUsernamePath} 
+    										/>
     									)
     							}
     						</div>
@@ -158,6 +161,16 @@ class Nav extends React.Component{
 
 
 	render(){
+		const {
+			navEventCallbacks,
+		} = this.props;
+
+		const {
+			webAppView,
+			pathname,
+			ownerUsernamePath,
+			match,
+		} = this.props;
 		/*return(
 			<div className={Styles.headerBlock}>
     			<BlockList blocks={['home', 'profile', 'settings', 'search', 'logout']} containerClass={NavStyles.navContainer}/>
@@ -165,52 +178,75 @@ class Nav extends React.Component{
 		);*/
 		let blockList = [];
 		blockList = (
-			<div className={NavStyles.stdNavButtonContainer_div}>
+			<div 
+				//style={
+				//	webAppView === 'landing' ? 
+				//		//user is on the home page; hide all header nav options
+				//		({
+				//			display: 'none',
+				//		}) : 
+				//		({})
+				//}
+				className={NavStyles.stdNavButtonContainer_div}
+			>
 				{
-					this.props.blocks.map((block) => {
-						console.log('block = ', block);
-						console.log('selected = ', this.state.selected);
-						let navHeader = block.toString();
-						let selectionPath = '';
-						
-						if(navHeader === 'b' || navHeader === 'c'){
-							selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`;
-						}else if(navHeader !== ''){
-							selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
-						}
-	
-						return(
-							<Link to={`${this.props.match.url}${selectionPath}`}>
-								<div 
-									key={navHeader} 
-									className={NavStyles.stdNavButtonBlock} 
-									onClick={() => {
-										this.setState(prevState => ({
-											selected: navHeader
-										}));
-										//call back to webappview component to change child component to reflect navHeader selection
-										this.props.callBacks[navHeader]();
-									}}
-								>
-									{/*
-										this.state.selected !== navHeader ? 
-											null :
-												this.props.match.path.includes('/shop/profile') ? 
-													<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`} /> : 
-													<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`} /> 
-									*/}
-									<div className={this.props.webAppView !== this.state.selected ? NavStyles.navButtonText_div : NavStyles['navButtonText_div--selected']}>
-										{ OxiAppConstants.navRequestMap[navHeader] } 
+
+					webAppView !== 'landing' ?
+					(
+						this.props.blocks.map((block) => {
+							console.log('block = ', block);
+							console.log('selected = ', this.state.selected);
+							let navHeader = block.toString();
+							let selectionPath = '';
+							
+							if(navHeader === 'b' || navHeader === 'c'){
+								selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${ownerUsernamePath}`;
+							}else if(navHeader !== ''){
+								selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
+							}
+		
+							return(
+								<Link to={`${match.url}${selectionPath}`}>
+									<div 
+										key={navHeader} 
+										className={NavStyles.stdNavButtonBlock} 
+										onClick={() => {
+											this.setState(prevState => ({
+												selected: navHeader
+											}));
+											//call back to webAppView component to change child component to reflect navHeader selection
+											navEventCallbacks[navHeader]();
+										}}
+									>
+										{/*
+											this.state.selected !== navHeader ? 
+												null :
+													this.props.match.path.includes('/shop/profile') ? 
+														<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`} /> : 
+														<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`} /> 
+										*/}
+										<div className={
+											this.state.selected === null ? 
+												NavStyles.navButtonText_div :
+												//this.props.webAppView === OxiAppConstants.navRequestMap[this.state.selected].toLowerCase() ? 
+												navHeader === this.state.selected ?
+													NavStyles['navButtonText_div--selected'] : 
+													NavStyles.navButtonText_div  
+											}
+										>
+											{ OxiAppConstants.navRequestMap[navHeader] } 
+										</div>
 									</div>
-								</div>
-							</Link>)
-					})
+								</Link>)
+						})
+					) :
+					null
 				}
 			</div>
 		);
 		let percentWidth = 100 / blockList.length;
 		console.log("navEventCallbacks");
-		console.log(this.props.callBacks);
+		console.log(navEventCallbacks);
 		return(
 			<div style={{height:'100%'}}>
 				<div style={{height:'100%'}}>
@@ -238,30 +274,54 @@ class OutfitNav extends React.Component{
 		let browseContent = null;
 		let browseNavStyle = null;
 		let containerHeight = this.props.imageHeight;
-		let containerWidth = this.props.imageWidth*(OxiAppConstants.aspectRatio);
-		let browseWrapper = (wrappedStuff) => (
-			this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
-				( null
+		let containerWidth = this.props.imageWidth*(OxiAppConstants.aspectRatio);		
 
-				/*<div style={{'grid-area':'browse'}}>
-					<OutfitPanelContainer 
-						style={{
-							width:`calc(${this.props.containerWidth !== 0 ? containerWidth : 350}px)`,
-							height:'calc(5vh + 25px)',
-							'text-align':'center',
-							'padding-top':'5px',
-							'padding-bottom':'5px',
-							'margin-left': '0px',
-    						'background-color': '#ffffff00',
+		const controls = (
+			<div 
+				//className={Styles.controlsContainer}
+				className={Styles.addOutfitControlsContainer}
+			>
+				<div 
+					className={OutfitNavStyles.outfitCtrlBtn_div}
+					style={{
+					}}>
+					{/*<div
+							className={OutfitNavStyles.outfitCtrlBtnContent_div}
+							style={{
+							}}>
+							+
+						</div>*/}
+					<Button
+						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+						onClickHandler={this.props.handleAddOutfitClicked}
+						title='add new outfit'
+						iconName='AddOutfitIcon'
+						expandedWidth={150}
+						buttonHeight={40}
+						customButtonStyles={{
+							color:'white',
+							'margin':'auto',		
 						}} />
-					{wrappedStuff}
-				</div>*/) :
+				</div>
+			</div> 
+		);
+
+		const browseWrapper = (wrappedStuff) => (
+			this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
+				( 
+					//add editional html here
+					wrappedStuff
+				) :
 				wrappedStuff 
 		);
 
 		switch(this.props.browseSelection){
 			case 'outfits':
-				browseContent = () => (
+				browseContent = (controls) => (
+					<React.Fragment>
+						{
+							this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? controls : null
+						}
 						<VisibleOutfitList 
 							view={this.props.webAppView} 
 							scrollContainerStyle={
@@ -272,10 +332,19 @@ class OutfitNav extends React.Component{
 							containerHeight={containerHeight !== 0 ? containerHeight : null}
 							containerWidth={containerWidth !== 0 ? containerWidth : null}
 							setPreviewFocus={this.props.setPreviewFocus}
-							/*routeToHostProfile={this.props.routeToHostProfile}*/ />);
+							toggleMetricPanel={this.props.toggleMetricPanel}
+							/*routeToHostProfile={this.props.routeToHostProfile}*/ 
+						/>
+					</React.Fragment>
+				);
 				break;
 			case 'apparel':
-				browseContent = () => (<VisibleItemListBrowse changeItemHovered={()=>{}} scrollContainerStyle={OutfitNavStyles.previewContainer} />);
+				browseContent = (controls) => (
+						<VisibleItemListBrowse 
+							changeItemHovered={()=>{}} 
+							scrollContainerStyle={OutfitNavStyles.previewContainer} 
+						/>
+				);
 				break
 			default:
 				browseContent = null;
@@ -286,88 +355,42 @@ class OutfitNav extends React.Component{
 			<React.Fragment>
 				{
 					browseWrapper(
-    					(<div 
-    						className={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? Styles['outfitBlock_div--profileView'] : Styles.outfitBlock} 
-    						style={this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
-    							({
-    								height: (this.props.imageHeight > this.props.imageWidth ? `calc(${this.props.imageHeight}px)` : `calc(100% - 80px - 80px)`),
-    								width: `calc(${containerWidth !== 0 ? containerWidth : 350}px)`
-    							}) : ({})
-    						}>
-    						{browseContent !== null ? browseContent() : null}
-    					</div>) )
+    					(
+    						<React.Fragment>
+    							<div 
+    								style={{'border-radius': '0px'}}
+    								className={
+    									this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+    										Styles.outfitBlock/*Styles['outfitBlock_div--profileView']*/ : 
+    										Styles.outfitBlock
+    								} 
+    								//style={
+    								//	this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+    								//		({
+    								//			height: (this.props.imageHeight > this.props.imageWidth ? `calc(${this.props.imageHeight}px)` : `calc(100% - 80px - 80px)`),
+    								//			width: `calc(${containerWidth !== 0 ? containerWidth : 350}px)`,
+    								//		}) : 
+    								//		({})
+    								//}
+    							>
+    								{browseContent !== null ? browseContent(controls) : null}
+    							</div>
+    							<div 
+    								className={Styles.browseControls}
+    								style={this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase() ? ({display:'none'}) : ({}) }
+    							>
+									<BrowseControlContainer 
+										isMobile={true}
+									/>
+    							</div>
+    						</React.Fragment>
+    					) 
+    				)
 				}
     		</React.Fragment>
 		);
 	}
 }
-
-/*class MetricPanel extends React.Component{
-	constructor(props){
-		super(props);
-	}
-
-	render(){
-		return(
-			<div className={Styles.metricBlock}>
-			<CSSTransition
-			    tiemout={600}
-			    classNames="metricContainer_div"
-			    in={true}
-			    unmountOnExit >
-					<div className={Styles.metricContainer_div}>
-						<div 
-							style={{
-								'padding-top': '15px',
-    							'padding-bottom': '15px',
-    							'height': '165px',
-    							'border-bottom-style': 'solid',
-    							'border-width': '1px',
-    							'border-color': '#e2e2e2',
-    							'margin-right':'-1px',
-    							'position':'relative',
-							}}
-						>
-							{this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
-								//<ProfileControlContainer /> :
-								(
-									<div className={Styles.points_div}>
-										12649
-									</div>
-								) :
-								<BrowseControlContainer />
-							}
-		
-						</div>
-						<ProfileTitleContainer />
-						<div className={MetricStyles.metricMatch_div}>
-							<div className={MetricStyles.metricMatchLPanel_div}>
-								<div className={MetricStyles.fitIcon_div}>
-									FITS!
-								</div>
-							</div>
-							<div className={MetricStyles.metricMatchRPanel_div}>
-								<div className={MetricStyles.comparisonTypeIconContainer_div}>
-								  <div className={MetricStyles.comparisonTypeIcon_div}>
-								  	<SvgIcon name='CompTypeMaleIcon'/>
-								  </div>
-								  <div 
-								  	className={MetricStyles.comparisonTypeIcon_div}
-								  	style={{'border-left':'solid 2px gray'}}>
-								  	<SvgIcon 
-								  		name='CompTypeApparelIcon'
-								  		style={{height:'100%', width:'70%'}}/>
-								  </div>
-								</div>
-							</div>
-						</div>
-						<VisibleMetricList />
-					</div>
-				</CSSTransition>
-			</div>
-		);
-	}
-}*/
 
 export default class webAppView extends React.Component {
 	constructor(props){
@@ -382,6 +405,7 @@ export default class webAppView extends React.Component {
 			itemIdHovered: null,
 			navDestination: props.location,
 			isFocusedPreview: false,
+			isMetricPanelOpen : false,
 		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
@@ -390,6 +414,7 @@ export default class webAppView extends React.Component {
 		this._handleNavBtnSelected = this._handleNavBtnSelected.bind(this);
 		this.setPreviewFocus = this.setPreviewFocus.bind(this);
 		this._handleAddOutfitClcik = this._handleAddOutfitClcik.bind(this);
+		this.toggleMetricPanel = this.toggleMetricPanel.bind(this);
 		this.previousLocation = props.location;
 
 		var {
@@ -576,6 +601,13 @@ export default class webAppView extends React.Component {
 		}));
 	}
 
+	toggleMetricPanel(event, isOpen){
+		this.setState(prevState => ({
+			...prevState,
+			isMetricPanelOpen: (isOpen !== null && isOpen !== undefined ? isOpen : !prevState.isMetricPanelOpen),
+		}))
+	}
+
 	render() {
 		const {
 			setPreviewFocus,
@@ -587,6 +619,7 @@ export default class webAppView extends React.Component {
 			pathname,
 			viewState,
 			isFocusedPreview,
+			viewState,
 		} =  this.props;
 
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
@@ -664,10 +697,16 @@ export default class webAppView extends React.Component {
 										{/*<div className={Styles.metricsContainer_div}>
 											<MetricPanel />
 										</div>*/}
-										<MetricPanel/>
+										<MetricPanel
+											isOpen={this.state.isMetricPanelOpen}
+											toggleMetricPanel={this.toggleMetricPanel}
+											isFocusedPreview={isFocusedPreview}
+										/>
 										<OutfitNav 
 											webAppView={this.props.webAppView}
-											browseSelection={this.props.browseSelection}
+											browseSelection={this.props.browseSelection}											
+											toggleMetricPanel={this.toggleMetricPanel}
+											handleAddOutfitClicked={this._handleAddOutfitClicked}
 											/*routeToHostProfile={(usernameUri) => this._handleNavBtnSelected(`/profile${usernameUri}`)}*/ />
 										{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
 										<Admin/>
@@ -696,14 +735,24 @@ export default class webAppView extends React.Component {
 												null
 										}
 									>								
-										<MetricPanel webAppView={this.props.webAppView}/>
+										<MetricPanel 
+											webAppView={this.props.webAppView}
+											isOpen={this.state.isMetricPanelOpen}
+											toggleMetricPanel={this.toggleMetricPanel}
+											isFocusedPreview={isFocusedPreview}
+										/>
 
 										{
 											isFocusedPreview ?
 												(
 													<div 
-														className={Styles.contentContainer}
-														style={{width:'70%', 'padding-left':'400px'}} >
+														className={Styles.contentContainerFocused}
+														//style={{
+														//	width:'70%', 
+														//	'padding-left':'400px', 
+														//	'white-space':'nowrap'
+														//}} 
+													>
 
 														<PicturePreviewContainer 
 															imageWidth={this.state.imageWidth}
@@ -731,34 +780,14 @@ export default class webAppView extends React.Component {
 														<OutfitNav 	
 															imageWidth={163.11 || this.state.imageWidth}
 															imageHeight={244.66 || this.state.imageHeight}
-															//webAppView={this.props.webAppView}
+															webAppView={this.props.webAppView}
 															browseSelection="outfits"
-															setPreviewFocus={setPreviewFocus} />
+															setPreviewFocus={setPreviewFocus} 
+															toggleMetricPanel={this.toggleMetricPanel}
+															handleAddOutfitClicked={this._handleAddOutfitClicked}
+														/>
 
-														<div class={Styles.controlsContianer}>
-															<div 
-																className={OutfitNavStyles.outfitCtrlBtn_div}
-																style={{
-																}}>
-																{/*<div
-																		className={OutfitNavStyles.outfitCtrlBtnContent_div}
-																		style={{
-																		}}>
-																		+
-																	</div>*/}
-																<Button
-																	buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
-																	onClickHandler={this._handleAddOutfitClicked}
-																	title='add new outfit'
-																	iconName='AddOutfitIcon'
-																	expandedWidth={150}
-																	buttonHeight={40}
-																	customButtonStyles={{
-																		color:'white',
-																		'margin':'auto',		
-																	}} />
-															</div>
-														</div>
+														
 													</div>
 												) 
 										}

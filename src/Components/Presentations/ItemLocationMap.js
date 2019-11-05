@@ -3,7 +3,8 @@ import Draggable, {DraggableCore} from 'react-draggable';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //CSS
-import ItemStyles from '../../item.css';
+import ItemStyles from '../../item.scss';
+import FormStyles from '../../forms.scss';
 
 const containerStyle = {
     'position': 'absolute',
@@ -133,22 +134,52 @@ export default class ItemLocationMap extends React.Component{
 			onStart: this._onStart, 
 			onStop: this._onStop
 		};
+
+		const {
+			selectItem,
+			deselectItem,
+			deselectAllItems,
+			simulateImageClick,
+		} = this.props;
+
+		const {
+			contents,
+			addedContents,
+			selectedContentId,
+			viewState,
+			selectedItemId
+		} = this.props;
+
 		console.log('this.props.visibleItemsMap = ', this.props.visibleItemsMap)
 		return(			
-			<div style={this.props.viewState != OxiAppConstants.viewState.PREVIEW ? Object.assign({}, containerStyle, {'margin-top': '0px'}) : containerStyle}>
-				<div style={Object.assign({}, svgContainerStyle, this.props.itemMapDimension)}>
-					<svg onClick={(event) => this.props.simulateImageClick(event.pageX, event.pageY)} style={{height:'100%',width:'100%',left:'0px',top:'0px'}}>
+			<div 
+				className={viewState != OxiAppConstants.viewState.PREVIEW ? FormStyles.itemLocationMapContainerPreview_div : FormStyles.itemLocationMapContainer_div}
+				//style={viewState != OxiAppConstants.viewState.PREVIEW ? Object.assign({}, containerStyle, {'margin-top': '0px'}) : containerStyle}
+			>
+				<div 
+					//style={Object.assign({}, svgContainerStyle, this.props.itemMapDimension)}
+					className={FormStyles.itemMapSvgContainer_div}
+					style={Object.assign({}, {}, this.props.itemMapDimension)}
+				>
+					<svg 
+						onClick={(event) => {
+							simulateImageClick ? simulateImageClick(event.pageX, event.pageY) : null;
+							//deselect all items
+							selectedItemId != false ? deselectAllItems() : null;
+						}} 
+						style={{height:'100%',width:'100%',left:'0px',top:'0px'}}
+					>
 						{
 							this.props.visibleItemsMap.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItemsMap.visibleItemsByIds)
 								.filter(itemId => {
-									return this.props.contentSelected === undefined || this.props.contentSelected === false ? //redux state not yest instantiated for entities
+									return selectedContentId === undefined || selectedContentId === false ? //redux state not yet instantiated for entities
 										([]) :
-										this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-											this.props.contents[this.props.contentSelected] === undefined ?
+										viewState === OxiAppConstants.viewState.PREVIEW ? 
+											contents.byIds[ selectedContentId ] === undefined ?
 												([]) :
-												this.props.contents[this.props.contentSelected].items.includes(itemId) :
-													this.props.addedContents[this.props.contentSelected] ?
-														this.props.addedContents[this.props.contentSelected].items.includes(itemId) :
+												contents.byIds[ selectedContentId ].items.includes(itemId) :
+													addedContents.byIds[ selectedContentId ] ?
+														addedContents.byIds[ selectedContentId ].items.includes(itemId) :
 														([])
 								})
 								.map(itemId => {
@@ -159,9 +190,10 @@ export default class ItemLocationMap extends React.Component{
 									if(this.props.itemIdHovered === itemId) console.log('itemIdHovered equals itemId: ', itemId)
 									if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
 										return(
-											this.props.viewState != OxiAppConstants.viewState.PREVIEW ? 
+											viewState != OxiAppConstants.viewState.PREVIEW ? 
 											(
 												<DraggableCore
+													key={itemId}
 													onStop={() => this._onStop(event, itemId)}
 													onStart={() => this._onStart(event, itemId)}
 													onDrag={this._handleDrag}
@@ -172,7 +204,9 @@ export default class ItemLocationMap extends React.Component{
 														onMouseOver={() => this._handleOnMouseOver(event, itemId)}
 														onMouseLeave={() => this._handleOnMouseLeave(event)}
 														onMouseUp={() => this._handleOnMouseUp(event, itemId)}
-														onClick={(event) => event.stopPropagation()}
+														onClick={(event) => {
+															event.stopPropagation();
+														}}
 														id={itemId}
 														stroke-width='2px' 
 														stroke='black' 
@@ -187,8 +221,13 @@ export default class ItemLocationMap extends React.Component{
 												</DraggableCore>
 											) : (
 												<circle 
+													key={itemId}
 													onMouseOver={() => this._handleOnMouseOver(event, itemId)}
 													onMouseLeave={() => this._handleOnMouseLeave(event)}
+													onClick={(event) => {
+														selectedItemId === itemId ? deselectItem(itemId) : selectItem(itemId);
+														event.stopPropagation();
+													}}
 													id={itemId}
 													stroke-width='2px' 
 													stroke='black' 

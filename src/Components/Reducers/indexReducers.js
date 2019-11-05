@@ -84,7 +84,7 @@ import * as types from '../Actions/Types.js';
 
 //import all reducers here
 
-const iniState = {
+const iniToggleModal = {
 	'modal':'HIDDEN',
 	'isModalVisible':true,
 	'prevRequestUrl':null,
@@ -149,7 +149,7 @@ const iniSearchState = {
 	}
 }
 
-const toggleModal = (state = iniState, action) => {
+export const toggleModal = (state = iniToggleModal, action) => {
 	switch(action.type){
 		case types.SET_VISIBLE_FORM:
 			action.payload.otherData === undefined ? action.payload.otherData = state.otherData : null
@@ -632,7 +632,7 @@ export const entitiesState =  (state = {isFetching: false, serverInvalidated: []
 				}) :
 				Object.assign({}, state, {
 					multipleSelected: state.multipleSelected.filter(id => id !== action.payload.selected),
-					seleted: false
+					selected: false
 				});
 
 		case `CLEAR_SELECT_MUL_${action.typeSpecifier}`:

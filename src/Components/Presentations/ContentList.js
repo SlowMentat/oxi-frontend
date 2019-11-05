@@ -1,5 +1,5 @@
 import React from 'react';
-import ContentStyles from '../../content.css';
+import ContentStyles from '../../content.scss';
 import outfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 import Content from './Content.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -213,7 +213,7 @@ class ContentList extends React.Component {
 				    			thumbnail={//TODO: this may not be necessary
 				    				(this.props.addedContents[contentId] === undefined) ? undefined : 
 				    					(this.props.addedContents[contentId].coverpicuri === null) ? this.props.pictures[this.props.addedContents[contentId].picture].thumbnailuri : 
-				    						this.props.addedContents[contentId].coverpicuri
+				    						'blob'//this.props.addedContents[contentId].coverpicuri
 				    			} 
 				    			getCoverPic={this.props.getCoverPic}
 				    			selectedId={this.props.selectedId}

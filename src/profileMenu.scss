@@ -1,13 +1,80 @@
+@import "root";
+
+:local(.profileMenuContianer_div){
+
+    background-color: var(--main-background-color);
+    --container-height: 714.5px;
+    height: calc(100vh - 80px);
+    margin-top: 80px;
+
+    @include desktop_rules {
+        overflow: hidden;
+    }
+
+    @include mobile_rules {
+        position: relative;
+    }
+}
+
+:local(.bodyDiagramContainer_div){
+
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+
+    @include desktop_rules {
+        width: calc(50% - 320px);
+    }
+
+    @include mobile_rules {
+        position: absolute;
+        z-index: 2000;          
+        left: 0px;         
+        left: -660px;     
+        transition: left 100ms linear;        
+        top: 0px;        
+        width: 100vw;
+    }
+}
+
+:local(.fieldListContainer_div){
+
+    @include desktop_rules {
+        display: inline-block;
+    }
+
+    @include mobile_rules {
+        display: block;
+        width: 200vw;
+        position: absolute;
+        left: -100vw;
+        height: 100%;
+        z-index: 1000;
+        transition: transform 100ms linear;
+        left: 0px;
+        /*transform: translateX(-100vw);*/
+        top: 0px;  
+        overflow-y: scroll;  
+        overflow-x: hidden;
+    }
+}
+
+:local(.fieldListContainer2_div){
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    } 
+}
+
 :local(.fieldList_div){
     /*box-shadow: 5px 5px 17px #0000002e; */
     --profile-ctrl-contianer-width: 360px;
     --profile-ctrl-container-padding: 30px;
     --profile-ctrl-container-border-width: 1px;
-    width: 360px;
-    margin: auto;
-    height: 714.5px;
-    margin-top: calc((100vh - 80px - var(--container-height))/2);
-    display: inline-block;
     text-align: center;
     vertical-align: top;
     border-color: #dadada;
@@ -16,18 +83,49 @@
     border-radius: 3px;
     background-color: white; 
     padding: var(--profile-ctrl-container-padding);
+
+    @include desktop_rules {
+        height: 714.5px;
+        width: 360px;
+        margin: auto;
+        margin-top: calc((100vh - 80px - var(--container-height))/2);
+        display: inline-block;
+    }
+
+    @include mobile_rules {
+        height: 100vh;
+        padding-top: 0px;
+        width: 100vw;
+        margin: unset;
+        position: absolute;
+        left: 0px;
+        display: block;
+    }
 }
 
 :local(.toleranceFieldList_div){
     composes:fieldList_div;
     white-space: nowrap;
-    height: 714.5px;
-    width: var(--profile-ctrl-contianer-width);
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
-    margin-left: -1px;
     border-left-color: rgb(226, 226, 226);   
     transition: width 150ms linear;
+
+    @include desktop_rules {
+        height: 714.5px;
+        width: var(--profile-ctrl-contianer-width);
+        margin-left: -1px;
+    }
+
+    @include mobile_rules {
+        padding-top: 0px;
+        margin: unset;
+        width: 100vw;  
+        height: 100vh;
+        position: absolute;
+        left: 100vw;
+        display: block;  
+    }
 }
 
 :local(.fieldListTitleContainer1_div){
@@ -40,6 +138,20 @@
 :local(.fieldListTitleContainer2_div){
 	height: inherit;
     position: relative;
+}
+
+:local(.toleranceSettingsContianer_div){
+    height: calc(100% - 110px);
+    --main-height: 25px;
+    position: relative;
+
+    @include desktop_rules {
+        padding-top: 50px;
+    }
+
+    @include mobile_rules {
+        padding-top: 0px;
+    }
 }
 
 :local(.fieldListTitle_div){
@@ -119,7 +231,7 @@
 }
 
 :local(.inputNumberLabel_div){
-    composes:label from './root.css';
+    composes:label from './root.scss';
 	display: inline-block;
     /*font-size: 1.7rem;*/
     font-size: 1.5rem;
@@ -142,7 +254,7 @@
 }
 
 :local(.submitBtnText_div){
-    composes:l3Button from './forms.css';
+    composes:l3Button from './forms.scss';
 	position: absolute;
 	height: inherit;
 	width: 75px;
@@ -289,7 +401,7 @@
 }
 
 .slidValue{
-    composes:label from './root.css';
+    composes:label from './root.scss';
     font-size: 1.5rem;
     letter-spacing: 0.05rem;
     text-transform: unset;
@@ -318,7 +430,7 @@
 }
 
 :local(.slideLabel){
-    composes:label from './root.css';
+    composes:label from './root.scss';
     display: none;
     user-select:none;
     position: absolute;

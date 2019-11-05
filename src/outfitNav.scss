@@ -1,3 +1,5 @@
+@import "root";
+
 :local(.outfitNavContainer) {
 	overflow: hidden;
 	background-color: #fdfdfd;
@@ -14,7 +16,7 @@
 
 
 :local(.stdOutfitNavBlock){
-	composes:stdBlock from './root.css';
+	composes:stdBlock from './root.scss';
 	background-color: var(--main-background-color);
 	/*display: inline;*/
 	border-radius: 0px;
@@ -33,13 +35,27 @@
 }
 
 :local(.previewContainer) {
-	overflow-y:  scroll;  
+	overflow-y: scroll;  
 	overflow-x: hidden; 
 	height: 100%;
 	background-color: var(--main-background-color);
 	/*margin-top: 25px;*/
 	composes: stdOutfitNavBlock;
 	/*grid-area: preview;*/
+
+	/*@include mobile_rules {		
+		padding-top: 50px;
+		padding-bottom: 150px;
+	}*/
+}
+
+:local(.previewContainerMobile){
+	composes: previewContainer;
+
+	@include mobile_rules {		
+		padding-top: 50px;
+		padding-bottom: 150px;
+	}
 }
 
 :local(.previewBrowseContainer){
@@ -48,7 +64,7 @@
 }
 
 /*:local(.outfitCtrlButton){
-	composes:stdBlock from './root.css';
+	composes:stdBlock from './root.scss';
 	height: 20px;
 	background-color: #1c2023;
 	font-size: 80%;	
@@ -59,7 +75,7 @@
 }*/
 
 :local(.outfitCtrlBtnContainer_div){
-	/*composes:stdButton from './root.css';*/
+	/*composes:stdButton from './root.scss';*/
 	width: 200px;
     margin-left: 11px;
 	text-align: center;
@@ -67,7 +83,7 @@
 }
 
 :local(.outfitCtrlBtn_div){
-	composes:pressable from "./root.css";
+	composes:pressable from "./root.scss";
 	position: relative;
     /*background-color: rgb(74, 69, 71);
     height: 50px;
@@ -75,6 +91,17 @@
     border-radius: 25px;*/
     margin: calc( ((5vh + 25px) / 4) - 5px ) auto auto;
     color: white;
+
+    @include desktop_rules {
+
+    }
+
+    @include mobile_rules {
+    	display: inline-block;
+    	margin: 0px;
+    	width: unset;
+    	height: 100%;
+    }
 }
 
 :local(.outfitCtrlBtnContent_div){

@@ -12,11 +12,11 @@ import axios from 'axios';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
 //CSS Components
-import Styles from './root.css';
-import ItemStyles from './item.css';
-import NavStyles from './nav.css';
-import OutfitNavStyles from './outfitNav.css';
-import FormStyles from './forms.css';
+import Styles from './root.scss';
+import ItemStyles from './item.scss';
+import NavStyles from './nav.scss';
+import OutfitNavStyles from './outfitnav.scss';
+import FormStyles from './forms.scss';
 import 'react-image-crop/dist/ReactCrop.css';
 
 //Display Components
