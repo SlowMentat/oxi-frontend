@@ -1,5 +1,7 @@
 @import "root";
 
+$sliderWidth: 15px;
+
 :local(.profileMenuContianer_div){
 
     background-color: var(--main-background-color);
@@ -105,6 +107,7 @@
 
 :local(.toleranceFieldList_div){
     composes:fieldList_div;
+
     white-space: nowrap;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
@@ -129,10 +132,17 @@
 }
 
 :local(.fieldListTitleContainer1_div){
-	height: 100px;
-    /*background-color: #70ccf42e;*/
     border-radius: 2px;
-    margin-bottom: 10px
+    margin-bottom: 10px;
+
+    @include desktop_rules {
+        height: 100px;
+    }
+
+    @include mobile_rules {
+        height: 40px;    
+    }
+
 }
 
 :local(.fieldListTitleContainer2_div){
@@ -154,16 +164,40 @@
     }
 }
 
+:local(.toleranceSettings_div){
+    position: relative;
+    width: 300px;
+
+    @include desktop_rules {
+        margin-bottom: 20px;
+        border: solid 2px #525252;
+        border-right: none;
+    }
+
+    @include mobile_rules {
+        margin: auto;
+    }
+}
+
 :local(.fieldListTitle_div){
     color: #3b3739;
 	height: 30px;
     line-height: 30px;
     font-family: 'Archivo Black', sans-serif;
-    font-size: 30px;
-    margin-top: calc(50px - 15px);
     position: absolute;
     width: 100%;
     transition: height 200ms ease-in-out;
+
+    @include desktop_rules {
+        font-size:30px;
+        margin-top: calc(50px - 15px);
+    }
+
+    @include mobile_rules {
+        font-size: 2rem;
+        margin-top: calc(25px - 15px);
+        text-align: right;
+    }
 }
 
 
@@ -310,9 +344,42 @@
     margin-left: -2px;
 }
 
+:local(.minMaxMarker_div){
+    --minMaxMarker-border-width: 3px;
+
+    position: absolute;
+    height: calc(100% - 47px);
+    border-left: solid var(--minMaxMarker-border-width) var(--color8);
+    top: -($sliderWidth);
+    left: 64px;
+    transform: translateX(calc(#{$sliderWidth} / 2 - var(--minMaxMarker-border-width) / 2));
+}
+
+:local(.minMaxIndicatorContainer_div){
+    position: relative;
+}
+
+:local(.minMaxIndicator_div){
+    position: absolute;
+    --diameter: 30px;
+    --border-width: 3px;
+    width: var(--diameter);
+    height: var(--diameter);
+    border-radius: var(--diameter);
+    border: solid var(--border-width) var(--color8);
+    left: calc(-1*(var(--diameter)/2 + var(--border-width)/2));
+    top: calc(-1*var(--diameter));
+    line-height: calc(var(--diameter) - 2*var(--border-width));
+    text-align: center;
+    padding-top: 1px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
 :local(.toleranceControllersContainer_div){
     position: absolute;
-    top: -2px;
+    top: 0px;
     width: 100%;
 }
 
@@ -333,7 +400,7 @@
 :local(.maxSlider_div){
     position: absolute;
     height: var(--main-height);
-    width: 15px;
+    width: $sliderWidth;
     cursor: grab;
     border-radius: 2px;
     border: solid 1px #525252;
@@ -350,17 +417,37 @@
     left: 0px;
 }
 
+:local(.rangeHighlight_div){
+    --range-highlight-offset: calc(#{$sliderWidth} / 2);
+    position:absolute;
+    background-color: #00000052;
+    height: 25px;
+}
+
 :local(.tolerancePresetContainer_div){
     user-select: none;
     width: 33%;
-    height: 50px;
     display: inline-block;
+
+    @include desktop_rules {
+        height: 50px;
+    }
+
+    @include mobile_rules {
+        height: 37px;
+    }
 }
 
 :local(.tolerancePreset_div){
-    width: 50px;
     height: inherit;
     margin: auto;
+
+    @include desktop_rules {
+        width: 50px;
+    }
+
+    @include mobile_rules {
+    }
 }
 
 :local(.toleranceUnitContainer_div){
@@ -381,13 +468,20 @@
 :local(.toleranceCheckBox_div){    
     width: 100%;
     height: inherit;
-    line-height: 50px;
     font-weight: bold;
     letter-spacing: .08rem;
     font-size: 1rem;
-    border: solid 2px #525252;
-    border-radius: 4px;
     cursor: pointer;
+    border: solid 2px #525252;
+
+    @include desktop_rules {
+        line-height: 50px;
+        border-radius: 4px;
+    }
+
+    @include mobile_rules {
+        line-height: 35px;
+    }
 }
 
 

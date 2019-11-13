@@ -50,19 +50,26 @@ export const InputNumberField = ({props}) => (
 		className={props.containerStyle} 
 		//style={props.selectedField === props.name ?  ({'border-style':'none'}) : ({})}
 	>
-		{props.type} <input 
-			id="measurementField"
+		{null/*props.type*/} <input 
+			id={`${props.name}`}
 			value={props.value}
-			type="number"
-			step="0.5"
+
+			//NOTE: React yeets away the cursor position when modifing the input value between renders (https://github.com/facebook/react/issues/955)
+			//		As a result the cursor must be manually tracked with selectionStart and selectionEnd, BUT 
+			//		selection is not supported for number input types... so I'm allowing prop to override type as needed.  
+			//		see: 	https://stackoverflow.com/questions/21177489/selectionstart-selectionend-on-input-type-number-no-longer-allowed-in-chrome
+			type={props.type || "number"}
+			//step="0.5"
 			maxLength="5"
-			min="0"
-			max="999.99" 
+			//min="0"
+			//max="999.99" 
 			name={props.name} 
 			placeholder={props.placeholder} 
-			onChange={props.onChange} 
+			onChange={props.onChange} 			//fires when user changes value
+			//change={}							//fires when element loses focus after it value was changed, but not commited
 			className={props.inputStyle}
 			onFocus={props.onSelect}
+			ref={props.setupInputRef}
 			//style={props.selectedField === props.name ? 
 			//	({
 			//		'background-color': '#ffffff00',
@@ -87,6 +94,7 @@ class ProfileFieldWrapper extends React.Component{
 	}
 
 	render(){
+		console.log('ProfileFieldWrapper rendering')
 		const isSelected = this.props.selectedField === this.props.field;
 		return(
 			<div>
@@ -101,7 +109,9 @@ class ProfileFieldWrapper extends React.Component{
 						value: this.props.value,
 						onChange:(event) => this.props.callback(event),
 						onSelect:this.props.onSelect,
-						selectedField: this.props.selectedField
+						selectedField: this.props.selectedField,
+						setupInputRef: this.props.setupInputRef,
+						type:"text",
 					}}/>
 					<div className={ProfileMenuStyles.displayUnits_div} style={(isSelected ? ({color: '#70ccf4'}) : null)}>
 						{(this.props.units === 'cm' ? 'cm' : 'in')}
@@ -183,7 +193,8 @@ const Ruler = ({props}) => (props.ticks.map((tick, ind, ticks) => (
 				className={ProfileMenuStyles.tick_div}
 				style={{
 					'--tick-display-cnt':(props.ticks.length - 1),
-					'background-color': (ind === props.ticks.length/2 - 1 ? 'white' : null)
+					'background-color': (ind === props.ticks.length/2 - 1 ? 'white' : null),
+					'border-right-color': (ind % 2 === 0 && props.isUnitCm ? '#d9d9d9' : null)
 				}}>
 			</div>) : 
 			null
@@ -230,16 +241,19 @@ class ToleranceSettings extends React.Component{
 
 	constructor(props){
 		super(props);
-	
+		var aspect = window.innerWidth / window.innerHeight;
+		console.log('window.innerWidth = ', window.innerWidth);
 		//let minToleranceFields = {};
 		//let maxToleranceFields = {};
 		this.filteredFieldNames = Object.keys(this.props.displayedProfileData); //Object.keys(this.props.displayedProfileData).filter(field => (field !== 'id' && field !== 'country' && field !== 'username' && field !== 'bodyShape' && field !== 'mens' && field !== 'womens'));
 		//this.ticks = [0,1,2,3,3,4,5,6,7,8];
 		//this.scale = 0.5;
 		this.slideWidth = 7.5;	//slide width in px
-		//this.tickPixelDelta = (300 - 30)/2/this.props.ticks.length;
-		this.tickPixelDelta = 33;//298/(this.props.ticks.length - 1);
-		//this.width = this.props.width;//(this.props.ticks.length  - 1) * this.tickPixelDelta;
+		//this.props.tickPixelDelta = (300 - 30)/2/this.props.ticks.length;
+		
+		//this.props.tickPixelDelta = (aspect > 13/9 && this.props.units == 'in') ? 33 : ((window.innerWidth - 2*30) / (this.props.ticks.length - 1));//298/(this.props.ticks.length - 1);
+		
+		//this.width = this.props.width;//(this.props.ticks.length  - 1) * this.props.tickPixelDelta;
 		this.presets = {
 			preset1: 'Tight',
 			preset2: 'Fit',
@@ -274,8 +288,10 @@ class ToleranceSettings extends React.Component{
 		this._handleMinSliderMove = this._handleMinSliderMove.bind(this);
 		//this._handlePresetClicked = this._handlePresetClicked.bind(this);
 		this._sliderGrabbed = this._sliderGrabbed.bind(this);
-		this._sliderReleased = this._sliderReleased.bind(this);
+		this._sliderReleasedd = this._sliderReleased.bind(this);
 		this.getDeltaTick = this.getDeltaTick.bind(this);
+		this.getToleranceControllerRef = this.getToleranceControllerRef.bind(this);
+
 		//this.getToleranceValues = this.getToleranceValues.bind(this);
 		//this.getUpdatedToleranceTick = this.getUpdatedToleranceTick.bind(this);
 		//this.setPresetTolerances = this.setPresetTolerances.bind(this);
@@ -289,7 +305,7 @@ class ToleranceSettings extends React.Component{
 	}*/
 
 	getDeltaTick(field, isMinTolerance){
-		const deltaTick = Math.round((this.state.deltaX)/this.tickPixelDelta);
+		const deltaTick = Math.round((this.state.deltaX)/this.props.tickPixelDelta);
 		const maxTick = this.props.ticks.length - 1;
 		const minTick = 0;
 		const nextTick = this.state.startTick + deltaTick;
@@ -346,9 +362,9 @@ class ToleranceSettings extends React.Component{
 		});
 	}
 
-	_sliderGrabbed(e, field, isMinSlider){
+	_sliderGrabbed(e, field, isMinSlider, outerRef){
 		e.stopPropagation();
-		console.log('e = ', e.clientX)
+		console.log('e.clientX = ', e.clientX)
 		const xCoord = e.clientX;
 		//const adjTick = isMinSlider ? this.state.minTolerances[field] : this.state.maxTolerances[field] + 1;
 		this.setState({
@@ -358,25 +374,46 @@ class ToleranceSettings extends React.Component{
 			sliderTransition: false
 		});
 
-		this.handleMinSliderMoveWrapper = (e) => this._handleMinSliderMove(e, field);
-		this.handleMaxSliderMoveWrapper = (e) => this._handleMaxSliderMove(e, field);
-		this.handleMinSliderReleasedWrapper = (e) => this._sliderReleased(e, true);
-		this.handleMaxSliderReleasedWrapper = (e) => this._sliderReleased(e, false);
-
-		if(isMinSlider){
-			window.addEventListener('mousemove', this.handleMinSliderMoveWrapper);
-			window.addEventListener('mouseup', this.handleMinSliderReleasedWrapper);
+		//create event handlers
+		if(outerRef){
+			//outerRef.style['touch-action'] = 'none';
+			this.handleMinSliderMoveWrapper = (e) => this._handleMinSliderMove(e, field);
+			this.handleMaxSliderMoveWrapper = (e) => this._handleMaxSliderMove(e, field);
+			this.handleMinSliderReleasedWrapper = (e) => this._sliderReleased(e, true, outerRef);
+			this.handleMaxSliderReleasedWrapper = (e) => this._sliderReleased(e, false, outerRef);
+	
+			//add handlers to event listeners
+	
+			/*if(isMinSlider){
+				window.addEventListener('mousemove', this.handleMinSliderMoveWrapper);
+				window.addEventListener('mouseup', this.handleMinSliderReleasedWrapper);
+			}else{
+				window.addEventListener('mousemove', this.handleMaxSliderMoveWrapper);	
+				window.addEventListener('mouseup', this.handleMaxSliderReleasedWrapper);
+			}*/
+	
+	
+			if(isMinSlider){
+				/*window*/outerRef.addEventListener('pointermove', this.handleMinSliderMoveWrapper);
+				/*window*/outerRef.addEventListener('pointerup', this.handleMinSliderReleasedWrapper);
+			}else{
+				/*window*/outerRef.addEventListener('pointermove', this.handleMaxSliderMoveWrapper);	
+				/*window*/outerRef.addEventListener('pointerup', this.handleMaxSliderReleasedWrapper);
+			}
 		}else{
-			window.addEventListener('mousemove', this.handleMaxSliderMoveWrapper);	
-			window.addEventListener('mouseup', this.handleMaxSliderReleasedWrapper);
-		}		
+			console.log('outerRef is null or not defined');
+		}
 	}
 
-	_sliderReleased(e, isMinSlider){
+
+
+	_sliderReleased(e, isMinSlider, outerRef){
 		const field = (isMinSlider ? this.state.minGrabbedSlider : this.state.maxGrabbedSlider);
 		const toleranceObjType = (isMinSlider ? 'minTolerances' : 'maxTolerances');
 
-		this.props.updateTolerances(toleranceObjType, field, (this.state.startTick + this.state.deltaTick));
+		//outerRef.style['touch-action'] = 'none';
+
+		this.props.updateTolerances(this.props.units, isMinSlider, field, (this.state.startTick + this.state.deltaTick));
 
 		this.setState(prevState => ({
 			[(isMinSlider ? 'minGrabbedSlider' : 'maxGrabbedSlider')]: '',
@@ -390,7 +427,7 @@ class ToleranceSettings extends React.Component{
 			sliderTransition:true
 		}));
 
-		switch(true){
+		switch(true){/*
 			case isMinSlider:
 				console.log('removing minSlider event handlers from window\'s mousemove and mouseup');
 				if(this.handleMinSliderMoveWrapper){
@@ -410,6 +447,35 @@ class ToleranceSettings extends React.Component{
 					window.removeEventListener('mousemove', this.handleMaxSliderMoveWrapper);
 					if(this.handleMaxSliderReleasedWrapper){
 						window.removeEventListener('mouseup', this.handleMaxSliderReleasedWrapper);
+					}else{
+						console.log('this.handleMaxSliderReleasedWrapper is undefined')
+					}
+				}else{
+					console.log('this.handleMaxSliderMoveWrapper undefined');
+				}
+				break;
+			default:
+				break;
+		}*/
+			case isMinSlider:
+				console.log('removing minSlider event handlers from outerRef\'s pointermove and pointerup');
+				if(this.handleMinSliderMoveWrapper){
+					outerRef.removeEventListener('pointermove', this.handleMinSliderMoveWrapper);
+					if(this.handleMinSliderReleasedWrapper){
+						outerRef.removeEventListener('pointerup', this.handleMinSliderReleasedWrapper);
+					}else{
+						console.log('this.handleMinSliderReleasedWrapper is undefined')
+					}
+				} else {
+					console.log('this.handleMinSliderMoveWrapper is undefined');
+				}
+				break;
+			case !isMinSlider:
+				console.log('removing maxSlider event handlers from outerRef\'s pointermove and pointerup');
+				if(this.handleMaxSliderMoveWrapper){
+					outerRef.removeEventListener('pointermove', this.handleMaxSliderMoveWrapper);
+					if(this.handleMaxSliderReleasedWrapper){
+						outerRef.removeEventListener('pointerup', this.handleMaxSliderReleasedWrapper);
 					}else{
 						console.log('this.handleMaxSliderReleasedWrapper is undefined')
 					}
@@ -470,21 +536,26 @@ class ToleranceSettings extends React.Component{
 		});
 	}*/
 
+	getToleranceControllerRef(div){
+		this.toleranceControllerRef = div;
+	}
+
+
 	render(){
 		//container width = 
 		//	var(--profile-ctrl-contianer-width) - 
 		//	2*var(--profile-ctrl-container-padding) - 
 		//	2*var(--profile-ctrl-container-border-width)
 
-		//this.tickPixelDelta = 298/(this.props.ticks.length - 1);	
+		//this.props.tickPixelDelta = 298/(this.props.ticks.length - 1);	
 		this.filteredFieldNames = Object.keys(this.props.displayedProfileData);	
-		var calcWidth = (this.props.ticks.length  - 1) * this.tickPixelDelta;
+		var calcWidth = (this.props.ticks.length  - 1) * this.props.tickPixelDelta;
 		if(this.props.width !== calcWidth){
 			this.props.updateWidth(calcWidth);
 			//this.width = calcWidth;
 		}
 
-		//this.tickPixelDelta = `calc(100%/${this.props.ticks.length}`;
+		//this.props.tickPixelDelta = `calc(100%/${this.props.ticks.length}`;
 		return(
 			<div 
 				className={ProfileMenuStyles.toleranceSettingsContianer_div}
@@ -495,12 +566,9 @@ class ToleranceSettings extends React.Component{
 				//	'position':'relative',
 				//}}
 			>
-				<div style={{
-					'margin-bottom':'20px',
-					'position':'relative',
-					width:'300px',
-					margin:'auto',
-				}}>
+				<div 
+					className={ProfileMenuStyles.toleranceSettings_div}
+				>
 					<div className={ProfileMenuStyles.tolerancePresetContainer_div}>
 						<div className={ProfileMenuStyles.tolerancePreset_div}>
 							<TolerancePresets props={{
@@ -559,13 +627,14 @@ class ToleranceSettings extends React.Component{
 											<Ruler props={{
 												ticks: this.props.ticks,
 												scale: this.props.scale,
-												measurement: this.props.displayedProfileData[field]
+												measurement: this.props.displayedProfileData[field],
+												isUnitCm: this.props.units === 'cm'
 											}} />							
 											<div 
 												className={ProfileMenuStyles.measurementValue_div} 
 												style={{
 													width: `calc(100%/${this.props.ticks.length - 1})`,
-													//width: 'var(--mvalue-width)',// `${this.tickPixelDelta}`,
+													//width: 'var(--mvalue-width)',// `${this.props.tickPixelDelta}`,
 													left: `calc(50% - 100%/${this.props.ticks.length - 1}/2 + 2*var(--tick-border-width))`,
 												}}>
 												{this.props.displayedProfileData[field]}
@@ -576,27 +645,117 @@ class ToleranceSettings extends React.Component{
 							}
 						</div>
 					</div>
-					
+
+
+					{/*TOLERANCE MIN & MAX TICKS*/
+						(({minTolVal, maxTolVal}) => (
+							<React.Fragment>
+								<div
+									className={ProfileMenuStyles.minMaxMarker_div} 
+									style={
+										this.state.minGrabbedSlider === this.props.selectedField ? 
+											({left: `${this.props.minTolerances[this.props.selectedField]*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) : 
+											({left: `${this.props.tickPixelDelta * (this.props.minTolerances[this.props.selectedField]) - this.slideWidth}px`, transition: 'left 150ms ease-in-out'})
+									}
+								>
+									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
+										<div className={ProfileMenuStyles.minMaxIndicator_div} >
+											{minTolVal}
+										</div>
+									</div>
+								</div>
+								<div
+									className={ProfileMenuStyles.minMaxMarker_div} 
+									style={
+										this.state.maxGrabbedSlider === this.props.selectedField ? 
+											({left: `${(this.props.maxTolerances[this.props.selectedField])*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) :
+											({left: `${this.props.tickPixelDelta * (this.props.maxTolerances[this.props.selectedField]) - this.slideWidth}px` , transition: 'left 150ms ease-in-out'})
+									}
+								>
+									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
+										<div className={ProfileMenuStyles.minMaxIndicator_div} >
+											{maxTolVal}
+										</div>
+									</div>
+								</div>
+							</React.Fragment>
+						))(this.props.getToleranceValues(this.props.selectedField, this.props.units))
+					}
+
+
 					<div className={ProfileMenuStyles.toleranceControllersContainer_div}>
-						<div className={ProfileMenuStyles.toleranceController_div}>
+						<div 
+							style={{'touch-action': 'pan-y'}}
+							className={ProfileMenuStyles.toleranceController_div}
+							ref={this.getToleranceControllerRef}
+						>
 							{
 								Object.keys(this.props.minTolerances).map(field => {
-									var {minTolVal, maxTolVal} = this.props.getToleranceValues(field);
+
+									var {minTolVal, maxTolVal} = this.props.getToleranceValues(field, this.props.units);
+
 									return(
-										<div className={ProfileMenuStyles.sliderContainer_div}>											
+										<div 
+											className={ProfileMenuStyles.sliderContainer_div}
+											onPointerDown={(event) => this.props.selectToleranceField(field)}
+										>											
 											<div className={ProfileMenuStyles.slideLabel}>
 												{field}
 											</div>
-	
+
+
+											{/*TOLERANCE OUT-OF-LIMITS SHADING*/}
+											<div
+												className={ProfileMenuStyles.rangeHighlight_div}
+												style={{
+													...(this.state.minGrabbedSlider === field ? 
+														({
+															left: '0px',
+															right: `calc(${((this.props.ticks.length - 1)*this.props.tickPixelDelta) - (this.props.minTolerances[field]*this.props.tickPixelDelta + this.state.deltaX)}px - var(--range-highlight-offset))`, 
+															transition: 'none',
+														}) : 
+														({
+															left: '0px',
+															right: `calc(${((this.props.ticks.length - 1)*this.props.tickPixelDelta) - (this.props.tickPixelDelta * (this.props.minTolerances[field]) - this.slideWidth)}px - var(--range-highlight-offset))`, 
+															transition: 'left 150ms ease-in-out',
+														})),
+												}}
+											>
+											</div>
+											<div
+												className={ProfileMenuStyles.rangeHighlight_div}
+												style={{
+													...(this.state.maxGrabbedSlider === field ? 
+														({
+															right: '0px',
+															left: `calc(${(this.props.maxTolerances[field])*this.props.tickPixelDelta + this.state.deltaX}px + var(--range-highlight-offset))`, 
+															transition: 'none',
+														}) : 
+														({
+															right: '0px',
+															left: `calc(${this.props.tickPixelDelta * (this.props.maxTolerances[field]) - this.slideWidth}px + var(--range-highlight-offset))`, 
+															transition: 'left 150ms ease-in-out',
+														})),
+												}}
+											>
+											</div> 
+
+
+											{/*TOLERANCE MIN & MAX SLIDERS*/}
 											<div 
 												id={field} 
 												className={ProfileMenuStyles.minSlider_div}
-												onMouseDown={(e) => this._sliderGrabbed(e, field, true)}
+												//onMouseDown={(e) => this._sliderGrabbed(e, field, true)}
+												onPointerDown={(e) => this._sliderGrabbed(e, field,  true, this.toleranceControllerRef)}
+												//onTouchStart={(e) => {
+												//	this.props.handleTouchStart(e, field, true);
+												//	//this._sliderGrabbed(e, field, true);
+												//}}
 												//onMouseUp={(e) => this._sliderReleased(e, true)}
 												style={
 													this.state.minGrabbedSlider === field ? 
-														({left: `${this.props.minTolerances[field]*this.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) : 
-														({left: `${this.tickPixelDelta * (this.props.minTolerances[field]) - this.slideWidth}px`, transition: 'left 150ms ease-in-out'})
+														({left: `${this.props.minTolerances[field]*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) : 
+														({left: `${this.props.tickPixelDelta * (this.props.minTolerances[field]) - this.slideWidth}px`, transition: 'left 150ms ease-in-out'})
 												}
 											>
 												<div>
@@ -607,12 +766,17 @@ class ToleranceSettings extends React.Component{
 											<div 
 												id={field} 
 												className={ProfileMenuStyles.maxSlider_div}
-												onMouseDown={(e) => this._sliderGrabbed(e, field, false)}
+												//onMouseDown={(e) => this._sliderGrabbed(e, field, false)}
+												onPointerDown={(e) => this._sliderGrabbed(e, field, false, this.toleranceControllerRef)}
+												//onTouchStart={(e) => {
+												//	this.props.handleTouchStart(e);
+												//	this._sliderGrabbed(e, field, true);
+												//}}
 												//onMouseUp={(e) => this._sliderReleased(e, false)}
 												style={
 													this.state.maxGrabbedSlider === field ? 
-														({left: `${(this.props.maxTolerances[field])*this.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) :
-														({left: `${this.tickPixelDelta * (this.props.maxTolerances[field]) - this.slideWidth}px` , transition: 'left 150ms ease-in-out'})
+														({left: `${(this.props.maxTolerances[field])*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) :
+														({left: `${this.props.tickPixelDelta * (this.props.maxTolerances[field]) - this.slideWidth}px` , transition: 'left 150ms ease-in-out'})
 												}
 											>
 												<div>
@@ -621,7 +785,9 @@ class ToleranceSettings extends React.Component{
 													</div>
 												</div>
 											</div>
-	
+
+											
+											{/*TOLERANCE MIN & MAX VALUES (displayed on desktop)*/}
 											<div className={ProfileMenuStyles.slideValueRange_div}>
 												<div className={ProfileMenuStyles.slideValueMin_div}>
 													{minTolVal}
@@ -668,7 +834,7 @@ export function camelize(str){
 * Returns the min and max tolerances in ticks
 */
 //
-//function getToleranceMinMax(minPrefix, maxPrefix, toleranceKeys, scale, ticks, toleranceObj, userMetricObj, decimals){
+//function getMinAndMaxToleranceTicks(minPrefix, maxPrefix, toleranceKeys, scale, ticks, toleranceObj, userMetricObj, decimals){
 //	let minToleranceFields = {};
 //	let maxToleranceFields = {};
 //	let minPrefixLength = minPrefix.length;
@@ -755,35 +921,72 @@ export default class ProfileMenu extends React.Component{
 		this.menuPage1 = 'Measurements';
 		this.menuPage2 = 'Tolerance';
 		this.decimals = 1;
-		this.scaleIn = 0.5;
+		this.scaleIn = 0.25;
 		this.scaleCm = 0.5;//convertInToCm(this.scaleIn);
-		this.ticksIn = [0,1,2,3,4,4,5,6,7,8];
-		this.ticksCm = [];
-		this.scale = this.scaleCm;	
-		let leftRangeIn = this.scale*(this.ticksIn.length - 2)/2;
-		let leftRangeCm = convertInToCm(leftRangeIn);
-		let lengthTicksCm = 2*(leftRangeCm/this.scaleCm + 1)
 
-		for(let tick = 0; tick < (lengthTicksCm - 1); tick++){
-			this.ticksCm = [...this.ticksCm, (tick >= (lengthTicksCm/2 - 1) ? tick - 1 : tick)];
+		const generateTicksFromRef = (range) => {
+			let ticks = [];
+
+			for(let tick = 0; tick < (range - 1); tick++){
+				ticks = [...ticks, (tick >= (range/2 - 1) ? tick - 1 : tick)];
+			}
+
+			return ticks;
 		}
 
-		this.ticks = this.ticksCm;//[0,1,2,3,3,4,5,6,7,8];	
-		//used to get actual min/max tolerance values during preset selection and slider movemnt
+		const referenceTicks = [0,1,2,3,4,4,5,6,7,8]; 
+
+		switch(true){
+			//set ticksIn to referenceTicks and generate ticksCm
+			case true://this.scaleIn >= this.scaleCm:
+				this.ticksIn = referenceTicks;
+				let leftRangeCm = convertInToCm(this.scaleCm*(this.ticksIn.length - 2)/2);
+				let fullRangeCm = 2*(leftRangeCm/this.scaleCm + 1);				
+				this.ticksCm = generateTicksFromRef(fullRangeCm);
+				break;
+
+			//set ticksCm to referenceTicks and generate ticksIn
+			case this.scaleIn < this.scaleCm:
+				this.ticksCm = referenceTicks;
+				let leftRangeIn = convertCmToIn(this.scaleIn*(this.ticksCm.length - 2)/2);
+				let fullRangeIn = 2*(leftRangeIn/this.scaleIn + 1);				
+				this.ticksIn = generateTicksFromRef(fullRangeIn);
+				break;
+
+			default:
+				break;
+		}
+
+		this.scale = this.scaleCm;	
+		//let leftRangeIn = this.scaleIn*(this.ticksIn.length - 2)/2;
+		////let leftRangeCm = convertInToCm(this.scaleCm*(this.ticksIn.length - 2)/2);
+		//let leftRangeCm = convertInToCm(this.scaleCm*(this.ticksIn.length - 2)/2);
+		//let lengthTicksCm = 2*(leftRangeCm/this.scaleCm + 1)
+//
+		//for(let tick = 0; tick < (lengthTicksCm - 1); tick++){
+		//	this.ticksCm = [...this.ticksCm, (tick >= (lengthTicksCm/2 - 1) ? tick - 1 : tick)];
+		//}
+
+		this.ticks = this.ticksCm;	//[0,1,2,3,3,4,5,6,7,8];
+
+		// variables used to get actual min/max tolerance values during preset selection and slider movemnt
 		this.leftCenterTick = this.ticks.length/2 - 1; 
 		this.rightCenterTick = this.ticks.length/2;
+
 		this.presets = {
 			preset1: 'Tight',
 			preset2: 'Fit',
 			preset3: 'Loose',
 		}
 
-		//global touch variables
-		this.ongoingTouches = [];
+		this.ongoingTouches = [];	//global touch variables (currently not used)
+
 		this.minSwipeX = 10; 		//min number of pixels to swipe before view starts moving.
 		this.maxSwipeX = 200;		//max number of pixels to track before view slides over completely.
 		this.maxVelocityX = 100;	//max delta x between events before view slides over completely.
 		this.velX = 0;
+
+		this.inputRefs = [];		//referenct to input elements
 
 		//object methods
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
@@ -800,7 +1003,7 @@ export default class ProfileMenu extends React.Component{
 		this._handlePresetClicked = this._handlePresetClicked.bind(this);
 		this.setPresetTolerances = this.setPresetTolerances.bind(this);
 		this.updateTolerances = this.updateTolerances.bind(this);
-		this.getToleranceMinMax = this.getToleranceMinMax.bind(this);
+		this.getMinAndMaxToleranceTicks = this.getMinAndMaxToleranceTicks.bind(this);
 		this.updateWidth = this.updateWidth.bind(this);
 		this.getStateIniData = this.getStateIniData.bind(this);
 
@@ -810,20 +1013,30 @@ export default class ProfileMenu extends React.Component{
 		this._handleTouchCancel = this._handleTouchCancel.bind(this);
 		this.setSwipeableStyles = this.setSwipeableStyles.bind(this);
 
+		this.getToleranceControllerRef = this.getToleranceControllerRef.bind(this);
+		this.selectToleranceField = this.selectToleranceField.bind(this);
+		this.setupInputRef = this.setupInputRef.bind(this);
+		this.convertTickToTol = this.convertTickToTol.bind(this);
 
-		var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData } = this.getStateIniData();
+		var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData } = this.getStateIniData();
 
 		this.recentProfileIni = false;
 
 		this.state = {
+			...this.state,
 			minTolerances: minToleranceFields,
 			maxTolerances: maxToleranceFields,
-			'prevSelectedField':'',
-			'selectedField':'',
-			'fieldListTitle':this.menuPage1,
+			prevSelectedField: '',
+			selectedField: '',
+			fieldListTitle: this.menuPage1,
 			units: 'cm',
-			gridWidth:360,
-			'profileData':{
+			gridWidth: 360,
+			hasFieldChanged: false,
+			previousCursorPos: {
+				selectionStart: null,
+				selectionEnd: null, 
+			},
+			profileData: {
 				'username': this.profile !== undefined ? this.profile.username : null,
 
 				userMetricsDto: {
@@ -845,7 +1058,8 @@ export default class ProfileMenu extends React.Component{
 			initialTouches:[],
 			isMeasurement: true,
 			toggle:false,
-			displayedProfileData
+			displayedProfileData,
+			currentToleranceData,
 		}
 	}
 
@@ -878,12 +1092,45 @@ export default class ProfileMenu extends React.Component{
 
 		var minToleranceFields = {};
 		var maxToleranceFields = {};
-		let {iniMeasurements, displayedProfileData} = getAccurateAndDisplayMeasurements(this.props.test, this.filteredUserMetrics, this.decimals, this.scale)
+		var {iniMeasurements, displayedProfileData} = getAccurateAndDisplayMeasurements(this.props.test, this.filteredUserMetrics, this.decimals, this.scale)
+
+		var toleranceDto = {
+			...(
+				this.props.addedProfile !== undefined ? 
+					this.props.addedProfile.toleranceDto :
+					this.props.profile !== undefined ? 
+						this.props.profile.toleranceDto :
+						({}) 
+			),
+		}
+
+		//Build currentToleranceData object from toleranceDto in redux state 
+
+		var currentToleranceData = {
+			minTolerances:{},
+			maxTolerances:{},
+		}
+
+		var prefix;
+
+		for(let key of Object.keys(toleranceDto)){
+			if(key !== 'height' && key !== 'id'){
+				//extract min or max prefix from key
+				prefix = key.substring(0,3);
+				currentToleranceData = {
+					...currentToleranceData,
+					[`${prefix}Tolerances`]:{
+						...currentToleranceData[`${prefix}Tolerances`],
+						[camelize(key.slice(prefix.length))]: toleranceDto[key],
+					}
+				}
+			}
+		}
 
 		if(!this.props.test){
 			//let toleranceKeys = Object.keys(this.profile.toleranceDto);
-			//var { minToleranceFields, maxToleranceFields } = getToleranceMinMax('min', 'max', toleranceKeys, this.scale, this.ticks, this.profile.toleranceDto, this.profile.userMetricsDto, this.decimals);
-			var { minToleranceFields, maxToleranceFields } = this.getToleranceMinMax('min', 'max');
+			//var { minToleranceFields, maxToleranceFields } = getMinAndMaxToleranceTicks('min', 'max', toleranceKeys, this.scale, this.ticks, this.profile.toleranceDto, this.profile.userMetricsDto, this.decimals);
+			var { minToleranceFields, maxToleranceFields } = this.getMinAndMaxToleranceTicks(currentToleranceData);
 		}else{	
 			for(let field of Object.keys(displayedProfileData)){
 				//values int ticks indecese 
@@ -906,119 +1153,285 @@ export default class ProfileMenu extends React.Component{
 				}) :
 				({});
 
-		return { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData };
+		return { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData };
 	}
 
-	updateTolerances(toleranceType, key, value){
+	/*
+	*	Function invoked in response to change tolerance slides
+	*/
+	updateTolerances(units, isMinTolerance, field=null, tick=null){
+
+		if(typeof isMinTolerance !== "boolean"){
+			console.error("isMinTolerance must be specified");
+			return;
+		}
+
+		var toleranceType = isMinTolerance ? "minTolerances" : "maxTolerances";
+		var minTick = isMinTolerance ? tick : null;
+		var maxTick = !isMinTolerance ? tick : null;
+		//var {minTolVal, maxTolVal} = getToleranceValues(field, units);
+
+		if(units === 'in'){
+			var {
+				minTolVal,
+				maxTolVal,
+			} = this.convertTickToTol(minTick, maxTick, this.scaleIn, parseFloat(this.state.displayedProfileData[field]));
+
+			minTolVal = minTolVal ? convertInToCm(minTolVal) : null;
+			maxTolVal = maxTolVal ? convertInToCm(maxTolVal) : null;
+		}
+
+		else if(units === 'cm'){
+			var {
+				minTolVal,
+				maxTolVal,
+			} = this.convertTickToTol(minTick, maxTick, this.scaleCm, parseFloat(this.state.profileData.userMetricsDto[field]));	
+		}
+
+		//var {
+		//	prefix,
+		//	toleranceValue,
+		//} = this.isMinTolerance ? ({prefix: 'min', toleranceValue: minTolVal}) : ({prefix: 'max', toleranceValue: maxTolVal});
+
 		this.setState(prevState => ({
 			[toleranceType]:{
 				...this.state[toleranceType],
-				[key]:value
+				[field]:tick
+			},
+			/*displayedToleranceData:{
+				...prevState.displayedToleranceData,
+				[toleranceType]:{
+					...prevState.displayedToleranceData[toleranceType],
+					...{
+						[field]: (isMinTolerance ? minTolVal : maxTolVal)
+					},
+				}
+			},*/
+			//currentToleranceData: {
+			//	...prevState.currentToleranceData,
+			//	[`${prefix}${field.charAt(0).toUpperCase() + field.slice(1)}`]: toleranceValue,
+			//},
+			currentToleranceData: {				
+				...prevState.currentToleranceData,
+				[toleranceType]:{
+					...prevState.currentToleranceData[toleranceType],
+					...{
+						[field]: (isMinTolerance ? minTolVal : maxTolVal)
+					},
+				}
 			}
 		}));
 	}
 
-	setPresetTolerances(preset){		
-		let minToleranceFields = {};
-		let maxToleranceFields = {};
-		let minToleranceValue = 0;
-		let maxToleranceValue = this.ticks.length-1;
+	componentDidUpdate(){
+		//	Becuase fields undergo unit conversion inbetween renders, React will override cursor position to the 
+		//	end of the number, so restore the previous cursor position here, if the value was just modified.
+		if(this.state.hasFieldChanged){
+			this.inputRefs[this.state.selectedField].selectionStart = this.state.previousCursorPos.selectionStart;
+			this.inputRefs[this.state.selectedField].selectionEnd = this.state.previousCursorPos.selectionEnd;
+		}
+	}
+
+	setPresetTolerances(preset, units){		
+		var minTicks = {};
+		var maxTicks = {};
+		var minTolerances = {};
+		var maxTolerances = {};
+		var minTick = 0;
+		var maxTick = this.ticks.length-1;
+		var scale = units === 'cm' ? this.scaleCm : this.scaleIn;
+		var shownDataVal = units === 'cm' ? this.state.profileData.userMetricsDto : this.state.displayedProfileData;
+
 
 		switch(true){
 			//Tight
 			case preset === this.presets.preset1:
-				minToleranceValue = this.leftCenterTick - 2;//2;
-				maxToleranceValue = this.leftCenterTick - 1;//3;
+				minTick = this.leftCenterTick - 2;//2;
+				maxTick = this.leftCenterTick - 1;//3;
 				break;
 			//Fit
 			case preset === this.presets.preset2:
-				minToleranceValue = this.leftCenterTick;//4;
-				maxToleranceValue = this.rightCenterTick;//5;
+				minTick = this.leftCenterTick;//4;
+				maxTick = this.rightCenterTick;//5;
 				break;
 			//Loose
 			case preset === this.presets.preset3:
-				minToleranceValue = this.rightCenterTick + 1;//6;
-				maxToleranceValue = this.rightCenterTick + 2;//7;
+				minTick = this.rightCenterTick + 1;//6;
+				maxTick = this.rightCenterTick + 2;//7;
 				break;
 		}
 
-		for(let field of Object.keys(this.state.displayedProfileData)){
+		for(let field of Object.keys(shownDataVal)){
 			//values int ticks indecese 
 			if(field != 'height'){
-				minToleranceFields = Object.assign({}, minToleranceFields, {[field]: minToleranceValue });
-				maxToleranceFields = Object.assign({}, maxToleranceFields, {[field]: maxToleranceValue });
+				minTicks = {...minTicks, ...{[field]: minTick }};
+				maxTicks = {...maxTicks, ...{[field]: maxTick }};
+				
+				var {minTolVal, maxTolVal} = this.convertTickToTol(minTick, maxTick, scale, shownDataVal[field]);
+				minTolerances = {...minTolerances, ...{[field] : minTolVal} };
+				maxTolerances = {...maxTolerances, ...{[field] : maxTolVal} };				
 			}
 		}
 
 		return({
 			minTolerances:{
-				...minToleranceFields
+				...minTicks
 			},
 			maxTolerances:{
-				...maxToleranceFields
+				...maxTicks
 			},
+
+			currentToleranceData:{
+				minTolerances,
+				maxTolerances,
+			}
 		});
 	}
 
 	/*
 	*	Gets the tolerance min and max values from the tick information stored in this components state.
-	*	field: the key of tolerance object
-	*		prevUnits:  indicates the units being switched from when user toggles units
-	*		retrieveConvertedValues 
+	*	@param field: 		The key of tolerance object
+	*	@param prevUnits: 	indicates the units being switched from when user toggles units
+	*						retrieveConvertedValues 
 	*/	
-	getToleranceValues(field, prevUnits=null/*, isMinTolerance*/){
+	getToleranceValues(field, units=null/*, isMinTolerance*/){
 		//let value = 0;
-		const getDeltaTick = (tickOrigin, tolerance) => (tolerance - tickOrigin);
+		//const getDeltaTick = (tickOrigin, tolerance) => (tolerance - tickOrigin);
 		var shownDataVal;
+		var minTolVal;
+		var maxTolVal;
 
 		//If prevUnits is provided this method was invoked from a unit switch operation.  In this case, the prevUnits must be used to 
 		//determine if this is a cm to in transition and the current displayedProfileData object needs to be converted to cm.
-		shownDataVal = prevUnits === 'in' ?
-			parseInt(convertInToCm(this.state.displayedProfileData[field], 10)) :
-			parseFloat(this.state.displayedProfileData[field], 10);
+		//shownDataVal = units === 'cm' ?
+		//	parseInt(convertInToCm(this.state.displayedProfileData[field], 10)) :
+		//	parseFloat(this.state.displayedProfileData[field], 10);
 
-		console.log('shownDataVal = ', shownDataVal);
+		//the default units of currentToleranceData is centimeters, so just reference whats saved in the component state.
+		if(units === 'cm'){
+			shownDataVal = parseFloat(this.state.profileData.userMetricsDto[field], 10)
+			let {
+				minTolerances,
+				maxTolerances,
+			} = this.state.currentToleranceData;
 
-		var deltaTickMin = 0;
-		var deltaTickMax = 0;
-		var minTolVal;
-		var maxTolVal;
-		var minTolState = this.state.minTolerances[field];
-		var maxTolState = this.state.maxTolerances[field];
-
-		//MinTol slider on the right side of measured value
-		if(minTolState > this.leftCenterTick){
-			deltaTickMin = getDeltaTick(this.rightCenterTick, minTolState);
-		}
-		//MinTol slider on the left side of measured value
-		else{
-			deltaTickMin = getDeltaTick(this.leftCenterTick, minTolState);
+			minTolVal = minTolerances ? minTolerances[field] : null;
+			maxTolVal = maxTolerances ? maxTolerances[field] : null;
 		}
 
-		//MaxTol slider on the left side of measured value
-		if(maxTolState < this.rightCenterTick){
-			deltaTickMax = getDeltaTick(this.leftCenterTick, maxTolState);
-		}
-		//MaxTol slider on the right side of measured value
-		else{
-			deltaTickMax = getDeltaTick(this.rightCenterTick, maxTolState);
+		//compute min and max tolerance values (in inches) from the min and max ticks stored in the component state
+		else if(units === 'in'){
+			shownDataVal= parseFloat(this.state.displayedProfileData[field], 10);
+			var {minTolVal, maxTolVal} = this.convertTickToTol(this.state.minTolerances[field], this.state.maxTolerances[field], this.scaleIn, shownDataVal);
+//
+			/*var deltaTickMin = 0;
+			var deltaTickMax = 0;
+			var minTolTick = this.state.minTolerances[field];
+			var maxTolTick = this.state.maxTolerances[field];
+	
+			//MinTol slider on the right side of measured value
+			if(minTolTick > this.leftCenterTick){
+				deltaTickMin = getDeltaTick(this.rightCenterTick, minTolTick);
+			}
+			//MinTol slider on the left side of measured value
+			else{
+				deltaTickMin = getDeltaTick(this.leftCenterTick, minTolTick);
+			}
+	
+			//MaxTol slider on the left side of measured value
+			if(maxTolTick < this.rightCenterTick){
+				deltaTickMax = getDeltaTick(this.leftCenterTick, maxTolTick);
+			}
+			//MaxTol slider on the right side of measured value
+			else{
+				deltaTickMax = getDeltaTick(this.rightCenterTick, maxTolTick);
+			}
+	
+			minTolVal = shownDataVal + deltaTickMin * this.scaleCm;
+			maxTolVal = shownDataVal + deltaTickMax * this.scaleCm;*/
+//
 		}
 
-		minTolVal = shownDataVal + deltaTickMin * this.scaleCm;
-		maxTolVal = shownDataVal + deltaTickMax * this.scaleCm;
+		//console.log('shownDataVal = ', shownDataVal);
+
 
 		return {minTolVal, maxTolVal};
 	}
 
+	convertTickToTol(minTick, maxTick, scale, measurement){
+		var deltaTickMin = 0;
+		var deltaTickMax = 0;
+		var minTolVal = null;
+		var maxTolVal = null;
+
+		const getDeltaTick = (tickOrigin, tolerance) => (tolerance - tickOrigin);
+	
+		if(minTick){
+			//MinTol slider on the right side of measured value
+			if(minTick > this.leftCenterTick){
+				deltaTickMin = getDeltaTick(this.rightCenterTick, minTick);
+			}
+			//MinTol slider on the left side of measured value
+			else{
+				deltaTickMin = getDeltaTick(this.leftCenterTick, minTick);
+			}
+		}
+	
+		if(maxTick){
+			//MaxTol slider on the left side of measured value
+			if(maxTick < this.rightCenterTick){
+				deltaTickMax = getDeltaTick(this.leftCenterTick, maxTick);
+			}
+			//MaxTol slider on the right side of measured value
+			else{
+				deltaTickMax = getDeltaTick(this.rightCenterTick, maxTick);
+			}
+		}
+	
+		minTolVal = measurement + deltaTickMin * scale;
+		maxTolVal = measurement + deltaTickMax * scale;
+
+		return({
+			minTolVal,
+			maxTolVal,
+		});
+	}
+
 	/*
-	* Returns the min and max tolerances in ticks
+	* Returns the min and max tolerances in ticks.
+	*
+	* @param 	{object} 		currentToleranceData		the currently persisted tolerance data in cm
+	* @param 	{function}		unitConverter 				function invoked to convert cm. to inches.
+	* @param	{int} 			nextLeftCenterTick			passed when switchign units.  Represents the left center tick value of the units being toggled to.
+	* @param	{int} 			nextRightCenterTick 		passed when switchign units.  Represents the right center tick value of the units being toggled to.
+	* @param 	{string} 		minPrefix 					specify the prefix that identifies min tolerance values (default 'min')
+	* @param 	{string}		maxPrefix 					specify the prefix that identifies max tolerance values (default 'max')
+	*
+	* @return 	{object}		An object with keys minToleranceFields and maxToleranceFields, each of which have object values containing min and max tolerance properties respectively.  
 	*/
-	getToleranceMinMax(minPrefix, maxPrefix){
+	getMinAndMaxToleranceTicks(
+		currentToleranceData, 
+		unitConverter, 
+		nextLeftCenterTick = this.leftCenterTick, 
+		nextRightCenterTick = this.rightCenterTick,
+		//ticks, 
+		unitScale=0.5,
+		minPrefix='min', 
+		maxPrefix='max',
+	){
 		let minToleranceFields = {};
 		let maxToleranceFields = {};
 		let minPrefixLength = minPrefix.length;
 		let maxPrefixLength = maxPrefix.length;
 		var { userMetricsDto, toleranceDto } = this.profile !== undefined ? this.profile : ({ userMetricsDto: {}, toleranceDto: {} });
+
+		var {
+			currentToleranceData,
+		} = currentToleranceData ? 
+			{currentToleranceData: currentToleranceData} : 
+			this.state ? 
+				this.state : 
+				({currentToleranceData:{}});
 
 		const calcTicks = (deltaTick, originTick) => {
 			return (deltaTick + originTick);
@@ -1031,29 +1444,55 @@ export default class ProfileMenu extends React.Component{
 		const calcMaxTicks = (deltaTick, originTick) => {
 			return deltaTick >= 0 ? (deltaTick + originTick / 2 - 1) : (deltaTick + originTick / 2);
 		}
-	
-		Object.keys(toleranceDto).map(key => {
-			//Ignore height
-			if(key !== 'height'){
-	
-				if(key.startsWith(minPrefix)){
-					var keyWithoutPrefix = camelize(key.slice(minPrefixLength));
-					var valueDiff = toleranceDto[key] - roundTo(userMetricsDto[keyWithoutPrefix], this.scale, this.decimals);	
-					var tickDiff = valueDiff / this.scale;
-					var centerTick = (toleranceDto[key] / this.scale) === this.rightCenterTick ? this.rightCenterTick : this.leftCenterTick;
 
-					minToleranceFields[keyWithoutPrefix] = calcTicks(tickDiff, centerTick);
-				}
-				else if(key.startsWith(maxPrefix)){
-					var keyWithoutPrefix = camelize(key.slice(maxPrefixLength));
-					var valueDiff = toleranceDto[key] - roundTo(userMetricsDto[keyWithoutPrefix], this.scale, this.decimals);
-					var tickDiff = valueDiff / this.scale;
-					var centerTick = (toleranceDto[key] / this.scale) === this.leftCenterTick ? this.leftCenterTick : this.rightCenterTick;
+		//const leftRangTickCount = ticks.length / 2;
+		//const calcAllowedMin = (centerVal) => (centerVal - (unitScale * (leftRangTickCount - 1)));
+		//const calcAllowedMax = (centerVal) => (centerVal + (unitScale * (leftRangTickCount - 1)));
+	
+		for(var selector of Object.keys(currentToleranceData)){
+			Object.keys(currentToleranceData[selector]).map(key => {
+				//Ignore height
+				if(key !== 'height'){
 
-					maxToleranceFields[keyWithoutPrefix] = calcTicks(tickDiff, centerTick);
+					//if unitConverter is defined userMetricDto[key] must be converted from cm to in.
+					var metric = unitConverter ? unitConverter(userMetricsDto[key]) : userMetricsDto[key];
+					var tolerance = unitConverter ? unitConverter(currentToleranceData[selector][key]) : currentToleranceData[selector][key];
+					//const allowedMinTolerance = calcAllowedMin(metric);
+					//const allowedMaxTolerance = calcAllowedMax(metric);
+					
+					//MIN
+					if(selector.startsWith(minPrefix)){
+						var keyWithoutPrefix = camelize(key.slice(minPrefixLength));
+
+						var valueDiff = tolerance - metric;	
+						var tickDiff = parseInt(roundTo((valueDiff / unitScale), 1, 0));
+						
+						//	Ticks immediately left or right of the corresponding userMetricDto value, represent equal values. 
+						//	Typically the left center tick is considered the origin reference for determining minTolerance 
+						//	values, unless the minToleranceValue lands on the right center tick. In that case the tick origin 
+						//	reference (centerTick) needs to be set to the right center tick. 
+						
+						//var centerTick = nextLeftCenterTick;
+						var centerTick = ((valueDiff / unitScale) + nextLeftCenterTick) >= nextRightCenterTick ? nextRightCenterTick : nextLeftCenterTick;
+						var minTick = calcTicks(tickDiff, centerTick)
+						minToleranceFields[key] = minTick >= 0 ? minTick : 0;
+					}
+	
+					//MAX
+					else if(selector.startsWith(maxPrefix)){
+						var keyWithoutPrefix = camelize(key.slice(maxPrefixLength));
+
+						//var valueDiff = tolerance - roundTo(metric, unitScale, this.decimals);
+						var valueDiff = tolerance - metric;
+						var tickDiff = parseInt(roundTo((valueDiff / unitScale), 1, 0));
+
+						var centerTick = ((valueDiff / unitScale) + nextLeftCenterTick) <= nextLeftCenterTick ? nextLeftCenterTick : nextRightCenterTick;
+						var maxTick = calcTicks(tickDiff, centerTick)
+						maxToleranceFields[key] = maxTick <= 2*nextLeftCenterTick ? maxTick : (2*nextLeftCenterTick + 1);
+					}
 				}
-			}
-		});
+			});
+		}
 	
 		return { minToleranceFields, maxToleranceFields };
 	}
@@ -1062,19 +1501,41 @@ export default class ProfileMenu extends React.Component{
 		console.log('_presetClicked')
 		this.setState(prevState => ({
 			selectedPreset: label,
-			...this.setPresetTolerances(label)
+			...this.setPresetTolerances(label, prevState.units)
 		}));
 	}
 
 	_handleInputFieldChange(e, field){
+
+		//console.table(Object.keys(this.inputRefs).map(field => {
+//
+		//	//var key = Object.keys(refObj)[0];
+		//	//return({[key]: `selectionStart: ${refObj[key].selectionStart}, selectionEnd: ${refObj[key].selectionEnd}, selectionDirection: ${refObj[key].selectionDirection}` });
+		//	return({ [field]: `selectionStart: ${this.inputRefs[field].selectionStart}, selectionEnd: ${this.inputRefs[field].selectionEnd}, selectionDirection: ${this.inputRefs[field].selectionDirection}` });
+		//}, this));
+
+		console.log(`${field}: {selectionStart: ${this.inputRefs[field].selectionStart}, selectionEnd: ${this.inputRefs[field].selectionEnd}, selectionDirection: ${this.inputRefs[field].selectionDirection}}`)
+		
+		//convert text to float and do any other processing
+		var value = parseFloat(e.target.value);
+
 		this.setState(prevState => ({
+			hasFieldChanged: true,
+			previousCursorPos: {
+				selectionStart: this.inputRefs[field].selectionStart,
+				selectionEnd: this.inputRefs[field].selectionEnd,
+			},
+			displayedProfileData: {
+				...prevState.displayedProfileData,
+				...(prevState.units === 'in' ? ({[field]: value}) : ({}))
+			},
 			'profileData':{
 				...prevState.profileData,				
 				userMetricsDto:{
 					...prevState.profileData.userMetricsDto,
 					[field]:parseFloat(prevState.units === 'cm' ? 
-						roundTo(e.target.value, this.scaleCm) : 
-						roundTo(convertInToCm(e.target.value), this.scaleCm))
+						roundTo(value, this.scaleCm) : 
+						roundTo(convertInToCm(value), this.scaleCm))
 				}
 			}
 		}));
@@ -1105,31 +1566,48 @@ export default class ProfileMenu extends React.Component{
 	}
 
 	_handleFieldFocus(event){
-		console.log('event.target.name = ', event.target.name)
+
 		this.setState(prevState => {
 
-			let updatedDisplayData =  
-				prevState.selectedField !== 'id' && 
-				prevState.selectedField !== 'country' && 
-				prevState.selectedField !== 'username' && 
-				prevState.selectedField !== 'bodyShape' && 
-				prevState.selectedField !== 'mens' && 
-				prevState.selectedField !== 'womens' &&
-				prevState.selectedField !== '' ? 
-					({ [prevState.selectedField]: (prevState.units === 'cm' ? 
-						parseFloat(prevState.profileData.userMetricsDto[prevState.selectedField].toFixed(this.decimals)) : 
-						parseFloat((prevState.profileData.userMetricsDto[prevState.selectedField] / 2.54).toFixed(this.decimals))
+			const selectedField = event.target.name;
+			const prevSelectedField = prevState.selectedField
+
+			//higher accuracy convertion of source of truth to inches with respect to unselected fields.
+			var selectedFieldData = prevState.units === 'in' ? ({[selectedField]: roundTo(convertCmToIn(prevState.profileData.userMetricsDto[selectedField]), .001, 2)}) : ({});
+
+			var updatedDisplayData =  
+				prevSelectedField !== 'id' && 
+				prevSelectedField !== 'country' && 
+				prevSelectedField !== 'username' && 
+				prevSelectedField !== 'bodyShape' && 
+				prevSelectedField !== 'mens' && 
+				prevSelectedField !== 'womens' &&
+				prevSelectedField !== '' ? 
+					({ [prevSelectedField]: (prevState.units === 'cm' /*&& prevState.hasFieldChanged*/ ? 
+						parseFloat(prevState.profileData.userMetricsDto[prevSelectedField].toFixed(this.decimals)) : 
+						prevState.hasFieldChanged ?
+							parseFloat(convertCmToIn(prevState.profileData.userMetricsDto[prevSelectedField]).toFixed(this.decimals)) :
+							roundTo(convertCmToIn(prevState.profileData.userMetricsDto[prevSelectedField]), this.scaleIn, this.decimals)
 					) }) :
 					({});
+			console.log("previously selectedField = ", prevSelectedField);
 
 			return({
-				selectedField: event.target.name,
+				hasFieldChanged: false,
+				selectedField: selectedField,
 				displayedProfileData:{
 					...prevState.displayedProfileData,
-					...updatedDisplayData
+					...updatedDisplayData,
+					...selectedFieldData,
 				}
 			})
 		});
+	}
+
+	selectToleranceField(name){
+		this.setState(prevState => ({
+			selectedField: name,
+		}))
 	}
 
 	_handleFieldBlur(event){
@@ -1188,24 +1666,38 @@ export default class ProfileMenu extends React.Component{
 			let convertedMinTol;
 			let nextUnits = prevState.units === 'cm' ? 'in' : 'cm';
 			//need to recompute sinc this.leftCenterTick and this.rightCenterTick have not yet been updated to the Inch ruler
-			let leftCenterTickIn = this.ticksIn.length/2 - 1; 
-			let rightCenterTickIn = this.ticksIn.length/2;
+			let leftCenterTick = nextUnits === 'in' ? this.ticksIn.length/2 - 1 : this.ticksCm.length/2 - 1; 
+			let rightCenterTick = nextUnits === 'in' ? this.ticksIn.length/2 : this.ticksCm.length/2;
 
 			const switchUnitSystem = (field, prevScale, nextScale, nextTicks, nextLeftCenterTick, nextRightCenterTick, unitConverter) => {
 				var prevTickRange = (prevState.maxTolerances[field] - prevState.minTolerances[field]);
+
+				var { minToleranceFields, maxToleranceFields } = this.getMinAndMaxToleranceTicks(
+					this.state.currentToleranceData, 
+					(nextUnits === 'in' ? convertCmToIn : null ),
+					nextLeftCenterTick,
+					nextRightCenterTick,
+					(nextUnits === 'in' ? this.scaleIn : this.scaleCm)
+				);
+
+				/*
 				var {minTolVal, maxTolVal} = this.getToleranceValues(field, prevState.units);
+
 				var prevMinMaxRange = unitConverter( prevScale * prevTickRange );
 				var tickRange = Math.round(prevMinMaxRange / nextScale);				
 				tickRange = tickRange === 0 ? 1 : tickRange;
 				var convertedMinTolVal;
+				var convertedMaxTolVal;
 				var measuredVal;
 
 				if(prevState.units === 'cm'){
 					//from the converted tickRange, compute the new min and maxTolerance tick value
-					var convertedMinTolVal = unitConverter(minTolVal);
+					convertedMinTolVal = unitConverter(minTolVal);
+					convertedMaxTolVal = unitConverter(maxTolVal);
 					measuredVal = unitConverter(prevState.profileData.userMetricsDto[field]);
 				}else{
-					convertedMinTolVal = minTolVal;
+					convertedMinTolVal = unitConverter(minTolVal);
+					convertedMaxTolVal = unitConverter(maxTolVal);
 					measuredVal = prevState.profileData.userMetricsDto[field];
 				}
 
@@ -1214,10 +1706,12 @@ export default class ProfileMenu extends React.Component{
 				//	prevState.profileData.userMetricsDto[field];
 
 				//calculate the tick value of the minTolerance on the new unit scale
-				var minTickDelta = ((measuredVal - convertedMinTolVal) / nextScale);
+				var minTickDelta = parseInt((measuredVal - convertedMinTolVal) / nextScale);
+				var maxTickDelta = parseInt((measuredVal - convertedMaxTolVal) / nextScale);
+
 				var minTick = parseInt((nextTicks[nextTicks.length / 2 - 1] - minTickDelta).toFixed());
-				//calculate the maxTick 
-				var maxTick = parseInt((minTick + tickRange).toFixed());
+				//var maxTick = parseInt((minTick + tickRange).toFixed());
+				var maxTick = parseInt((nextTicks[nextTicks.length / 2 - 1] - maxTickDelta).toFixed());
 
 				//Check if minTick is leftCenter tick while max tick is gt. right center tick.  If so, increment minTick and maxTick by 1.
 				//This is done to accomodate for the fact that leftCenterTick and rightCenterTick are the same value.  min/maxTicks need to be
@@ -1240,20 +1734,26 @@ export default class ProfileMenu extends React.Component{
 
 					default:
 						break;
-
-					//huh... thought there were going to be more cases ¯\_(ツ)_/¯
-				}
+				}*/
 
 				//set the new min and max tick values
+				//convertedMaxTol = {
+				//	...convertedMaxTol,
+				//	[field]: maxTick,
+				//};					
+				//convertedMinTol = {
+				//	...convertedMinTol,
+				//	[field]: minTick,
+				//}
+
 				convertedMaxTol = {
 					...convertedMaxTol,
-					[field]: maxTick,
+					[field]: maxToleranceFields[field],
 				};					
 				convertedMinTol = {
 					...convertedMinTol,
-					[field]: minTick,
+					[field]:minToleranceFields[field],
 				}
-
 				//return {convertedMaxTol, convertedMinTol};
 
 			}
@@ -1265,65 +1765,15 @@ export default class ProfileMenu extends React.Component{
 			}
 
 			for(let field of Object.keys(prevState.maxTolerances)){
+
 				if(prevState.units === 'cm'){
-					/*{convertedMaxTol, convertedMinTol} =*/ switchUnitSystem(field, this.scaleCm, this.scaleIn, this.ticksIn, leftCenterTickIn, rightCenterTickIn, convertCmToIn );
+					/*{convertedMaxTol, convertedMinTol} =*/ switchUnitSystem(field, this.scaleCm, this.scaleIn, this.ticksIn, leftCenterTick, rightCenterTick, convertCmToIn );
 				}else{
-					/*{convertedMaxTol, convertedMinTol} = */switchUnitSystem(field, this.scaleIn, this.scaleCm, this.ticksCm, this.leftCenterTick, this.rightCenterTick, convertInToCm );
+					/*{convertedMaxTol, convertedMinTol} = */switchUnitSystem(field, this.scaleIn, this.scaleCm, this.ticksCm, leftCenterTick, rightCenterTick, convertInToCm );
+					/*var minMaxTolerances = this.getMinAndMaxToleranceTicks('min', 'max');
+					convertedMaxTol = minMaxTolerances.maxToleranceFields;
+					convertedMinTol = minMaxTolerances.minToleranceFields;*/
 				}
-				//var prevTickRange = (prevState.maxTolerances[field] - prevState.minTolerances[field]);
-				////Get previous min and max tolerance values
-				//var {minTolVal, maxTolVal} = this.getToleranceValues(field, prevState.units);
-				////var prevMinTolVal = this.getToleranceValues(field, true);
-
-				//if(prevState.units === 'cm'){
-				//	var prevMinMaxRange = convertCmToIn( this.scaleCm * prevTickRange );
-				//	var tickRange = Math.round(prevMinMaxRange / this.scaleIn);
-				//	tickRange = tickRange === 0 ? 1 : tickRange;
-				//	//from the converted tickRange, compute the new min and maxTolerance tick value
-				//	var minTolValIn = convertCmToIn(minTolVal);
-				//	var measuredVal = convertCmToIn(prevState.profileData.userMetricsDto[field]);
-				//	//calculate the tick value of the minTolerance on the new unit scale
-				//	var minTickDelta = ((measuredVal - minTolValIn) / this.scaleIn);
-				//	var minTick = parseInt((this.ticksIn[this.ticksIn.length / 2 - 1] - minTickDelta).toFixed());
-				//	//calculate the maxTick 
-				//	var maxTick = parseInt((minTick + tickRange).toFixed());
-
-				//	//Check if minTick is leftCenter tick while max tick is gt. right center tick.  If so, increment minTick and maxTick by 1.
-				//	//This is done to accomodate for the fact that leftCenterTick and rightCenterTick are the same value.  min/maxTicks need to be
-				//	//incremented or decremented depending on whether they appear above or below the measured value
-				//	var minTickAdjust = minTick >= this.ticksIn.length - 2 ? 0 : 1;
-				//	var maxTickAdjust = maxTick >= this.ticksIn.length - 1 ? 0 : 1;
-				//	switch(true){
-				//		case (minTick === leftCenterTickIn && maxTick > rightCenterTickIn):
-				//			
-				//			minTick += minTickAdjust;
-				//			maxTick += maxTickAdjust;
-				//			break;
-
-				//		case (minTick > rightCenterTickIn):
-				//			minTick += minTickAdjust;
-				//			
-				//		case (maxTick > rightCenterTickIn):
-				//			maxTick += maxTickAdjust;
-
-				//		default:
-				//			break;
-
-				//		//huh... thought there were going to be more cases ¯\_(ツ)_/¯
-				//	}
-
-				//	//set the new min and max tick values
-				//	convertedMaxTol = {
-				//		...convertedMaxTol,
-				//		[field]: maxTick,
-				//	};					
-				//	convertedMinTol = {
-				//		...convertedMinTol,
-				//		[field]: minTick,
-				//	}
-				//}else{
-
-				//}
 			}
 
 			return({
@@ -1355,10 +1805,10 @@ export default class ProfileMenu extends React.Component{
 		}))
 	}
 
-	_handleTouchStart(event){
+	_handleTouchStart(event, onAction){
 		//record position of first touch
 
-		//event.preventDefault();
+		event.preventDefault();
 		console.log('touchstart.');
 		var touches = event.changedTouches;
 
@@ -1370,13 +1820,14 @@ export default class ProfileMenu extends React.Component{
 
 		//save the initial touch info
 		this.setState(prevState => ({
-			initialTouches : [...ongoingTouches],
+			initialTouches : [...this.ongoingTouches],
 		}));
 	}
 
 	_handleTouchMove(event){
 		//update net change in x position of touch
 
+		event.preventDefault();
 		var touches = event.changedTouches;
 		var index = ongoingTouchIndexById(touches[0].identifier);
 		var deltaX = this.ongoingTouches[index].pageX - this.state.ongoingTouches[index];
@@ -1386,10 +1837,10 @@ export default class ProfileMenu extends React.Component{
 		if(Math.abs(deltaX) >  this.minSwipeX && Math.abs(deltaX) < this.maxSwipeX && Math.abs(deltaX) < this.maxVelocityX){
 			//x translate the target element
 			//NOTE:  	not sure how to do this without triggering component re-render on everysingle touchMove, which seems like it would be overkill
-			//			doing nothing fo now
+			//			doing nothing for now
 		}
 
-		//if net change in x is above lideStick threshold,
+		//if net change in x is above slideStick threshold,
 		//then slide element completely and force touchCancel
 		else{
 			//make sure the user is swiping in the correct direction wrt. current view
@@ -1418,11 +1869,23 @@ export default class ProfileMenu extends React.Component{
 	}
 
 	_handleTouchEnd(event){
+		event.preventDefault();
 
 	}
 
 	setSwipeableStyles(div){
 		div ? div.style.display = 'inline-block' : null;
+	}
+
+	getToleranceControllerRef(div){
+		this.toleranceControllerRef = div;
+	}
+
+	setupInputRef(field, input){
+		this.inputRefs = {
+			...this.inputRefs,
+			[field]: input,
+		};
 	}
 
 	render(){
@@ -1442,7 +1905,7 @@ export default class ProfileMenu extends React.Component{
 		//.filter(field => field != 'dateOfBirth');
 
 		if (this.prevProfile !== this.props.profile ){
-			var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData } = this.getStateIniData();
+			var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData } = this.getStateIniData();
 			this.setState(prevState =>({
 				...prevState,
 				minTolerances: minToleranceFields,
@@ -1455,7 +1918,47 @@ export default class ProfileMenu extends React.Component{
 						...iniMeasurements
 					}
 				},
-				displayedProfileData
+				displayedProfileData,
+				currentToleranceData
+			}))
+		}
+
+		//make sure currentToleranceData state is updated with profile.toleranceDto props
+		if(this.props.profile !== undefined && Object.keys(this.state.currentToleranceData).length === 0){
+
+			var {
+				toleranceDto
+			} = this.props.profile;
+
+			var minTolerances = {};
+			var maxTolerances = {};
+			const minPrefix = 'min';
+			const maxPrefix = 'max';
+
+			for(var field of Object.keys(toleranceDto)){
+
+				if(field.startsWith(minPrefix)){
+					//minTolerances = { ...minTolerances, ...{[field]: toleranceDto[field]} }
+					var fieldWithoutPrefix = camelize(field.slice((minPrefix).length));
+					minTolerances = { ...minTolerances, ...{[fieldWithoutPrefix]: toleranceDto[field]} }
+				}
+
+				else if(field.startsWith(maxPrefix)){
+					var fieldWithoutPrefix = camelize(field.slice((maxPrefix).length));
+					maxTolerances = { ...maxTolerances, ...{[fieldWithoutPrefix]: toleranceDto[field]} }
+				}
+
+				else{
+					console.warn("unrecognized substring while building displayed tolerance state");
+				}
+			}
+
+			this.setState(prevState => ({
+				...prevState,
+				currentToleranceData : {
+					minTolerances,
+					maxTolerances,
+				}
 			}))
 		}
 
@@ -1478,21 +1981,57 @@ export default class ProfileMenu extends React.Component{
 		console.log(this.filteredFieldNames);
 		let fieldSet = this.filteredFieldNames.map(field => {
 			//console.log(this.state.profileData[field]);
+			var isSelected = this.state.selectedField === field;
+			var displayedValue = null;
+
+			if(isSelected){
+
+				switch(this.state.units){
+					case 'cm':
+						displayedValue = this.state.profileData.userMetricsDto[field];
+						break;
+					case 'in':
+						displayedValue = this.state.displayedProfileData[field];
+						break;
+					default:
+						break;
+				}
+
+			}else{
+
+				switch(this.state.units){
+					case 'cm':
+						displayedValue = this.state.displayedProfileData[field];
+						break;
+					case 'in':
+						//displayedValue = roundTo(convertCmToIn(this.state.profileData.userMetricsDto[field]), .001, 2);
+						displayedValue = this.state.displayedProfileData[field];
+						break;
+					default:
+						break;
+				}
+			}
+
 			return(
 				<ProfileFieldWrapper 
 					key={field} 
 					field={field} 
 					value={
-						this.state.selectedField !== field ? 
-							this.state.displayedProfileData[field] : 
-							this.state.units === 'cm' ? 
-								this.state.profileData.userMetricsDto[field] :
-								convertCmToIn(this.state.profileData.userMetricsDto[field])
+						displayedValue
+						//this.state.selectedField !== field ? 
+						//	this.state.displayedProfileData[field] : 
+						//	this.state.units === 'cm' ? 
+						//		this.state.profileData.userMetricsDto[field] :
+						//		this.state.selectedField === field ?
+						//			this.state.displayedProfileData[field] : 
+						//			roundTo(convertCmToIn(this.state.profileData.userMetricsDto[field]), .001, 2)
 					} 
 					callback={()=>{this._handleInputFieldChange(event, field)}} 
 					onSelect={() => this._handleFieldFocus(event)}
 					selectedField={this.state.selectedField}
-					units={this.state.units}/>
+					units={this.state.units}
+					setupInputRef={(input) => {this.setupInputRef(field, input)} }
+				/>
 			);
 		});
 		const bodyShape = this.state.profileData.userMetricsDto.bodyShape;
@@ -1655,7 +2194,22 @@ export default class ProfileMenu extends React.Component{
 											ticks={this.ticks}
 											selectedPreset={this.state.selectedPreset}
 											updateWidth={this.updateWidth}
-											width={this.state.gridWidth}/>
+											width={this.state.gridWidth}
+											
+											handleTouchStart={this._handleTouchStart}
+											handleTouchMove={this._handleTouchMove}
+											handleTouchCancel={this._handleTouchCancel}
+											handleTouchEnd={this._handleTouchEnd}
+
+											tickPixelDelta={
+												(window.innerWidth/window.innerHeight) > 13/9 && this.state.units == 'in' ? 
+													33 : 
+													((window.innerWidth - 2*30) / (this.ticks.length - 1))
+											}
+
+											selectToleranceField={this.selectToleranceField}
+											//toleranceControllerRef={this.toleranceControllerRef}
+										/>
 									)
 								}
 			
@@ -1682,8 +2236,9 @@ export default class ProfileMenu extends React.Component{
 							</div>
 							<div 
 								className={ProfileMenuStyles.toleranceFieldList_div}
+								//ref={this.getToleranceControllerRef}
 								style={{
-									'--profile-ctrl-contianer-width': `calc(${this.state.gridWidth}px + 2*var(--profile-ctrl-container-padding) + var(--profile-ctrl-container-border-width))`,
+									//'--profile-ctrl-contianer-width': `calc(${this.state.gridWidth}px + 2*var(--profile-ctrl-container-padding) + var(--profile-ctrl-container-border-width))`,
 								}}
 							>
 								
@@ -1715,7 +2270,21 @@ export default class ProfileMenu extends React.Component{
 									updateWidth={this.updateWidth}
 									width={this.state.gridWidth}
 									selectedField={this.state.selectedField}
-									handleOnSubmit={this._handleOnSubmit} />
+									handleOnSubmit={this._handleOnSubmit} 
+											
+									handleTouchStart={this._handleTouchStart}
+									handleTouchMove={this._handleTouchMove}
+									handleTouchCancel={this._handleTouchCancel}
+									handleTouchEnd={this._handleTouchEnd}
+
+									tickPixelDelta={
+										(window.innerWidth/window.innerHeight) > 13/9 && this.state.units == 'in' ? 
+											33 : 
+											((window.innerWidth - 2*30) / (this.ticks.length - 1))
+									}
+									selectToleranceField={this.selectToleranceField}
+									//toleranceControllerRef={this.toleranceControllerRef}
+								/>
 							</div>
 						</div>
 					</div>

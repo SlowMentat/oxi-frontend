@@ -70,7 +70,7 @@ export const parseVariants = (variants) => {
 					availableColors = variantInfo[2] ? [...(availableColors.filter(color => (color != variantInfo[2]))), variantInfo[2]] : availableColors;
 					break;
 				//size is available (size comes in just lowercase ['xs'])
-				case vaiantInfo.length === 1:
+				case variantInfo.length === 1:
 					availableSizes = variantInfo[0] ? [...(availableSizes.filter(size => (size != variantInfo[0]))), variantInfo[0]] : availableSizes;
 			}
 

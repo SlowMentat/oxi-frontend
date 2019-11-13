@@ -224,7 +224,8 @@ a{
 
 .stdButton{
 	composes: stdBlock;
-	height: 20px;
+	height: 35px;
+	height: var(--selectable-height);
 	/*background-color: #1c2023;*/
 	font-size: 80%;	
 }
@@ -307,9 +308,9 @@ a{
 	/*background-color: var(--main-background-color);*/
 	/*background-color: #ff8787;*/
 	/*background-color: #35c8fd;*/
-	background-color: #fdd835;
 	/*border-bottom: solid 1px #c1c1c1;*/
 	/*grid-area: nav;*/
+    background-color: #eeeeee;
 	top: 0;
 	width: 100%;
 	height: $pageHeaderHeight;
@@ -322,7 +323,6 @@ a{
 
     @include mobile_rules {
     	box-shadow: 0px -11px 15px 0px black;
-    	background-color: #eeeeee;
     	/*border-bottom: solid 1px #c1c1c1;*/
     }
 }
