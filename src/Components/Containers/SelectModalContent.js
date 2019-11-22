@@ -85,6 +85,7 @@ const mapStateToProps = (state, props) => {
 		entitiesStateReducer: state.entitiesStateReducer,
 		addedEntitiesReducer: state.addedEntitiesReducer,
 		allApparelTypes: Object.values(state.entitiesReducer.apparelTypes.byIds),
+		viewState: state.contentViewState.viewState,
 	};
 }
 

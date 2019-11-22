@@ -113,7 +113,7 @@ export class OutfitTileBrowseCtrls extends React.Component{
 							style={{'line-height':'40px'}}
 							onClick={(e) => {
 								//e.stopPropagation();
-								this.props.navToHostProfile();
+								this.props.navToHostProfile(this.props.username, this.props.owner);
 								//this.props.routeToHostProfile();
 							}}>
 						→

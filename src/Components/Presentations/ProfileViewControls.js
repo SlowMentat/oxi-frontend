@@ -57,7 +57,7 @@ export default class ProfileViewControls extends React.Component{
 			viewState
 		} = this.props;
 
-		var isEditting = viewState === OxiAppConstants.viewState.EDIT.toLowerCase();
+		var isEditting = viewState != OxiAppConstants.viewState.PREVIEW.toLowerCase();
 		var buttonDisplay = isEditting ? 'none' : 'inline-block';
 		const customButtonStyles = {
 			display: buttonDisplay,

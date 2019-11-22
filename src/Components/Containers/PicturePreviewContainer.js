@@ -61,7 +61,7 @@ const mapStateToProps = (state, props) => {
 		viewState: state.contentViewState.viewState,
 		//contentViewed: state.shownContentView.shownContentId,
 		contents: state.entitiesReducer.contents.byIds,
-		addedContents : state.addedEntitiesReducer.contents.byIds,
+		//addedContents : state.addedEntitiesReducer.contents.byIds,
 		addedContentIds: state.addedEntitiesReducer.contents.allIds,
 		itemContent: state.entitiesReducer.itemContent,
 		//contentSelected : state.viewState.shownContentId
@@ -101,18 +101,25 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch) => ({
 	//fileReferences => { 'full filenmae' : FileObject }
 	addContentFromImages: (fileReferences, viewState, addedContents) => {
-		let contentEntities = [{}];
-		let addedContentIds = Object.keys(addedContents);
-		let contentEntityAdded = false;
+		var contentEntities = [{}];
+		//var addedContentIds = Object.keys(addedContents);
+		var contentEntityAdded = false;
 		Object.keys(fileReferences).map((name, ind, names) => {
 
 			//if Outfit was just added (will contain only one initialized content child), 
-			//then update the Content child initialized from selecting the add outfit button with the file name from index 0
-			if(viewState === OxiAppConstants.viewState.ADD && addedContents[addedContentIds[0]].coverpicuri.length === 0 && ind === 0){
-				dispatch(modifyContent( Object.assign({}, addedContents[addedContentIds[0]], {coverpicuri: name, picture: addedContentIds[0]}) ));
-			}else{
-				//if adding outfit s
-				contentEntities[ind - (viewState === OxiAppConstants.viewState.ADD ? 1 : 0)] = Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {coverpicuri: name});
+			//then update the Content child that was initialized from selecting the add outfit button with the file name from index 0
+			if(viewState === OxiAppConstants.viewState.ADD && addedContents.byIds[addedContents.allIds[0]].coverpicuri.length === 0 && ind === 0){
+				dispatch(modifyContent( {
+					...addedContents.byIds[addedContents.allIds[0]], 
+					...{ coverpicuri: name, picture: addedContents.allIds[0] },
+				}));
+			}
+
+			else{
+				contentEntities[ ind /*- (viewState === OxiAppConstants.viewState.ADD ? 1 : 0)*/ ] = {
+					...OxiAppConstants.EntityTemplates.CONTENT, 
+					...{coverpicuri: name}
+				};
 				contentEntityAdded = true;
 			}
 

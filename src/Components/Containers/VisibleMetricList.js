@@ -67,9 +67,10 @@ const mapStateToProps = (state, props) => {
 		hostLowerBodyMetrics : filteredHostLowerBodyMetrics,
 		hostUpperBodyMetricIds :  Object.keys(filteredHostUpperBodyMetrics),
 		hostLowerBodyMetricIds :  Object.keys(filteredHostLowerBodyMetrics),
+		profileStats : state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.profileStatsDto : undefined,
 		tolerances: state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.toleranceDto : undefined,
 		userMetricsDto : state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.userMetricsDto : undefined,
-		
+		location: state.router.location,
 		ownerBodyShape: (
 			(state.entitiesReducer.profile.byIds.owner === undefined) ? 
 			null:

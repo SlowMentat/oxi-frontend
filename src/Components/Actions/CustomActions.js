@@ -68,8 +68,9 @@ export const setCreateAccountView = (accountType) => {
 	});
 }
 
-function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
-	console.log('destination = ', location)
+function selectDestination(location, dispatch, isOwnerProfileEntityPresent, hostUsername = '', owner){
+	console.log('destination = ', location);
+
 	switch(location){
 
 		case OxiAppConstants.navRequestMap.a.toLowerCase():
@@ -88,12 +89,22 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 			//Get the Brand and Retailer Lists
 			dispatch(fetchItemMenus()).then((response) => {
 				//dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT));
-				dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', ''));
-				dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));			
+				dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, `/${hostUsername}`, ''));
+				dispatch(fetchEntities(
+					OxiAppConstants.EntityTypes.PROFILE, 
+					`/${hostUsername}`, 
+					'',
+					undefined,
+					undefined,
+					undefined,
+					undefined,
+					owner
+				));
+
 			}).then(response => {
 				dispatch(setWebAppView(location));	
 			}).catch((error) => {
-				console.log('exception occured within dispatch to fetchItemMenus.  Reason is: ', error);
+				console.error('exception occured within dispatch to fetchItemMenus.  Reason is: ', error);
 				dispatch(networkActions.handleUnauthorizedRequest(error.response));
 			})
 
@@ -119,7 +130,7 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent){
 	}
 }
 
-export function navigateTo(location, isOwnerProfileEntityPresent){
+export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, owner={}){
 	return function(dispatch, getState){
 		console.log('in navigateTo()')
 		dispatch(networkActions.requestNavigation(location))
@@ -137,7 +148,7 @@ export function navigateTo(location, isOwnerProfileEntityPresent){
 			dispatch(genericActions.removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 			dispatch(genericActions.removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
 
-			selectDestination(location, dispatch, isOwnerProfileEntityPresent);
+			selectDestination(location, dispatch, isOwnerProfileEntityPresent, hostUsername, owner);
 			dispatch(networkActions.requestNavigation(null));
 		}/*
 		}).then((response) => {
@@ -238,7 +249,7 @@ export function fetchEntitiesIfNeeded(entityType){
 	}
 }
 
-export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=10, config={}){
+export function fetchEntities(entityType, username, filter, linkURL=null, pageStart=0, pageSize=10, config={}, owner){
 	return function(dispatch){
 		dispatch(genericActions.requestEntities(entityType));
 		let URI = '';
@@ -318,14 +329,31 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				URI = linkURL ? '' : '/profile';
 				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}${username}`)
 				.then((response) => {
+
 					if(response.status === OxiAppConstants.HttpStatus.OK){
+						let profileData = {};
+
 						//The return entity is not nested so we do not need to make calls to normalizr before dropping into redux tree
 						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
-						dispatch(entityActions.replaceProfile({'owner' : response.data}));
+						
+						//check if owner exists and if returned data is owner.username						
+						if(owner && Object.keys(owner).length !== 0){
+							if(owner.username === response.data.username){
+								profileData = {'owner': response.data};
+							}
+							else{
+								profileData = {owner: owner, host: response.data};
+							}
+						}else{
+							profileData = {'owner': response.data};							
+						}
+
+						dispatch(entityActions.replaceProfile( profileData ));
 
 					}else{
-						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
+						throw 'Unexpected response status received when fetching profile:  ' + response.status;
 					}
+
 				});
 				break;
 			case OxiAppConstants.EntityTypes.OUTFIT:

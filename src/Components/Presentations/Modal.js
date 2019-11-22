@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import FormDeck from './Forms.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 
 function Modal(props){
@@ -12,7 +13,13 @@ function Modal(props){
 				cancelAction={props.closeModal} 
 				submitAction={props.submitAction} 
 				confirmDiscardSubmitAction = {
-					(location) => props.confirmDiscardSubmitAction(location, props.addedEntitiesReducer, props.outfitByIds[props.entitiesStateReducer.outfits.prevSelected])
+					(location) => props.confirmDiscardSubmitAction(
+						location, 
+						props.addedEntitiesReducer, 
+						(props.viewState === OxiAppConstants.viewState.ADD ? 
+							props.addedEntitiesReducer.outfits.byIds[props.entitiesStateReducer.outfits.prevSelected] :
+							props.outfitByIds[props.entitiesStateReducer.outfits.prevSelected])
+					)
 				}
 				outfits={props.outfits}
 				contents={props.contents} 

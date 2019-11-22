@@ -73,124 +73,50 @@ const ShowContentView = (props) => {
 			({src: defaultSrc}); 
 
 
-	if(props.viewContext === OxiAppConstants.viewState.ADD){
-		contentView = (
-			<ImageAdd 
-				addContentFromImages={props.addContentFromImages}
-				setupImageRef={props.setupImageRef}
-				itemMapDimension={props.itemMapDimension}
-				addedContentIds={props.addedContentIds}
-				addedEntities={props.addedEntities}
-				entitiesStateReducer={props.entitiesStateReducer}
-				contentSelected={props.contentSelected} 
-				outfitIdSelected={props.outfitIdSelected} 
-				brands={props.brands} 
-				retailers={props.retailers} 
-				getItemForm={props.getItemForm} 
-				visibleItemsMap={props.visibleItemsMap} 
-				postAddedOutfit={props.postAddedOutfit} 
-				postAddedItems={props.postAddedItems}
-				putModifiedOutfit={props.putModifiedOutfit}
-				confirmDiscard={props.confirmDiscard}
-				clientInvalidateEntity={props.clientInvalidateEntity}
-				clientInvalidatedContents={props.invalidatedContents}
-				clientInvalidatedOutfits={props.invalidatedOutfits}
-				clientInvalidatedItems={props.invalidatedItems}
-				viewContext={props.viewContext}
-				populateItemsMap={props.populateItemsMap}
-				updateImageDimension={props.updateImageDimension}
-				simulateImageClick={props.simulateImageClick}
-				itemIdHovered={props.itemIdHovered}
-				changeItemHovered={props.changeItemHovered}
-				createResponseHandler={props.createResponseHandler}
-				exitEditMode={props.exitEditMode}
-				itemContent={props.itemContent}
-				//setupContentViewRef={props.setupContentViewRef}
-				imageElement={props.imageElement}
-				addedContents={props.addedContents}
+	//if(props.viewContext === OxiAppConstants.viewState.ADD){
+	//	contentView = (
+	//		<ImageAdd 
+	//			{
+	//				...{
+	//					...props,
+	//					src: src,
+	//					selectedContentId: selectedContentId,
+	//				}
+	//			}
+//
+	//		/>
+	//	);
+	//}
 
-				images={props.images}
-
-			/>
-		);
-	}else if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
+	if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
 		contentView = (
 			<ImagePreview 
-				setupImageRef={props.setupImageRef}
-				itemMapDimension={props.itemMapDimension}
-				onClick={props.getGestureForm} 
-				contents={props.contents} 
-				contentSelected={props.contentSelected} 
-				visibleItemsMap={props.visibleItemsMap} 
-				getPreviewPic={props.getPreviewPic} 
-				pictures={props.pictures}
-				viewContext={props.viewContext}
-				populateItemsMap={props.populateItemsMap}
-				updateImageDimension={props.updateImageDimension}
-				simulateImageClick={props.simulateImageClick}
-				itemIdHovered={props.itemIdHovered}
-				changeItemHovered={props.changeItemHovered}
-				//setupContentViewRef={props.setupContentViewRef}
-				imageElement={props.imageElement}
-
-
-				images={props.images}
-				contentState={props.contentState}
-				selectedContentId={selectedContentId}
-				src={src}
+				{
+					...{
+						...props,
+						selectedContentId: selectedContentId,
+						src: src,
+					}
+				}
 			/>
 		);
-	}else if(props.viewContext === OxiAppConstants.viewState.EDIT){
+	}
+
+	else if(props.viewContext === OxiAppConstants.viewState.EDIT || props.viewContext === OxiAppConstants.viewState.ADD){
 		contentView = (
 			<ImageEdit 
-				addContentFromImages={props.addContentFromImages}
-				setupImageRef={props.setupImageRef}
-				itemMapDimension={props.itemMapDimension}
-				addedEntities={props.addedEntities} 
-				entitiesStateReducer={props.entitiesStateReducer}
-				contents={props.contents} 
-				addedContents={props.addedContents}
-				addedContentIds={props.addedContentIds}
-				contentSelected={props.contentSelected} 
-				outfitIdSelected={props.outfitIdSelected}
-				brands={props.brands}
-				retailers={props.retailers} 
-				getItemForm={props.getItemForm}  
-				visibleItemsMap={props.visibleItemsMap} 
-				getPreviewPic={props.getPreviewPic} 
-				postAddedOutfit={props.postAddedOutfit} 
-				postAddedContent={props.postAddedContent} 
-				postAddedItems={props.postAddedItems}
-				putModifiedContent={props.putModifiedContent}
-				//putModifiedItems={props.putModifiedItems}
-				confirmDiscard={props.confirmDiscard}
-				pictures={props.pictures}
-				clientInvalidateEntity={props.clientInvalidateEntity}
-				clientInvalidatedContents={props.invalidatedContents}
-				clientInvalidatedOutfits={props.invalidatedOutfits}
-				clientInvalidatedItems={props.invalidatedItems}
-				putModifiedOutfit={props.putModifiedOutfit}
-				viewContext={props.viewContext}
-				populateItemsMap={props.populateItemsMap}
-				updateImageDimension={props.updateImageDimension}
-				simulateImageClick={props.simulateImageClick}
-				itemIdHovered={props.itemIdHovered}
-				changeItemHovered={props.changeItemHovered}
-				createResponseHandler={props.createResponseHandler}
-				exitEditMode={props.exitEditMode}
-				itemContent={props.itemContent}
-				//setupContentViewRef={props.setupContentViewRef}
-				imageElement={props.imageElement}
-
-				images={images}
-				contentState={props.contentState}
-				selectedContentId={selectedContentId}
-				src={src}
-				addedContents={props.addedContents}
-				updateImageState={props.updateImageState}
+				{
+					...{
+						...props,
+						selectedContentId: selectedContentId,
+						src: src,
+					}
+				}
 			/>
 		);
-	}else{
+	}
+
+	else{
 		console.log("nothing selected");
 	}
 	
@@ -334,20 +260,27 @@ class ImageAdd extends React.Component{
 	_handleSubmit(fileData) {
 		//build normalized json payload
 		var json = {contents:[{items:[{}]}]};
+
 		//check if added outfit exists
 		if(this.props.addedEntities.outfits.byIds){
 			json = Object.assign({}, json, this.props.addedEntities.outfits.byIds['1']);
+			
 			//remove id property for server due to this being a newly created entity.  The servier will repopulate the id propterty with a UUID.
 			if(json.id !== undefined) json.id = undefined;
+
 			//check if content exist
 			if(this.props.addedEntities.outfits.byIds['1'].contents.length > 0){
 				let contentId = this.props.addedEntities.outfits.byIds['1'].contents[0];	//Do not modify contentId
 				//There should only be one content per post
-				json = Object.assign({}, json, {contents: [Object.assign({}, this.props.addedEntities.contents.byIds[contentId])]});		
+				json = Object.assign({}, json, {contents: [Object.assign({}, this.props.addedEntities.contents.byIds[contentId])]});	
+
 				//delete client assigned content id.  The servier will repopulate the id propterty with a UUID. 
 				if(json.contents[0].id !== undefined) json.contents[0].id = undefined;
+
 				let itemIds = this.props.addedEntities.items.allIds;
+
 				if(itemIds.length > 0){  //Do not modify itemIds
+
 					//There can be multiple items per post
 					for(let itemId of itemIds){
 						console.log('item itemId = ', itemId);
@@ -359,25 +292,33 @@ class ImageAdd extends React.Component{
 							//brand: this.props.brands.byIds[this.props.addedEntities.items.byIds[itemId].brand].id
 							//apparelType: this.props.addedEntities.items.byIds[itemId].apparelType.id,
 							product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product)
-						});						
+						});	
+
 						//json.contents[0].items = [...json.contents[0].items, scrubbedItem];
 						if(json.contents[0].items !== undefined && Object.keys(json.contents[0].items[0]).length > 0 && json.contents[0].items[0].constructor === Object){
 							json.contents[0].items = [...json.contents[0].items, scrubbedItem];
-						}else{
+						}
+
+						else{
 							json.contents[0].items = [scrubbedItem];
 						}
 
 					}
+
 					console.log(json)
 					/*console.log(Object.values(this.props.addedEntities.items.byIds));
 					json.contents.items = Object.values(this.props.addedEntities.items.byIds);*/
-				}else{
+				}
+
+				else{
 					console.log('itemIds is empty array');
 				}
 			}
+
 			console.log('this.props.addedEntities = ', this.props.addedEntities);
 			this.props.postAddedOutfit(fileData, json, this.props.addedEntities, this.props.entitiesStateReducer, this.props.itemContent.count);
 		}
+
 		console.log('normalized json payload for added outfit: ', json);
 	}
 
@@ -418,7 +359,8 @@ class ImageAdd extends React.Component{
 	render() {
 		let {imagePreviewUrl} = this.state;
 		let $imagePreview = null;
-		let defaultImage = "Graphics/photo_upload_icon.svg"
+		let defaultImage = "Graphics/photo_upload_icon.svg";
+
 		if (imagePreviewUrl) {
 			$imagePreview = (<CroppableImageForm />);
 		}else{
@@ -427,15 +369,7 @@ class ImageAdd extends React.Component{
 		}
 
 		return (
-			<CroppableImageForm 			
-				addContentFromImages={this.props.addContentFromImages}
-				imgStyle={imgStyle}
-				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
-				imgFormStyle={imgFormStyle}
-				imgFormControlStyle={FormStyles.imgFormControlStyle}
-				_handleSubmit={this._handleSubmit}
-				onImageClick={this._handleImgClick}
-				discardChanges={this._handleChangesDiscarded}
+			<CroppableImageForm 	
 				itemLocationMap={
 					(itemMapDimension) => (
 						<ItemLocationMapContainer 
@@ -454,8 +388,18 @@ class ImageAdd extends React.Component{
 							contents = {this.props.contents}  />				
 					)
 				}
+
+				addContentFromImages={this.props.addContentFromImages}
+				imgStyle={imgStyle}
+				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
+				imgFormStyle={imgFormStyle}
+				imgFormControlStyle={FormStyles.imgFormControlStyle}
+				_handleSubmit={this._handleSubmit}
+				onImageClick={this._handleImgClick}
+				discardChanges={this._handleChangesDiscarded}
 				entitiesStateReducer={this.props.entitiesStateReducer}
 				setupImageRef={this.props.setupImageRef}
+				src={this.props.src}
 				viewState={this.props.viewContext} 
 				//setupContentViewRef={this.props.setupContentViewRef}
 				itemMapDimensions={this.props.itemMapDimensions}
@@ -465,7 +409,11 @@ class ImageAdd extends React.Component{
 				updateImageDimension={this.props.updateImageDimension}
 				imageElement={this.props.imageElement}
 
-				images={this.props.images}
+				images 				={ this.props.images }
+				pictures			={ this.props.pictures }
+				selectedContentId	={ this.props.selectedContentId }
+				contentState		={ this.props.contentState }
+				updateImageState	={ this.props.updateImageState }
 			/>
 		)
 	}
@@ -1002,21 +950,6 @@ class ImageEdit extends React.Component{
 
 		return (
 			<CroppableImageForm 
-				addContentFromImages={this.props.addContentFromImages}
-				//src={this.state.base64Image === null ? null : this.state.base64Image.split(',')[1] ? this.state.base64Image : null}
-				src={src}
-				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
-
-				/*clientInvalidatedContents={props.invalidatedContents}
-				clientInvalidatedOutfits={props.invalidatedOutfits}
-				clientInvalidatedItems={props.invalidatedItems}*/
-
-				imgStyle={imgStyle}
-				imgFormStyle={imgFormStyle}
-				imgFormControlStyle={FormStyles.imgFormControlStyle}
-				_handleSubmit={this._handleSubmit}
-				onImageClick={this._handleImgClick}
-				discardChanges={this._handleChangesDiscarded}
 				itemLocationMap={
 					(itemMapDimension) => (
 						<ItemLocationMapContainer 
@@ -1035,6 +968,21 @@ class ImageEdit extends React.Component{
 							contents = {contents}/>				
 					)
 				}
+				addContentFromImages={this.props.addContentFromImages}
+				//src={this.state.base64Image === null ? null : this.state.base64Image.split(',')[1] ? this.state.base64Image : null}
+				src={src}
+				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
+
+				/*clientInvalidatedContents={props.invalidatedContents}
+				clientInvalidatedOutfits={props.invalidatedOutfits}
+				clientInvalidatedItems={props.invalidatedItems}*/
+
+				imgStyle={imgStyle}
+				imgFormStyle={imgFormStyle}
+				imgFormControlStyle={FormStyles.imgFormControlStyle}
+				_handleSubmit={this._handleSubmit}
+				onImageClick={this._handleImgClick}
+				discardChanges={this._handleChangesDiscarded}
 				entitiesStateReducer={this.props.entitiesStateReducer}
 				viewState={this.props.viewContext} 
 
@@ -1236,10 +1184,14 @@ class PicturePreview extends React.Component{
 				//loop through content children of selected outfit
 				for(let id of usedOutfits.byIds[outfitState.selected].contents){
 					var pictureId = usedContents.byIds[id].picture;
-					var largePicURI = pictures.byIds[pictureId].largeuri;
-		
-					var result = await getPreviewPic(largePicURI, callBack, pictures.byIds[pictureId]);	//base54 data
-					images[id] = result;
+
+					if(pictureId.length > 0){
+						var largePicURI =  pictures.byIds[pictureId].largeuri;		
+						var result = await getPreviewPic(largePicURI, callBack, pictures.byIds[pictureId]);	//base54 data
+						images[id] = result;
+					}else{
+						images[id] = {};
+					}
 				}
 	
 				//resolve(images);
@@ -1291,10 +1243,13 @@ class PicturePreview extends React.Component{
 		let keys = Object.keys(this.state.images);
 		let keptImages = {};
 
-		for(let contentId of outfits.byIds[outfitState.selected].contents){
-			keptImages = {
-				...keptImages,
-				[contentId]: this.state.images[contentId],
+		//only execut this block if removedDiscardedImages was NOT called after transitioning from an 'add' viewState
+		if(outfitState.selected !== 1){
+			for(let contentId of outfits.byIds[outfitState.selected].contents){
+				keptImages = {
+					...keptImages,
+					[contentId]: this.state.images[contentId],
+				}
 			}
 		}
 
@@ -1337,49 +1292,6 @@ class PicturePreview extends React.Component{
 		return(
     		<div className={Styles.previewBlock}>    			
 				<ShowContentView  
-					//addContentFromImages={this.props.addContentFromImages}
-					//viewContext={viewContext} 
-					//addedEntities={this.props.addedEntities}
-					//entitiesStateReducer={this.props.entitiesStateReducer}
-					//entityStateReduc
-					//brands={this.props.brands}
-					//retailers={this.props.retailers}
-					//contents={this.props.contents} 
-					//addedContents={this.props.addedContents}
-					//addedContentIds={this.props.addedContentIds}
-					//contentSelected={this.props.contentSelected} 
-					//outfitIdSelected={this.props.outfitIdSelected}
-					//getPreviewPic={this.props.getPreviewPic}
-					//getItemForm={this.props.getItemForm}
-					//getGestureForm={this.props.getGestureForm} 
-					//confirmDiscard={this.props.confirmDiscard}
-					//visibleItemsMap={this.props.visibleItemsMap}
-					//pictures={this.props.pictures}
-					///*clientInvalidatedContents={this.props.invalidatedContents}
-					//clientInvalidatedOutfits={this.props.invalidatedOutfits}
-					//clientInvalidatedItems={this.props.invalidatedItems}*/
-					//clientInvalidateEntity={this.props.clientInvalidateEntity}
-					//postAddedOutfit={this.props.postAddedOutfit}
-					//postAddedContent={this.props.postAddedContent}
-					//putModifiedOutfit={this.props.putModifiedOutfit}
-					//putModifiedContent={this.props.putModifiedContent}
-					////putModifiedItems={this.props.putModifiedItems}
-					//postAddedItems={this.props.postAddedItems}
-					//populateItemsMap={this.props.populateItemsMap}
-//
-					//setupImageRef={this.setupImageRef}
-					////setupContentViewRef={this.setupContentViewRef}
-//
-					////imageElement={this.image}
-					//imageElement={this.state.imageRef}
-					//itemMapDimension={{width: this.props.imageWidth, height: this.props.imageHeight}}
-					//updateImageDimension={this.updateImageDimension}
-					//simulateImageClick={this.simulateImageClick}
-					//itemIdHovered={this.props.itemIdHovered}
-					//changeItemHovered={this.props.changeItemHovered}
-					//createResponseHandler={this.props.createResponseHandler}
-					//exitEditMode={this.props.exitEditMode}
-					//itemContent={this.props.itemContent} 
 					{
 						...{
 							viewContext: viewContext,

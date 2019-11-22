@@ -136,35 +136,31 @@ const radioAndCheckContainerStyle = {
     'margin-right':'10px'
 }
 const radioStyle = { 
-	'width': '15px',
-    'height': '15px',
+	'width': '100%',
+    'height': 'inherit',
     'border-style': 'solid',
-   	'border-radius': '7.5px',
-    'border-width': '1px'
-}
+    'border-width': '1px',
+    'border-color': 'var(--color9)',
+};
+
 const selectedRadioStyle = { 
-	'width': '15px',
-    'height': '15px',
-    'border-style': 'solid',
-   	'border-radius': '7.5px',
-    'border-width': '1px',
-    'background-color':'black'
-}
+	...radioStyle,
+	...{
+    	'background-color': 'var(--color9)',
+    }
+};
+
 const checkBoxStyle = {
-	'width': '15px',
-    'height': '15px',
-    'border-style': 'solid',
-   	'border-radius': '2px',
-    'border-width': '1px'
-}
+	...radioStyle
+};
+
 const selectedCheckBoxStyle = {
-	'width': '15px',
-    'height': '15px',
-    'border-style': 'solid',
-   	'border-radius': '2px',
-    'border-width': '1px',
-    'background-color':'black'	
-}
+	...checkBoxStyle,
+	...{
+    	'background-color': 'var(--color9)',
+	}	
+};
+
 const radioTitleStyle = {
 	'font-size':'10px'
 }
@@ -201,18 +197,31 @@ const Ruler = ({props}) => (props.ticks.map((tick, ind, ticks) => (
 	))
 );
 
-const TolerancePresets = ({props}) => (
-	<div 
-		className={ProfileMenuStyles.toleranceCheckBox_div}
-		style={ props.selectedPreset === props.label ? ({'background-color': '#525252', 'color':'white'}) : ({}) }
-		onClick={(e) => props.handlePresetClicked(e, props.label)}
-	>
-		{props.label}
-	</div>
-)
+const TolerancePresets = ({props}) => {
+	const propStyles = typeof props.style === 'object' ? props.style : ({});
+
+	return(
+		<div 
+			className={ProfileMenuStyles.toleranceCheckBox_div}
+			style={ props.selectedPreset === props.label ? ({ ...{'background-color': '#525252', 'color':'white'}, ...propStyles }) : ({ ...propStyles }) }
+			onClick={(e) => props.handlePresetClicked(e, props.label)}
+		>
+			{props.label}
+		</div>
+	);
+}
 
 const SlideSwitch = ({props}) => (
-	<div className={ProfileMenuStyles.inputNumberContainer_div}>
+	<div 
+		className={ProfileMenuStyles.inputNumberContainer_div}
+		style={{
+			position: 'absolute',
+   			left: 'calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding))',
+   			top: '45px',
+   			'margin-top':'0px',
+			width: '120px',
+		}}
+	>
 		<div className={ProfileMenuStyles.slideSwitchLabelContainer_div}>
 			<div className={ProfileMenuStyles.slideSwitchLabel_div}>
 				cm.
@@ -575,10 +584,17 @@ class ToleranceSettings extends React.Component{
 								label:'Tight',
 								selectedPreset: this.props.selectedPreset,
 								handlePresetClicked: this.props.handlePresetClicked,
+								style: {
+									'border-top-left-radius': '3px',
+    								'border-bottom-left-radius': '3px',
+								}
 							}}/>
 						</div>
 					</div>
-					<div className={ProfileMenuStyles.tolerancePresetContainer_div}>
+					<div 
+						className={ProfileMenuStyles.tolerancePresetContainer_div}
+						style={{'margin-left': '-1px'}}
+					>
 						<div className={ProfileMenuStyles.tolerancePreset_div}>
 							<TolerancePresets props={{
 								label:'Fit',
@@ -587,12 +603,19 @@ class ToleranceSettings extends React.Component{
 							}}/>
 						</div>
 					</div>
-					<div className={ProfileMenuStyles.tolerancePresetContainer_div}>
+					<div 
+						className={ProfileMenuStyles.tolerancePresetContainer_div}
+						style={{'margin-left': '-1px'}}
+					>
 						<div className={ProfileMenuStyles.tolerancePreset_div}>
 							<TolerancePresets props={{
 								label:'Loose',
 								selectedPreset: this.props.selectedPreset,
 								handlePresetClicked: this.props.handlePresetClicked,
+								style: {
+									'border-top-right-radius': '3px',
+    								'border-bottom-right-radius': '3px',
+								}
 							}}/>
 						</div>
 					</div>
@@ -660,7 +683,7 @@ class ToleranceSettings extends React.Component{
 								>
 									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
 										<div className={ProfileMenuStyles.minMaxIndicator_div} >
-											{minTolVal}
+											{minTolVal ? minTolVal.toFixed(2) : minTolVal}
 										</div>
 									</div>
 								</div>
@@ -673,8 +696,10 @@ class ToleranceSettings extends React.Component{
 									}
 								>
 									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
-										<div className={ProfileMenuStyles.minMaxIndicator_div} >
-											{maxTolVal}
+										<div 
+											className={ProfileMenuStyles.minMaxIndicator_div} 
+										>
+											{maxTolVal ? maxTolVal.toFixed(2) : maxTolVal}
 										</div>
 									</div>
 								</div>
@@ -790,13 +815,13 @@ class ToleranceSettings extends React.Component{
 											{/*TOLERANCE MIN & MAX VALUES (displayed on desktop)*/}
 											<div className={ProfileMenuStyles.slideValueRange_div}>
 												<div className={ProfileMenuStyles.slideValueMin_div}>
-													{minTolVal}
+													{minTolVal ? minTolVal.toFixed(2) : minTolVal}
 												</div>
 												<div className={ProfileMenuStyles.slideValueTo_div}> 
 													- 
 												</div>
 												<div className={ProfileMenuStyles.slideValueMax_div}>
-													{maxTolVal}
+													{maxTolVal ? maxTolVal.toFixed(2) : maxTolVal}
 												</div>
 											</div>
 										</div>
@@ -1017,6 +1042,8 @@ export default class ProfileMenu extends React.Component{
 		this.selectToleranceField = this.selectToleranceField.bind(this);
 		this.setupInputRef = this.setupInputRef.bind(this);
 		this.convertTickToTol = this.convertTickToTol.bind(this);
+		this.filterMetricFields = this.filterMetricFields.bind(this);
+		this.calcTolerances = this.calcTolerances.bind(this);
 
 		var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData } = this.getStateIniData();
 
@@ -1063,23 +1090,60 @@ export default class ProfileMenu extends React.Component{
 		}
 	}
 
+	filterMetricFields(metrics=[], customFilter=[]){
+		var results = [];
+
+		const filters = [
+			...customFilter, 
+			'id',
+			'bodyShape' ,
+			'mens' ,
+			'username' ,
+			'womens' ,
+			'apparelInterest',
+			'country' ,
+			'toleranceDto' ,
+			'dateOfBirth' ,
+		];
+
+		var rejected = false;
+
+		for(var field of metrics){
+			
+			for(var filter of filters){
+				if(field == filter){
+					rejected = true;
+					break;
+				}
+			}
+
+			results = !rejected ? [...results, field] : (results);
+			rejected = false;
+		}
+
+		return results;
+
+		//return(
+		//	metrics
+		//		.filter(field => field != 'id')
+		//		.filter(field => field != 'bodyShape')
+		//		.filter(field => field != 'mens')
+		//		.filter(field => field != 'username')
+		//		.filter(field => field != 'womens')
+		//		.filter(field => field != 'apparelInterest')
+		//		.filter(field => field != 'country')
+		//		.filter(field => field != 'toleranceDto')
+		//		.filter(field => field != 'dateOfBirth')
+		//);
+	}
+
 	getStateIniData(){
 
 		this.profile = this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile;
 		this.prevProfile = this.profile;
 
 		this.filteredFieldNames =  this.props.profile !== undefined ? 
-			Object.keys(this.profile.userMetricsDto)
-				.filter(field => field != 'id')
-				//.filter(field => field != 'height')
-				.filter(field => field != 'bodyShape')
-				.filter(field => field != 'mens')
-				.filter(field => field != 'username')
-				.filter(field => field != 'womens')
-				.filter(field => field != 'apparelInterest')
-				.filter(field => field != 'country')
-				.filter(field => field != 'toleranceDto')
-				.filter(field => field != 'dateOfBirth') : 
+			this.filterMetricFields(Object.keys(this.profile.userMetricsDto)) : 
 			([]);
 
 
@@ -1156,17 +1220,13 @@ export default class ProfileMenu extends React.Component{
 		return { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData };
 	}
 
-	/*
-	*	Function invoked in response to change tolerance slides
-	*/
-	updateTolerances(units, isMinTolerance, field=null, tick=null){
+	calcTolerances(units, isMinTolerance, field=null, tick=null){
 
 		if(typeof isMinTolerance !== "boolean"){
 			console.error("isMinTolerance must be specified");
 			return;
 		}
 
-		var toleranceType = isMinTolerance ? "minTolerances" : "maxTolerances";
 		var minTick = isMinTolerance ? tick : null;
 		var maxTick = !isMinTolerance ? tick : null;
 		//var {minTolVal, maxTolVal} = getToleranceValues(field, units);
@@ -1187,6 +1247,46 @@ export default class ProfileMenu extends React.Component{
 				maxTolVal,
 			} = this.convertTickToTol(minTick, maxTick, this.scaleCm, parseFloat(this.state.profileData.userMetricsDto[field]));	
 		}
+
+		return {
+			minTolVal: minTolVal,
+			maxTolVal: maxTolVal,
+		}
+
+	}
+
+	/*
+	*	Function invoked in response to change tolerance slides
+	*/
+	updateTolerances(units, isMinTolerance, field=null, tick=null){
+
+		/*if(typeof isMinTolerance !== "boolean"){
+			console.error("isMinTolerance must be specified");
+			return;
+		}*/
+
+		var toleranceType = isMinTolerance ? "minTolerances" : "maxTolerances";
+		/*var minTick = isMinTolerance ? tick : null;
+		var maxTick = !isMinTolerance ? tick : null;
+		//var {minTolVal, maxTolVal} = getToleranceValues(field, units);
+
+		if(units === 'in'){
+			var {
+				minTolVal,
+				maxTolVal,
+			} = this.convertTickToTol(minTick, maxTick, this.scaleIn, parseFloat(this.state.displayedProfileData[field]));
+
+			minTolVal = minTolVal ? convertInToCm(minTolVal) : null;
+			maxTolVal = maxTolVal ? convertInToCm(maxTolVal) : null;
+		}
+
+		else if(units === 'cm'){
+			var {
+				minTolVal,
+				maxTolVal,
+			} = this.convertTickToTol(minTick, maxTick, this.scaleCm, parseFloat(this.state.profileData.userMetricsDto[field]));	
+		}*/
+		var {minTolVal, maxTolVal} = this.calcTolerances(units, isMinTolerance, field, tick);
 
 		//var {
 		//	prefix,
@@ -1241,6 +1341,7 @@ export default class ProfileMenu extends React.Component{
 		var maxTick = this.ticks.length-1;
 		var scale = units === 'cm' ? this.scaleCm : this.scaleIn;
 		var shownDataVal = units === 'cm' ? this.state.profileData.userMetricsDto : this.state.displayedProfileData;
+		var shownDataValFiltered = this.filterMetricFields(Object.keys(shownDataVal), ['height']);
 
 
 		switch(true){
@@ -1249,11 +1350,13 @@ export default class ProfileMenu extends React.Component{
 				minTick = this.leftCenterTick - 2;//2;
 				maxTick = this.leftCenterTick - 1;//3;
 				break;
+
 			//Fit
 			case preset === this.presets.preset2:
 				minTick = this.leftCenterTick;//4;
 				maxTick = this.rightCenterTick;//5;
 				break;
+
 			//Loose
 			case preset === this.presets.preset3:
 				minTick = this.rightCenterTick + 1;//6;
@@ -1261,16 +1364,19 @@ export default class ProfileMenu extends React.Component{
 				break;
 		}
 
-		for(let field of Object.keys(shownDataVal)){
+		for(let field of shownDataValFiltered){
 			//values int ticks indecese 
-			if(field != 'height'){
+			//if(field != 'height'){
 				minTicks = {...minTicks, ...{[field]: minTick }};
 				maxTicks = {...maxTicks, ...{[field]: maxTick }};
+
+				var {minTolVal} = this.calcTolerances(units, true, field, minTick);				
+				var {maxTolVal} = this.calcTolerances(units, false, field, maxTick);
 				
-				var {minTolVal, maxTolVal} = this.convertTickToTol(minTick, maxTick, scale, shownDataVal[field]);
+				//var {minTolVal, maxTolVal} = this.convertTickToTol(minTick, maxTick, scale, shownDataVal[field]);
 				minTolerances = {...minTolerances, ...{[field] : minTolVal} };
 				maxTolerances = {...maxTolerances, ...{[field] : maxTolVal} };				
-			}
+			//}
 		}
 
 		return({
@@ -1487,8 +1593,13 @@ export default class ProfileMenu extends React.Component{
 						var tickDiff = parseInt(roundTo((valueDiff / unitScale), 1, 0));
 
 						var centerTick = ((valueDiff / unitScale) + nextLeftCenterTick) <= nextLeftCenterTick ? nextLeftCenterTick : nextRightCenterTick;
-						var maxTick = calcTicks(tickDiff, centerTick)
-						maxToleranceFields[key] = maxTick <= 2*nextLeftCenterTick ? maxTick : (2*nextLeftCenterTick + 1);
+						var maxTick = calcTicks(tickDiff, centerTick);
+
+						maxToleranceFields[key] = maxTick >= 2*nextLeftCenterTick ? 
+							(2*nextLeftCenterTick + 1) :
+							maxTick <= minTick ?
+								(minTick + 1) :
+								(maxTick);
 					}
 				}
 			});
@@ -2035,10 +2146,13 @@ export default class ProfileMenu extends React.Component{
 			);
 		});
 		const bodyShape = this.state.profileData.userMetricsDto.bodyShape;
-		let bodyShapeContainer = maleContainer;//(bodyShape === 'female') ? femaleContainer : maleContainer;
-		console.log('bodyShapeContainer = ', bodyShapeContainer);
-		console.log('fieldSet');
-		console.log(fieldSet);
+		const cornerRad = '3px';
+		let bodyShapeContainer = maleContainer;
+
+		//console.log('bodyShapeContainer = ', bodyShapeContainer);
+		//console.log('fieldSet');
+		//console.log(fieldSet);
+
 		return(
 			<div 
 				className={ProfileMenuStyles.profileMenuContianer_div}
@@ -2124,36 +2238,136 @@ export default class ProfileMenu extends React.Component{
 												toggleSlidSwitch: this._toggleSlidSwitch,
 												units: this.state.units
 											}}/>
-											<div style={{'margin-bottom':'10px'}} >
+
+											<div 
+												style={{
+													position:'absolute',
+													right: '7.5px',
+													height: '24px',
+													top: 'calc(94px/2 + 5.5px)',
+												}}
+											>
+												<div
+													style={{
+														height: 'inherit',
+														'line-height': '24px',
+													}}
+												>
+													<div
+														style={{
+															display: 'inline-block',
+															'vertical-align': 'top',
+															'font-size': '13px',
+															color: '#838383',
+														}}
+													>
+														Tolerance
+													</div>
+														<i 
+															style={{color:'#bbbbbb'}}
+															class="material-icons"
+														>
+															arrow_forward
+														</i>
+												</div>
+											</div>
+
+											<div 
+												style={{
+													'margin-bottom': '10px',
+													'margin-top': '45px',
+													'border-top': 'solid 1px #bbbbbb',
+													'padding-top': '20px',
+												}} 
+											>
 													<div>
 														<div>
-															<div id="bodyShape" style={{'text-align':'left', 'margin-top':'10px'}} >
-																<div id="bodyShapeRadioList" style={radioListStyle}>
-																	<div id="female" style={radioAndCheckContainerStyle}>
-																		<div id='bodyShapeTitle' style={radioTitleStyle}>Female</div>
-																		<div id='bodyShapeRadio' style={bodyShape === 'female' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('female')}></div>
+															<div className={ProfileMenuStyles.sexHeadersContainer_div} >
+																<div className={ProfileMenuStyles.sexHeader_div}> Womens </div>
+																<div className={ProfileMenuStyles.sexHeader_div}> Mens </div>
+															</div>
+															<div className={ProfileMenuStyles.physiqueOptionsContainer_div} >
+																<div 
+																	id="physiqueOptions" 
+																	style={{height:'inherit',width:'100%'}}
+																>
+																	<div 
+																		id="womensPhysique" 
+																		className={ProfileMenuStyles.physiqueBtnContainer_div}
+																	>
+																		<div 
+																			id='bodyShapeRadio' 
+																			style={{
+																				...(bodyShape === 'female' ? selectedRadioStyle : radioStyle),
+																				...{'border-top-left-radius': `${cornerRad}`}
+																			}} 
+																			onClick={() => this._handleRadioToggled('female')}
+																		>
+																		</div>
 																	</div>
-																	<div id="male" style={{'display':'inline-block'}}>
-																		<div id='bodyShapeTitle' style={radioTitleStyle}>Male</div>
-																		<div id='bodyShapeRadio' style={bodyShape === 'male' ? selectedRadioStyle : radioStyle} onClick={() => this._handleRadioToggled('male')}></div>										
+																	<div 
+																		id="mensPhysique" 
+																		className={ProfileMenuStyles.physiqueBtnContainer_div}
+																		style={{'margin-left':'-1px'}}
+																	>
+																		<div 
+																			id='bodyShapeRadio' 
+																			style={{
+																				...(bodyShape === 'male' ? selectedRadioStyle : radioStyle),
+																				...{'border-top-right-radius': `${cornerRad}`}
+																			}} 
+																			onClick={() => this._handleRadioToggled('male')}
+																		>
+																		</div>										
 																	</div>
 																</div>
-																<div id="bodyShapeTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
+																<div 
+																	id="bodyShapeTitle" 
+																	className={ProfileMenuStyles.optionsHeader_div}
+																>
 																	Body Shape
 																</div>								
 															</div>
-															<div id="apparelInterest" style={{'text-align':'left','margin-top':'10px'}} >
-																<div id="apperelInterestRadioList" style={radioListStyle}>
-																	<div id="womens" style={radioAndCheckContainerStyle}>
-																		<div style={radioTitleStyle}>Womens</div>
-																		<div style={this.state.profileData.userMetricsDto.womens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('womens')} ></div>
+															<div 
+																className={ProfileMenuStyles.apparelOptionsContainer_div} 
+																style={{'margin-top':'-1px'}}
+															>
+																<div 
+																	id="apperelInterestRadioList"
+																	style={{height:'inherit',width:'100%'}}
+																>
+																	<div 
+																		id="womensApparel" 
+																		className={ProfileMenuStyles.apparelBtnContainer_div}
+																	>
+																		<div 
+																			style={{
+																				...(this.state.profileData.userMetricsDto.womens ? selectedCheckBoxStyle : checkBoxStyle),
+																				...{'border-bottom-left-radius': `${cornerRad}`}
+																			}}
+																			onClick={() => this._handleBoxChecked('womens')} 
+																		>
+																		</div>
 																	</div>
-																	<div id="mens" style={{'display':'inline-block'}}>
-																		<div style={radioTitleStyle}>Mens</div>
-																		<div style={this.state.profileData.userMetricsDto.mens ? selectedCheckBoxStyle : checkBoxStyle} onClick={() => this._handleBoxChecked('mens')}></div>
+																	<div 
+																		id="mensApparel" 
+																		className={ProfileMenuStyles.apparelBtnContainer_div}
+																		style={{'margin-left':'-1px'}}
+																	>
+																		<div 
+																			style={{
+																				...(this.state.profileData.userMetricsDto.mens ? selectedCheckBoxStyle : checkBoxStyle),
+																				...{'border-bottom-right-radius':`${cornerRad}`}
+																			}} 
+																			onClick={() => this._handleBoxChecked('mens')}
+																		>
+																		</div>
 																	</div>
 																</div>
-																<div id="apparelInterestTitle" style={{'display':'inline-block', 'vertical-align':'bottom'}}>
+																<div 
+																	id="apparelInterestTitle" 
+																	className={ProfileMenuStyles.optionsHeader_div}
+																>
 																	Apperel Interest
 																</div>			
 															</div>								

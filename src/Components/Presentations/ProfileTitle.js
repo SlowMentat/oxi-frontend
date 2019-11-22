@@ -2,6 +2,7 @@ import React from 'react';
 import MetricStyles from '../../metric.scss';
 import Metric from './Metric.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 const metricTitleContainer_div = {
 	'height': 'calc(5vh + 28px)',
@@ -18,7 +19,19 @@ const ProfileTitle = (props/*{ownerName = '', hostName = ''}*/) => {
 		ownerName,
 		hostName,
 		isMobile,
+		webAppView,
+		location,
 	} = props;
+
+	const pathArray = location.pathname.split('/');
+	var name = 'unknown';
+	var URI = pathArray[pathArray.length - 1];
+
+	if(webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && URI){
+		name = URI;
+	}else{
+		name = ownerName;
+	}
 
 	return (
 	    <div className={MetricStyles.metricsDataHeader_div}>
@@ -29,7 +42,7 @@ const ProfileTitle = (props/*{ownerName = '', hostName = ''}*/) => {
 	    	</div>
 	    	<div className={MetricStyles.profileDetails_div}>
 		    	<div className={MetricStyles.profileOwnerName_div}>
-		    		{ownerName}
+		    		{name}
 		    	</div>
 		    	<div className={MetricStyles.followingContainer_div}>
 		    		<div className={MetricStyles.followingStats_div}>

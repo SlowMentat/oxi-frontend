@@ -7,6 +7,8 @@ const mapStateToProps = (state) => {
 	return ({
 		ownerName : (state.entitiesReducer.profile.byIds.owner === undefined ? '' : state.entitiesReducer.profile.byIds.owner.username),
 		hostName : (state.entitiesReducer.profile.byIds.host === undefined ? '' : state.entitiesReducer.profile.byIds.host.username),
+		webAppView: state.appView.webAppView,
+		location: state.router.location,
 	});
 }
 

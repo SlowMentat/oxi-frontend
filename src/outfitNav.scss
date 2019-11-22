@@ -61,6 +61,13 @@
 :local(.previewBrowseContainer){
 	composes:previewContainer;
 	background-color: var(--main-background-color);
+
+	@include desktop_rules {
+	}
+
+	@include mobile_rules {
+		border-radius: 0px;
+	}
 }
 
 /*:local(.outfitCtrlButton){

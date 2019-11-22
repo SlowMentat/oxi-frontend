@@ -36,7 +36,20 @@ class PagedOutfitList extends React.Component{
 	render(){
 		const {
 			webAppView,
+			owner,
+			location,
 		} = this.props;
+
+		const {
+			profileStatsDto,
+		} = owner ? owner : ({});
+
+		const pathArray = location.pathname.split('/');
+		var URI = pathArray[pathArray.length - 1];
+
+		const isOwner = owner ?
+			URI === owner.username :
+			(false);
 
 		return(
 			<PagedListContainer
@@ -71,7 +84,13 @@ class PagedOutfitList extends React.Component{
 							>
 								<ProfileTitleContainer isMobile={true}/>
 								<div className={Styles.points_div}>
-									12649
+									{
+										!isOwner || !profileStatsDto ? 
+											null :
+											profileStatsDto.points >= 0 ?
+												profileStatsDto.points : 
+												null
+									}
 								</div>										
 							</div>
 						</div>
@@ -116,6 +135,7 @@ class PagedOutfitList extends React.Component{
 											outfit={this.props.outfits[outfitId]}
 											//likeCountIdsSize={this.props.likeCountIdsSize}
 											toggleMetricPanel={this.props.toggleMetricPanel}
+											owner={this.props.owner}
 										/> :
 										null)
 									) : null}
@@ -133,6 +153,7 @@ class PagedOutfitList extends React.Component{
 											webAppView={null}
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
+											owner={this.props.owner}
 											//containerWidth={this.props.containerWidth}
 											//toggleMetricPanel={this.props.toggleMetricPanel}
 										/>

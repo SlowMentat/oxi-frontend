@@ -278,6 +278,7 @@ export class Outfit extends React.Component{
 											getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
 											handleTileSelected={this._handleTileClicked}
 											toggleMetricPanel={this.props.toggleMetricPanel}
+											owner={this.props.owner}
 										/>
 									)
 							}

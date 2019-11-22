@@ -66,6 +66,9 @@ const mapStateToProps = (state, props) => {
 		entitiesStateReducer: state.entitiesStateReducer,
 
 		likeCountIds: state.entitiesReducer.likeCount.byIds,
+		owner: state.entitiesReducer.profile.byIds.owner,
+		profileStats : state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.profileStatsDto : undefined,
+		location: state.router.location,
 		//profileIds: state.entitiesReducer.profile.byIds,
 		//likeCountIdsSize: state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.likeCountIds.length : null,
 	});
@@ -139,7 +142,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 			dispatch(updateOutfitCoverpicuri(modifiedProperties));
 		});
 	},	
-	navToHostProfile : (hostUsername) => {	
+	navToHostProfile : (hostUsername, owner) => {	
 		//Deselect everything
 		/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
 		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
@@ -150,7 +153,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
 		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
 	
-		dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
+		dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase(), null, hostUsername, owner));
 	},
 	compareHostMeasurements: (outfitId) => {
 

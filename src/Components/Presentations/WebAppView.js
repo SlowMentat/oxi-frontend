@@ -28,7 +28,7 @@ import {Button} from '../../Components/Presentations/Controls.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitnav.scss';
+import OutfitNavStyles from '../../outfitnav.scss'; 
 import Styles from '../../root.scss';
 import NavStyles from '../../nav.scss';
 import MetricStyles from '../../metric.scss';
@@ -94,43 +94,12 @@ export function SiteNav(props){
     										<Nav 
     											blocks={Object.keys(OxiAppConstants.navRequestMap)} 
     											{...props}
-    											//callBacks={props.navEventCallbacks} 
-    											//webAppView={props.webAppView} 
-    											//match={props.match}
-    											//ownerUsernamePath={props.ownerUsernamePath} 
     										/>
     									)
     							}
     						</div>
     					</React.Fragment>
-    				) /*: (
-    					<React.Fragment>
-    						<div className={NavStyles.landingLogoContainer_div}>
-    							<div className={NavStyles.landingLogo_div}>
-    								<SvgIcon 
-    									name='LogoIconFitsee' 
-    									style={Object.assign( {}, logo_svg, {
-    										width:'100%', 
-    										height:'75%', 
-    										position:'absolute', 
-    										'margin-left':'0px',
-    										'padding-top':'0px',
-    										'padding-bottom':'0px'
-    									})}
-    								/>
-    							</div>
-    						</div>
-    						<div style={{float:'right', width:'0px'}}>
-    							<div className={NavStyles.landingCtrl_div}>
-    								<div className={NavStyles.landingBtnContainer_div}>
-    									<div className={NavStyles.landingBtn_div}>
-    										Login
-    									</div>
-    								</div>
-    							</div>
-    						</div>    						
-    					</React.Fragment>
-    				)*/
+    				)
     		}
     	</div>
 	);
@@ -271,43 +240,56 @@ class OutfitNav extends React.Component{
 	}
 
 	render(){
-		let browseContent = null;
-		let browseNavStyle = null;
-		let containerHeight = this.props.imageHeight;
-		let containerWidth = this.props.imageWidth*(OxiAppConstants.aspectRatio);		
+		const {
+			owner,
+			pathname,
+			webAppView,
+			imageHeight,
+			imageWidth,
+		} = this.props;
+
+		var URI = pathname ? pathname.split('/') : '';
+		var browseContent = null;
+		var browseNavStyle = null;
+		var containerHeight = imageHeight;
+		var containerWidth = imageWidth*(OxiAppConstants.aspectRatio);		
 
 		const controls = (
 			<div 
 				//className={Styles.controlsContainer}
 				className={Styles.addOutfitControlsContainer}
 			>
-				<div 
-					className={OutfitNavStyles.outfitCtrlBtn_div}
-					style={{
-					}}>
-					{/*<div
-							className={OutfitNavStyles.outfitCtrlBtnContent_div}
+				{
+					owner && owner.username === URI[URI.length - 1] ?
+						(<div 
+							className={OutfitNavStyles.outfitCtrlBtn_div}
 							style={{
 							}}>
-							+
-						</div>*/}
-					<Button
-						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
-						onClickHandler={this.props.handleAddOutfitClicked}
-						title='add new outfit'
-						iconName='AddOutfitIcon'
-						expandedWidth={150}
-						buttonHeight={40}
-						customButtonStyles={{
-							color:'white',
-							'margin':'auto',		
-						}} />
-				</div>
+							{/*<div
+									className={OutfitNavStyles.outfitCtrlBtnContent_div}
+									style={{
+									}}>
+									+
+								</div>*/}
+							<Button
+								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+								onClickHandler={this.props.handleAddOutfitClicked}
+								title='add new outfit'
+								iconName='AddOutfitIcon'
+								expandedWidth={150}
+								buttonHeight={40}
+								customButtonStyles={{
+									color:'white',
+									'margin':'auto',		
+								}} />
+						</div>) :
+						null
+				}
 			</div> 
 		);
 
 		const browseWrapper = (wrappedStuff) => (
-			this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
+			webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ?			
 				( 
 					//add editional html here
 					wrappedStuff
@@ -367,7 +349,7 @@ class OutfitNav extends React.Component{
     								//style={
     								//	this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
     								//		({
-    								//			height: (this.props.imageHeight > this.props.imageWidth ? `calc(${this.props.imageHeight}px)` : `calc(100% - 80px - 80px)`),
+    								//			height: (imageHeight > imageWidth ? `calc(${imageHeight}px)` : `calc(100% - 80px - 80px)`),
     								//			width: `calc(${containerWidth !== 0 ? containerWidth : 350}px)`,
     								//		}) : 
     								//		({})
@@ -413,14 +395,14 @@ export default class webAppView extends React.Component {
 		this._handleImageResized = this._handleImageResized.bind(this);
 		this._handleNavBtnSelected = this._handleNavBtnSelected.bind(this);
 		this.setPreviewFocus = this.setPreviewFocus.bind(this);
-		this._handleAddOutfitClcik = this._handleAddOutfitClcik.bind(this);
+		this._handleAddOutfitClicked = this._handleAddOutfitClicked.bind(this);
 		this.toggleMetricPanel = this.toggleMetricPanel.bind(this);
 		this.previousLocation = props.location;
 
 		var {
 			pathname,
 			owner,
-		} = this.props;
+		} = props;
 
 		switch(true){
 			//Browse
@@ -584,8 +566,9 @@ export default class webAppView extends React.Component {
 		})
 	}
 
-	_handleAddOutfitClcik(event){
+	_handleAddOutfitClicked(event){
 		if(!this.props.buttonDisabled){this.props.addOutfit(1, undefined, this.props.entitiesStateReducer);}
+		this.props.setPreviewFocus();
 	}
 
 	componentWillUpdate(nextProps){
@@ -617,9 +600,9 @@ export default class webAppView extends React.Component {
 		var { 
 			location,
 			pathname,
+			owner,
 			viewState,
 			isFocusedPreview,
-			viewState,
 		} =  this.props;
 
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
@@ -659,14 +642,14 @@ export default class webAppView extends React.Component {
 				break;
 		}
 		console.log('this.previousLocation = ', this.previousLocation);
-		console.log('this.props.location = ', location);
-		console.log('this.props.owner = ', this.props.owner);
+		console.log('location = ', location);
+		console.log('owner = ', owner);
 		/*switch(this.state.navDestination){
 			case 'profile'
 				<Redirect push={true} to={`${this.props.match.url}/profile${}`}/>
 				<Route path={this.props.match.url + 'profile'}/>
 		}*/
-		let ownerUsernamePath = this.props.owner ? `/${this.props.owner.username}` : '';
+		let ownerUsernamePath = owner ? `/${owner.username}` : '';
 		return(
 			<React.Fragment>
 				<Switch pathname >{/*location={isModal ? this.previousLocation : location}>*/}
@@ -707,8 +690,10 @@ export default class webAppView extends React.Component {
 											browseSelection={this.props.browseSelection}											
 											toggleMetricPanel={this.toggleMetricPanel}
 											handleAddOutfitClicked={this._handleAddOutfitClicked}
+											pathname={pathname}
+											owner={owner}
 											/*routeToHostProfile={(usernameUri) => this._handleNavBtnSelected(`/profile${usernameUri}`)}*/ />
-										{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
+										{/*(location.state && location.state.modal) ? <ModalContentSelection/> : null*/}
 										<Admin/>
 									</div>
 								</div>
@@ -785,6 +770,8 @@ export default class webAppView extends React.Component {
 															setPreviewFocus={setPreviewFocus} 
 															toggleMetricPanel={this.toggleMetricPanel}
 															handleAddOutfitClicked={this._handleAddOutfitClicked}
+															pathname={pathname}
+															owner={owner}
 														/>
 
 														
@@ -800,7 +787,7 @@ export default class webAppView extends React.Component {
 										<Admin/>
 									</div>
 								</div>
-								{/*(this.props.location.state && this.props.location.state.modal) ? <ModalContentSelection/> : null*/}
+								{/*(location.state && location.state.modal) ? <ModalContentSelection/> : null*/}
 							</div>
 						)}
 					/>

@@ -40,6 +40,7 @@ export class MetricPanel extends React.Component{
 			webAppView,
 			isFocusedPreview,
 			isOpen,
+			profileStats,
 		} = this.props;
 
 		return(
@@ -91,7 +92,13 @@ export class MetricPanel extends React.Component{
 									//<ProfileControlContainer /> :
 									(
 										<div className={Styles.points_div}>
-											12649
+											{
+												!profileStats ? 
+													null :
+													profileStats.points >= 0 ?
+														profileStats.points : 
+														null
+											}
 										</div>
 									) :
 									<BrowseControlContainer />

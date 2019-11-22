@@ -58,7 +58,7 @@ class CroppableImageForm extends React.Component{
 		};
 
 		let existingContents = {};
-		Object.keys(this.props.addedContents).map(id => Object.assign( existingContents, {[id]:this.imageDataTemplate} ) );
+		Object.keys(this.props.addedContents.byIds).map(id => Object.assign( existingContents, {[id]:this.imageDataTemplate} ) );
 
 		this.state = {
 			flag:true,
@@ -130,6 +130,7 @@ class CroppableImageForm extends React.Component{
 				const {
 					contentState,
 					addedContents,
+					viewState,
 				} = this1.props;
 
 				var postLoadTasks = [];
@@ -143,6 +144,12 @@ class CroppableImageForm extends React.Component{
 
 					for(let prevId of prevProps.addedContents.allIds){
 						if(id === prevId){
+							// When a user adds an outfit, a content entity with id=1 is already provisioned in addedEntitiesReducer. 
+							// As such, when loadAllImages is invoked, this content entiy id will be filterd and the image data will not be loaded.
+							// To prevent this, do not filter if this is the only content entity in addedContents and if user is in "add" viewstate.
+							if(addedContents.allIds.length === 1 && viewState === OxiAppConstants.viewState.ADD){
+								return true;
+							}
 							return false;
 						}
 					}
@@ -160,15 +167,158 @@ class CroppableImageForm extends React.Component{
 
 							return( async (event) => {
 
-								var exifData = {};
-								var view = new DataView(readers[ti].result); // ?
+								const headerOffsets ={
+									APP1_MARKER: 2,
+									APP1_DATA_SIZE: 2,
+									EXIF_HEADER: 6,
+									TIFF_HEADER: 8,
+								}
+
+								const totalHeaderoffset = Object.keys(headerOffsets).reduce((accum, key) => (accum + headerOffsets[key]), 0);
+
+								let exifData = {};
+								let subIFDData = {};
+								let view = new DataView(readers[ti].result); // ?
 								
 								if(view.getUint16(0, false) !== 0xFFD8){
 									console.log('error -2: Not a JPEG format')
 								}
 
 								var length = view.byteLength;
-								var offset = 2; //skip SOI Marker and set offset on APP1 Marker
+								// Skip SOI Marker and set offset on APP1 Marker
+								let offset = 2;
+								// Stores the value of the exifOffset directory.
+								let subIFDOffset = null;
+								// Stores the adx of the exifOffset directory value.
+								var exifOffsetAdx = null;
+
+								// Extracts the IFD value given the entry number.  This is invoked while looping through tags below.
+								// Each tag entry is 12 bytes.
+								// [ Tag Number ] [ data format ] [ # of components ] [ data value or offset to data value]
+								//     2 bytes        2 bytes          4 bytes                     4 bytes 
+								const getIFDValueFromEntry = (entry, tagLUT, ifdOffset) => {
+
+									// Note: entry initially 0
+									let tagNumber = view.getUint16(ifdOffset + (entry * 12), little);
+									let dataFormat = view.getUint16(ifdOffset + (entry * 12) + 2, little);
+									let componentCount = view.getUint32(ifdOffset + (entry * 12) + 4, little);
+									let bytesPerComponent = OxiAppConstants.exifDataFormats[dataFormat];
+
+									let tagName = tagLUT[tagNumber] ? tagLUT[tagNumber].name : tagLUT[tagNumber];
+									tagName ? console.log('tagNumber = ', tagNumber, ', tagName = ', tagName, ', dataFormat = ', dataFormat, ', bytesPerComponent = ', bytesPerComponent, ', componentCount = ', componentCount) : null;
+									//Determine if the data value is gt. 4 bytes and is instead referenced by an ifdOffset value.
+									let sizeOfValue = bytesPerComponent * componentCount;
+									let isValueOffset = sizeOfValue > 4;
+
+									if(tagName){												
+										var value = null;
+										//if entry value is too large, store its ifdOffset
+										var offsetToValue = null;
+										var entryOffset = ifdOffset + (entry * 12) + 8;
+
+										//Don't know why 12 is added.  It just works.
+										offsetToValue = isValueOffset ? (view.getUint32(entryOffset, little) + 12) : entryOffset;
+
+										//const getNextAdx = (cc) => (offsetToValue + 12 + (bytesPerComponent * cc));
+										const getNextAdx = (cc) => (offsetToValue + (bytesPerComponent * cc));
+	
+										for(var c = 0; c < componentCount; c++){
+											
+											//unsigned formats
+											if(dataFormat < 6){
+												switch(dataFormat){
+	
+													//unsigned byte
+													case 1:
+	
+													//ascii strings
+													case 2:
+														value = (value || '') + String.fromCharCode( view.getUint8( getNextAdx(c), little ));
+														break;	
+													
+													//unsigned short
+													case 3:
+														value = (value << (bytesPerComponent * 8)) | view.getUint16( getNextAdx(c), little);
+														//value = view.getUint16( getNextAdx(c), little);
+														break;
+													
+													//unsigned long
+													case 4:
+														value = (value << (bytesPerComponent * 8)) | view.getUint32( getNextAdx(c), little);
+														//value = view.getUint32( getNextAdx(c), little);
+														break;
+													
+													// Unsigned rational
+													// Special case where value is 8 bytes; first 4bytes represent numerator, and last 4 bytes represent denominator
+													case 5:
+														var numerator = view.getUint32( getNextAdx(c), little);
+														var denominator = view.getUint32( getNextAdx(c+0.5), little);
+														value = `${numerator}/${denominator}`;
+														break;
+		
+													default:
+														value = (value << (bytesPerComponent * 8)) | view.getUint16( getNextAdx(c), little);
+														break;
+												}
+											}
+	
+											//signed formats
+											else{
+												switch(dataFormat){	
+	
+													//signed Byte
+													case 6:
+													
+													//undefined
+													case 7:
+														break;
+	
+													//signed short
+													case 8:
+														value = (value << (bytesPerComponent * 8)) | view.getInt16( getNextAdx(c), little);
+														break;
+													
+													//signed long
+													case 9:
+														value = (value << (bytesPerComponent * 8)) | view.getInt32( getNextAdx(c), little);
+														break;
+			
+													// Signed rational
+													// Special case where value is 8 bytes; first 4bytes represent numerator, and last 4 bytes represent denominator
+													case 10:
+														var numerator = view.getInt32( getNextAdx(c), little);
+														var denominator = view.getInt32( getNextAdx(c+0.5), little);
+														value = `${numerator}/${denominator}`;
+														break;
+			
+													//single float
+													case 11:
+														value = (value << (bytesPerComponent * 8)) | view.getFloat32( getNextAdx(c), little);
+														break;
+													
+													//double float
+													case 12:
+														value = (value << (bytesPerComponent * 8)) | view.getFloat64( getNextAdx(c), little);
+														break;
+			
+													default:
+														value = (value << (bytesPerComponent * 8)) | view.getInt16( getNextAdx(c), little);
+														break;
+												}
+											}
+										}
+
+										//get the address to the Exif SubIFD (exifOffset will be <= 4 bytes)
+										if(tagName === 'exifOffset'){
+											//exifOffsetAdx = ifdOffset + (entry * 12) + 8;
+											subIFDOffset = value + 12;//totalHeaderoffset + 2 + 4;
+										}
+
+										return ({[tagName] : value});
+									}
+
+									return ({});
+								}
 
 								while(offset < length){
 									if(view.getUint16(offset + 2, false) <= 8){
@@ -180,85 +330,148 @@ class CroppableImageForm extends React.Component{
 									offset += 2; 
 
 									if(marker == 0xFFE1){
-										//look ahead first 2 bytes of Exif Header to check if Exif or Ascii data type
+										// Look ahead up to the first 2 bytes of Exif Header to check if Exif or Ascii data type
 										if(view.getUint32(offset += 2, false) != 0x45786966){
 											console.log('Exif header not defined');
 											break;//return;
 										}
 
-										//determine Intel or Motorola byte alignment 
-										//Note:  Exif Header and with 2 bytes 0x00
+										// Determine Intel or Motorola byte alignment 
+										// Note:  Exif Header end with 2 bytes 0x00
 										var little = view.getUint16(offset += 6, false) == 0x4949;
 
-										//set offset to the start of IFD (Image File directory)
+										// Set offset to the start of IFD (Image File directory).
 										offset += view.getUint32(offset + 4, little);
-										var tags = view.getUint16(offset, little);
+										var ifdStart = offset;
+										var tagCount = view.getUint16(offset, little);
 
-										//skip first 2 bytes in IFD (inidcating number of directories)
-										offset += 2;
+										// Skip first 2 bytes in IFD (inidcating number of entries in the IFD).
+										offset += 2; 
 
 
-										// Loop through tags in IFD
-										// each tag entry is 12 bytes
-										// [ Tag Number ] [ data format ] [ # of components ] [ data value or offset to data value]
-										// 		2 bytes 	2 bytes 			4 bytes 					4 bytes 
-										for(var i = 0; i < tags; i++){
+										// Loop through tags in IFD.
+										for(var i = 0; i < tagCount; i++){
 
-											let tagNumber = view.getUint16(offset + (i * 12), little);
-											let tagName = OxiAppConstants.exifTags[ tagNumber ];
-
-											if(tagName){
-												exifData = {
-													...exifData, 
-													...{
-														[tagName]: (view.getUint16(offset + (i * 12) + 8, little)) 
-													}
+											exifData = {
+												...exifData, 
+												...{
+													//[tagName]: (view.getUint16(offset + (i * 12) + 8, little)) 
+													...(getIFDValueFromEntry(i, OxiAppConstants.exifTags, offset))
 												}
-											}
+											}											
 										}
 
+										// Build subIFD (digitizer data) object
+										// Note: this block will update subIFDOffset to jump to sub IDF, so all directory entries should be processed.
+										if(subIFDOffset){
+											//subIFDOffset = subIFDOffset == 238 ? 226 : subIFDOffset; 
+											// Position subIFDOffset to the beginning of subIFD.
+											//subIFDOffset += (12 * exifOffsetAdx) + subIFDOffset;
+											//offset = subIFDOffset;
+											// Get the directory entry count of the subIFD
+											var ifdTagCount = view.getUint16(subIFDOffset, little);
+											// Skip first 2 bytes in subIFD (inidcating number of entries in the IFD).
+											subIFDOffset += 2;
+
+											for(var i = 0; i < ifdTagCount; i++){
+												
+												subIFDData = {
+													...subIFDData, 
+													...{
+														//[tagName]: (view.getUint16(subIFDOffset + (i * 12) + 8, little)) 
+														
+														...(getIFDValueFromEntry(i, OxiAppConstants.subIFDTags, subIFDOffset)) 
+													}
+												}	
+											}
+
+											subIFDOffset = null;
+										}
 									}
+
 									else if((marker & 0xFF00) != 0xFF00){
 										//
 										break;
 									}
+
 									else{
 										offset += view.getUint16(offset, false);
 									}
 								}
 
+								exifData = {
+									...exifData,
+									subIFDData,
+								}
+
+								console.log('exifData = ', exifData);
 								var rotation = 0;
 								var image = new Image();
 								var imgData = arrayBufferToDataURL(readers[ti].result, 'image/jpeg');
 
-								//rotate image based on EXIF orientation
-								//Camera Orientation	correction (degrees clockwise rotation)
+								var isPortrait = exifData.yResolution > exifData.xResolution ? 
+									(true) : 
+									exifData.yResolution = exifData.xResolution ? 
+										(undefined) : 
+										(false) ;
+
+
+								// Rotate image based on EXIF orientation.
+								// Camera Orientation	correction (degrees clockwise rotation).
 								// 1 : ┴ 				0
-								// 8 : ┤				270
+								// 8 : ├				270
 								// 3 : ┬				180
-								// 6 : ├				90
-								switch(true){
-									case exifData.orientation === 1:
-										rotation = 90; //for testing
-										break;
+								// 6 : ┤				90
 
-									case exifData.orientation === 8:
-										rotation = 270;
-										break;
-
-									case exifData.orientation === 3:
-										rotation = 180;
-										break;
-
-									case exifData.orientation === 6:
-										rotation = 90;
-										break;
-
-									default:
-										break;
+								//Portrait is the default orientation
+								if(isPortrait){
+									switch(true){
+										case exifData.orientation === 1:
+											rotation = 0; //for testing
+											break;
+	
+										case exifData.orientation === 8:
+											rotation = 270;
+											break;
+	
+										case exifData.orientation === 3:
+											rotation = 90;
+											break;
+	
+										case exifData.orientation === 6:
+											rotation = 90;
+											break;
+	
+										default:
+											break;
+									}
 								}
 
-								//Rotate image
+								//Landscape is the default orientation
+								else if(!isPortrait || isPortrait === undefined){
+									switch(true){
+										case exifData.orientation === 1:
+											rotation = 0; //for testing
+											break;
+	
+										case exifData.orientation === 8:
+											rotation = 270;
+											break;
+	
+										case exifData.orientation === 3:
+											rotation = 180;
+											break;
+	
+										case exifData.orientation === 6:
+											rotation = 90;
+											break;
+	
+										default:
+											break;
+									}								
+								}
+
+								// Rotate image
 								if(rotation !== 0){
 									imgData = await new Promise((resolve, reject) => {
 										image.onload = async function(){
@@ -287,7 +500,7 @@ class CroppableImageForm extends React.Component{
 	
 						postLoadTasks[taskInd] = new Promise((resolve, reject) => {
 
-							//pass a copy of taskInd as ti so that the proper value is used when invoking getOnloadHandler
+							// Pass a copy of taskInd as ti so that the proper value is used when invoking getOnloadHandler
 							readers[taskInd].onload = ((ti) => (event) => {
 								resolve(getOnloadHandler(id, this1, images, ti)(event));
 							})(taskInd);
@@ -306,15 +519,15 @@ class CroppableImageForm extends React.Component{
 					taskInd++;
 				}
 
-				//wait until all images have been loaded and processed
-				//then recompose images object with results
+				// Wait until all images have been loaded and processed
+				// Then recompose images object with results
 				let result = await Promise.all(postLoadTasks).then(values => (
 					values.reduce((accum, value) => ({
 						...accum,
 						...value,
 					}), images)
 				));
-				//return {...images};
+
 				return result;
 			};
 			
@@ -585,7 +798,10 @@ class CroppableImageForm extends React.Component{
 			if(currentCount + addCount < (OxiAppConstants.maxContentCount + 1)){
 				//make sure file reference does not already exist in this.fileRefs
 				if (this.fileRefs[event.target.files[i].name] === undefined){
-					newFileRefs = Object.assign({}, newFileRefs, {[event.target.files[i].name]: event.target.files[i]} );				
+					newFileRefs = {
+						...newFileRefs, 
+						...{[event.target.files[i].name]: event.target.files[i]} 
+					};				
 				}else{
 					console.log('Image is already being editted.  Remove image from editor before adding again')
 				}
@@ -596,7 +812,10 @@ class CroppableImageForm extends React.Component{
 			addCount++;
 		}
 
-		this.fileRefs = Object.assign({}, this.fileRefs, newFileRefs );
+		this.fileRefs = {
+			...this.fileRefs, 
+			...newFileRefs 
+		};
 
 		if(Object.keys(newFileRefs).length > 0){
 			this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents);
@@ -987,13 +1206,14 @@ class CroppableImageForm extends React.Component{
 			contentState,
 			src,
 			images,
+			entitiesStateReducer,
 		} = this.props;
 
 		const {
 			imageHeight
-		} = Object.keys(images).length > 0 ? images[contentState.selected] : {};
+		} = Object.keys(images).length > 0 ? images[contentState.selected] : ({});
 
-		contentState.selected = this.props.entitiesStateReducer.contents.selected;
+		contentState.selected = entitiesStateReducer.contents ?  entitiesStateReducer.contents.selected : undefined;
 		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
 		let content = null;
 		//let src = this.getImageSrc();
@@ -1006,7 +1226,7 @@ class CroppableImageForm extends React.Component{
 			display:'inline-block',
 		}
 
-		if(images[contentState.selected]){
+		if(contentState.selected && images[contentState.selected]){
 
 			if(images[contentState.selected].cropping){
 				content = (
@@ -1021,6 +1241,7 @@ class CroppableImageForm extends React.Component{
 							height:'100%',
 							'max-height': `${images[contentState.selected].maxHeight}${images[contentState.selected].maxHeight === 'unset' ? '' : 'px'}`,//`${maxHeightVal}px`,
 							'margin-top': `${images[contentState.selected].minYPixel}px`,//`${this.minYPixel}px`//`calc(${this.maxHeight}px/2 - ${imageHeight}px/2)`
+							width: 'auto',
 						}}
 						cropImgRoot={this.cropImgRoot}
 						src={src}
