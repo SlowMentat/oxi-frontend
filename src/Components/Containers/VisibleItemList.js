@@ -168,7 +168,7 @@ const mapDispatchToProps = dispatch => ({
 	},
 	clientInvalidateItems: (itemIds) => dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, itemIds)),
 	compareMetrics: (metrics) => {
-		dispatch(replaceProfile({'host' : {'userMetricsDto': metrics}}));
+		metrics ? dispatch(replaceProfile({'host' : {'userMetricsDto': metrics}})) : null;
 	},
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 })

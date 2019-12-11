@@ -84,16 +84,17 @@ const mapDispatchToProps = (dispatch, props) => ({
 		//Note:  this is anticipating content id of 1 since there should only 
 		//be one content entity present in the addedEntitiesReducer at anygiven time.
 		dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT));
-		//dispatch(addOutfit('','','','',[1], profileId));
 
 		dispatch(addOutfit(Object.assign({}, OxiAppConstants.EntityTemplates.OUTFIT, {contents: outfitIds})));
 		dispatch(addContent(Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {})));
+
 		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], 1, entitiesStateReducer));
-		//dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], null));
 
 		dispatch(disableAddOutfit(true));
 		dispatch(editContentView(OxiAppConstants.viewState.ADD));
+
 		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitIds));
+		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [1]))
 	}
 })
 

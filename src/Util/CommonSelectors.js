@@ -31,7 +31,7 @@ import {OxiAppConstants} from './OxiAppConstants.js';
 
 export const maskEdits = (entities, idsEditting) => {
 	let filteredEntities = Object.assign({}, entities, {byIds: {...entities.byIds}});
-	console.log('maskEdits:  entities = ', entities);
+	//console.log('maskEdits:  entities = ', entities);
 	if(idsEditting.length > 0){
 		const result = filteredEntities.allIds.filter(entityKey => {
 			for(let id of idsEditting){
@@ -44,6 +44,6 @@ export const maskEdits = (entities, idsEditting) => {
 		});
 		filteredEntities.allIds = result;
 	}
-	console.log('filteredEntities = ', filteredEntities);
+	//console.log('filteredEntities = ', filteredEntities);
 	return filteredEntities;
 }

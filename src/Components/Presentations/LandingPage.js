@@ -301,7 +301,7 @@ class CreateAccountForm extends React.Component{
 	}
 
 	_handleOnSubmit(){
-		console.log("\"Creat Profile\" clicked");
+
 		const {validEmailSyntax} = this.state.fieldCompleteness.email;
 		const {validPasswordLength, validPasswordLowercase, validPasswordNumber, validPasswordUppercase} = this.state.fieldCompleteness.password;
 		const {validUsername} = this.state.fieldCompleteness.username;

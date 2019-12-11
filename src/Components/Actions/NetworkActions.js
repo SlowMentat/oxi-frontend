@@ -21,13 +21,15 @@ import * as entityActions from './EntityActions/Index.js';
 import * as types from './Types.js';
 import * as genericActions from './GenericActions.js';
 import * as scaffolding from './Scaffolding.js';
-import {setFormVisibility} from './indexActions.js'
-
+import {setFormVisibility} from './indexActions.js';
+import {RequestFailedException} from '../../Util/CustomExceptions.js';
 
 
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
 export const requestNavigation = scaffolding.makeActionCreator(types.REQUEST_NAVIGATION, null, 'location');
 export const cookies = new Cookies();
+const CancelToken = axios.CancelToken;
+const source = CancelToken.source();
 
 const postConfig = (url, data, params, headers) => {
 	//let authScheme = cookies.get('auth_scheme') !== null ? cookies.get('auth_scheme') : '';
@@ -48,13 +50,14 @@ const postConfig = (url, data, params, headers) => {
 	};
 }
 
-export const loginConfig = (username, password) => {
+export const loginConfig = (payload/*username, password*/) => {
 	return postConfig(
-		OxiAppConstants.apiBaseURL + '/login',
+		OxiAppConstants.serviceURL + '/login',
 		{
 			//'X-CSRF-TOKEN' : cookies.get('csrf_token'),
-			'username' : username,
-			'password' : password
+			//'username' : username,
+			//'password' : password
+			...payload,
 		},
 		{
 		},
@@ -71,9 +74,11 @@ export function handleUnauthorizedRequest(response){
 		if(response.status === OxiAppConstants.HttpStatus.UNAUTHORIZED || response.status === OxiAppConstants.HttpStatus.REDIRECT){
 			console.log('Setting new csrf token');
 			console.log(response.headers['x-csrf-token']);
+
 			cookies.set('csrf_token', response.headers['x-csrf-token']);
 			cookies.set('authorization', response.headers['www-authenticate'] + ' ');
 			axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
+
 			dispatch(setFormVisibility("Login", response.request.responseURL, response.config.method));
 			return response;
 		}
@@ -83,12 +88,12 @@ export function handleUnauthorizedRequest(response){
 
 //Thunks dispatched by anonymous callback functions passed to Axios response interceptor
 export const insertCsrfToken = (config) => {
-	console.log("Adding to request headers the csrf_token stored in cookies");
+	/*console.log("Adding to request headers the csrf_token stored in cookies");
 	console.log(cookies.get('csrf_token'));
 	if(cookies.get('csrf_token') !== null){
 		console.log("csrf_token in cookies is not null");
 		config['X-CSRF-TOKEN'] = cookies.get('csrf_token')		
-	}
+	}*/
 	return config;
 };
 
@@ -100,39 +105,49 @@ export const receivedSearchUserDefinedSizes = scaffolding.makeActionCreator(type
 export const receivedAllApparelTypes = scaffolding.makeActionCreator(types.RECEIVED_ALL_APPAREL_TYPES, null, 'allApparelTypes');
 export const receivedSizeGroupsByItemId = scaffolding.makeActionCreator(types.RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
 
-
-//Modifies content.picture json with the json data returned from Posting image data to server
-//Also updates each content's coverpicuri if picture object has been updated.
-//@param {Object} contentJson:  the [contents] json body to be modified
-//@param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
+/*
+*  Modifies content.picture json with the json data returned from Posting image data to server, and updates each content's coverpicuri if picture object has been updated.
+*  
+*  @param {Object} contentJson:  the [contents] json body to be modified
+*  @param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
+*/
 function graftPictureJson(contentsJson, picturesJson){
+
 	if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
+
 		//Case when a single new content is posted.  the returned picture json object has id and contentId properties = null.
 		if(picturesJson[0].contentId === null){
 			picturesJson[0].contentId = undefined;
+
 			//set picture and coverpicuri properties
-			contentsJson[0] = Object.assign({}, contentsJson[0], {
+			contentsJson[0] = {
+				...contentsJson[0],
 				coverpicuri: picturesJson[0].thumbnailuri,
-				picture: picturesJson[0]
-			});
-		}else{
+				picture: picturesJson[0],
+			};
+		}
+
+		else{
+
 			for(let pkey of Object.keys(picturesJson)){
+
 				for(let ckey of Object.keys(contentsJson)){
+
 					if(contentsJson[ckey].id === picturesJson[pkey].contentId){
-						//set id property of picture json to undefined if server returns as null (new Picture entity)
-						//if(picturesJson[pkey].id === null) picturesJson[pkey].id = undefined;
 						//remove content property from the picture json object returned by the server
 						picturesJson[pkey].contentId = undefined;
 						//set picture and coverpicuri properties
-						contentsJson[ckey] = Object.assign({}, contentsJson[ckey], {
+						contentsJson[ckey] = {
+							...contentsJson[ckey],
 							coverpicuri: picturesJson[pkey].thumbnailuri,
 							picture: picturesJson[pkey]
-						});
+						};
 					}
 				}
 			}			
 		}
 	}
+
 	return contentsJson;
 }
 
@@ -335,7 +350,17 @@ export function getSizeChartByItemId(itemId){
 	}	
 }*/
 
-export function fetchImage(filename, callback, picture){
+const handleReqError = (thrown) => {
+	if(axios.isCancel(thrown)){
+		console.log('Request canceled', thrown.message);
+	}
+
+	else{
+		//handle error
+	}
+}
+
+export function fetchImage(filename, callback, picture, cancel=()=>{} ){
 	return function(dispatch){
 		console.log('getting image, filename = ', filename);
 		let request = axios.create({
@@ -346,56 +371,72 @@ export function fetchImage(filename, callback, picture){
 				Accept: 'image/*, application/json',
 				//contentType: 'text/html; charset=utf-8'
 				mediaType: 'jpeg, json'
-			}
+			},
+			cancelToken: new CancelToken(function executor(c){
+				// An executor function receives a cancel function as a parameter
+				cancel = c;
+			}),
 		})
 
 		if(filename.split(':', 2)[0].toLowerCase() === 'blob'){
 			request.get(filename)
-			.then(response => callback(null, response, picture));
+			.then(response => callback(null, response, picture))
+			.catch(handleReqError);
 
 		}else{
 			return request.get(OxiAppConstants.serviceURL + '/image/' + filename + '?mediaType=jpeg&mediaType=json')
 			//Server returns data enclosed in quatations.  Quotations are striped from the ByteArray here and converted utf8 charset.
 			.then(response => Buffer.from(response.data, 1, response.data.byteLength-2).toString('utf8'))
-			.then(response => callback(null, response, picture));
+			.then(response => callback(null, response, picture))
+			.catch(handleReqError);
 		}
 	}
 }
 
 //POST image data to server
-export function postImage(imageFile, onSuccess){
+/* 
+*  Creates post single multiple images to server.
+*  @param 	{Array} 		imageFile					Base64 encoded image data.
+*  @param 	{function}		generateOnSuccessHandler	callback invoked when promise resolved.  The result will be passed to this function
+*  @param 	{string}		filename 					filename associated with imageFile data.
+*
+*  @returns {object}		Promise resolving to an object where key is the filename and value is the response body (key:{string}, value:{object})		
+*/
+export async function postImage(imageFile, generateOnSuccessHandler, filename){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
 	console.log("in postImage action");
-	//TODO:  Check if file name and image aspect ratio is valid
-	//return function(dispatch){
-		//dispatch(postEntities(json));
-		axios.post(
-			OxiAppConstants.serviceURL + '/uploadPhoto', 
-			imageFormData,
-			{
-				headers:{
-					'Content-Disposition': 'form-data; name=\"imageFile\"',
-					'Content-Transfer-Encoding': 'base64',
-				}
+
+	return axios.post(
+		OxiAppConstants.serviceURL + '/uploadPhoto', 
+		imageFormData,
+		{
+			headers:{
+				'Content-Disposition': 'form-data; name=\"imageFile\"',
+				'Content-Transfer-Encoding': 'base64',
 			}
-		)
-		.then(response => {
-			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				onSuccess()(response.data);
-				//postEntities(json, response.data, enityType, onSuccess);
-			}else{
-				return response.status;
-			}
-		});
-	//}
+		}
+	)
+	.then(response => {
+
+		if(response.status === OxiAppConstants.HttpStatus.CREATED){
+			generateOnSuccessHandler && generateOnSuccessHandler()(response.data);
+			return {[filename]: response.data};
+		}
+
+		else{
+			throw response.status;
+		}
+	})
+	.catch(msg => console.error(msg));
 }
 
-export function putImage(imageFile, contentId, onSuccess){
+export function putImage(imageFile, contentId, onSuccess, filename){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
-	//Currently server does not handle Multipart PUT requests
-	axios.post(
+	console.log("#putImage:  contentId = ", contentId, ", filename = ", filename);
+
+	return axios.post(
 		OxiAppConstants.serviceURL + '/updatePhoto/' + contentId, 
 		imageFormData,
 		{
@@ -415,23 +456,226 @@ export function putImage(imageFile, contentId, onSuccess){
 	});
 }
 
+/** 
+*  Asynchronously posts or puts one or more images to server.
+*  @param {Object} [imageFiles={}] - Object property keys representing filename and corresponding values representing image data.
+*  @callback {generateOnSuccessHandler} generateOnSuccessHandler - callback invoked when promise resolved.  The result will be passed to this function*
+*/
+export async function uploadImages(imageFiles={}, generateOnSuccessHandler){
+	var pictures = {};
+	
+	try{
+		var postRequests = [];
+		var ind = 0;
+
+		for(var filename of Object.keys(imageFiles)){
+			ind++;
+
+			let {
+				contentId,
+				fileData,
+			} = imageFiles[filename] 
+
+			postRequests = [
+				...postRequests, 
+				(typeof contentId === 'number' ? postImage(fileData, null, filename) : putImage(fileData, contentId, null, filename))
+			];
+		}
+
+		await Promise.all(postRequests)
+		.then(results => {
+			console.log("#uploadImages:  pictures = ", results);
+			
+			var picturesByFilename = results.reduce((accum, result) => ({
+				...accum,
+				...result
+				//...(result.id ? ({[result.id]: result}) : {}),
+			}), pictures);
+
+			generateOnSuccessHandler()(picturesByFilename)
+		});	
+	}
+
+	catch(e){
+		console.error(e);
+	}
+}
+
+
 export function postOutfit(outfitJson, onSuccess){
-	return (pictureJson) => {
-		//TODO:  this will need to handle multiple content entites for multi-file upload
+	return (picturesByFilename) => {
 		axios.post(
 			OxiAppConstants.serviceURL + '/outfit',
-			Object.assign( {}, outfitJson,  {coverpicuri: pictureJson.smalluri, contents: Object.values( Object.assign( {}, graftPictureJson(outfitJson.contents, [pictureJson] ) ) ) } ),
-			{})
+			{
+				...outfitJson, 
+				coverpicuri: picturesByFilename[Object.keys(picturesByFilename)[0]].smalluri, 
+				contents: outfitJson.contents.map(content => {
+					let picture = picturesByFilename[content.coverpicuri];
+					return {
+						...content,
+						picture: {...picture, contentId: undefined},
+						coverpicuri: picture.thumbnailuri,
+					};
+				}),
+			},
+			{}
+		)
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				onSuccess(response, pictureJson);
+				onSuccess([response], picturesByFilename);
 			}
 			return response.status;
 		})
 	}
 }
 
+/**Post or Put content debending on the typeof id in contentJson
+*
+*/
+export function uploadContents(contents, outfitId, onSuccess){
+	return async (picturesByFilename) => {
+		
+		try{
+			var pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+			var requestBatch = [];
+	
+			// Build list of added contents.
+			var addedContents = contents.reduce((accum, content) => ([
+				...accum,
+				...(content.id == null ? [content] : [])
+			]), []);
+	
+			// Build list of modified contents.
+			var modifiedContents = contents.reduce((accum, content) => ([
+				...accum,
+				...(content.id != null ? [content] : [])
+			]), []);
+	
+			// Helper function for grafting pictrue json to parent content.
+			const graftPictureJson = (contents) => contents.map(content => {
+				let picture = picturesByFilename[content.coverpicuri];
+				
+				return {
+					...content,
+					picture: {...picture, contentId: undefined},
+					coverpicuri: picture.thumbnailuri,
+				};
+			});
+	
+			// Add promise for posting added contents.
+			if(addedContents.length > 0){
+				requestBatch = [
+					...requestBatch,
+					axios.post(
+						OxiAppConstants.serviceURL + '/contents' + pathVariable, 
+						graftPictureJson(addedContents), 
+						{}
+					)
+				]
+			}
+	
+			// Add promise for putting modified contents.
+			if(modifiedContents.length > 0){
+				requestBatch = [
+					...requestBatch,
+					axios.put(
+						OxiAppConstants.serviceURL + '/contents' + pathVariable, 
+						graftPictureJson(modifiedContents), 
+						{}
+					),
+				]
+			}
+	
+			await Promise.all(requestBatch).then(responses => {
+				var failedRequests = [];
+	
+				//let responses = responses.reduce((accum, response) => {
+				for(var response of responses){	
+					if(response.status !== OxiAppConstants.HttpStatus.CREATED){
+	/*
+						return [
+							...accum, 
+							response,
+						];
+					}
+	
+					else{*/
+						failedRequests = [...failedRequests, {status: response.status, request: response.request}];
+					}				
+				}
+		
+				if(failedRequests.length === 0){
+					onSuccess(responses, picturesByFilename);			
+				}
+
+				else{
+					throw new RequestFailedException(failedRequests);
+				}
+			});
+		}
+
+		catch(e){
+			console.error(e);
+		}
+	}
+}
+
 export function postContent(contentJson, outfitId, onSuccess){
+	return (pictureJson) => {
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+		axios.post(
+			OxiAppConstants.serviceURL + '/contents' + pathVariable, 
+			[ 
+				{
+					...((graftPictureJson([contentJson], [pictureJson]))[0])
+				}
+			], 
+			{})
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.CREATED){
+				onSuccess(response, pictureJson);
+			}
+			return response.status;		
+		});		
+	}
+}
+
+export function putContent(contentJson, outfitId, onSuccess){
+	return (pictureJson) => {
+		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+
+		if(pictureJson !== null){
+
+			axios.put(
+				OxiAppConstants.serviceURL + '/content' + pathVariable, 
+				Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]), 
+				{})
+			.then(response => {
+				if(response.status === OxiAppConstants.HttpStatus.OK){
+					onSuccess(response);
+				}
+				return response.status;		
+			});	
+		}
+
+		else{
+
+			axios.put(
+				OxiAppConstants.serviceURL + '/content' + pathVariable, 
+				contentJson, 
+				{})
+			.then(response => {
+				if(response.status === OxiAppConstants.HttpStatus.OK){
+					onSuccess(response);
+				}
+				return response.status;		
+			});	
+		}
+	};
+}
+
+
+/*export function postContent(contentJson, outfitId, onSuccess){
 	return (pictureJson) => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		axios.post(
@@ -450,9 +694,9 @@ export function postContent(contentJson, outfitId, onSuccess){
 export function putContent(contentJson, outfitId, onSuccess){
 	return (pictureJson) => {
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
+
 		if(pictureJson !== null){
-			console.log('picturejson != null');
-			console.log('contentJson = ', contentJson);
+
 			axios.put(
 				OxiAppConstants.serviceURL + '/content' + pathVariable, 
 				Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]), 
@@ -463,9 +707,10 @@ export function putContent(contentJson, outfitId, onSuccess){
 				}
 				return response.status;		
 			});	
-		}else{
-			console.log('picturejson == null');
-			console.log('contentJson = ', contentJson);
+		}
+
+		else{
+
 			axios.put(
 				OxiAppConstants.serviceURL + '/content' + pathVariable, 
 				contentJson, 
@@ -478,7 +723,7 @@ export function putContent(contentJson, outfitId, onSuccess){
 			});	
 		}
 	};
-}
+}*/
 
 export function putRemoveItems(payloadJson, outfitId, onSuccess){
 	return () => {

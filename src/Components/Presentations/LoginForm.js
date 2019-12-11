@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
-import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
+//import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {denormalizeOutfit} from '../../Util/Schema.js';
-import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js';
-import {InputTextField} from '../../Components/Presentations/Forms.js'
+//import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js';
+import {InputTextField} from '../../Components/Presentations/CommonElements.js';
 /*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
 import TypePants from '../SvgAssets/Icons/TypePants.js';
 import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
@@ -25,8 +25,10 @@ export default class LoginForm extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			'inputNameVal':'',
-			'inputPasswordVal':'',
+			payload:{
+				[props.login]: '',
+				[props.credentials]: '',
+			},
 			'isAuthenticated':false,
 		};
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
@@ -34,44 +36,63 @@ export default class LoginForm extends React.Component{
 	}
 
 	_handleInputFieldChange(e, type){
+		const {
+			login,
+			credentials,
+		} = this.props;
+
 		//e.stopPropagation();
 		switch (type){
-			case 'name':
-				this.setState({inputNameVal: e.target.value});
+			case login:
+				this.setState({
+					payload:{
+						[login]: e.target.value,
+						[credentials]: this.state.payload[credentials],
+					}
+				});
 				break;
-			case 'password':
-				this.setState({inputPasswordVal: e.target.value});
+			case credentials:
+				this.setState({
+					payload:{
+						[login]: this.state.payload[login],
+						[credentials]: e.target.value,
+					}
+				});
 				break;
 			default:
 				break;
 		}
 	}
 
-	_onSubmitLogin(e, username, password){
+
+	_onSubmitLogin(e, payload){
 		//e.stopPropagation();
 		/*var formData = new FormData();
 		formData.append('username', username);
 		formData.append('password', password);
 		console.log(formData);*/
 		console.log('calling axio post request from Login Form');
-		axios(loginConfig(username, password))
+		axios(loginConfig(payload))
 		.then(response => {
+
 			if(response.status == OxiAppConstants.HttpStatus.OK){
 				cookies.get('authorization') === undefined ? cookies.set('authorization', response.headers['www-authenticate'] + ' ') : null;
-				//append the authorization token expected in the 200 /login response onto the defualt Authorization header
 				cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
 				axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 				this.props.cancelAction !== undefined ? this.props.cancelAction() : null;
 				//this.props.history !== undefined ? this.props.history.goBack() : null;
+
 				if(this.props.afterLoginSuccess !== undefined){
 					this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
 					this.setState(prevState => ({
 						isAuthenticated: true,
 					}));
-				}else{
+				}
+				else{
 					console.log('afterLoginSuccess not defined');
 				}
-			}else{
+			}
+			else{
 				//handleUnauthorizedRequest(response);
 			}
 		}).catch((error) => {
@@ -81,6 +102,11 @@ export default class LoginForm extends React.Component{
 	}
 
 	render(){
+		const {
+			login,
+			credentials,
+		} = this.props;
+
 		return(
 			<React.Fragment>
 			{
@@ -99,16 +125,16 @@ export default class LoginForm extends React.Component{
 						>
 							<form className={FormStyles.loginForm} action="" method="POST">
 								<InputTextField 
-									type="User Name" 
-									name="username" 
-									onChange={(event) => {this._handleInputFieldChange(event, 'name')}}/>
+									type="Login" 
+									name={login} 
+									onChange={(event) => {this._handleInputFieldChange(event, login)}}/>
 								<InputTextField 
-									type="Password" 
-									name="password"
-									onChange={(event) => {this._handleInputFieldChange(event, 'password')}}/>
+									type="Credentials" 
+									name={credentials}
+									onChange={(event) => {this._handleInputFieldChange(event, credentials)}}/>
 								<div 
 									className={FormStyles.l3Button} 
-									onClick={(event) => {this._onSubmitLogin(event, this.state.inputNameVal, this.state.inputPasswordVal)}} 
+									onClick={(event) => {this._onSubmitLogin(event, this.state.payload )}} 
 								>
 									SUBMIT
 								</div>

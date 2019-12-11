@@ -558,10 +558,13 @@ function filterInvalidated(state=[], action){
 	let duplicatesFiltered = [];
 	if(action.payload.ids instanceof Array){
 		for(let id of action.payload.ids){
-			if(state.includes(id)){
-				break;
+			//if(state.includes(id)){
+			//	break;
+			//}
+			//duplicatesFiltered = [...duplicatesFiltered, id];
+			if(!state.includes(id)){
+				duplicatesFiltered = [...duplicatesFiltered, id];
 			}
-			duplicatesFiltered = [...duplicatesFiltered, id];
 		}
 	}
 	//Handle the case where action.payload.ids is not an itereable
@@ -759,7 +762,7 @@ export const localEntities = maxCount => (state = {selected: false, count : 0, b
 							//batch comment//console.log('scrubbedAction = ', scrubbedAction);
 						}else{
 							//Note:  Ass
-							throw error('Cannot batch add multiple persisted entities (indicated by having id property with UUID value) to the addedEntitiesReducer store.  Instead add each entity individual');
+							throw 'Cannot batch add multiple persisted entities (indicated by having id property with UUID value) to the addedEntitiesReducer store.  Instead add each entity individualy';
 							//scrubbedAction = Object.assign({}, action, {
 							//	...action,
 							//	payload : {

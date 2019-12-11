@@ -95,7 +95,7 @@ $sliderWidth: 15px;
     }
 
     @include mobile_rules {
-        height: 100vh;
+        height: calc(100vh + var(--keyboard-height));
         padding-top: 0px;
         width: 100vw;
         margin: unset;

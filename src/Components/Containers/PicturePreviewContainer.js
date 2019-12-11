@@ -2,6 +2,9 @@ import { connect } from 'react-redux';
 import { 
 	setFormVisibility,
 	postImage,
+	postImages,
+	uploadImages,
+	uploadContents,
 	putImage,
 	fetchImage,
 	fetchEntities,
@@ -79,7 +82,8 @@ const mapStateToProps = (state, props) => {
 		clientInvalidatedContents: state.entitiesStateReducer.contents.clientInvalidated,
 		clientInvalidatedItems: state.entitiesStateReducer.items.clientInvalidated,
 
-		//***TODO:  eventually consolidate all the props above with the props below ***
+		//*** TODO:  eventually consolidate all the props above with the props below ***
+
 		//current entities
 		pictures: 		state.entitiesReducer.pictures,
 		contents: 		state.entitiesReducer.contents,
@@ -101,33 +105,30 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch) => ({
 	//fileReferences => { 'full filenmae' : FileObject }
 	addContentFromImages: (fileReferences, viewState, addedContents) => {
-		var contentEntities = [{}];
-		//var addedContentIds = Object.keys(addedContents);
+		var contentEntities = [];
 		var contentEntityAdded = false;
+
 		Object.keys(fileReferences).map((name, ind, names) => {
 
-			//if Outfit was just added (will contain only one initialized content child), 
-			//then update the Content child that was initialized from selecting the add outfit button with the file name from index 0
 			if(viewState === OxiAppConstants.viewState.ADD && addedContents.byIds[addedContents.allIds[0]].coverpicuri.length === 0 && ind === 0){
 				dispatch(modifyContent( {
 					...addedContents.byIds[addedContents.allIds[0]], 
-					...{ coverpicuri: name, picture: addedContents.allIds[0] },
+					...{
+							coverpicuri: name, 
+							picture: addedContents.allIds[0] 
+						},
 				}));
+				//dispath(clientInvalidateEntity(OxiAppConstants.EntityTypes.CONTENT, addedContents.allIds[0]))
 			}
 
 			else{
-				contentEntities[ ind /*- (viewState === OxiAppConstants.viewState.ADD ? 1 : 0)*/ ] = {
-					...OxiAppConstants.EntityTemplates.CONTENT, 
-					...{coverpicuri: name}
-				};
+				contentEntities = [...contentEntities, {...OxiAppConstants.EntityTemplates.CONTENT, coverpicuri: name}];
 				contentEntityAdded = true;
 			}
-
-			//contentEntities[ind] = Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {coverpicuri: name});
 		})
+
 		//Add all content entities to the addedEntitiesReducer
 		contentEntityAdded ? dispatch(addContents(contentEntities)) : null;
-		//dispatch(addContents(contentEntities));
 	},
 	getItemForm: (posx, posy) => {
 		/*dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))
@@ -139,7 +140,7 @@ const mapDispatchToProps = (dispatch) => ({
 	/*postAddedOutfit : (imageData = null, json) => {
 		if(imageData != null) dispatch(postImage(imageData, json));
 	},*/
-	getPreviewPic : (filename, callback, picture) => dispatch(fetchImage(filename, callback, picture)),
+	getPreviewPic : (filename, callback, picture, cancel) => dispatch(fetchImage(filename, callback, picture, cancel)),
 	confirmDiscard : () => dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS)),
 	clientInvalidateEntity: (entitiesStateReducer, entityIds/*addedEntities*/, entityType=null) => {
 		return () => {
@@ -193,16 +194,27 @@ const mapDispatchToProps = (dispatch) => ({
 			}
 		}
 	},
-	postAddedOutfit : (imageData = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount) => {
-		if(imageData !== null) postImage(imageData, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)));						
+	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount) => {
+		if(imageFiles !== null){
+			//postImage(imageData, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)));			
+			uploadImages(imageFiles, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)) );			
+		}
 	},
 	putModifiedOutfit : (outfitJson) => {
 		/*outfitJsonPayload = Object.assign({}, outfitJson, {contents: undefined, items: undefined});
 		putOutfit(outfitJson.id, outfitJsonPayload, createResponseHandler(dispatch, addedEntities)));*/			
 	},
-	postAddedContent : (imageData = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {
+
+
+	// modified or added contents
+	uploadContents : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) =>{
+		if(imageFiles !== null) uploadImages(imageFiles, () => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)));
+	},
+
+	postAddedContent : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {
 		if(imageData !== null) postImage(imageData, () => postContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)));
 	},
+
 	putModifiedContent : (imageData = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {
 		if(imageData !== null){
 			console.log('image data is not null');
@@ -212,6 +224,8 @@ const mapDispatchToProps = (dispatch) => ({
 			putContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, null, itemContentCount))(imageData);
 		}
 	},
+
+
 	putPostItems: (itemPayload, addedEntities, entitiesStateReducer) => {
 
 	},
@@ -321,113 +335,117 @@ const mapDispatchToProps = (dispatch) => ({
 })
 
 function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, schema, overwriteItemContents=null, itemContentCount){
-	return (response) => {
-		let responseData = response.data.length === 0 ? [response.data] : response.data
-		//normalize response data and create a new outfit node in entitiesReducer tree
-		let normalizedJson = normalize(responseData, schema);
-		console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
-		const selectAddedContentId = (dispatch, schemaType) => {
-			let createdContentIds = [];
-			let entityType = "";
-			switch(schemaType){
-				//response data is of type outfit
-				case OxiAppConstants.JsonPropertyNames.OUTFIT:	
-					//find the new content id
-					for(let content of responseData[0].contents){
-						for(let existingContentId of addedEntities.contents.allIds){
-							if(content.id === existingContentId) break;
-						}
-						createdContentIds = [...createdContentIds, content.id];
-					}
-					entityType = OxiAppConstants.EntityTypes.OUTFIT;
-					break;
-				//response data is of type content
-				case OxiAppConstants.JsonPropertyNames.CONTENT:						
-					//find the new content id
-					let prevOutfitId = null;
-					let outfitModifications = {};
-					let existingContentIds = addedEntities.contents.allIds.filter(id => typeof id === 'string');
-					for(let content of responseData){
-						for(let existingContentId of existingContentIds){
-							if(content.id === existingContentId) break;
-							//Add the new content id to its parent outfit's contents property
-							/*if(content.outfitId !== prevOutfitId){
-								dispatch(replaceOutfits( [Object.assign( {}, addedEntities.outfits.byIds[content.outfitId], {
-									contents: [...addedEntities.outfits.byIds[content.outfitId].contents, content.id]
-								} )] ));
-								prevOutfitId = content.outfitId;
-							}*/
-						}
-
-						createdContentIds = [...createdContentIds, content.id];
-						//build action payload to modify entitiesReducer.outfits contents property to include new content id
-						outfitModifications = Object.assign({}, outfitModifications, {
-							[content.outfitId]:{
-								contents:[...existingContentIds, ...createdContentIds]
+	return (responses) => {
+		for(var response of responses){
+			let responseData = response.data.length === 0 ? [response.data] : response.data
+			//normalize response data and create a new outfit node in entitiesReducer tree
+			let normalizedJson = normalize(responseData, schema);
+			console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
+	
+			const selectAddedContentId = (dispatch, schemaType) => {
+				let createdContentIds = [];
+				let entityType = "";
+				switch(schemaType){
+					//response data is of type outfit
+					case OxiAppConstants.JsonPropertyNames.OUTFIT:	
+						//find the new content id
+						for(let content of responseData[0].contents){
+							for(let existingContentId of addedEntities.contents.allIds){
+								if(content.id === existingContentId) break;
 							}
-						});
-					}
-
-					dispatch(modifyEntityProperties(OxiAppConstants.EntityTypes.OUTFIT, outfitModifications));
-					entityType = OxiAppConstants.EntityTypes.CONTENT;
+							createdContentIds = [...createdContentIds, content.id];
+						}
+						entityType = OxiAppConstants.EntityTypes.OUTFIT;
+						break;
+					//response data is of type content
+					case OxiAppConstants.JsonPropertyNames.CONTENT:						
+						//find the new content id
+						let prevOutfitId = null;
+						let outfitModifications = {};
+						let existingContentIds = addedEntities.contents.allIds.filter(id => typeof id === 'string');
+						for(let content of responseData){
+							for(let existingContentId of existingContentIds){
+								if(content.id === existingContentId) break;
+								//Add the new content id to its parent outfit's contents property
+								/*if(content.outfitId !== prevOutfitId){
+									dispatch(replaceOutfits( [Object.assign( {}, addedEntities.outfits.byIds[content.outfitId], {
+										contents: [...addedEntities.outfits.byIds[content.outfitId].contents, content.id]
+									} )] ));
+									prevOutfitId = content.outfitId;
+								}*/
+							}
+	
+							createdContentIds = [...createdContentIds, content.id];
+							//build action payload to modify entitiesReducer.outfits contents property to include new content id
+							outfitModifications = Object.assign({}, outfitModifications, {
+								[content.outfitId]:{
+									contents:[...existingContentIds, ...createdContentIds]
+								}
+							});
+						}
+	
+						dispatch(modifyEntityProperties(OxiAppConstants.EntityTypes.OUTFIT, outfitModifications));
+						entityType = OxiAppConstants.EntityTypes.CONTENT;
+						break;
+					default:
+						return false;
+				}
+				dispatch(selectAndPropogate(
+					OxiAppConstants.EntityTypes.OUTFIT, 
+					(/*response.data.id || */entitiesStateReducer.outfits.selected),
+					(createdContentIds.length > 0 ? createdContentIds[0] :  null)));
+				return createdContentIds;
+			}
+	
+			//Remove all entities from addedEntitiesReducer
+			dispatch(clearAllAddedEntitiesState(addedEntities));
+			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
+	
+			let itemContentJson = {};
+			switch(overwriteItemContents){
+				case null:
+					break;
+				case true:  //Overwrites all of entitiesReducer#itemContent
+					itemContentJson = buildItemContentsObject(schema.schema._key, responseData, 0);
+					break;
+				case false:  //appends to entitiesReducer#itemContent
+					itemContentJson = buildItemContentsObject(schema.schema._key, responseData, itemContentCount);
 					break;
 				default:
-					return false;
+					break;
 			}
-			dispatch(selectAndPropogate(
-				OxiAppConstants.EntityTypes.OUTFIT, 
-				(/*response.data.id || */entitiesStateReducer.outfits.selected),
-				(createdContentIds.length > 0 ? createdContentIds[0] :  null)));
-			return createdContentIds;
+			if(Object.keys(itemContentJson).length > 0) dispatch(createItemContent(itemContentJson));
+	
+			mergeResponseEntities(dispatch, normalizedJson);
+			selectAddedContentId(dispatch, schema.schema._key);	
+	
+			//Remove all ids from edditingIds array associated to each entity
+			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.OUTFIT));
+			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.CONTENT));
+			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.ITEM));
+			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.PROFILE));
+	
+			console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations');
+	
+			switch(true){
+				case entitiesStateReducer.profile.clientInvalidated.length > 0:
+					dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PROFILE));
+				case entitiesStateReducer.outfits.clientInvalidated.length > 0:
+					dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.OUTFIT));
+				case entitiesStateReducer.contents.clientInvalidated.length > 0:
+					dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.CONTENT));
+				case entitiesStateReducer.items.clientInvalidated.length > 0:
+					dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.ITEM));
+				case entitiesStateReducer.pictures.clientInvalidated.length > 0:
+					dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PICTURE));
+				default:
+					break;
+			}	
+			//clear all selected items		
+			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));	
+			//Enable the button that adds outfits
+			dispatch(disableAddOutfit(false));
 		}
-
-		//Remove all entities from addedEntitiesReducer
-		dispatch(clearAllAddedEntitiesState(addedEntities));
-		dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
-
-		let itemContentJson = {};
-		switch(overwriteItemContents){
-			case null:
-				break;
-			case true:  //Overwrites all of entitiesReducer#itemContent
-				itemContentJson = buildItemContentsObject(schema.schema._key, responseData, 0);
-				break;
-			case false:  //appends to entitiesReducer#itemContent
-				itemContentJson = buildItemContentsObject(schema.schema._key, responseData, itemContentCount);
-				break;
-			default:
-				break;
-		}
-		if(Object.keys(itemContentJson).length > 0) dispatch(createItemContent(itemContentJson));
-
-		mergeResponseEntities(dispatch, normalizedJson);
-		selectAddedContentId(dispatch, schema.schema._key);	
-
-		//Remove all ids from edditingIds array associated to each entity
-		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.OUTFIT));
-		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.CONTENT));
-		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.ITEM));
-		dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.PROFILE));
-
-		console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations');
-		switch(true){
-			case entitiesStateReducer.profile.clientInvalidated.length > 0:
-				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PROFILE));
-			case entitiesStateReducer.outfits.clientInvalidated.length > 0:
-				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.OUTFIT));
-			case entitiesStateReducer.contents.clientInvalidated.length > 0:
-				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.CONTENT));
-			case entitiesStateReducer.items.clientInvalidated.length > 0:
-				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.ITEM));
-			case entitiesStateReducer.pictures.clientInvalidated.length > 0:
-				dispatch(clearClientInvalidation(OxiAppConstants.EntityTypes.PICTURE));
-			default:
-				break;
-		}	
-		//clear all selected items		
-		dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));	
-		//Enable the button that adds outfits
-		dispatch(disableAddOutfit(false));
 	}
 }
 

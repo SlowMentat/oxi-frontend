@@ -173,13 +173,28 @@ export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, 
 
 //Create User account, then logs the user in with created user account credentials.
 //TODO:  this should be replaced with an email verification login on initial account creation.
-export function createUser(email, password, username){
+export function createUser(formData /*email, password, username*/){
 	return function(dispatch){
-		return axios.post(OxiAppConstants.apiBaseURL + '/account/user/register', {			
-			'email': email,
-			'password': password,
-			'username': username			
-		})
+
+		const {
+			email,
+			username,
+			password,
+		} = formData;
+
+		return axios.post(
+			OxiAppConstants.apiBaseURL + '/account/user/register', 
+			{			
+				'email': email,
+				'password': password,
+				'username': username			
+			}
+			//{
+			//	headers:{
+			//		'www-authenticate':'Bearer',
+			//	}
+			//}
+		)
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CONFLICT){
 				//dispatch 409 handler
@@ -751,10 +766,13 @@ export function verifyIntent(intentTo){
 	}
 }
 
-//use this action to batch select nested entities retreived from server
-//@param {String} valid entityType from OxiAppConstants.EntityTypes to select
-//@param {String} valid id of the entity selected
-//@param {STring} valid id of the child entity to be selected next.
+/*
+* Use this action to batch select nested entities retreived from server.
+*
+* @param    {String}    valid entityType from OxiAppConstants.EntityTypes to select.
+* @param    {String}    valid id of the entity selected.
+* @param    {STring}    valid id of the child entity to be selected next.
+*/
 export function selectAndPropogate(entityType, entityId, targetChildId, entitiesStateReducer){
 	return function(dispatch){
 		console.log("selectAndPropogate entityType = ", entityType);

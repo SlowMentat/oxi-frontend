@@ -794,8 +794,8 @@ export class Item extends React.Component{
 		//size = size ? size : this.props.sizeGroups[sizeGroupId];
 		size = size === null ? 8 : size;
 
-		//Note:  sizes will only be defined in Retailer Items
-		const isActive = (platform !== OxiAppConstants.PLATFORM || platform === null) && size !== undefined;  //NOTE: this is accomodating for a bug in the server that allows platform to be null
+		//Note:  sizes will only be defined in Items created from retailers
+		const isActive = (platform !== OxiAppConstants.PLATFORM || platform === null) /*&& size !== undefined*/;  //NOTE: this is accomodating for a bug in the server that allows platform to be null
 
 
 
@@ -949,7 +949,7 @@ export class Item extends React.Component{
 						handleOnClick={null}
 						retailerName={ vendor || udr}
 						handle={handle || 'custom item'}
-						sizeLabel={isActive ? size.sizeLabel : uds}
+						sizeLabel={!isActive ? uds : size !== undefined ? size.sizeLabel : '?'}
 						metric={size ? size.metric : null}
 						isActive={isActive}
 						isSaved={isSaved}
@@ -969,7 +969,7 @@ export class Item extends React.Component{
 						}}
 						onSizeHover={(event) => {
 							platform !== OxiAppConstants.PLATFORM ? 
-								compareMetrics(size.metric) :
+								compareMetrics(size ? size.metric : null) :
 								null;
 						}}
 						infoComponent={ isActive ? 

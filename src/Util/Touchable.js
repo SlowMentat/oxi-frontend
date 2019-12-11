@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+/*DEPRECATED*/
 
 /*
 * This is an outlined form control button with a graphic icon adjacent to the button's title.  

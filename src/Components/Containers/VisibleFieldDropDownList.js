@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
+	/*setFormVisibility, 
 	addItem, 
 	selectAddedEntity, 
 	modifyContent, 
@@ -18,7 +18,7 @@ import {
 	disableAddContentButton,
 	clearClientInvalidation,
 	clearSelectMultipleEntity,
-	fetchSuggestion
+	fetchSuggestion*/
 } from '../../Components/Actions/indexActions.js';
 import {FieldDropDownList} from '../../Components/Presentations/FieldDropDownList.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';

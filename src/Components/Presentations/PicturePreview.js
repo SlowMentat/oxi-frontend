@@ -241,6 +241,7 @@ class ImagePreview extends React.Component{
 	}
 }
 
+// DEPRICATED
 class ImageAdd extends React.Component{
 	constructor(props) {
 		super(props);
@@ -435,6 +436,24 @@ class ImageEdit extends React.Component{
 		this._handleChangesDiscarded = this._handleChangesDiscarded.bind(this);
 		this._handleImageReceived = this._handleImageReceived.bind(this);
 		this.pruneAddedEntities = this.pruneAddedEntities.bind(this);
+
+		this.cancelList = [];
+	}
+
+	componentWillUnmount(){
+		//cancel all cancelable request
+		this.cancelList = this.cancelList.map((cancelObj, ind) => {
+			
+			if(cancelObj.cancel){
+				cancelObj.cancel(`Request URI: ${cancelObj.requestURI}`);
+			}
+
+			else{
+				console.warn('undefined axios cancel function');
+			}
+
+			return null;
+		});
 	}
 
 	//returns a denormalized json object modified to comply with the server consumer api spec
@@ -444,30 +463,45 @@ class ImageEdit extends React.Component{
 	//@param ([string], [number]) targetIds: 	array of ids that are invalidated (optional).  Item objects not having these ids are filtered adding to the final json object
 	pruneAddedEntities(entityType, json, parentId, targetIds){
 		switch(entityType){
+
 			case OxiAppConstants.EntityTypes.OUTFIT:
 				let invalidatedOutfitId = this.props.entitiesStateReducer.outfits.clientInvalidated;
 				let selectedOutfitId = this.props.entitiesStateReducer.outfits.selected;
 				json = Object.assign({}, json, (this.props.addedEntities.outfits.byIds[invalidatedOutfitId] || this.props.addedEntities.outfits.byIds[selectedOutfitId]));					
 				//remove ids from child contents array of json object.  This will be filled by content json object
 				json.contents = [];
+
 				//remove id for new entities per server api spec.  New entities will have number ids
 				if(json.id !== undefined && typeof json.id === 'number'){
 					json.id = undefined;
 				}
+
 				//prune each child content
 				if(this.props.entitiesStateReducer.contents.clientInvalidated.length > 0){
 					json = this.pruneAddedEntities(OxiAppConstants.EntityTypes.CONTENT, json);
 				}
+
 				break;
+
 			case OxiAppConstants.EntityTypes.CONTENT:
 				let currentInd = 0;
+
 				//let contentId = this.props.addedEntities.outfits.byIds[entitiesStateReducer.outfits.selected].contents[0];
 				//There should only be one content entity per post, but this will cover cases for more than 1 modified content entity
 				for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
-					let contentJson = Object.assign({}, this.props.addedEntities.contents.byIds[invalidatedContentId]);			
+					
+					let contentJson = {
+						...this.props.addedEntities.contents.byIds[invalidatedContentId],
+						...(typeof invalidatedContentId === 'number' ? ({id: null}) : ({}))
+					};
+
 					//remove ids from child items array of json object (this will be filled by item json object)
 					//contentJson.items=[];
-					json = Object.assign({}, json, {contents: [...json.contents, contentJson]});
+					json = {
+						...json, 
+						...{contents: [...json.contents, contentJson]}
+					};
+
 					//prune child picture
 					if(this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0){
 						json = this.pruneAddedEntities(OxiAppConstants.EntityTypes.PICTURE, json, invalidatedContentId, this.props.entitiesStateReducer.pictures.clientInvalidated);
@@ -483,6 +517,7 @@ class ImageEdit extends React.Component{
 						}						
 						itemsJson = [...itemsJson, itemJson];
 					}
+
 					//json = this.pruneAddedEntities(OxiAppConstants.EntityTypes.ITEM, json, invalidatedContentId, itemsJson); //this.props.entitiesStateReducer.items.clientInvalidated);
 					console.log('TEST 1:  addedEntities = ', this.props.addedEntities.contents.byIds[invalidatedContentId].items);
 					json.contents[currentInd].items = itemsJson;
@@ -496,8 +531,11 @@ class ImageEdit extends React.Component{
 					//}
 					currentInd++;
 				}
+
 				break;
+
 			case OxiAppConstants.EntityTypes.ITEM:
+
 				//filter the array of targetIds to those that are present in state.entitiesStateReducer.items.clientInvalidated
 				let filteredTargetIds = targetIds.filter(targetId => {
 					for(let invalidatedId of this.props.entitiesStateReducer.items.clientInvalidated){
@@ -505,8 +543,10 @@ class ImageEdit extends React.Component{
 					}
 					return false;
 				});
+
 				//find the json.contents element associated with the parentId
 				let contentIndex = -1;
+
 				for(let content of json.contents){
 					if(content.id === parentId){
 						contentIndex++;
@@ -538,8 +578,10 @@ class ImageEdit extends React.Component{
 					else{
 						json.contents[contentIndex].items = [itemJson];
 					}	
-				}			
+				}
+
 				break;
+
 			default:
 				break
 		}
@@ -552,8 +594,10 @@ class ImageEdit extends React.Component{
 		outfitJson = this.pruneAddedEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitJson);
 		//TODO: second parameter to handle multiple file uploads as well as edits/adds to multiple content and item entities.
 		switch(true){
+
 			//Either new outfit has been added or outfits non-entity properties have been modified
 			case this.props.entitiesStateReducer.outfits.clientInvalidated.length > 0:
+
 				switch(typeof this.props.entitiesStateReducer.outfits.selected){
 					//outfit exists on the server
 					case 'string':
@@ -562,7 +606,8 @@ class ImageEdit extends React.Component{
 							this.props.entitiesStateReducer.contents.selected, 
 							outfitJson, this.props.addedEntities, 
 							this.props.entitiesStateReducer, 
-							this.props.itemContent.count);
+							this.props.itemContent.count
+						);
 						break;
 					//outfit does not exist on the server
 					case 'number':
@@ -572,17 +617,39 @@ class ImageEdit extends React.Component{
 							outfitJson, 
 							this.props.addedEntities, 
 							this.props.entitiesStateReducer, 
-							this.props.itemContent.count);
+							this.props.itemContent.count
+						);
 						break;
 					default:
 						break;
 				}
 				break;
+
 			//Either new content has been added or contents non-entity properties have been modified
 			case this.props.entitiesStateReducer.contents.clientInvalidated.length > 0:
-				for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
-				//if(invalidatedContentId){
-					let currentContent = outfitJson.contents.filter(content => content.id === invalidatedContentId)[0];
+
+				//for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
+					
+					// extract contents (with id=null if new content) from outfitJson
+					var contents = outfitJson.contents.reduce((accum, content) => ([
+						...accum,
+						{ 
+							...content, 
+							id: (typeof content.id === 'number' ? null : content.id) 
+						}
+					]), []); 
+
+					this.props.uploadContents(
+						files,
+						contents,
+						outfitJson.id, 
+						this.props.addedEntities, 
+						this.props.entitiesStateReducer,
+						this.props.itemContent.count
+					)
+
+					/*let currentContent = outfitJson.contents.filter(content => content.id === invalidatedContentId)[0];
+
 					switch(typeof invalidatedContentId){//this.props.entitiesStateReducer.contents.selected){
 						case 'string':
 							console.log('addedEntities before call to putModifiedContent = ', this.props.addedEntities);
@@ -598,6 +665,7 @@ class ImageEdit extends React.Component{
 							this.props.postAddedContent(
 								files[currentContent.coverpicuri],
 								Object.assign({}, currentContent, {id: null}),//,contents[0], 
+								contents,
 								this.props.entitiesStateReducer.outfits.selected, 
 								this.props.addedEntities, 
 								this.props.entitiesStateReducer, 
@@ -605,9 +673,10 @@ class ImageEdit extends React.Component{
 							break;
 						default:
 							break;
-					}
-				}
+					}*/
+				//}
 				break;
+
 			//Only item enitties have been modified or added
 			case (this.props.entitiesStateReducer.items.clientInvalidated.length > 0 || this.props.entitiesStateReducer.items.clientDeleted.length > 0):
 				let payloadJsonPost = {}; 		//payload for new items
@@ -620,6 +689,7 @@ class ImageEdit extends React.Component{
 				if(this.props.entitiesStateReducer.items.clientInvalidated.length > 0){
 					for(let itemId of this.props.entitiesStateReducer.items.clientInvalidated){
 						switch(typeof itemId){
+
 							case 'string':
 								//get the parent id
 								for(let itemContentId of this.props.addedEntities.itemContent.allIds){
@@ -640,6 +710,7 @@ class ImageEdit extends React.Component{
 									}
 								}
 								break;
+
 							case 'number':
 								//get the parent id
 								for(let itemContentId of this.props.addedEntities.itemContent.allIds){
@@ -652,6 +723,7 @@ class ImageEdit extends React.Component{
 												...payloadJsonValue, 
 												{
 													...this.props.addedEntities.items.byIds[itemId], 
+													product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product),
 													id: null
 												}
 											]
@@ -935,9 +1007,18 @@ class ImageEdit extends React.Component{
 
 					//check if the picture id is not from a newly added content entity.  If so the content view needs to be nullified
 					if(contentPictureId !== '' && typeof contentPictureId !== 'number'){
-						getPreviewPic(pictures[contentPictureId].largeuri, this._handleImageReceived, pictures[contentPictureId]);//TODO:  refactor fetchImage to just take picture obejct.  OutfitList container calls fetchImage
-					}else{
-						//contentPictureId is of type number, which means the picutre data is from a local image file
+						var cancel;
+
+						this.cancelList = [
+							...this.cancelList, 
+							{requestURI: pictures[contentPictureId].largeuri, method: cancel}
+						];
+
+						getPreviewPic(pictures[contentPictureId].largeuri, this._handleImageReceived, pictures[contentPictureId], cancel);//TODO:  refactor fetchImage to just take picture obejct.  OutfitList container calls fetchImage
+					}
+
+					else{
+						//contentPictureId is of type number, which means the picture data is from a local image file
 						//force update of pictureId
 						this.setState({
 							pictureId: contentPictureId,
@@ -1268,6 +1349,7 @@ class PicturePreview extends React.Component{
 
 		var viewContext = null;
 		console.log("contentSelected = " + this.props.contentSelected +", viewState = " + this.props.viewState)
+		
 		//Set the view state 
 		switch(this.props.viewState){
 			case OxiAppConstants.viewState.ADD:

@@ -1627,8 +1627,26 @@ export default class ProfileMenu extends React.Component{
 
 		console.log(`${field}: {selectionStart: ${this.inputRefs[field].selectionStart}, selectionEnd: ${this.inputRefs[field].selectionEnd}, selectionDirection: ${this.inputRefs[field].selectionDirection}}`)
 		
-		//convert text to float and do any other processing
-		var value = parseFloat(e.target.value);
+		//convert text to float and append 0 to values with trailing decimals
+		var value = 0;//parseFloat(e.target.value.replace(/^\d*\.$/, (e.target.value + '0')));
+				
+		//value has a single trailing decimal
+		if ((/^\d*\.$/).test(e.target.value)){
+			value = parseFloat(e.target.value + '0').toFixed(1);
+		}
+
+		//match decimal followed by one or more digits
+		else{
+			var precision = e.target.value.match(/\.(\d){1,}$/);
+
+			if(precision != null){
+				value = parseFloat(e.target.value).toFixed(precision.length - 1);
+			}
+
+			else{
+				value = parseFloat(e.target.value);
+			}
+		}
 
 		this.setState(prevState => ({
 			hasFieldChanged: true,
@@ -1678,6 +1696,7 @@ export default class ProfileMenu extends React.Component{
 
 	_handleFieldFocus(event){
 
+		event.target.select();
 		this.setState(prevState => {
 
 			const selectedField = event.target.name;

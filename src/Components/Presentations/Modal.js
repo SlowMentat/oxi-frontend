@@ -9,42 +9,47 @@ function Modal(props){
 	return (
 		<ModalContainer>
 			<FormDeck 
-				formType={props.formType} 
-				cancelAction={props.closeModal} 
-				submitAction={props.submitAction} 
-				confirmDiscardSubmitAction = {
-					(location) => props.confirmDiscardSubmitAction(
-						location, 
-						props.addedEntitiesReducer, 
-						(props.viewState === OxiAppConstants.viewState.ADD ? 
-							props.addedEntitiesReducer.outfits.byIds[props.entitiesStateReducer.outfits.prevSelected] :
-							props.outfitByIds[props.entitiesStateReducer.outfits.prevSelected])
-					)
+				{
+					...{
+						...props,
+						cancelAction: props.closeModal,
+						/*submitAction: props.submitAction,*/
+						confirmDiscardSubmitAction: (location) => props.confirmDiscardSubmitAction(
+							location, 
+							props.addedEntitiesReducer, 
+							(props.viewState === OxiAppConstants.viewState.ADD ? 
+								props.addedEntitiesReducer.outfits.byIds[props.entitiesStateReducer.outfits.prevSelected] :
+								props.outfitByIds[props.entitiesStateReducer.outfits.prevSelected])
+						),					
+						clearInvalidations: () => props.clearInvalidations(props.entitiesStateReducer),
+//
+					/*formType: props.formType},
+					outfits: props.outfits,
+					contents: props.contents},
+					items: props.items,
+					itemAllIds: props.itemAllIds,
+					modifyContentItems: props.modifyContentItems,
+					afterLoginSuccess: props.afterLoginSuccess,
+					requestUrl: props.requestUrl,
+					requestType: props.requestType,
+					brandIds: props.brandIds,
+					brands: props.brands,
+					retailerIds: props.retailerIds,
+					retailers: props.retailers,
+					requestedNav: props.requestedNav,
+					itemLocation: props.itemLocation,
+					editingItem: props.editingItem,
+					clearUpdates: props.clearUpdates,
+					math: props.match,
+					history: props.history,
+					getSuggestion: props.getSuggestion,
+					getApparelTypes: props.getApparelTypes,
+					allApparelTypes: props.allApparelTypes,
+					getSizeChartByItemId: props.getSizeChartByItemId,
+					createSizeGroup: props.createSizeGroup,*/
+//
+					}
 				}
-				outfits={props.outfits}
-				contents={props.contents} 
-				items={props.items}
-				itemAllIds={props.itemAllIds}
-				modifyContentItems={props.modifyContentItems}
-				afterLoginSuccess={props.afterLoginSuccess}
-				requestUrl={props.requestUrl}
-				requestType={props.requestType}
-				brandIds={props.brandIds}
-				brands={props.brands}
-				retailerIds={props.retailerIds}
-				retailers={props.retailers}
-				requestedNav={props.requestedNav}
-				itemLocation={props.itemLocation}
-				editingItem={props.editingItem}
-				clearUpdates={props.clearUpdates}
-				clearInvalidations={() => props.clearInvalidations(props.entitiesStateReducer)}
-				math={props.match}
-				history={props.history}
-				getSuggestion={props.getSuggestion}
-				getApparelTypes={props.getApparelTypes}
-				allApparelTypes={props.allApparelTypes}
-				getSizeChartByItemId={props.getSizeChartByItemId}
-				createSizeGroup={props.createSizeGroup}
 			/>
 		</ModalContainer>
 	);

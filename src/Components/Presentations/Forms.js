@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
-import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
+//import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';
@@ -10,6 +10,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {denormalizeOutfit} from '../../Util/Schema.js';
 import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js'
 import LoginFormContainer from '../../Components/Containers/LoginFormContainer.js'
+import {InputTextField} from '../../Components/Presentations/CommonElements.js';
 /*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
 import TypePants from '../SvgAssets/Icons/TypePants.js';
 import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
@@ -28,42 +29,20 @@ function FormDeck(props){
 			console.log('login hit')
 			return (
 				<LoginFormContainer isModal={true}/>
-				//<LoginFormContainer 
-				//	cancelAction={props.cancelAction} 
-				//	requestUrl={props.requestUrl}
-				//	requestType={props.requestType}
-				//	afterLoginSuccess={props.afterLoginSuccess}
-				//	math={props.match}
-				//	history={props.history}
-				///>
 			)
+
 		case OxiAppConstants.FormType.ADD_ITEM:
 			return (
 				<ItemForm 
-					cancelAction={props.cancelAction} 
-					submitAction={props.submitAction} 
-					submitContext="Add" 
-					contents={props.contents} 
-					itemAllIds={props.itemAllIds}
-					modifyContentItems={props.modifyContentItems}
-					brandIds={props.brandIds}
-					brands={props.brands}
-					retailerIds={props.retailerIds}
-					retailers={props.retailers}
-					itemLocation={props.itemLocation}
-					editingItem={props.editingItem}
-
-					math={props.match}
-					history={props.history}
-
-					getSuggestion={props.getSuggestion}
-					getApparelTypes={props.getApparelTypes}
-					getSizeChartByItemId={props.getSizeChartByItemId}
-
-					allApparelTypes={props.allApparelTypes}
-					createSizeGroup={props.createSizeGroup}
+					{
+						...{
+							...props,
+							submitContext: "Add",
+						}
+					}			
 				/>
 			)
+
 		case OxiAppConstants.FormType.UPDATE_ITEM:
 			return (
 				<ItemForm 
@@ -80,6 +59,7 @@ function FormDeck(props){
 					allApparelTypes={props.allApparelTypes}
 				/>
 			)
+
 		case OxiAppConstants.FormType.DISCARD_EDITS:
 			return (
 				<DiscardForm 
@@ -95,6 +75,7 @@ function FormDeck(props){
 					history={props.history}
 				/>
 			)
+
 		default:
 			return null
 	} 
@@ -102,7 +83,7 @@ function FormDeck(props){
 
 
 
-export const InputTextField = ({context, type, name, onChange, toggleFocus, toggleBlur, textValue}) => {
+/*export const InputTextField = ({context, type, name, onChange, toggleFocus, toggleBlur, textValue}) => {
 	let backgroundColorStyle = context === 0 ? 
 		({'background-color':'var(--retailer-dd-field-color)'}) : 
 		({'background-color':'var(--user-dd-field-color)'});
@@ -115,7 +96,7 @@ export const InputTextField = ({context, type, name, onChange, toggleFocus, togg
 				value={textValue} 
 				type="text" 
 				name={name} 
-				placeholder={name/*(name == 'retailer' ? ("Where'd Ya Get It") : (name))*/} 
+				placeholder={name} 
 				onChange={onChange} 
 				onFocus={toggleFocus} 
 				onBlur={toggleBlur}
@@ -123,7 +104,7 @@ export const InputTextField = ({context, type, name, onChange, toggleFocus, togg
 			/>
 		</div>	
 	)
-}
+}*/
 
 const DropDownTypeContent = (props) => {
 	console.log('dropDownType = ',props.type);
@@ -200,12 +181,9 @@ class DropDownField extends React.Component{
 
 
 	render(){
-		//console.log('this.props.inputValue', this.props.inputValue);
 		console.log('dropdownNames for ' + this.props.apparelType + ' = ', this.props.dropdownNames)
 		let dropDownList = null;
-		/*let borderColor = this.props.context === 0 ? 
-			({'border-color':'var(--retailer-dd-field-color)'}) : 
-			({'border-color':'var(--user-dd-field-color)'});*/
+
 		return(
 			<div
 				className={FormStyles.nameFieldContainer_div}
@@ -248,17 +226,12 @@ export class ItemForm extends React.Component{
 		}
 		this.state = {
 			selectedFormType:this.formType.type1,
+
 			type1Entry:{
 				retailer:'',
 				item:'',
 				size:'',
 			},
-			//Deprecated
-			//type1SearchPromise:{
-			//	retailer:[],
-			//	item:[],
-			//	size:[],				
-			//},
 			type1SearchSelection:{
 				retailer:{},
 				item:{},
@@ -270,12 +243,6 @@ export class ItemForm extends React.Component{
 				apparelType:'',
 				size:'',
 			},
-			//Deprecated
-			//type2SearchPromise:{
-			//	retailer:[],
-			//	type:[],
-			//	size:[],				
-			//},
 			type2SearchSelection:{
 				retailer:{},
 				apparelType:{},
@@ -290,6 +257,7 @@ export class ItemForm extends React.Component{
 		};
 		this.type1EntryKeys = Object.keys(this.state.type1Entry);
 		this.type2EntryKeys = Object.keys(this.state.type2Entry);
+		this.prevAddedItemIds = [];
 
 		this.hydrateType1Tasks = {
 			[this.type1EntryKeys[0]]: () => ('retailer dropdown'),
@@ -308,16 +276,50 @@ export class ItemForm extends React.Component{
 		this._handleDropDownOptionSelected = this._handleDropDownOptionSelected.bind(this);
 	}
 
+	componentDidUpdate(prevProps){
+		this.prevAddedItemIds = [];
+
+		// Assuming anything added to itemAllIds are appended, so the new ids are determined from the diff in lengths
+		// Extract only number type ids which represent added unpersisted items
+		this.prevAddedItemIds = this.props.itemAllIds.slice(prevProps.length, this.props.itemAllIds.length).filter(id => typeof id === 'number');
+		this.prevAddedItemIds.length > 0 && this.props.clientInvalidateAddedItems(this.prevAddedItemIds);
+	}
+
 	_handleInputFieldChange(event, entryType='', entryObj={}, searchResultType='', searchResultObj={}){
+		const entryObjKey = Object.keys(entryObj)[0];
 
 		this.setState(prevState => ({
 			...prevState,
 			[entryType]:{
-				...this.state[entryType],
+				...prevState[entryType],
 				...entryObj,
 			},
+			/**
+			* Have to detect when entryObj contains retailer property because retailer
+			* name in type2SearchSelection.retailer object is saved as name property.
+			*/
+			...(
+				(/^(type2)/).test(entryType) ? 
+					// Update state with entered value
+					({
+						type2SearchSelection: {
+							...prevState.type2SearchSelection,
+							[entryObjKey]: {
+								...prevState.type2SearchSelection[entryObjKey],
+								[(entryObjKey === 'retailer' ? 'name' : entryObjKey)]: entryObj[entryObjKey],
+							}
+						}
+					}) :
+					// Clear previously selected value if input changes
+					({
+						type1SearchSelection: {
+							...prevState.type1SearchSelection,
+							[entryObjKey]: {},
+						}						
+					})
+			),
 			[searchResultType]:{
-				...this.state[searchResultType],
+				...prevState[searchResultType],
 				...searchResultObj
 			}
 		}));
@@ -328,16 +330,13 @@ export class ItemForm extends React.Component{
 		let matchedRetailers = Object.values(this.props.retailers).filter((retailer) => retailer.name.toLowerCase().includes(this.state.retailer.toLowerCase()));
 
 		let itemEntity = null;
+
 		if(this.state.selectedFormType === "USER TAGS"){
 			//Build custome user defined tag
 			itemEntity = Object.assign(
 				{}, 
 				OxiAppConstants.EntityTemplates.ITEM, 
 				{
-					/*positionx: this.props.itemLocation.positionx,
-					positiony: this.props.itemLocation.positiony,
-					retailer: matchedRetailers[0].id,
-					brand: matchedBrand[0].id,*/
 					positionx: this.props.itemLocation.positionx,
 					positiony: this.props.itemLocation.positiony,
 					product: {
@@ -347,13 +346,13 @@ export class ItemForm extends React.Component{
 						uds: this.state.type2SearchSelection.size.size,
 						onlineStoreUrl: 'tbd',
 					},
-					//retailer: this.state.type2SearchSelection.retailer,
 					apparelType: this.state.type2SearchSelection.apparelType.id,
-					//...this.state.type2SearchSelection.size,
 					platform:OxiAppConstants.PLATFORM,
 				}
 			)
-		}else{
+		}
+
+		else{
 			let {item, size, retailer} = this.state.type1SearchSelection;
 			//Build existing tag
 			this.props.createSizeGroup({ [size.id]: size} );
@@ -388,7 +387,6 @@ export class ItemForm extends React.Component{
 		}
 
 		console.log('itemEntity = ', itemEntity);
-		//this.props.submitAction(this.state.apparelType, this.props.itemLocation.positionx, this.props.itemLocation.positiony, this.state.size, matchedRetailers[0].id, matchedBrand[0].id);
 		this.props.submitAction(itemEntity);
 		//TODO:  	commenting out line below, but there is a need to handle the ids of server persisted items as UUID
 		// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
@@ -557,52 +555,6 @@ class ExistingItems extends React.Component{
 							/>
 						))
 					}
-					{
-					/*
-					<DropDownField 
-					type='Retailers' 
-					onInputChange={() => this.props.handleInputFieldChange(event)} 
-					inputValue={this.state.type}
-					dropdownItemIds={null}
-					dropdownNames={Object.keys(OxiAppConstants.ItemTypesByIconName)}
-					dropdownSelected={(value) => this._handleDropdownSelected(event, 'type', OxiAppConstants.ItemTypesByIconName[value].label)}
-					style={{height:'50px'}}
-					/>
-					<DropDownField 
-					type='Size' 
-					onInputChange={() => this.props.handleInputFieldChange(event)} 
-					inputValue={this.state.size}
-					dropdownItemIds={null} 
-					dropdownNames={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']}
-					dropdownSelected={(value) => this._handleDropdownSelected(event, 'size', value)}
-					/>
-					<DropDownField 
-					textValue={this.state.retailer}
-					type='Retailer' 
-					onInputChange={() => this.props.handleInputFieldChange(event)} 
-					inputValue={this.state.retailer}
-					dropdownNames={retailerNames}
-					//dropdownItemIds={this.props.retailerIds} 
-					dropdownSelected={(value) => this._handleDropdownSelected(event, 'retailer', value)}
-					/>
-					<DropDownField 
-					textValue={this.state.brand}
-					type='Brand' 
-					onInputChange={() => this.props.handleInputFieldChange(event)} 
-					inputValue={this.state.brand}
-					dropdownNames={brandNames}
-					//dropdownItemIds={this.props.brandIds} 
-					dropdownSelected={(value) => this._handleDropdownSelected(event, 'brand', value)}
-					/>
-					<div id="button_container" style={{'margin-top':'70px', 'margin-bottom':'10px', 'text-align':'center'}}>
-						<div className={FormStyles.formL3Button} style={{display:'inline-block', 'margin-right':'calc(50% - (125px/2))'}} onClick={() => {this._handleOnSubmit(event)}}>
-							{this.props.submitContext}
-						</div>
-						<div className={FormStyles.formL3Button} style={{'display':'inline-block'}} onClick={this.props.cancelAction}>
-							Cancel
-						</div>
-					</div>
-					*/}
 				</form>
 		);
 	}
@@ -659,118 +611,10 @@ class CustomItems extends React.Component{
 							/>
 						))
 					}
-					{/*
-						Object.keys(this.props.fieldsObj).map(key => (
-							<DropDownField 
-								type={key} 
-								onInputChange={(event) => {
-									let searchPromise = this.props.getSuggestion(key, event.target.value);
-									this.props.handleInputFieldChange(event, {[key]: event.taget.value}, {[key]: searchPromise})
-								}} 
-								inputValue={this.props.fieldsObj[key]}
-								dropdownItemIds={null}
-								dropdownNames={Object.keys(OxiAppConstants.ItemTypesByIconName)}
-								dropdownSelected={(value) => this.props.handleDropdownSelected(event, {[key]: value})}
-								hydrateTask={this.props.hydrateTasks[key]}
-								style={{height:'50px'}}							
-							/>
-						))
-					*/}
 				</form>
 		)
 	}
 }
-
-/*export class LoginForm extends React.Component{
-	constructor(props){
-		super(props);
-		this.state = {
-			'inputNameVal':'',
-			'inputPasswordVal':'',
-			'isAuthenticated':false,
-		};
-		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
-		this._onSubmitLogin = this._onSubmitLogin.bind(this);
-	}
-
-	_handleInputFieldChange(e, type){
-		//e.stopPropagation();
-		switch (type){
-			case 'name':
-				this.setState({inputNameVal: e.target.value});
-				break;
-			case 'password':
-				this.setState({inputPasswordVal: e.target.value});
-				break;
-			default:
-				break;
-		}
-	}
-
-	_onSubmitLogin(e, username, password){
-		//e.stopPropagation();
-		//var formData = new FormData();
-		//formData.append('username', username);
-		//formData.append('password', password);
-		//console.log(formData);
-		console.log('calling axio post request from Login Form');
-		axios(loginConfig(username, password))
-		.then(response => {
-			if(response.status == OxiAppConstants.HttpStatus.OK){
-				//append the authorization token expected in the 200 /login response onto the defualt Authorization header
-				cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
-				axios.defaults.headers.common['authorization'] = cookies.get('authorization');
-				this.props.cancelAction !== undefined ? this.props.cancelAction() : null;
-				this.props.history !== undefined ? this.props.history.goBack() : null;
-				if(this.props.afterLoginSuccess !== undefined){
-					this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
-					this.setState(prevState => ({
-						isAuthenticated: true,
-					}));
-				}else{
-					console.log('afterLoginSuccess not defined');
-				}
-			}else{
-				//handleUnauthorizedRequest(response);
-			}
-		}).catch((error) => {
-			console.log('error caught from login form: ',error);
-		});
-		e.preventDefault();
-	}
-
-	render(){
-		return(
-			<React.Fragment>
-			{
-				this.state.isAuthenticated ? 
-					(<Redirect to={`${OxiAppConstants.webAppBaseURL}${OxiAppConstants.routeURIs.browse}`}/>) :
-					(<div className={(this.props.isModal === undefined || this.props.isModal === true) ? Styles.modal : null}>
-						<div id="form_container_add_item" style={{'background-color':'#fdfdfd', padding:'10px', 'border-radius':'3px', 'width':'25%'}}>
-							<form className={FormStyles.loginForm} action="" method="POST">
-								<InputTextField 
-									type="User Name" 
-									name="username" 
-									onChange={(event) => {this._handleInputFieldChange(event, 'name')}}/>
-								<InputTextField 
-									type="Password" 
-									name="password"
-									onChange={(event) => {this._handleInputFieldChange(event, 'password')}}/>
-								<div 
-									className={FormStyles.formL3Button} 
-									onClick={(event) => {this._onSubmitLogin(event, this.state.inputNameVal, this.state.inputPasswordVal)}} 
-								>
-									SUBMIT
-								</div>
-							</form>
-						</div>
-					</div>)
-			}
-			</React.Fragment>
-		);
-	}
-}*/
-
 
 export class DiscardForm extends React.Component{
 	constructor(props){
@@ -778,37 +622,13 @@ export class DiscardForm extends React.Component{
 	}
 
 	render(){
-		/*let denormContents = [];
-		//Build denormalized contents object array
-		console.log('this.props.contents = ', this.props.contents)
-		console.log('Object.values(this.props.contents) = ', Object.values(this.props.contents))
-		for(let content of Object.values(this.props.contents)){
-			let denormItems = [];
-			//Build denormalized items object array
-			for(let itemId of content.items){
-				denormItems = [...denormItems, this.props.items[itemId]]
-			}
-			console.log('content = ', content)
-			console.log('denormalized items = ', denormItems)
-			denormContents = [...denormContents, Object.assign(content, {items: denormItems})]
-		}
-		console.log('denormalized contents = ', denormContents)
-		//build denormalized outfit object
-		let denormOutfit = Object.assign({}, this.props.outfits['1'], {contents: denormContents});*/
 		let denormOutfit = null;
-		//denormOutfit = denormalizeOutfit(this.props.outfits, this.props.contents, this.props.items);
 		console.log('denormOutfit = ', denormOutfit)
+
 		return(
 			<div className={Styles.modal}>
 				<div 
 					id="form_container_add_item" 
-					//style={{
-					//	'background-color':'#fdfdfd', 
-					//	padding:'10px', 
-					//	'border-radius':'3px', 
-					//	'width':'25%',
-					//	'min-width':'340px',
-					//}}
 					className={FormStyles.discardFormViewContainer_div}
 				>
 					<div id="prompt">

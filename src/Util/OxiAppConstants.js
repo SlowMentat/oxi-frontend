@@ -113,7 +113,7 @@ export const OxiAppConstants = Object.freeze({
 	outfitFormRoot : document.getElementById('outfitForm'),
 	modalRoot : document.getElementById('modalRoot'),
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
-	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
+	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
 	webAppBaseURL : 'https://www.oxisalechannel.com',
 	aspectRatio : (2 / 3),
 	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1

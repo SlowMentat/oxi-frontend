@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
-import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
+//import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';

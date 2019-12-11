@@ -567,7 +567,11 @@ export default class webAppView extends React.Component {
 	}
 
 	_handleAddOutfitClicked(event){
-		if(!this.props.buttonDisabled){this.props.addOutfit(1, undefined, this.props.entitiesStateReducer);}
+		
+		if(!this.props.buttonDisabled){
+			this.props.addOutfit(1, undefined, this.props.entitiesStateReducer);
+		}
+
 		this.props.setPreviewFocus();
 	}
 

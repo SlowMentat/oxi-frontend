@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
+	/*setFormVisibility, 
 	addItem, 
 	selectAddedEntity, 
-	modifyContent, 
+	modifyContent, */
 	navigateTo, 
-	editContentView, 
+	/*editContentView, 
 	disableAddOutfit, 
 	removeAddedEntityAndPropogate,
 	clearAllAddedEntitiesState,
@@ -18,7 +18,7 @@ import {
 	disableAddContentButton,
 	clearClientInvalidation,
 	clearSelectMultipleEntity,
-	fetchSuggestion
+	fetchSuggestion*/
 } from '../../Components/Actions/indexActions.js';
 import LoginForm from '../../Components/Presentations/LoginForm.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -37,6 +37,8 @@ const requestToBatchedDispatchMap = {
 const mapStateToProps = (state, props) => {
 
 	return {
+		login: 'username',
+		credentials: 'password',
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,
 		requestedNav : state.requestedNavigation.location,

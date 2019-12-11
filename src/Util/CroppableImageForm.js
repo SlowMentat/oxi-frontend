@@ -137,6 +137,7 @@ class CroppableImageForm extends React.Component{
 				var taskInd = 0;
 				//make copy of images from parent state
 				let images = Object.assign({}, this1.props.images);
+				let imagesKeys = Object.keys(images);
 				var readers = [];
 
 				//build array of recently added Ids
@@ -146,8 +147,8 @@ class CroppableImageForm extends React.Component{
 						if(id === prevId){
 							// When a user adds an outfit, a content entity with id=1 is already provisioned in addedEntitiesReducer. 
 							// As such, when loadAllImages is invoked, this content entiy id will be filterd and the image data will not be loaded.
-							// To prevent this, do not filter if this is the only content entity in addedContents and if user is in "add" viewstate.
-							if(addedContents.allIds.length === 1 && viewState === OxiAppConstants.viewState.ADD){
+							// To prevent this, do not filter if user is in "add" viewstate and if prop.images only contains 1 object (default) and src is an empyt string.
+							if(viewState === OxiAppConstants.viewState.ADD && Object.keys(images).length < 2 && images[imagesKeys[0]].src === undefined/*addedContents.allIds.length === 1*/){
 								return true;
 							}
 							return false;
@@ -352,11 +353,13 @@ class CroppableImageForm extends React.Component{
 										// Loop through tags in IFD.
 										for(var i = 0; i < tagCount; i++){
 
+											var entry = getIFDValueFromEntry(i, OxiAppConstants.exifTags, offset);
+
 											exifData = {
 												...exifData, 
 												...{
 													//[tagName]: (view.getUint16(offset + (i * 12) + 8, little)) 
-													...(getIFDValueFromEntry(i, OxiAppConstants.exifTags, offset))
+													...entry
 												}
 											}											
 										}
@@ -374,13 +377,14 @@ class CroppableImageForm extends React.Component{
 											subIFDOffset += 2;
 
 											for(var i = 0; i < ifdTagCount; i++){
+
+												var entry = getIFDValueFromEntry(i, OxiAppConstants.subIFDTags, subIFDOffset);
 												
 												subIFDData = {
 													...subIFDData, 
 													...{
-														//[tagName]: (view.getUint16(subIFDOffset + (i * 12) + 8, little)) 
-														
-														...(getIFDValueFromEntry(i, OxiAppConstants.subIFDTags, subIFDOffset)) 
+														//[tagName]: (view.getUint16(subIFDOffset + (i * 12) + 8, little))														
+														...entry 
 													}
 												}	
 											}
@@ -409,9 +413,9 @@ class CroppableImageForm extends React.Component{
 								var image = new Image();
 								var imgData = arrayBufferToDataURL(readers[ti].result, 'image/jpeg');
 
-								var isPortrait = exifData.yResolution > exifData.xResolution ? 
+								var isPortrait = exifData.subIFDData.exifImageHeight > exifData.subIFDData.exifImageWidth ? 
 									(true) : 
-									exifData.yResolution = exifData.xResolution ? 
+									exifData.subIFDData.exifImageHeight = exifData.subIFDData.exifImageWidth ? 
 										(undefined) : 
 										(false) ;
 
@@ -435,7 +439,7 @@ class CroppableImageForm extends React.Component{
 											break;
 	
 										case exifData.orientation === 3:
-											rotation = 90;
+											rotation = 180;
 											break;
 	
 										case exifData.orientation === 6:
@@ -650,18 +654,20 @@ class CroppableImageForm extends React.Component{
 			canvas.height = rotation === 90 || rotation === 270 ? imageWidth : imageHeight;
 			var tx = 0.5 * canvas.width;// imageWidth;
 			var ty = 0.5 * canvas.height;// imageHeight;
-			
+			var canvasAspectRatio = canvas.width / canvas.height;
 			
 			ctx.translate(tx, ty);
 			ctx.rotate(rotation * Math.PI/180);
 
 			//horizontal img
-			if(aspectRatio >= 1){		 
-			 ctx.translate(-ty, -tx);
+			//if(aspectRatio >= 1){		 
+			if(canvasAspectRatio >= 1){
+			 //ctx.translate(-ty, -tx);
+			 ctx.translate(-tx, -ty);
 			}
 			//vertical img
 			else{	
-				ctx.translate(-ty, -tx)
+				ctx.translate(-ty, -tx) 
 			}
 
 			ctx.drawImage(img, 0, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
@@ -704,10 +710,14 @@ class CroppableImageForm extends React.Component{
 
 					//Note for newly added content, the coverpicuri contains the file name.  
 					//Coverpicuri is used from each content entity to reference the corresponding file in files object when sending image data to the server
-					files = Object.assign({...files}, {
-						[this.props.addedContents.byIds[invalidatedContentId].coverpicuri]: images[invalidatedContentId].src
-					});
-					//(this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0) ? //TODO:  should be ... > 0
+					files = {
+						...files,
+						[this.props.addedContents.byIds[invalidatedContentId].coverpicuri]: {
+							fileData: images[invalidatedContentId].src,
+							contentId: invalidatedContentId,
+						}
+					};
+					// (this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0) ? //TODO:  should be ... > 0
 					//	this.props._handleSubmit(this.state.images[this.selectedContentId].src) :
 					//	this.props._handleSubmit(null);
 				}else{
@@ -1287,9 +1297,9 @@ class CroppableImageForm extends React.Component{
 						multiple name="imageFile" 
 						onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
 						style={{display:'none'}} />
-					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
-						Upload Image
-					</button>
+						<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
+							Upload Image
+						</button>
 				</form>
 
 				<div 

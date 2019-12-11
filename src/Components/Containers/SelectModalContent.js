@@ -21,7 +21,8 @@ import {
 	fetchSuggestion,
 	selectAndPropogate,
 	getSizeChartByItemId,
-	createSizeGroups
+	createSizeGroups,
+	clientInvalidateEntities,
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -52,11 +53,14 @@ const mapStateToProps = (state, props) => {
 		contents = state.addedEntitiesReducer.contents;
 		itemAllIds = state.addedEntitiesReducer.items.allIds;
 	}
+
 	//TODO:  won't worth with the current state implementaion.  Items being updated are done in the addedEntityReducer tree
 	else if(state.toggleModal.modal === OxiAppConstants.FormType.UPDATE_ITEM){
 		contents = state.entitiesReducer.contents;
 		itemAllIds = state.entitiesReducer.items.allIds;
-	}else if(state.toggleModal.modal === OxiAppConstants.FormType.DISCARD_EDITS){
+	}
+
+	else if(state.toggleModal.modal === OxiAppConstants.FormType.DISCARD_EDITS){
 		console.log('setting entities:')
 		outfits = state.addedEntitiesReducer.outfits.byIds;
 		contents = state.addedEntitiesReducer.contents.byIds;
@@ -97,6 +101,9 @@ const mapDispatchToProps = (dispatch) => ({
 		submitAction: (item) => {
 			dispatch(addItem(item));
 			//dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.ITEM, addedOutfitId))
+		},
+		clientInvalidateAddedItems: (ids) => {
+			clientInvalidateEntities(OxiAppConstants.EntityTypes.ITEM, ids);
 		},
 		editingItem: (addedItemIds) => {
 			//record the added item above to the isEdittingIds lt

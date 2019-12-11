@@ -172,7 +172,33 @@ export default class ItemLocationMap extends React.Component{
 						{
 							this.props.visibleItemsMap.visibleItemsByIds !== undefined ? Object.keys(this.props.visibleItemsMap.visibleItemsByIds)
 								.filter(itemId => {
-									return selectedContentId === undefined || selectedContentId === false ? //redux state not yet instantiated for entities
+
+									var result = false;
+									
+									switch(true){
+
+										case selectedContentId === undefined || selectedContentId === null || selectedContentId === false:
+											break;
+
+										//check existing items
+										case viewState === OxiAppConstants.viewState.PREVIEW && contents.byIds[selectedContentId] !== undefined:
+											result = contents.byIds[selectedContentId].items.includes(itemId);
+											break;
+
+										//check added items
+										case viewState !== OxiAppConstants.viewState.PREVIEW && addedContents !== undefined && addedContents.byIds[selectedContentId] !== undefined:
+											//Added entity keys are stored as numbers, which is incorrect.  Conversion to string is needed to perform search with itemId
+											var itemIdsAsString = addedContents.byIds[selectedContentId].items.map(id => typeof id === 'number' ? id.toString(10) : id);
+											result = result === false ? itemIdsAsString.includes(itemId) : result;
+											break;
+
+										default:
+											break;
+									}
+
+									return result;
+									
+									/*return selectedContentId === undefined || selectedContentId === false ? //redux state not yet instantiated for entities
 										([]) :
 										viewState === OxiAppConstants.viewState.PREVIEW ? 
 											contents.byIds[ selectedContentId ] === undefined ?
@@ -180,14 +206,15 @@ export default class ItemLocationMap extends React.Component{
 												contents.byIds[ selectedContentId ].items.includes(itemId) :
 													addedContents.byIds[ selectedContentId ] ?
 														addedContents.byIds[ selectedContentId ].items.includes(itemId) :
-														([])
+														([])*/
 								})
-								.map(itemId => {
-									console.log('itemId = ', itemId);
-									console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
+								.map((itemId, ind, srcArray) => {
+									console.log('srcArray = ', srcArray);
+									//console.log('itemId = ', itemId);
+									//console.log('this.props.visibleItemsMap.visibleItemsByIds = ', this.props.visibleItemsMap.visibleItemsByIds);
 									//do not return object owned properties
 									//if(this.props.visibleItemsMap.visibleItemsByIds.hasOwnProperty(itemId)){
-									if(this.props.itemIdHovered === itemId) console.log('itemIdHovered equals itemId: ', itemId)
+									//if(this.props.itemIdHovered === itemId) console.log('itemIdHovered equals itemId: ', itemId)
 									if(typeof itemId !== 'object' && this.props.visibleItemsMap.visibleItemsByIds[itemId] !== undefined){
 										return(
 											viewState != OxiAppConstants.viewState.PREVIEW ? 
