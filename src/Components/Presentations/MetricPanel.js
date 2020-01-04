@@ -47,7 +47,7 @@ export class MetricPanel extends React.Component{
 			<div
 				style={
 					isOpen ?  
-						({left:'7px'}) :
+						({left:'-1px'}) :
 						({})
 				} 
 				className={
@@ -56,7 +56,13 @@ export class MetricPanel extends React.Component{
 						Styles.metricBlock
 				}
 			>
-				<div className={Styles.expandMetricBtn_div}>
+				<div 
+					className={Styles.expandMetricBtn_div}
+					style={
+						isOpen ? 
+							({display:'block'}) :
+							({display: 'none'})
+					} >
 					<Button
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
 						onClickHandler={(event) => {toggleMetricPanel(event)}}

@@ -477,12 +477,13 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 
 			case OxiAppConstants.EntityTypes.ITEM:
 				URI = linkURL ? '' : '/items';
-				customReqParams = (URI === '') ? '' : `?filter=${filter}&page=${pageStart}&size=${pageSize}`;
+				//customReqParams = (URI === '') ? '' : `?filter=${filter}&page=${pageStart}&size=${pageSize}`;
+				customReqParams = (URI === '') ? '' : `?filter=${filter}&firstResult=${0}&maxResults=${10}&date=${new Date(Date.now()).toISOString()}&direction=${0}`; 
 
-				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`)
+				return axios.get(encodeURI(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`))
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
-						let normalizedJson = response.data._embedded.itemDtoes.reduce((accumulator, currentObject) => {
+						let normalizedJson = response.data._embedded.items._embedded.itemDtoes.reduce((accumulator, currentObject) => {
 							return(Object.assign(accumulator, {
 								[currentObject.id]: {
 									'id': currentObject.id, 
@@ -499,23 +500,35 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						console.log('normalizedJson Items:  ', normalizedJson);
 						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
 						//dispatch(entityActions.replaceItems(normalizedJson));
-						if(response.data.page !== undefined){
+						//if(response.data.page !== undefined){
+						/*if(response.data._links !== undefined && response.data._links.after !== undefined){
 							const {size, totalElements, totalPages, number} = response.data.page;
+							const nextPageURL = response.data._links.after.href;
 							console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
 
 							dispatch(genericActions.setEntityCurrentPage(OxiAppConstants.EntityTypes.ITEM, number));
-							dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages - 1));
+							dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages - 0));
 							dispatch(genericActions.modifyPagedEntityIds(OxiAppConstants.EntityTypes.ITEM, number, Object.keys(normalizedJson)));
 							//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
-						}
+						}*/
 
 						//TODO: this is makes unecessary calls to redux store.  setting page URL should be handled in the PageList component, but Im not sure how to extract 
-						//		response data from the dispatch call in PageListContainer.  quick fix is to set the values here then reset them with the corred page number in
+						//		response data from the dispatch call in PageListContainer.  quick fix is to set the values here then reset them with the correct page number in
 						//		PageList component :(
-						if(linkURL === null){
+						/*if(linkURL === null){
 							if(response.data._links !== undefined){
 								response.data._links.next ? 
 									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.next.href)) : 
+									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
+								!response.data._links.prev ? 
+									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null)) :
+									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) 
+							}
+						}*/
+						if(true/*linkURL === null*/){
+							if(response.data._links !== undefined){
+								response.data._links.after ? 
+									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.after.href)) : 
 									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
 								!response.data._links.prev ? 
 									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null)) :
@@ -604,7 +617,7 @@ export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=
 					console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
 
 					dispatch(genericActions.setEntityCurrentPage(OxiAppConstants.EntityTypes.CONTENT, number));
-					dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.CONTENT, totalPages - 1));
+					dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.CONTENT, totalPages - 0));
 					dispatch(genericActions.modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, number, Object.keys(normalizedJson.entities.contents)));
 					//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
 				}

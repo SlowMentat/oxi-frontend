@@ -615,7 +615,7 @@
 
 :local(.sizeVariant_div){
 	display: inline-block;
-    width: var(--variant-size-option-height);
+    min-width: var(--variant-size-option-height);
     height: var(--variant-size-option-height);
     vertical-align: top;
     margin-right: 5px;
@@ -625,7 +625,10 @@
     line-height: var(--variant-size-option-height);
     text-align: center;
     font-family: Roboto;
-    font-size: 11px;
+    font-size: 11px;    
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-bottom: 5px;
 }
 
 :local(.colorVariant_div){

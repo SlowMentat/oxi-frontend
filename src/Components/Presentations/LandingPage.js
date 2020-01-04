@@ -856,7 +856,7 @@ export default class LandingPage extends React.Component{
 		console.log("TEST: rendering landing page");
 		return(
 			<React.Fragment>
-				<SiteNav match={this.props.match} webAppView={!this.props.profileMenu ? 'landing' : ''}/>
+				<SiteNav match={this.props.match} history={this.props.history} webAppView={!this.props.profileMenu ? 'landing' : ''}/>
 				<div style={{width:'100vw'}}>				
 					{
 						this.props.profileMenu ? null/*(

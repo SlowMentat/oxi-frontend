@@ -35,7 +35,9 @@ export const OxiAppConstants = Object.freeze({
 			BASE64: 'data:image/jpeg;base64,',
 		}
 	},
-
+/*	pageReqParam: {
+		DEFAULT: `${filter}=all&${firstKey}=0`
+	},*/
 	exifTags:{
 		0x010e: {name: 'imageDescription', format: 0x02, maxComponents: undefined,},	
 		0x010f: {name: 'make', format: 0x02, maxComponents: undefined,},	
@@ -115,7 +117,8 @@ export const OxiAppConstants = Object.freeze({
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
 	webAppBaseURL : 'https://www.oxisalechannel.com',
-	aspectRatio : (2 / 3),
+	//aspectRatio : (2 / 3),
+	aspectRatio : (3/4),
 	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1
 	navRequestMap : {
 		a : "Browse",
@@ -219,7 +222,7 @@ export const OxiAppConstants = Object.freeze({
 		CONTENT_WITH_OUTFIT: "contents",
 		ITEM : "items",
 		SIZE_CHART: "sizeChartDto",
-		SIZE_GROUP:"sizeGroupDtos",
+		SIZE_GROUP:"sizeGroups",
 		PICTURE : "picture",
 		BRAND: "brands",
 		RETAILER: "retailers",

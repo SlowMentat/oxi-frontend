@@ -328,7 +328,7 @@ export class ItemForm extends React.Component{
 	_handleOnSubmit(event){
 		let matchedBrand = Object.values(this.props.brands).filter((brand) => brand.name.toLowerCase().includes(this.state.brand.toLowerCase()));
 		let matchedRetailers = Object.values(this.props.retailers).filter((retailer) => retailer.name.toLowerCase().includes(this.state.retailer.toLowerCase()));
-
+		
 		let itemEntity = null;
 
 		if(this.state.selectedFormType === "USER TAGS"){

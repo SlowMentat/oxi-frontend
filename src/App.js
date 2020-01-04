@@ -199,12 +199,25 @@ class App extends React.Component {
 	//	</BrowserRouter>
 	//</Provider>,
 	//document.getElementById('root')
-ReactDOM.render(
 
-	<Provider store={store} context={ReactReduxContext}>
-		<ConnectedRouter history={history}  context={ReactReduxContext}>
-			<Route path="/" component={App}/>
-		</ConnectedRouter>
-	</Provider>,
-	document.getElementById('root')
-);
+const startApp = () => {
+	/*if(window.device && device.platform === 'iOS'){
+		styles.base.paddingTop = '20px';
+	}*/
+
+	ReactDOM.render(
+		<Provider store={store} context={ReactReduxContext}>
+			<ConnectedRouter history={history}  context={ReactReduxContext}>
+				<Route path="/" component={App}/>
+			</ConnectedRouter>
+		</Provider>,
+		document.getElementById('root')
+	);
+}
+
+if(!window.cordova){
+	startApp()
+}
+else{
+	document.addEventListener('deviceready', startApp, false);
+}

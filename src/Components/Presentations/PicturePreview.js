@@ -28,8 +28,7 @@ import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js'
 
 const imgStyle = {
 	height: '100%',
-	//'max-height': 'calc(100vh - 200px * (3/2))',
-    'max-width': 'calc((100vh - 200px) * 2/3)',
+    'max-width': 'calc((100vh - 200px) * var(--img-aspect-ratio))',
 	display: 'block',
 	'border-radius': '4px',
 	'object-fit': 'contain',

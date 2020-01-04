@@ -78,12 +78,12 @@ class PagedList extends React.Component{
 
 		let pagingDown = (
 					innerHeight + scrollTop >= (offsetTop + offsetBottom + scrollHeight) &&
-					this.props.currentPage < this.props.lastPage &&
+					//this.props.currentPage < this.props.lastPage &&
 					!this.props.isFetching);
-		let pagingUp = (
+		let pagingUp = false/*(
 					scrollTop === 0 &&
 					this.props.currentPage !== 0 &&
-					!this.props.isFetching);
+					!this.props.isFetching);*/
 
 
 		switch(true){
@@ -108,14 +108,14 @@ class PagedList extends React.Component{
 
 
 					//set the top of scrollContainerRef to scrollPageHeight * (Page tail - 1)
-					scrollContainerRef.scrollTop = this.state.scrollPageHeight * (OxiAppConstants.scrollBufferSize - 1.1);
+					//scrollContainerRef.scrollTop = this.state.scrollPageHeight * (OxiAppConstants.scrollBufferSize - 1.1);
 					let pageNumbers = Object.keys(this.props.pages)
 					let headPageNumber = parseInt(pageNumbers[0], 10)
 					console.log('response** = ',response);
 					if(response.data._links){
-						!response.data._links.next ? 
+						!response.data._links.after ? 
 							this.props.setNextPageURL(null) :
-							this.props.setNextPageURL(response.data._links.next.href);
+							this.props.setNextPageURL(response.data._links.after.href);
 
 						!response.data._links.prev ? 
 							this.props.setPrevPageURL(null) :							

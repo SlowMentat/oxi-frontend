@@ -84,7 +84,10 @@ export function SiteNav(props){
     										<div style={{float:'right', width:'0px'}}>
     											<div className={NavStyles.landingCtrl_div}>
     												<div className={NavStyles.landingBtnContainer_div}>
-    													<div className={NavStyles.landingBtn_div}>
+    													<div 
+    														className={NavStyles.landingBtn_div}
+    														onClick={(e) => {props.history.push('/shop/browse')}}
+    													>
     														Login
     													</div>
     												</div>
@@ -679,7 +682,7 @@ export default class webAppView extends React.Component {
 									webAppView={this.props.webAppView} 
 									match={this.props.match}
 									ownerUsernamePath={ownerUsernamePath} />
-								<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
+								<div className={Styles.contentBlock}>
 									<div className={Styles.containerBrowse}>
 										{/*<div className={Styles.metricsContainer_div}>
 											<MetricPanel />
@@ -715,7 +718,7 @@ export default class webAppView extends React.Component {
 									webAppView={this.props.webAppView} 
 									match={this.props.match}
 									ownerUsernamePath={ownerUsernamePath}/>
-								<div style={{'margin-top':'80px','height':'calc(100vh - 80px)'}}>
+								<div className={Styles.contentBlock}>
 									<div 
 										className={Styles.containerProfile} 
 										style={
@@ -758,7 +761,8 @@ export default class webAppView extends React.Component {
 															populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
 															itemIdHovered={this.state.itemIdHovered}
 															changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
-															imageHeight={this.state.imageHeight} />
+															imageHeight={this.state.imageHeight} 
+															toggleMetricPanel={this.toggleMetricPanel} />
 
 														<ProfileViewControlsContainer 
 															unsetPreviewFocus={unsetPreviewFocus} />

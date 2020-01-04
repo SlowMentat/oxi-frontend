@@ -39,6 +39,7 @@ const mapStateToProps = (state, props) => {
 	return {
 		login: 'username',
 		credentials: 'password',
+		serviceURL: OxiAppConstants.serviceURL,
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,
 		requestedNav : state.requestedNavigation.location,

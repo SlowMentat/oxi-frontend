@@ -4,6 +4,7 @@
   "description": "poc",
   "main": "site.js",
   "scripts": {
+    "homepage":"../www",
     "build": "webpack",
     "test": "jest",
     "storybook": "start-storybook -p 6006",

@@ -240,7 +240,8 @@ export class Outfit extends React.Component{
 						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
 						style={{
 							width:'100%', 
-							'max-height':'inherit',
+							//'max-height':'inherit',
+							height: '100%',
 							'border-radius':'3px',
 							'border-top-left-radius':'0px',
 							'border-bottom-left-radius':'0px',

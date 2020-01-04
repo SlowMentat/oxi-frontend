@@ -41,6 +41,7 @@ const lowerBodySection_div = {
 const BodyFitProjectionCentered = (ownerX, hostX) => {
 	//-100 : 0%
 	// 100 : 100%
+
 	let ownerAdjX = (((ownerX - hostX) / 2) + 50);
 	console.log('ownerAdjX', ownerAdjX);
 	let hostAdjX = (((hostX - ownerX) / 2) + 50);
@@ -202,6 +203,11 @@ const ZCurve = ({props}) => {
 class MetricGraph extends React.Component{
 	constructor(props){
 		super(props);
+
+		this.prevDeltaX = props.sourceMetricIds.reduce((accum, id) => ({
+			...accum,
+			[id]: 0,
+		}),{});
 	}
 
 	shouldComponentUpdate(nextProps, nextState){
@@ -214,6 +220,7 @@ class MetricGraph extends React.Component{
 	}
 
 	render(){
+		const range = 10;
 		let width = 50;
 		let height = width;
 		var nextOverallFitResults = OxiAppConstants.fitResultValues.a; //Set to Fit
@@ -261,7 +268,7 @@ class MetricGraph extends React.Component{
 			let xOffset = Math.abs(sourceMetrics[sourceMetricId]) >= 0 ? 0 : sourceMetrics[sourceMetricId];
 
 			var deltaX = sourceMetrics[sourceMetricId] !== undefined ?
-				 (xScale * (Math.abs(sourceMetrics[sourceMetricId])) / 5) :
+				 (xScale * (/*Math.abs*/(sourceMetrics[sourceMetricId])) / (range/2)) :
 				 undefined;
 
 			//grab the current tolerance values
@@ -296,11 +303,13 @@ class MetricGraph extends React.Component{
 			var nextToleranceMaxDelta = nextToleranceMaxId ? (tolerances[nextToleranceMaxId] - roundedNextUserMetric)  : undefined;
 
 			var toleranceId = sourceMetrics[sourceMetricId] >= 0 ? toleranceMinId : toleranceMaxId;
+
 			//get the fit zone dimensions, position
 			var fitZoneWidth = 100*(Math.abs(tolerances[toleranceMinId] - tolerances[toleranceMaxId]))/10;
-			var fitZonePosition = 100*((userMetricsDto ? tolerances[toleranceMinId] - roundedUserMetric + 5 : 5))/10;
+			var fitZonePosition = 100*((userMetricsDto ? tolerances[toleranceMinId] - roundedUserMetric + (range/2) : (range/2) )) / range;
 			var leftCurveAlign = '0px';
 			var rightCurveAlign = '0px';
+
 			//get corner moulding curvature:  < 0: concave,  = 0: straight, > 0: convex
 			//where concave and straight correspond to white background-color
 			//and convex correspond to gray background-color of the left/rightMoulding_divs
@@ -656,6 +665,81 @@ class MetricGraph extends React.Component{
 					break;
 			}
 
+			var transNegToPos = this.prevDeltaX[sourceMetricId] < 0 && deltaX > 0;
+			var transPosToNeg = this.prevDeltaX[sourceMetricId] > 0 && deltaX < 0;
+			this.prevDeltaX[sourceMetricId] = deltaX;
+
+			console.log('transNegToPos = ', transNegToPos);
+			console.log('transPosToNeg = ', transPosToNeg);
+
+			const createBar = (isLeftOfAxis) => {
+				var transitionDelay = null;
+
+				switch(true){
+
+					// Transition accross axis from pos to neg deltaX
+					case transPosToNeg:
+						transitionDelay = isLeftOfAxis ? 
+							({
+								'transition-delay': '200ms',
+								'transition-property': 'width'
+							}) : 
+							null;
+						break;
+
+					// Transition accross axis from neg to pos deltaX
+					case transNegToPos:
+						transitionDelay = !isLeftOfAxis ? 
+							({
+								'transition-delay': '200ms',
+								'transition-property': 'width'
+							}) : 
+							null;
+						break;
+
+					default:
+						break;
+				}
+
+				return (
+					<div 
+						className={
+							this.props.labelHovered !== sourceMetricId ? 
+								MetricStyles['graphBar_div'] :
+								fitResults[sourceMetricId] !== OxiAppConstants.fitResultValues.b ? 
+									MetricStyles['graphBar_div--highlight'] : 
+									MetricStyles['graphBarNoFit_div--highlight']
+						} 
+						style={
+							isAvailable ? 
+								({
+									...(
+										isLeftOfAxis ? 
+											({
+												'border-right': 'unset',
+												'right': '0px',
+											}) : 
+											({
+												'border-left':'unset',
+												'left': '0px',
+											})
+									),
+									//'text-align': (isLeftOfAxis ? "right" : "unset"),
+									...transitionDelay,
+									'width': (((deltaX < 0 && isLeftOfAxis) || (deltaX >= 0 && !isLeftOfAxis)) ? `calc((${Math.abs(deltaX)} / (${range/2}))*var(--x-axis-range)/2)` : '0px'),
+									//'left': (deltaX > 0 ? 'unset' : `calc((50% + (${xScale * xOffset}/100) * (var(--x-axis-range) + 1px)/2 + ${deltaX}*var(--x-axis-range)/2))`),
+									...(fitResults[sourceMetricId] === OxiAppConstants.fitResultValues.b ? 
+										({'--bar-fill-color':'#b1b1b1ad', '--bar-border-color':'var(--color-mobile-icong-bg)'}) : 
+										({}) ),
+								}) : 
+								({
+									display:'none',
+								})
+						} >
+					</div>
+				);
+			}
+
 			return(
 				<React.Fragment>
 						<div className={MetricStyles.barGraphContainer_div}>
@@ -674,7 +758,7 @@ class MetricGraph extends React.Component{
 									{ rightEdgeCurvature }
 								</div>
 							</div>
-							<div 
+							{/*<div 
 								style={{
 									'margin-left':'calc(50% + (' + `${xScale * xOffset}` + '/100) * (var(--x-axis-range) + 1px)/2)',
 								}}>
@@ -689,7 +773,8 @@ class MetricGraph extends React.Component{
 									style={
 										isAvailable ? 
 											({
-												'width':`calc((${ deltaX })*var(--x-axis-range)/2)`,
+												'width':`calc((${ Math.abs(deltaX) })*var(--x-axis-range)/2)`,
+												'left': (deltaX > 0 ? 'unset' : `calc((50% + (${xScale * xOffset}/100) * (var(--x-axis-range) + 1px)/2 + ${deltaX}*var(--x-axis-range)/2))`),
 												...(fitResults[sourceMetricId] === OxiAppConstants.fitResultValues.b ? 
 													({'--bar-fill-color':'#b1b1b1ad', '--bar-border-color':'#929292'}) : 
 													({}) ),
@@ -699,6 +784,13 @@ class MetricGraph extends React.Component{
 											})
 									} >
 								</div>
+							</div>*/}
+
+							<div id="negativeDeltaWRTOwner" className={MetricStyles.graphBarContainer_div} style={{'text-align': 'right'}}>
+								{createBar(true)}
+							</div>
+							<div id="positiveDeltaWRTOwner" className={MetricStyles.graphBarContainer_div} style={{left: '50%'}}>
+								{createBar(false)}
 							</div>
 						</div>
 	
@@ -878,17 +970,50 @@ class MetricList extends React.Component{
 		let hostStateResult = {};
 		let ownerMetricIds = Object.keys(ownerMetrics);
 		let hostMetricIds = Object.keys(hostMetrics);
+
 		console.log('hostMetrics',hostMetrics);
 		console.log('ownerMetrics',ownerMetrics);
+		
+		const checkIfStringAndConvert = (value) => typeof value === 'string' ? parseInt(value, 10) : value;
+
 		if(!(ownerMetricIds.length === 0 && ownerMetrics.constructor === Object) && !(hostMetricIds.length === 0 && hostMetrics.constructor === Object)){
+			
 			for(let key of hostMetricIds){
 				console.log('ownerMetrics[', key, '] = ', ownerMetrics[key]);
 				console.log('hostMetrics[', key, '] = ', hostMetrics[key]);
-				let projectedValues = projection(ownerMetrics[key], hostMetrics[key]);
+
+				var hostMetric = hostMetrics[key];
+
+				//Get the average of hostMetrics[key] min/max measurments if applicable.  These will be provided by retaielrs
+				if(typeof hostMetrics[key] === 'object'){
+						
+					switch(hostMetrics[key].min && hostMetrics[key].max){
+			
+						case (hostMetrics[key].min && hostMetrics[key].max):
+							var min = checkIfStringAndConvert(hostMetrics[key].min);
+							var max = checkIfStringAndConvert(hostMetrics[key].max);				
+							hostMetric = min + (Math.abs(max - min) / 2);
+							break;
+			
+						case hostMetrics[key].min:
+							hostMetric = (checkIfStringAndConvert(hostMetrics[key].min));
+							break;
+			
+						case hostMetrics[key].max:
+							hostMetric = (checkIfStringAndConvert(hostMetrics[key].max));
+							break;
+			
+						default:
+							break;
+					}
+				}
+
+				let projectedValues = projection(ownerMetrics[key], hostMetric);
 				console.log('projectedValues = ', projectedValues);
 				ownerStateResult = Object.assign(ownerStateResult, {[key]: projectedValues.ownerValue});
 				hostStateResult = Object.assign(hostStateResult, {[key]: projectedValues.hostValue});
 			}
+
 			console.log('ownerStateResult = ', ownerStateResult);
 			console.log('hostStateResult = ', hostStateResult);
 			/*this.setState({
@@ -899,7 +1024,8 @@ class MetricList extends React.Component{
 				ownerValues: ownerStateResult,
 				hostValues: hostStateResult
 			});
-		}else{
+		}
+		else{
 			return null;
 		}
 	}
@@ -976,9 +1102,14 @@ class MetricList extends React.Component{
 		let projectedUpperBodyXCoord = this.projectGraphState(BodyFitProjectionOwnerAlign, ownerUpperBodyMetrics, hostUpperBodyMetrics);
 		let projectedLowerBodyXCoord = this.projectGraphState(BodyFitProjectionOwnerAlign, ownerLowerBodyMetrics, hostLowerBodyMetrics);
 
-		let projectedValues = projectedUpperBodyXCoord === null || projectedLowerBodyXCoord === null ?
-			({...ownerUpperBodyMetrics, ...ownerLowerBodyMetrics}) :
-			({...projectedUpperBodyXCoord.hostValues, ...projectedLowerBodyXCoord.hostValues});
+		//let projectedValues = projectedUpperBodyXCoord === null || projectedLowerBodyXCoord === null ?
+		//	({...ownerUpperBodyMetrics, ...ownerLowerBodyMetrics}) :
+		//	({...projectedUpperBodyXCoord.hostValues, ...projectedLowerBodyXCoord.hostValues});
+
+		let projectedValues = ({
+			...(projectedUpperBodyXCoord !== null ? (projectedUpperBodyXCoord.hostValues) : ({})), 
+			...(projectedLowerBodyXCoord !== null ? (projectedLowerBodyXCoord.hostValues) : ({})),
+		});
 
 		/*console.log('projectedUpperBodyXCoord = ',projectedUpperBodyXCoord)
 		console.log('projectedLowerBodyXCoord = ',projectedLowerBodyXCoord)

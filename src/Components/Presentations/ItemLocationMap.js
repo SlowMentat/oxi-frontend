@@ -21,10 +21,8 @@ const containerStyle = {
 const svgContainerStyle = {
     'max-height': 'calc(100vh - 200px - 80px )',
     'height': '100%',
-    'width': 'calc((((((100vh - 200px) - 7vh) - 25px) - 6px) * 2) / 3)',
-    'max-height': 'calc(100% * 3/2)',
-    /*'width': 'calc((100vw - 250px)*.45)',
-    'width': 'calc((100vh - 200px - 7vh - 25px - 6px)*2/3)',*/
+    'width': 'calc(((((100vh - 200px) - 7vh) - 25px) - 6px) * var(--img-aspect-ratio))',
+    'max-height': 'calc(100% * 1/var(--img-aspect-ratio))',
     'margin': 'auto',
     'background-color': '#e91e6300',
     'float':'right'

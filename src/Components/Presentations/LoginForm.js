@@ -72,7 +72,7 @@ export default class LoginForm extends React.Component{
 		formData.append('password', password);
 		console.log(formData);*/
 		console.log('calling axio post request from Login Form');
-		axios(loginConfig(payload))
+		axios(loginConfig(payload, this.props.serviceURL))
 		.then(response => {
 
 			if(response.status == OxiAppConstants.HttpStatus.OK){

@@ -9,6 +9,7 @@ import { SvgIcon } from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {Button} from '../../Components/Presentations/Controls.js';
+import {camelize} from '../../Util/Misc.js';
 
 const itemContainerHovered = {
 	'height': '75px',
@@ -212,15 +213,48 @@ export class ItemInfo extends React.Component {
 			selectedColor:null,
 			selectedSize:null,			
 		};
+
+		this._handleSizeSelected = this._handleSizeSelected.bind(this);
+	}
+
+	_handleSizeSelected(sizeGroups, size, compareMetrics){
+		this.setState(prevState => ({
+			...prevState,
+			selectedSize: size,
+		}));
+
+		let sizeGroup = {};
+
+		for(let sg of Object.values(sizeGroups)){
+			if(sg.sizeLabel === size){
+				sizeGroup = sg;
+				break;
+			}
+		}
+
+		let camelizedMetric = Object.keys(sizeGroup.metric).reduce((accum, meas) => {
+			return({
+				...accum, 
+				[camelize(meas)]: sizeGroup.metric[meas],
+			});
+		}, {});
+
+		compareMetrics(camelizedMetric);
 	}
 
 	render(){
+		const {
+			compareMetrics,
+			toggleMetricPanel,
+		} = this.props;
+
 		var { 
 			availableSizes, 
 			availableColors,
 			imgSrc,
 			description,
 			isExpanded,
+			sizeGroups,
 		} = this.props;
 
 		return(
@@ -249,13 +283,15 @@ export class ItemInfo extends React.Component {
 												availableSizes.map(size => (
 													<div 
 														className={ItemStyles.sizeVariant_div}
-														style={size === this.state.selectedSize ? ({'background-color':'var(--color1',color:'white'}) : ({})}
+														style={size === this.state.selectedSize ? ({'background-color':'var(--color-mobile-icong-bg)',color:'white'}) : ({})}
+														onTouchStart={(event) => {
+															event.stopPropagation();
+															toggleMetricPanel(event, true); 
+															this._handleSizeSelected(sizeGroups, size, compareMetrics);
+														}}
 														onClick={(event) => {
 															event.stopPropagation();
-															this.setState(prevState => ({
-																...prevState,
-																selectedSize: size,
-															}))
+															this._handleSizeSelected(sizeGroups, size, compareMetrics);
 														}}> 
 														{size} 
 													</div>)
@@ -352,6 +388,11 @@ export class ItemInfo extends React.Component {
 	}
 }
 
+/*
+*=======================================
+*========== Browse Apparel  ============
+*=======================================
+*/
 export class ItemBrowse extends React.Component{
 	constructor(props){
 		super(props);
@@ -569,6 +610,7 @@ export class ItemBrowseInfo extends React.Component {
 	}
 
 	render(){
+
 		var { 
 			availableSizes, 
 			availableColors,
@@ -702,6 +744,11 @@ export class ItemBrowseInfo extends React.Component {
 		);
 	}
 }
+/*
+*=======================================
+*=======================================
+*=======================================
+*/
 
 export class Item extends React.Component{
 	constructor(props){
@@ -758,6 +805,8 @@ export class Item extends React.Component{
 			unsaveItem,
 			compareMetrics,
 			selectedId,
+			sizeGroups,
+			toggleMetricPanel,
 		} = this.props;
 
 		const {
@@ -789,7 +838,7 @@ export class Item extends React.Component{
 			variants,		//platform != wearsit
 		} = product;
 
-		var { size } = product;
+		var { size } = product;		
 
 		//size = size ? size : this.props.sizeGroups[sizeGroupId];
 		size = size === null ? 8 : size;
@@ -869,6 +918,31 @@ export class Item extends React.Component{
 			}):
 			null*/
 		var {availableSizes, availableColors} = parseVariants(variants);
+		var sizeGroup = sizeGroups[sizeGroupId] !== undefined ? sizeGroups[sizeGroupId] : {}
+
+		const {
+			sizeLabel,
+			metric,
+		} = sizeGroup;
+
+		var genSizeLabel = !isActive ? 
+			uds : 
+			sizeLabel ? 
+				(sizeLabel) : 
+				'?';
+
+		var metricFormatted = !isActive ? 
+			(size) : 
+			metric ? 
+				Object.keys(metric).reduce((accum, meas) => {
+					return({
+						...accum, 
+						[camelize(meas)]: sizeGroups[sizeGroupId].metric[meas]
+					});
+				}, {}) : 
+				null;
+
+		console.log('metric = ', metricFormatted);
 
 		return(
 			<CSSTransition
@@ -949,8 +1023,10 @@ export class Item extends React.Component{
 						handleOnClick={null}
 						retailerName={ vendor || udr}
 						handle={handle || 'custom item'}
-						sizeLabel={!isActive ? uds : size !== undefined ? size.sizeLabel : '?'}
-						metric={size ? size.metric : null}
+						//sizeLabel={!isActive ? uds : size !== undefined ? size.sizeLabel : '?'}
+						sizeLabel={genSizeLabel}
+						//metric={size ? size.metric : null}
+						metric={metricFormatted}
 						isActive={isActive}
 						isSaved={isSaved}
 						isExpanded={isExpanded}
@@ -969,7 +1045,8 @@ export class Item extends React.Component{
 						}}
 						onSizeHover={(event) => {
 							platform !== OxiAppConstants.PLATFORM ? 
-								compareMetrics(size ? size.metric : null) :
+								//compareMetrics(size ? size.metric : null) :
+								compareMetrics(metricFormatted) :
 								null;
 						}}
 						infoComponent={ isActive ? 
@@ -980,7 +1057,10 @@ export class Item extends React.Component{
 									imgSrc={featuredImage.originalSrc }
 									description={ description}
 									isExpanded={isExpanded}
-									height={imageHeight} />
+									height={imageHeight}
+									compareMetrics={compareMetrics}
+									sizeGroups={sizeGroups[sizeGroupId] ? sizeGroups : {}} 
+									toggleMetricPanel={toggleMetricPanel} />
 							) : 
 							() => (null)
 						} />

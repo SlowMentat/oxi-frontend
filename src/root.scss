@@ -2,6 +2,8 @@
 
 $pageHeaderHeight: 80px;
 $mobileFooterHeight: 40px;
+$mobileMetricPanelWidth: 320px;
+$desktopMetricPanelWidth: 300px;
 
 @mixin desktop_rules{
 	/*web*/
@@ -64,7 +66,7 @@ body{
 	--color-mobile-icong-bg: #263238;
 	--color-generic-icon: #4f4f4f;
 
-
+	--img-aspect-ratio: calc(3/4);
 	background-color: #fdfdfd;
 	height: 100%;
 	padding: 0px 0px 0px 0px;	
@@ -299,9 +301,16 @@ a{
 	position: absolute;
     left: 0px;
     height: calc(100vh - #{$pageHeaderHeight} - 40px);
-    width: 300px;
     border-right-style: solid;
     border-right-width: 1px;
+
+    @include desktop_rules {
+    	width: 300px;
+    }
+
+    @include mobile_rules {
+    	width: 320px;
+    }
 }
 
 :local(.headerBlock){
@@ -328,6 +337,20 @@ a{
     }
 }
 
+:local(.contentBlock){	
+	margin-top: 80px;
+
+    @include desktop_rules {
+    	/*height: calc(100vh - 0px);*/
+    	height: calc(100vh - 80px);
+    }
+
+    @include mobile_rules {
+    	height: calc(100vh - 80px);
+    	/*border-bottom: solid 1px #c1c1c1;*/
+    }
+}
+
 /*:local(.logo_svg){
 	position: absolute;
     width: auto;
@@ -344,6 +367,7 @@ a{
 
     @include desktop_rules {
 		/*padding-left: 400px; */
+		padding-top: 80px;
     }
 
     @include mobile_rules {
@@ -362,13 +386,15 @@ a{
 	@include desktop_rules {
 		padding-left: 400px; 
 		margin-left: 300px;
+		/*padding-top: 80px*/
+		padding-top: 0px;
     }
 
     @include mobile_rules {
 		padding-left: 0px; 
 		width: 100%;
 		/*height: 100%;*/
-		height: calc(100% - 55px);
+		/*height: calc(100% - 55px);*/
     }
 }
 
@@ -489,38 +515,50 @@ a{
 	--fz-color: #ffffff;
     --nfz-color: #515151;
     --bar-fill-color: #54c2f1a8;
-    --bar-border-color: #54c2f1;
+    /*--bar-border-color: #54c2f1;*/
+    --bar-border-color: var(--color-mobile-icong-bg);
     --moulding-radius:5px;
 	border-bottom-style: none;
     border-width: 20px;
     border-color: #dadada;
 	border-right-width: 1px;
     border-right-color: black;
-    --x-axis-range: calc(300px - 13vh - 30px);
+    /*--x-axis-range: calc(300px - 13vh - 30px);*/
 
 	@include desktop_rules {
+    	--x-axis-range: calc(#{$desktopMetricPanelWidth} - 13vh - 30px);
 		height: calc(100vh - #{$pageHeaderHeight} - 40px - 8px);
+		/*padding-top: calc(80px + 7px);*/
+		padding-top: 7px;
 		left: 7px;
 		z-index: unset;
 	}
 
 	@include mobile_rules {
-		left: -300px;
-		z-index: 10;
-		height: calc(100vh - 80px);
+    	--x-axis-range: calc(#{$mobileMetricPanelWidth} - 13vh - 30px);
+		/*left: -300px;*/
+		left: calc(-1 * #{$mobileMetricPanelWidth});
+		width: $mobileMetricPanelWidth;
+		/*z-index: 10;
+		height: calc(100vh - 80px);*/
+
+		z-index: 1000;
+    	height: calc(100vh + 2px);
+    	border-radius: 0px;
+    	top: -9px;
 	}
 } 
 
 .metricBlockPreview{
 	composes: metricBlock;
 
-	@include desktop_rules {
+	/*@include desktop_rules {
 		display: block
 	}
 
 	@include mobile_rules {
 		display: none;
-	}
+	}*/
 
 }
 
@@ -687,6 +725,8 @@ a{
 
 	@include desktop_rules {
 		margin-left: 307px;
+		height: clac(100vh -40px);
+		padding-top: 80px;
 	}
 
 	@include mobile_rules {

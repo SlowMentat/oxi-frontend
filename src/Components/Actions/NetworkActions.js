@@ -50,9 +50,9 @@ const postConfig = (url, data, params, headers) => {
 	};
 }
 
-export const loginConfig = (payload/*username, password*/) => {
+export const loginConfig = (payload, serviceURL/*username, password*/) => {
 	return postConfig(
-		OxiAppConstants.serviceURL + '/login',
+		serviceURL + '/login',
 		{
 			//'X-CSRF-TOKEN' : cookies.get('csrf_token'),
 			//'username' : username,

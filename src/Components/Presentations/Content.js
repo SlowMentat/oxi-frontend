@@ -51,7 +51,7 @@ export class Content extends React.Component{
 		}
 		return(		
 			<div className={contentBlockStyle} onClick={this._handleOnClick}>
-				<img src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} style={{width:'calc(2/3 * 100%)', 'height':'100%', 'margin':'auto', 'max-height':'inherit'}}/>
+				<img src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} style={{width:'calc(var(--img-aspect-ratio) * 100%)', 'height':'100%', 'margin':'auto', 'max-height':'inherit'}}/>
 			</div>		
 		);*/
 
