@@ -4,6 +4,7 @@ $pageHeaderHeight: 80px;
 $mobileFooterHeight: 40px;
 $mobileMetricPanelWidth: 320px;
 $desktopMetricPanelWidth: 300px;
+$loaderContainerWidth: 100px;
 
 @mixin desktop_rules{
 	/*web*/
@@ -66,7 +67,39 @@ body{
 	--color-mobile-icong-bg: #263238;
 	--color-generic-icon: #4f4f4f;
 
+
+	/* TODO:
+	*  It makes no sense currently to set these values as sass variable 
+	*  if they have to be set as css variable, which is the case.
+	*  Change this later if that is stll the case 
+	*/
 	--img-aspect-ratio: calc(3/4);
+	--mobile-metric-panel-width: calc(1*#{$mobileMetricPanelWidth});
+	--page-header-height: calc(1*#{$pageHeaderHeight});
+	--mobile-footer-height: calc(1*#{$mobileFooterHeight});
+
+	--shadow-color: #00000025;
+	--mat-height-4: 0px 0px 4px 0px var(--shadow-color);
+	--mat-height-8: 0px 0px 8px 0px var(--shadow-color);
+	--mat-height-12: 0px 0px 12px 0px var(--shadow-color);
+	--mat-height-16: 0px 0px 16px 0px var(--shadow-color);	
+
+	/*non-expanded items that will faid out when in expandedViewState*/
+    --ic-transition-period: 70ms;
+	/*period to move expanded item to the top of its parent element*/
+	--item-transition-period: 170ms;
+	/*time to wait befor moving expanded item to top of its parent*/
+	--item-transition-delay: calc(var(--ic-transition-period)*0.8);
+    /*time to expand the item info elements*/
+    --item-info-transition-period: 100ms;
+
+	--item-transition-total: calc(var(--item-transition-period) + var(--item-transition-delay));
+	--eif-transition-start: calc(var(--item-transition-total) + var(--item-info-transition-period));
+
+	/*outfit.scss*/
+	--ombc-frame: 3px;
+
+
 	background-color: #fdfdfd;
 	height: 100%;
 	padding: 0px 0px 0px 0px;	
@@ -208,6 +241,7 @@ a{
     }
 
     @include mobile_rules {
+
     }
 }
 
@@ -332,20 +366,35 @@ a{
     }
 
     @include mobile_rules {
-    	box-shadow: 0px -11px 15px 0px black;
+    	/*box-shadow: 0px -11px 15px 0px black;*/
+    	box-shadow: var(--mat-height-8);
+    	transition: transform var(--item-transition-period) linear;
+   	 	will-change: transform;
     	/*border-bottom: solid 1px #c1c1c1;*/
     }
 }
 
-:local(.contentBlock){	
-	margin-top: 80px;
+:local(.headerBlock--hidden){
+	composes: headerBlock;
 
     @include desktop_rules {
-    	/*height: calc(100vh - 0px);*/
-    	height: calc(100vh - 80px);
     }
 
     @include mobile_rules {
+    	transform: translateY(calc(-1*var(--page-header-height)));
+    }
+}
+
+:local(.contentBlock){	
+
+    @include desktop_rules {
+    	/*height: calc(100vh - 0px);*/
+    	margin-top: 0px;
+    	height: calc(100vh - 0px);
+    }
+
+    @include mobile_rules {
+		margin-top: 80px;
     	height: calc(100vh - 80px);
     	/*border-bottom: solid 1px #c1c1c1;*/
     }
@@ -386,8 +435,8 @@ a{
 	@include desktop_rules {
 		padding-left: 400px; 
 		margin-left: 300px;
-		/*padding-top: 80px*/
-		padding-top: 0px;
+		padding-top: 80px
+		/*padding-top: 0px;*/
     }
 
     @include mobile_rules {
@@ -412,6 +461,8 @@ a{
     }
 
     @include mobile_rules {
+    	transition: transform var(--item-transition-period) linear;
+    	will-change: transform;
     	left: 0px;
    		top: unset;
    		bottom: 0px;
@@ -420,8 +471,9 @@ a{
    		padding-top: 7.5px;
    		width: 100vw;
    		display: block;
-   		border: unset;
-   		border-top: solid 1px #a1a1a1;
+   		/*border: unset;
+   		border-top: solid 1px #a1a1a1;*/   		
+    	box-shadow: var(--mat-height-8);
     }
 }
 
@@ -429,14 +481,20 @@ a{
 	/*composes: controlsContainer;*/
 
 	@include desktop_rules {
+    	background-color: var(--main-background-color);
     }
 
     @include mobile_rules {
+    	background-color: var(--main-background-color);
+    	z-index: 11;
+    	box-shadow: black 0px 11px 15px 0px;
 		position: fixed;
    		bottom: 0px;
    		right: 0px;
    		width: auto;
    		padding: 0px;
+   		width: 100%;
+   		text-align: center;
    		border: none;
     }
 }
@@ -507,10 +565,25 @@ a{
     }
 }
 
+.loadContainer_div{
+	height: 40px; 
+	width: $loaderContainerWidth; 
+
+	@include desktop_rules {
+		margin-left: 600px;
+	}
+
+	@include mobile_rules {
+		margin-left: calc(50% - #{$loaderContainerWidth}/2);
+	}
+}
+
 .metricBlock{
 	position: absolute;
 	/*left: 7px;*/
-	transition: left 100ms linear;
+	/*transition: left 100ms linear;*/
+	will-change: transform;
+	transition: transform 100ms linear; 
 
 	--fz-color: #ffffff;
     --nfz-color: #515151;
@@ -529,8 +602,9 @@ a{
     	--x-axis-range: calc(#{$desktopMetricPanelWidth} - 13vh - 30px);
 		height: calc(100vh - #{$pageHeaderHeight} - 40px - 8px);
 		/*padding-top: calc(80px + 7px);*/
+		margin-top:80px;
 		padding-top: 7px;
-		left: 7px;
+		left: -1px;
 		z-index: unset;
 	}
 
@@ -548,6 +622,17 @@ a{
     	top: -9px;
 	}
 } 
+
+:local(.metricBlock--shown){
+	composes: metricBlock;
+
+	@include desktop_rules {
+	}
+
+	@include mobile_rules {
+		transform: translateX(var(--mobile-metric-panel-width));
+	}
+}
 
 .metricBlockPreview{
 	composes: metricBlock;
@@ -609,7 +694,7 @@ a{
 }
 
 :local(.metricContainer_div){
-	--comp-icon-fill:var(--color-generic-icon);
+	--comp-icon-fill: var(--color-generic-icon);
 	position:relative;
 	/*height: calc(100% - 16px + 40px);*/
 	/*height:100%;*/
@@ -633,6 +718,8 @@ a{
 		overflow-y: scroll;
     	overflow-x: hidden;
 		height: 100%;
+    	border: none;
+    	border-radius: 0px;
 	}
 }
 
@@ -676,6 +763,17 @@ a{
 .metricContainer_div-exit-active{
 	left:-300px;
 	transition: left 150ms ease-out;
+}
+
+:local(.metricHeader){
+	@include desktop_rules {
+		display: none;
+	}
+
+	@include mobile_rules {
+		background-color: var(--color2);
+		height: 80px;
+	}
 }
 
 
@@ -754,6 +852,7 @@ a{
    		border-top: solid 1px gray;
    		height: 40px;
    		background-color: #f9f9f9;
+   		z-index: 11;
 	}
 }
 

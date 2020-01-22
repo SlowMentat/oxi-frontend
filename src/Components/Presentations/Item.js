@@ -259,18 +259,21 @@ export class ItemInfo extends React.Component {
 
 		return(
 			<CSSTransition
-				    tiemout={400}
-				    classNames="expandedItemInfoContainer_div"
-				    in={isExpanded}
-				   	unmountOnExit >
-
-				<div className={ItemStyles.expandedItemInfoContainer_div} style={this.props.styles}>
+				tiemout={400}
+				classNames="expandedItemInfoContainer_div"
+				in={isExpanded}
+				unmountOnExit 
+			>
+				<div 
+					className={ItemStyles.expandedItemInfoContainer_div} 
+					style={this.props.styles}
+				>
 					<CSSTransition
 						//timeout={}
 						classNames="expandedItemInfo_div"
 						in={isExpanded} 
-						unmountOnExit >
-
+						unmountOnExit 
+					>
 						<div className={ItemStyles.expandedItemInfo_div}>
 							<div className={ItemStyles.variantOptionsContainer_div}>
 								<div className={ItemStyles.variantSizeOptionsContainer_div}>
@@ -454,7 +457,7 @@ export class ItemBrowse extends React.Component{
 			metric,
 			coverpicuri,
 			product
-		} = item !== undefined ? item : {};
+		} = item !== undefined ? item : ({});
 
 		var {
 			udr, 			//platform = wearsit
@@ -466,7 +469,7 @@ export class ItemBrowse extends React.Component{
 			//size,			//platform != wearsit
 			vendor, 		//platform != wearsit
 			variants,		//platform != wearsit			
-		} = product !== undefined ? product : {};
+		} = product !== undefined ? product : ({});
 
 		var { availableSizes, availableColors } = parseVariants(variants);
 

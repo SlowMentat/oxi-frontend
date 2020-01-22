@@ -10,13 +10,14 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {denormalizeOutfit} from '../../Util/Schema.js';
 import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js'
 import LoginFormContainer from '../../Components/Containers/LoginFormContainer.js'
-import {InputTextField} from '../../Components/Presentations/CommonElements.js';
+import {InputTextField, InputTextFieldAccount} from '../../Components/Presentations/CommonElements.js';
 /*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
 import TypePants from '../SvgAssets/Icons/TypePants.js';
 import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
 import TypeShirtT from '../SvgAssets/Icons/TypeShirtT.js';
 import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+import CreateAccountStyles from '../../createAccount.scss';
 
 import { Route, Switch, Redirect } from 'react-router-dom';
 
@@ -105,6 +106,7 @@ function FormDeck(props){
 		</div>	
 	)
 }*/
+
 
 const DropDownTypeContent = (props) => {
 	console.log('dropDownType = ',props.type);
@@ -199,6 +201,7 @@ class DropDownField extends React.Component{
 				/>
 				<div
 					className={this.state.isDown ? FormStyles.dropDownContainer : FormStyles['dropDownContainer--hidden']}
+					style={(this.state.isDown && initialInnerHeight > 0) ? ({height: `calc(${initialScreenHeight}px/2 - 80px)`}) : ({})}
 					//style={borderColor}
 				>
 					<div style={{'margin-left':'10px','margin-right':'10px','margin-top':'10px'}}>
@@ -402,8 +405,6 @@ export class ItemForm extends React.Component{
 		//size !== undefined && this.state.type1SearchSelection.item.id !== undefined ? 
 		//	this.props.getSizeChartByItemId(this.state.type1SearchSelection.item.id) : 
 		//	null;
-
-
 	}
 
 	_handleDropDownOptionSelected(event, selectionType='', valueObj){
@@ -444,7 +445,10 @@ export class ItemForm extends React.Component{
 			});
 		}
 		return(
-			<div className={Styles.modal}>
+			<div 
+				className={Styles.modal}
+				style={ initialInnerHeight > 0 ? ({height: `${initialInnerHeight}px`}) : ({}) }
+			>
 				<CSSTransition 
 					timeout={300}
 					classNames="formViewContainer_div"
@@ -616,6 +620,7 @@ class CustomItems extends React.Component{
 	}
 }
 
+
 export class DiscardForm extends React.Component{
 	constructor(props){
 		super(props);
@@ -664,6 +669,362 @@ export class DiscardForm extends React.Component{
 								Cancel
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
+
+const InvalidPasswordPrompt = ({props}) => (
+	<div className={CreateAccountStyles.invalidInputPrompt_div}>
+		{
+			!props.validPasswordLength ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 10 characters
+						</div>
+					</div>
+				) : 
+				null
+		}
+		{
+			!props.validPasswordUppercase ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 1 uppercase character
+						</div>
+					</div>
+				) : 
+				null
+		}
+		{
+			!props.validPasswordLowercase ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 1 lowercase character
+						</div>
+					</div>
+				) : 
+				null
+		}
+		{
+			!props.validPasswordNumber ? 
+				(
+					<div className={CreateAccountStyles.invalidMessageContainer_div}>
+						<div className={CreateAccountStyles.invalidMessage_div}>
+							At least 1 number
+						</div>
+					</div>
+				) : 
+				null
+		}
+	</div>
+)
+
+//TODO:  Make sure to perfom server side validation as weell.
+const validateEmail = (email) => {
+    //regular expression that accepts unicode
+    var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    return re.test(String(email).toLowerCase());
+}
+
+export const CreateAccountField = ({props}) => (
+	<div className={CreateAccountStyles.inputContainer_div}>
+		<InputTextFieldAccount props={{
+			containerStyle: CreateAccountStyles.inputTextContainer_div, 
+			inputStyle: (props.selectedFieldName === props.name ? CreateAccountStyles['inputText_input--selected'] : CreateAccountStyles.inputText_input), 
+			name: props.name, 
+			placeholder: props.placeholder, 
+			onChange: props.onChange,
+			onSelect: props.onSelect,
+			selectedFieldName: props.selectedFieldName
+		}}/>
+		<div className={CreateAccountStyles.validatorIconContainer_div}>
+			<div className={CreateAccountStyles.validatorIcon_div}>
+				{
+					props.isValid ? 
+						<SvgIcon name='OkIcon' fill='#6dd7b4'/> :
+						<div style={{
+							width:'10px', 
+							height:'10px', 
+							'border-radius':'5px', 
+							'background-color':'#b46262', 
+							position:'absolute', 
+							top: '10px',
+							left: 'calc(50% - 5px)'
+						}} />
+				}
+			</div>
+		</div>
+	</div>
+);
+
+export class CreateAccountForm extends React.Component{
+	constructor(props){
+		super(props);
+
+		let sharedState = {
+			fieldValues:{
+				'email':'',
+				'password':'',
+				'username':'',
+			},
+			fieldPlaceHolders:{
+				'email':'Email',
+				'password':'Password',
+				'username':'Username',
+			},
+			fieldCompleteness:{
+				email:{
+					'validEmailSyntax': false,
+				},
+				password:{
+					'validPasswordLength': false,
+					'validPasswordUppercase': false,
+					'validPasswordNumber': false,
+					'validPasswordLowercase': false,
+				},
+				username:{
+					'validUsername': true,
+				}
+			},
+			'selectedFieldName': ''		
+		};
+
+		this.state = this.props.accountType === 'shopper' ? 
+			({
+				...sharedState,
+			}) :
+			this.props.accountType === 'retailer' ? 
+				({
+					...sharedState,
+					fieldValues: {
+						...sharedState.fieldValues,
+						'country':'',
+						'state':'',
+						'city':'',
+						'address1':'',
+						'address2':'',
+					},
+					fieldPlaceHolders:{
+						...sharedState.fieldPlaceHolders,
+						'username': 'Company Name',
+						'email': 'Company Email',
+						'country':'Country',
+						'state':'State',
+						'city':'City',
+						'address1':'Address 1',
+						'address2':'Address 2',						
+					},
+					fieldCompleteness:{
+						...sharedState.fieldCompleteness,
+						'country':{},
+						'state':{},
+						'city':{},
+						'address1':{},
+						'address2':{},
+					}
+				}) :
+				({
+					...sharedState,
+				})
+		this._handleOnSubmit = this._handleOnSubmit.bind(this);
+		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
+		this._handleInputSelect = this._handleInputSelect.bind(this);
+		this.validatePassword = this.validatePassword.bind(this);
+	}
+
+	_handleOnSubmit(){
+
+		const {validEmailSyntax} = this.state.fieldCompleteness.email;
+		const {validPasswordLength, validPasswordLowercase, validPasswordNumber, validPasswordUppercase} = this.state.fieldCompleteness.password;
+		const {validUsername} = this.state.fieldCompleteness.username;
+
+		if(validEmailSyntax && (validPasswordLength && validPasswordLowercase && validPasswordNumber && validPasswordUppercase) && validUsername){
+			if(this.props.accountType === 'shopper'){
+				this.props.createUser(this.state.fieldValues);
+			}else if (this.props.accountType === 'retailer'){
+				this.props.createCompany(this.state.fieldValues);
+			}
+		}
+		//Clear email password and username from react state
+		this.setState({
+			'email':'',
+			'password':'',
+			'username':''
+		});
+	}
+
+	validatePassword(password) {
+		let validPasswordLength = false;
+		let validPasswordUppercase = false;
+		let validPasswordNumber = false;
+		let validPasswordLowercase = false;
+		//At least one lowercase character
+		if ((/[a-z]/g).test(password)){
+			validPasswordLowercase = true
+		}
+		//At least one uppercase character
+		if ((/[A-Z]/g).test(password)){
+			validPasswordUppercase = true;
+		}
+		//At least one digit in password
+		if ((/[0-9]/g).test(password)){
+			validPasswordNumber = true
+		}
+		//At least 10 characters long
+		if (password.length >= 10){
+			validPasswordLength = true;
+		}
+
+		this.setState(prevState => ({
+			...prevState,
+			fieldCompleteness:{
+				...prevState.fieldCompleteness,
+				password:{
+					...prevState.fieldCompleteness.password,
+					'validPasswordLength': validPasswordLength,
+					'validPasswordUppercase': validPasswordUppercase,
+					'validPasswordNumber': validPasswordNumber,
+					'validPasswordLowercase': validPasswordLowercase,	
+				}
+			}	
+		}));
+	}
+
+	_handleInputFieldChange(field, value){
+		this.setState(prevState => ({
+			...prevState,
+			fieldValues:{
+				...prevState.fieldValues,
+				[field]: value,
+			}
+		}));
+
+		switch(field){
+			case 'email':
+				let isEmailValid = validateEmail(value);
+				this.setState(prevState => ({
+					...prevState,
+					fieldCompleteness:{
+						...prevState.fieldCompleteness,
+						[field]:{
+							validEmailSyntax: isEmailValid,
+						}
+					}
+				}));
+				break;
+			case 'password':
+				this.validatePassword(value);
+				break;
+			case 'username':
+				break;
+			default:
+				break
+		}
+
+	}
+
+	_handleInputSelect(name, e){
+		console.log('_handleInputSelect triggered')
+		this.setState(prevState => ({
+			selectedFieldName: name
+		}))
+	}
+
+	render(){
+		return(
+			<div>
+				<div className={CreateAccountStyles.accountFormContainer_div}>
+					<div>
+						{
+							(<form action="" method="POST">
+								<div className={CreateAccountStyles.formContent_div}>
+									{
+										Object.keys(this.state.fieldValues).map(field => {
+											const fieldValidReducer = (accumulator, currentValue) => (accumulator && this.state.fieldCompleteness[field][currentValue]);
+											return(
+												<React.Fragment>
+													<CreateAccountField 
+														props={{
+															name:field, 
+															placeholder:this.state.fieldPlaceHolders[field], 
+															onChange: (e) => this._handleInputFieldChange(field, e.target.value),
+															selectedFieldName: this.state.selectedFieldName,
+															onSelect: (e) => this._handleInputSelect(field, e),
+															isValid: Object.keys(this.state.fieldCompleteness[field]).reduce(fieldValidReducer, true)
+														}}/>
+													{
+														field === 'password' ? 
+															(<div 
+																//style={{height:'68px', 'padding-top':'10px'}}
+																className={CreateAccountStyles.invalidInputPromptContainer_div}
+															>
+																{
+																	!(this.state.fieldCompleteness[field].validPasswordLength && 
+																		this.state.fieldCompleteness[field].validPasswordLowercase && 
+																		this.state.fieldCompleteness[field].validPasswordNumber && 
+																		this.state.fieldCompleteness[field].validPasswordUppercase) ?
+																		<InvalidPasswordPrompt props={{
+																			validPasswordLength: this.state.fieldCompleteness[field].validPasswordLength,
+																			validPasswordUppercase: this.state.fieldCompleteness[field].validPasswordUppercase,
+																			validPasswordLowercase: this.state.fieldCompleteness[field].validPasswordLowercase,
+																			validPasswordNumber: this.state.fieldCompleteness[field].validPasswordNumber
+																		}}/> :
+																		null
+																}
+															</div>) : 
+															null
+													}
+												</React.Fragment>
+											);
+										})
+									}
+									<div 
+										//className={CreateAccountStyles.inputContainer_div} 
+										className={CreateAccountStyles.submitContainer_div}
+										//style={{
+										//	'margin-top':'35px', 'height':'30px',
+//
+										//}}
+									>
+										<div className={CreateAccountStyles.termsTextContainer_div}>
+											<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
+												<div className={CreateAccountStyles.inputAcceptTerms_div}>
+													<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
+													</input>
+												</div>
+											</div>
+											<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
+												<div className={CreateAccountStyles.textAcceptTerms_div}>
+													<p>By clicking submit, you are agreeing to the <a style={{color:'var(--color6)'}}>Fitsee Terms of Service</a></p>
+												</div>
+											</div>
+										</div>
+										<div className={CreateAccountStyles.submitBtnContainer1_div}>										
+											<div className={CreateAccountStyles.submitBtnContainer_div}>
+												<div
+													className={CreateAccountStyles.submitBtn_div} 
+													onClick={
+														() => {
+															logout();
+															this._handleOnSubmit()
+														}
+													} 
+													style={{'text-align':'center'}}>
+													SUBMIT
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>)
+						}
 					</div>
 				</div>
 			</div>

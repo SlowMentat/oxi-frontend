@@ -25,6 +25,7 @@ import CroppableImageForm from '../../Util/CroppableImageForm.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import ItemLocationMap from './ItemLocationMap.js';
 import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js';
+import LoaderWrapper from '../../Util/LoaderWrapper.js';
 
 const imgStyle = {
 	height: '100%',
@@ -45,94 +46,140 @@ const imgFormStyle = {
 
 
 
-const ShowContentView = (props) => {
-	const {
-		contentState,
-		images,
-	} = props;
+class ShowContentView extends React.Component{
 
-	let contentView = null;		
-	const defaultSrc = `https://www.oxisalechannel.com/${OxiAppConstants.ContentDirectories.IMAGES}/no_image_optimized.svg`;
-	const selectedContentId = contentState ? contentState.selected : undefined;
+	constructor(props){
+		super(props);
 
-	//const {
-	//	src
-	//} = Object.keys(images).length === 0 ?
-	//	({src: defaultSrc}) :
-	//	selectedContentId ? 
-	//		(images[selectedContentId]) : 
-	//		({src: defaultSrc}); 
+		this.state = {
+			loaded: false,
+		}
 
-	const {
-		src
-	} = selectedContentId === undefined || selectedContentId === null ?
-		({src: defaultSrc}) :
-		images[selectedContentId] ? 
-			(images[selectedContentId]) : 
-			({src: defaultSrc}); 
-
-
-	//if(props.viewContext === OxiAppConstants.viewState.ADD){
-	//	contentView = (
-	//		<ImageAdd 
-	//			{
-	//				...{
-	//					...props,
-	//					src: src,
-	//					selectedContentId: selectedContentId,
-	//				}
-	//			}
-//
-	//		/>
-	//	);
-	//}
-
-	if(props.viewContext === OxiAppConstants.viewState.PREVIEW){
-		contentView = (
-			<ImagePreview 
-				{
-					...{
-						...props,
-						selectedContentId: selectedContentId,
-						src: src,
-					}
-				}
-			/>
-		);
+		this._onImgLoading = this._onImgLoading.bind(this);
+		this._onImgLoaded = this._onImgLoaded.bind(this);
 	}
 
-	else if(props.viewContext === OxiAppConstants.viewState.EDIT || props.viewContext === OxiAppConstants.viewState.ADD){
-		contentView = (
-			<ImageEdit 
-				{
-					...{
-						...props,
-						selectedContentId: selectedContentId,
-						src: src,
-					}
-				}
-			/>
-		);
+	_onImgLoading(){
+		this.setState(prevState => ({
+			...prevState,
+			loaded: false,
+		}))
 	}
 
-	else{
-		console.log("nothing selected");
+	_onImgLoaded(){
+		this.setState(prevState => ({
+			...prevState,
+			loaded: true,
+		}))
 	}
+
+	render(){
+		const {
+			contentState,
+			images,
+		} = this.props;
 	
-	return(
-		<div 
-			className={FormStyles.imageUploadPreviewContainer_div}
-			//style={{
-			//	//'height':'calc(100vh - 200px)'
-			//	//'height':'calc(100vh - 275px + 3vh)'
-			//	'height':'100%'
-			//}}
-		>
-			<div className={FormStyles.imageUploadPreview} >
-				{contentView}
-			</div>			
-		</div>
-	)
+		let contentView = null;		
+		const defaultSrc = `https://www.oxisalechannel.com/${OxiAppConstants.ContentDirectories.IMAGES}/no_image_optimized.svg`;
+		const selectedContentId = contentState ? contentState.selected : undefined;
+	
+		//const {
+		//	src
+		//} = Object.keys(images).length === 0 ?
+		//	({src: defaultSrc}) :
+		//	selectedContentId ? 
+		//		(images[selectedContentId]) : 
+		//		({src: defaultSrc}); 
+	
+		const {
+			src
+		} = selectedContentId === undefined || selectedContentId === null ?
+			({src: defaultSrc}) :
+			images[selectedContentId] ? 
+				(images[selectedContentId]) : 
+				({src: defaultSrc}); 
+	
+	
+		//if(this.props.viewContext === OxiAppConstants.viewState.ADD){
+		//	contentView = (
+		//		<ImageAdd 
+		//			{
+		//				...{
+		//					...this.props,
+		//					src: src,
+		//					selectedContentId: selectedContentId,
+		//				}
+		//			}
+//	
+		//		/>
+		//	);
+		//}
+	
+		if(this.props.viewContext === OxiAppConstants.viewState.PREVIEW){
+			contentView = (
+				<ImagePreview 
+					{
+						...{
+							...this.props,
+							onImgLoading: () => this._onImgLoading(),
+							onImgLoaded: () => this._onImgLoaded(),
+							selectedContentId: selectedContentId,
+							src: src,
+						}
+					}
+				/>
+			);
+		}
+	
+		else if(this.props.viewContext === OxiAppConstants.viewState.EDIT || this.props.viewContext === OxiAppConstants.viewState.ADD){
+			contentView = (
+				<ImageEdit 
+					{
+						...{
+							...this.props,
+							onImgLoading: () => this._onImgLoading(),
+							onImgLoaded: () => this._onImgLoaded(),
+							selectedContentId: selectedContentId,
+							src: src,
+						}
+					}
+				/>
+			);
+		}
+	
+		else{
+			console.log("nothing selected");
+		}
+		
+		return(
+			<div 
+				className={FormStyles.imageUploadPreviewContainer_div}
+				//style={{
+				//	//'height':'calc(100vh - 200px)'
+				//	//'height':'calc(100vh - 275px + 3vh)'
+				//	'height':'100%'
+				//}}
+			>
+				<LoaderWrapper
+					loaded={this.state.loaded}
+					style={{
+						width: '100px',
+   	 					//height: '125px',
+   	 					position: 'absolute',
+   	 					margin: 'auto',
+   	 					//border: 'solid 1px #FF9800',
+   	 					top: 'calc(50% - 20px)',
+   	 					left: 'calc(50% - 50px)',
+   	 					'z-index': '10',
+   	 					display: (this.state.loaded ? 'none' : 'block'),
+					}}
+				/>
+				<div className={FormStyles.imageUploadPreview} >
+					{contentView}
+				</div>			
+			</div>
+		)
+	}
 }
 
 class ImagePreview extends React.Component{
@@ -166,12 +213,20 @@ class ImagePreview extends React.Component{
 	}
 
 	_handleImageReceived(event, data){
+		this.props._onLoad();
+
 		this.setState({
 			base64Image: 'data:image/jpeg;base64,' + data
 		});
 	}
 
 	render(){
+
+		const {
+			onImgLoading,
+			onImgLoaded,
+		} = this.props;
+
 		const {
 			images,
 			contentState,
@@ -204,6 +259,7 @@ class ImagePreview extends React.Component{
 		//	}
 		//	this.state.contentId = this.props.contentSelected;
 		//}
+		//onImgLoading();
 		return (
 			<div style={imgFormStyle}>
 				<div  
@@ -218,10 +274,14 @@ class ImagePreview extends React.Component{
 				>
 					<img 
 						src={src}
+						loading="lazy"
 						//style={imgStyle}
 						className={FormStyles.image_img}
 						ref={this.props.setupImageRef}
-						onLoad={(event) => this._handleImgLoad(event)}
+						onLoad={(event) => {
+							onImgLoaded();
+							this._handleImgLoad(event);
+						}}
 					/>
 					<ItemLocationMapContainer 
 						visibleItemsMap={this.props.visibleItemsMap} 
@@ -1095,6 +1155,7 @@ class PicturePreview extends React.Component{
 			imageHeight: 0,*/
 			imageRef:null,
 			images: {},
+			loaded: false,
 		};
 		//this.image = React.createRef();
 		this.updateImageDimension = this.updateImageDimension.bind(this);

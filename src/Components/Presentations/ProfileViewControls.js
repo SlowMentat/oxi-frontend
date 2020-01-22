@@ -54,7 +54,8 @@ export default class ProfileViewControls extends React.Component{
 			selectedContentId,
 			items,
 			pictures,
-			viewState
+			viewState,
+			isControlsHidden,
 		} = this.props;
 
 		var isEditting = viewState != OxiAppConstants.viewState.PREVIEW.toLowerCase();
@@ -69,7 +70,9 @@ export default class ProfileViewControls extends React.Component{
 			<React.Fragment>
 				<div 
 					className={Styles.controlsContainerPreviewMode}
-					//style={{left: '275px'}}
+					style={
+						isControlsHidden ? ({transform: 'translateY(var(--mobile-footer-height))'}) : ({transform: 'unset'})
+					}
 				>
 					<div className={Styles.controlsContainerTitle}>
 						{(isEditting ? 'Editting' : null)}

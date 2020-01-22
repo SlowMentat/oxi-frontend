@@ -1562,6 +1562,7 @@ export default class ProfileMenu extends React.Component{
 
 					//if unitConverter is defined userMetricDto[key] must be converted from cm to in.
 					var metric = unitConverter ? unitConverter(userMetricsDto[key]) : userMetricsDto[key];
+					//var metric = unitConverter ? unitConverter(this.state ? this.state.profileData.userMetricsDtos[key]) : us;
 					var tolerance = unitConverter ? unitConverter(currentToleranceData[selector][key]) : currentToleranceData[selector][key];
 					//const allowedMinTolerance = calcAllowedMin(metric);
 					//const allowedMaxTolerance = calcAllowedMax(metric);
@@ -1626,7 +1627,8 @@ export default class ProfileMenu extends React.Component{
 		//}, this));
 
 		console.log(`${field}: {selectionStart: ${this.inputRefs[field].selectionStart}, selectionEnd: ${this.inputRefs[field].selectionEnd}, selectionDirection: ${this.inputRefs[field].selectionDirection}}`)
-		
+		var scale = this.state.units === 'in' ? this.scaleIn : this.scaleCm;
+
 		//convert text to float and append 0 to values with trailing decimals
 		var value = 0;//parseFloat(e.target.value.replace(/^\d*\.$/, (e.target.value + '0')));
 				
@@ -1635,7 +1637,7 @@ export default class ProfileMenu extends React.Component{
 			value = parseFloat(e.target.value + '0').toFixed(1);
 		}
 
-		//match decimal followed by one or more digits
+		// match decimal followed by one or more digits
 		else{
 			var precision = e.target.value.match(/\.(\d){1,}$/);
 
@@ -1648,6 +1650,19 @@ export default class ProfileMenu extends React.Component{
 			}
 		}
 
+		var valueCm = this.state.units === 'in' ? convertInToCm(value, this.scaleCm) : value;
+		var minTolField = `min${field.replace(/^\w/, chr => chr.toUpperCase())}`;
+		var maxTolField = `max${field.replace(/^\w/, chr => chr.toUpperCase())}`;
+		/*
+		* recalculate tolerances wrt new measurement value
+		*/
+
+		// calculate this difference between previ
+		var minTolVal = valueCm - (this.leftCenterTick - this.state.minTolerances[field])*this.scale;
+		var maxTolVal = valueCm + (this.state.maxTolerances[field] - this.rightCenterTick)*this.scale;
+		
+		this.profile.userMetricsDto[field] = valueCm;
+
 		this.setState(prevState => ({
 			hasFieldChanged: true,
 			previousCursorPos: {
@@ -1656,7 +1671,7 @@ export default class ProfileMenu extends React.Component{
 			},
 			displayedProfileData: {
 				...prevState.displayedProfileData,
-				...(prevState.units === 'in' ? ({[field]: value}) : ({}))
+				...(prevState.units === 'in' ? ({[field]: value}) : ({[field]: value}))
 			},
 			'profileData':{
 				...prevState.profileData,				
@@ -1666,7 +1681,18 @@ export default class ProfileMenu extends React.Component{
 						roundTo(value, this.scaleCm) : 
 						roundTo(convertInToCm(value), this.scaleCm))
 				}
-			}
+			},
+			currentToleranceData:{
+				...prevState.currentToleranceData,
+				minTolerances:{
+					...prevState.currentToleranceData.minTolerances,
+					[field]: minTolVal,
+				},
+				maxTolerances:{
+					...prevState.currentToleranceData.maxTolerances,
+					[field]: maxTolVal,
+				},
+			},
 		}));
 	}
 
@@ -1748,7 +1774,7 @@ export default class ProfileMenu extends React.Component{
 
 	_handleOnSubmit(){
 		//When calling modifyProfile the profileData object is passed as the action payload.
-		//The reducer is expecting this payload to contain an id field which it uses as a key
+		//The reducer is expecting this payload to contain an id field which it uses as its key
 		//to reference the payload data in the redux state tree.  This id field needs to be
 		//added explicitly here because it is left undefined when the profile object is 
 		//returned by the server, and because it is refernced to when dynamically building this.state.profileData fields.
@@ -1759,7 +1785,8 @@ export default class ProfileMenu extends React.Component{
 		//Also convert to cm (if units are inches) before sending to server
 		let tolerance = {};
 		for(let field of Object.keys(this.state.minTolerances)){
-			var {minTolVal, maxTolVal} = this.getToleranceValues(field, this.state.units);
+			//measurements and tolerances should always be sent to the server as cm
+			var {minTolVal, maxTolVal} = this.getToleranceValues(field, 'cm'/*this.state.units*/);
 			tolerance[`min${field.charAt(0).toUpperCase() + field.slice(1)}`] = minTolVal;//this.state.units === 'in' ? 
 				//convertInToCm(this.getToleranceValues(field, true)) : 
 				//this.getToleranceValues(field, true);
@@ -2435,9 +2462,11 @@ export default class ProfileMenu extends React.Component{
 											handleTouchEnd={this._handleTouchEnd}
 
 											tickPixelDelta={
-												(window.innerWidth/window.innerHeight) > 13/9 && this.state.units == 'in' ? 
-													33 : 
-													((window.innerWidth - 2*30) / (this.ticks.length - 1))
+												(window.innerWidth/window.innerHeight) <= 13/9 /*&& this.state.units == 'in'*/ ? 
+													((window.innerWidth - 2*30) / (this.ticks.length - 1)) :
+													this.state.units == 'in' ? 
+														33 : 
+														(360 - 2*30)/(this.ticks.length - 1)
 											}
 
 											selectToleranceField={this.selectToleranceField}
@@ -2511,9 +2540,11 @@ export default class ProfileMenu extends React.Component{
 									handleTouchEnd={this._handleTouchEnd}
 
 									tickPixelDelta={
-										(window.innerWidth/window.innerHeight) > 13/9 && this.state.units == 'in' ? 
-											33 : 
-											((window.innerWidth - 2*30) / (this.ticks.length - 1))
+										(window.innerWidth/window.innerHeight) <= 13/9 /*&& this.state.units == 'in'*/ ? 
+											((window.innerWidth - 2*30) / (this.ticks.length - 1)) :
+											this.state.units == 'in' ? 
+												33 : 
+												(360 - 2*30)/(this.ticks.length - 1)
 									}
 									selectToleranceField={this.selectToleranceField}
 									//toleranceControllerRef={this.toleranceControllerRef}

@@ -36,3 +36,20 @@ export const InputTextField = ({context, type, name, onChange, toggleFocus, togg
 	)
 }
 
+export const InputTextFieldAccount = ({props}) => {
+	return(
+		<div className={props.containerStyle}>
+			{props.type} <input 
+				//pattern={props.name === 'password' ? "(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" : null}
+				value={props.value}
+				type="text" 
+				name={props.name} 
+				placeholder={props.placeholder} 
+				onChange={props.onChange} 
+				className={props.inputStyle}
+				//style={props.selectedFieldName === props.name ? ({'border-color':'white'}) : ({})}
+				onFocus={props.onSelect} />
+		</div>	
+	);
+};
+

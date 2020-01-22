@@ -4,7 +4,7 @@
   "description": "poc",
   "main": "site.js",
   "scripts": {
-    "homepage":"../www",
+    "homepage": "../www",
     "build": "webpack",
     "test": "jest",
     "storybook": "start-storybook -p 6006",
@@ -33,6 +33,7 @@
     "react-dom": "^16.9.0",
     "react-draggable": "^3.3.2",
     "react-image-crop": "^8.3.1",
+    "react-loader-spinner": "^3.1.5",
     "react-media": "^1.9.2",
     "react-redux": "^7.1.0",
     "react-router-dom": "^4.3.1",

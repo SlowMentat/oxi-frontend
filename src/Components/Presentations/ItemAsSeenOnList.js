@@ -42,7 +42,7 @@ class ItemAsSeenOn extends React.Component{
 			following,
 		} = this.props.contentWithOutfit;
 
-		return(
+		return(			    				
 			<div 
 				className={AsSeenOnStyles.itemAsSeenOnContainer_div} >
 				<div className={AsSeenOnStyles.itemAsSeenOn_div} >
@@ -81,39 +81,48 @@ class ItemAsSeenOnList extends React.Component{
 
 	render(){
 		return (
-    		<PagedList
-    			id="itemAsSeenOnList"
-    			scrollContainerStyle={AsSeenOnStyles.contentContainer_div}
-    			currentPage={this.props.currentPage}
-    			lastPage={this.props.lastPage}
-    			isFetching={this.props.isFetching}
-    			prevPageURL={this.props.prevPageURL}
-    			nextPageURL={this.props.nextPageURL}
-    			setScrollPageHeight={this.props.setScrollPageHeight}
-    			scrollPageHeight={this.props.scrollPageHeight}
-    			setCurrentEntityPage={this.props.setCurrentEntityPage}
-    			pages={this.props.pages}
-    			setNextPageURL={this.props.setNextPageURL}
-				setPrevPageURL={this.props.setPrevPageURL}
-    			list={this.props.contentIds.map((contentId => {
-					return(
-						<ItemAsSeenOn 
-							contentId={contentId}
-							contentWithOutfit = {this.props.contents[contentId]}
-    						prevPageURL={this.props.prevPageURL}
-    						nextPageURL={this.props.nextPageURL}
-    						coverpicuri={
-    							(this.props.pictures[ this.props.contents[contentId].picture ] !== undefined) ? 
-    								this.props.pictures[ this.props.contents[contentId].picture ].smalluri :
-    									this.props.contents[contentId].coverpicuri !== undefined ?
-    										this.props.contents[contentId].coverpicuri :
-    										null
-    							}
-    						getCoverPic={this.props.getCoverPic}
-						/>
-					);
-				}))} 
-    		/>
+	
+			<CSSTransition
+				//key={selectedItemId}
+				timeout={500}
+				classNames="contentContainer_div"
+				in={true}
+				unmountOnExit 
+			>
+    			<PagedList
+    				id="itemAsSeenOnList"
+    				scrollContainerStyle={AsSeenOnStyles.contentContainer_div}
+    				currentPage={this.props.currentPage}
+    				lastPage={this.props.lastPage}
+    				isFetching={this.props.isFetching}
+    				prevPageURL={this.props.prevPageURL}
+    				nextPageURL={this.props.nextPageURL}
+    				setScrollPageHeight={this.props.setScrollPageHeight}
+    				scrollPageHeight={this.props.scrollPageHeight}
+    				setCurrentEntityPage={this.props.setCurrentEntityPage}
+    				pages={this.props.pages}
+    				setNextPageURL={this.props.setNextPageURL}
+					setPrevPageURL={this.props.setPrevPageURL}
+    				list={this.props.contentIds.map((contentId => {
+						return(
+							<ItemAsSeenOn 
+								contentId={contentId}
+								contentWithOutfit = {this.props.contents[contentId]}
+    							prevPageURL={this.props.prevPageURL}
+    							nextPageURL={this.props.nextPageURL}
+    							coverpicuri={
+    								(this.props.pictures[ this.props.contents[contentId].picture ] !== undefined) ? 
+    									this.props.pictures[ this.props.contents[contentId].picture ].smalluri :
+    										this.props.contents[contentId].coverpicuri !== undefined ?
+    											this.props.contents[contentId].coverpicuri :
+    											null
+    								}
+    							getCoverPic={this.props.getCoverPic}
+							/>
+						);
+					}))} 
+    			/>
+    		</CSSTransition>
 		);
 	}
 }

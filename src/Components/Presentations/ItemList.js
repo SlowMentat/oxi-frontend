@@ -13,6 +13,7 @@ export default class ItemList extends React.Component{
 			addedItemIds: [...props.addedItemIds],
 			expandedItemId: false,
 			sizeGroupIndLUT:{},
+			loaded: false,
 		};
 	}
 
@@ -26,6 +27,7 @@ export default class ItemList extends React.Component{
         //console.log('should ItemList component updated: ', shouldUpdate);
         return differentItems || differentItems || differentBrands || differentRetailers || diffExpandedItemId;
     }
+
 	/*let itemKeys = Object.keys(items)
 	let idArray = itemIds;
 	//modify the idArray to be in agreement with provided items object
@@ -152,12 +154,18 @@ export default class ItemList extends React.Component{
 			    													...prevState, 
 			    													'expandedItemId': id,
 			    												}));
+
+			    												this.props.hideHeader(true);
+			    												this.props.hideControls(true);
 			    											}}
 			    											collapseItem ={() => {
 			    												this.setState(prevState => ({
 			    													...prevState, 
 			    													'expandedItemId': false,
 			    												}));
+
+			    												this.props.hideHeader(false);
+			    												this.props.hideControls(false);
 			    											}}
 			    											isExpanded={this.state.expandedItemId === itemId}
 			    											expandedViewState={this.state.expandedItemId !== false}
@@ -224,7 +232,9 @@ export default class ItemList extends React.Component{
 			    											expandedViewState={this.state.expandedItemId !== false}
 			    											sizeGroups={this.props.sizeGroups}
 			    											getCoverPic={this.props.getCoverPic} 
-															toggleMetricPanel={this.toggleMetricPanel} />))
+															toggleMetricPanel={this.toggleMetricPanel} 
+															hideHeader={this.props.hideHeader}
+															hideControls={this.props.hideControls} />))
 			    								}
 			    							</CSSTransition>
 			    						));

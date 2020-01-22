@@ -141,7 +141,6 @@ input::placeholder {
 
     height: 100%;
     display: block;
-    object-fit: contain;
 
     @include desktop_rules {
         /*padding-top: calc(5vh + 25px);*/
@@ -150,14 +149,19 @@ input::placeholder {
         border-top-right-radius: 0px;
         border-bottom-right-radius: 0px;
         float: right;
+        object-fit: contain;
     }
 
     @include mobile_rules {
         height: 100%;
-        max-width: calc((100vh - 80px - 40px - 40px)*var(--img-aspect-ratio));
+        /*max-width: calc((100vh - 80px - 40px - 40px)*var(--img-aspect-ratio));*/
         display: block;
         border-radius: 4px;
         margin: auto;
+
+        width: auto;
+        max-width: 100%;
+        object-fit: cover;
     }
 }
 
@@ -217,6 +221,7 @@ input::placeholder {
 
     @include mobile_rules {
         height: 20px;
+        width: 100%;
         margin: auto;
     }
 }
@@ -249,24 +254,27 @@ input::placeholder {
     --retailer-dd-field-color: #4e4e4e;
     --user-dd-field-color: #4e4e4e;
     --form-lr-padding: 27px;
-    overflow: hidden;
     background-color: #fdfdfd;
     padding-top: 10px;
     padding-bottom: 10px;   
     --form-view-width: calc(100% - 20px);
 
     @include desktop_rules {
+        overflow: hidden;
         width: 600px;
         height: 780px;
+        /*height: inherit;*/
         border-radius: 3px;
         position: relative;
     }
 
     @include mobile_rules {
-        height: calc(100vh - #{$pageHeaderHeight});
+        overflow: visible;
+        /*height: calc(100vh - #{$pageHeaderHeight});*/
+        height: inherit;
         width: 100%;
         position: absolute;
-        bottom: 0px;
+        top: 0px;
     }
 }
 
@@ -596,6 +604,7 @@ input::placeholder {
     }
 
     @include mobile_rules {
+        text-align: center;
         bottom: 0px;
         width: 100vw;
         left: 0px;
@@ -610,11 +619,11 @@ input::placeholder {
     height: 100%;
     display: block;
     border-radius: 4px;
-    object-fit: contain;
     border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
 
     @include desktop_rules {
+        object-fit: contain;
         max-width: calc((100vh - 200px) * var(--img-aspect-ratio));
         float: right;
     }
@@ -622,7 +631,8 @@ input::placeholder {
     @include mobile_rules {
         margin: auto;
         max-width: 100vw;
-        border-radius: 4px;
+        object-fit: cover;
+
     }
 }
 

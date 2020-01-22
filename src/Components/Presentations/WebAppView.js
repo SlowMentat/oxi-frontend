@@ -64,7 +64,7 @@ const logo_svg = {
 
 export function SiteNav(props){		
     return(
-    	<div className={Styles.headerBlock}>
+    	<div className={props.isHeaderHidden ? Styles['headerBlock--hidden'] : Styles.headerBlock}>
     		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
     		{
     			/*props.webAppView !== 'landing' ?*/
@@ -391,6 +391,8 @@ export default class webAppView extends React.Component {
 			navDestination: props.location,
 			isFocusedPreview: false,
 			isMetricPanelOpen : false,
+			isHeaderHidden: false,
+			isControlsHidden: false,
 		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
@@ -717,7 +719,9 @@ export default class webAppView extends React.Component {
 									navEventCallbacks={this.props.navEventCallbacks} 
 									webAppView={this.props.webAppView} 
 									match={this.props.match}
-									ownerUsernamePath={ownerUsernamePath}/>
+									ownerUsernamePath={ownerUsernamePath}
+									isHeaderHidden={this.state.isHeaderHidden}
+								/>
 								<div className={Styles.contentBlock}>
 									<div 
 										className={Styles.containerProfile} 
@@ -762,10 +766,21 @@ export default class webAppView extends React.Component {
 															itemIdHovered={this.state.itemIdHovered}
 															changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
 															imageHeight={this.state.imageHeight} 
-															toggleMetricPanel={this.toggleMetricPanel} />
+															toggleMetricPanel={this.toggleMetricPanel}
+															hideHeader={
+																(isHidden) => this.setState(prevState => ({
+																	isHeaderHidden: isHidden,
+																}))
+															}
+															hideControls={
+																(isHidden) => this.setState(prevState => ({
+																	isControlsHidden: isHidden,
+																}))
+															} />
 
 														<ProfileViewControlsContainer 
-															unsetPreviewFocus={unsetPreviewFocus} />
+															unsetPreviewFocus={unsetPreviewFocus}
+															isControlsHidden={this.state.isControlsHidden} />
 
 													</div>
 												) : (

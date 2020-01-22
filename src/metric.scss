@@ -491,6 +491,26 @@ $desktopMetricPanelWidth: 300px;
         height var(--fit-transition-period) linear var(--fit-transition-delay),
         line-height var(--fit-transition-period) linear var(--fit-transition-delay),
         margin-top var(--fit-transition-period) linear var(--fit-transition-delay);
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {  
+        display: none;
+    }
+}
+
+:local(.mobileFitIcon_div){
+    composes: fitIcon_div;
+
+    @include desktop_rules {
+        display: none;
+    }
+
+    @include mobile_rules {  
+        display: block;
+        margin-top: 0px;
+    }
 }
 
 :local(.comparisonTypeIconContainer_div){

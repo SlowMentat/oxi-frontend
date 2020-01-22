@@ -86,6 +86,11 @@ export function handleUnauthorizedRequest(response){
 	}	
 };
 
+export function logout(){
+	//clear authorization token
+	if(cookies.set('authorization', null));
+}
+
 //Thunks dispatched by anonymous callback functions passed to Axios response interceptor
 export const insertCsrfToken = (config) => {
 	/*console.log("Adding to request headers the csrf_token stored in cookies");
@@ -508,7 +513,7 @@ export function postOutfit(outfitJson, onSuccess){
 			OxiAppConstants.serviceURL + '/outfit',
 			{
 				...outfitJson, 
-				coverpicuri: picturesByFilename[Object.keys(picturesByFilename)[0]].smalluri, 
+				coverpicuri: picturesByFilename[Object.keys(picturesByFilename)[0]].mediumuri, 
 				contents: outfitJson.contents.map(content => {
 					let picture = picturesByFilename[content.coverpicuri];
 					return {

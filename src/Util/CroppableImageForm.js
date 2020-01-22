@@ -797,29 +797,45 @@ class CroppableImageForm extends React.Component{
 	* creates references to all selected images (up to max allowned content entities) 
 	* Then adds content entites to addedEntitiesReducer with contet.coverpicuri set to a corresponding image file reference
 	*/
-	_onSelectMultipleFiles(event){
+	_onSelectMultipleFiles(event, cameraFile){
 
 		let newFileRefs = {}		
 		let currentCount = Object.keys(this.fileRefs).length;
 		let addCount = 1;
 
-		for(var i=0; i < event.target.files.length; i++){
-			
-			if(currentCount + addCount < (OxiAppConstants.maxContentCount + 1)){
-				//make sure file reference does not already exist in this.fileRefs
-				if (this.fileRefs[event.target.files[i].name] === undefined){
-					newFileRefs = {
-						...newFileRefs, 
-						...{[event.target.files[i].name]: event.target.files[i]} 
-					};				
+		// build new fileRef object from the parameter of type File.
+		const buildNewFileRefs = (file) => {
+			newFileRefs = {
+				...newFileRefs, 
+				...{[file.name]: file} 
+			};
+		}
+
+		// Image added from camera snapshot
+		if(cameraFile){
+			buildNewFileRefs(cameraFile);
+		}
+		// Image added from folder
+		else{
+			for(var i=0; i < event.target.files.length; i++){
+				
+				if(currentCount + addCount < (OxiAppConstants.maxContentCount + 1)){
+					//make sure file reference does not already exist in this.fileRefs
+					if (this.fileRefs[event.target.files[i].name] === undefined){
+						buildNewFileRefs(event.target.files[i]);
+						//newFileRefs = {
+						//	...newFileRefs, 
+						//	...{[event.target.files[i].name]: event.target.files[i]} 
+						//};				
+					}else{
+						console.log('Image is already being editted.  Remove image from editor before adding again')
+					}
 				}else{
-					console.log('Image is already being editted.  Remove image from editor before adding again')
+					console.log("image count limit reached")
+					break;
 				}
-			}else{
-				console.log("image count limit reached")
-				break;
+				addCount++;
 			}
-			addCount++;
 		}
 
 		this.fileRefs = {
@@ -1273,7 +1289,8 @@ class CroppableImageForm extends React.Component{
 						src={src}
 						onClick={this.props.onImageClick} 
 						onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
-						ref={this.props.setupImageRef}/>	
+						ref={this.props.setupImageRef}
+						loading="lazy" />	
 				)
 			}
 		}		
@@ -1296,10 +1313,11 @@ class CroppableImageForm extends React.Component{
 						type="file" 
 						multiple name="imageFile" 
 						onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
-						style={{display:'none'}} />
-						<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
-							Upload Image
-						</button>
+						style={{display:'none'}} 
+					/>
+					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
+						Upload Image
+					</button>
 				</form>
 
 				<div 
@@ -1344,16 +1362,43 @@ class CroppableImageForm extends React.Component{
 								//onClickHandler={this.rotateImageClockwise}
 								title='photos'
 								iconName='FileUploadIcon'
-								ligature="add_a_photo"
+								ligature="folder_shared"
 								customButtonStyles={customButtonStyles}
 								puDirection='SOUTH'
-								textHeight={17} />
+								textHeight={17}
+								//onClickHandler={} 
+							/>
 						</label>	
 						<Button
 							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-							onClickHandler={this.rotateImageClockwise}
+							//onClickHandler={this.rotateImageClockwise}
+							onClickHandler={(event) => {
+								event.stopPropagation();
+								Camera.sourceType = Camera.PictureSourceType.CAMERA;
+
+								const onCameraSuccess = (imgURL) => {
+									// resolveLocalFileSystemURL from cordova-plugin-file
+									window.resolveLocalFileSystemURL(imgURL, (entry) => {
+										const onFileSuccess = (file) => this._onSelectMultipleFiles(event, file);
+										const onFileFail = (error) => console.error(error);
+										entry.file(onFileSuccess, onFileFail);
+									});
+
+									console.log("picture retreived successfully");
+								};
+
+								const onCameraFail = () => {
+									console.log("pictrue retreival failed");
+								};
+
+								navigator.camera.getPicture(onCameraSuccess, onCameraFail, {
+									quality: 100, 
+									destinationType: Camera.DestinationType.FILE_URI,
+								});
+							}}
 							title='rotate'
-							ligature="rotate_right"
+							//ligature="rotate_right"
+							ligature="add_a_photo"
 							iconName='RotateClockwiseIcon'
 							customButtonStyles={customButtonStyles}
 							iconStyls={{

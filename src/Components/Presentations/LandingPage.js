@@ -4,19 +4,21 @@ import ReactDOM from 'react-dom';
 import Media from "react-media";
 
 //Presentation Components
-import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js'
-import { SiteNav } from '../../Components/Presentations/WebAppView.js'
+import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
+import { SiteNav } from '../../Components/Presentations/WebAppView.js';
+import { CreateAccountForm } from '../../Components/Presentations/Forms.js';
 
 //SVG Assets
-import FemaleFront from '../../Components/SvgAssets/FemaleFront.js'
-import FemaleSide from '../../Components/SvgAssets/FemaleSide.js'
-import MaleFront from '../../Components/SvgAssets/MaleFront.js'
-import MaleSide from '../../Components/SvgAssets/MaleSide.js'
-import MaleSideVertMirrored from '../../Components/SvgAssets/MaleSideVertMirrored.js'
-import FemaleSideVertMirrored from '../../Components/SvgAssets/FemaleSideVertMirrored.js'
+import FemaleFront from '../../Components/SvgAssets/FemaleFront.js';
+import FemaleSide from '../../Components/SvgAssets/FemaleSide.js';
+import MaleFront from '../../Components/SvgAssets/MaleFront.js';
+import MaleSide from '../../Components/SvgAssets/MaleSide.js';
+import MaleSideVertMirrored from '../../Components/SvgAssets/MaleSideVertMirrored.js';
+import FemaleSideVertMirrored from '../../Components/SvgAssets/FemaleSideVertMirrored.js';
+import {logout} from '../../Components/Actions/indexActions.js';
 
 //Third Party
-import fetch from 'cross-fetch'
+import fetch from 'cross-fetch';
 import axios from 'axios';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
 
@@ -31,7 +33,7 @@ import ProfileMenuStyles from '../../profileMenu.scss';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //SVG
-import {stepOne} from '../../Content/SvgLandingPage'
+import {stepOne} from '../../Content/SvgLandingPage';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
 const descriptionContainerStyle = {
@@ -103,23 +105,6 @@ const Description = (props) => (
 	</div>
 );
 
-const InputTextField = ({props}) => {
-	return(
-		<div className={props.containerStyle}>
-			{props.type} <input 
-				//pattern={props.name === 'password' ? "(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" : null}
-				value={props.value}
-				type="text" 
-				name={props.name} 
-				placeholder={props.placeholder} 
-				onChange={props.onChange} 
-				className={props.inputStyle}
-				//style={props.selectedFieldName === props.name ? ({'border-color':'white'}) : ({})}
-				onFocus={props.onSelect} />
-		</div>	
-	);
-};
-
 const RadioButton = (props) => (
 	<div style={this.props.selected ? radioSelectedStyle : radioDeselectedStyle} onClick={() => this.props.toggleRadio(this.props.id)}>
 	</div>
@@ -131,7 +116,7 @@ const CheckBox = (props) => (
 )
 
 
-
+/*
 //make sure to perfom server side validation
 function validateEmail(email) {
     //var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -140,11 +125,12 @@ function validateEmail(email) {
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return re.test(String(email).toLowerCase());
 }
+*/
 
 function validateUsername(email) {
 	//make a GET request with username to server to verify uniqueness
 }
-
+/*
 export const CreateAccountField = ({props}) => (
 	<div className={CreateAccountStyles.inputContainer_div}>
 		<InputTextField props={{
@@ -174,8 +160,8 @@ export const CreateAccountField = ({props}) => (
 			</div>
 		</div>
 	</div>
-);
-
+);*/
+/*
 export const InvalidPasswordPrompt = ({props}) => (
 	<div className={CreateAccountStyles.invalidInputPrompt_div}>
 		{
@@ -223,9 +209,9 @@ export const InvalidPasswordPrompt = ({props}) => (
 				null
 		}
 	</div>
-)
+)*/
 
-class CreateAccountForm extends React.Component{
+/*class CreateAccountForm extends React.Component{
 	constructor(props){
 		super(props);
 
@@ -359,25 +345,6 @@ class CreateAccountForm extends React.Component{
 	}
 
 	_handleInputFieldChange(field, value){
-
-		/*let getFieldValueUpdater = e => prevState => ({
-			...prevState,
-			fieldValues:{
-				...prevState.fieldValues,
-				[field]: e.target.value
-			}
-		});*/
-
-		/*let getFieldCompletenessUpdater = (e, validator) => (prevState => ({
-			...prevState,
-			fieldCompleteness:{
-				...prevState.fieldCompleteness,
-				[field]:{
-					validEmailSyntax: isEmailValid,
-				}
-			}
-		}));*/
-
 		this.setState(prevState => ({
 			...prevState,
 			fieldValues:{
@@ -407,7 +374,6 @@ class CreateAccountForm extends React.Component{
 			default:
 				break
 		}
-
 	}
 
 	_handleInputSelect(name, e){
@@ -423,161 +389,89 @@ class CreateAccountForm extends React.Component{
 				<div className={CreateAccountStyles.accountFormContainer_div}>
 					<div>
 						{
-							//this.props.accountType === 'shopper' ?
-
-								(<form action="" method="POST">
-									<div className={CreateAccountStyles.formContent_div}>
-										{
-											Object.keys(this.state.fieldValues).map(field => {
-												const fieldValidReducer = (accumulator, currentValue) => (accumulator && this.state.fieldCompleteness[field][currentValue]);
-												return(
-													<React.Fragment>
-														<CreateAccountField 
-															props={{
-																name:field, 
-																placeholder:this.state.fieldPlaceHolders[field], 
-																onChange: (e) => this._handleInputFieldChange(field, e.target.value),
-																selectedFieldName: this.state.selectedFieldName,
-																onSelect: (e) => this._handleInputSelect(field, e),
-																isValid: Object.keys(this.state.fieldCompleteness[field]).reduce(fieldValidReducer, true)
-															}}/>
-														{
-															field === 'password' ? 
-																(<div 
-																	//style={{height:'68px', 'padding-top':'10px'}}
-																	className={CreateAccountStyles.invalidInputPromptContainer_div}
-																>
-																	{
-																		!(this.state.fieldCompleteness[field].validPasswordLength && 
-																			this.state.fieldCompleteness[field].validPasswordLowercase && 
-																			this.state.fieldCompleteness[field].validPasswordNumber && 
-																			this.state.fieldCompleteness[field].validPasswordUppercase) ?
-																			<InvalidPasswordPrompt props={{
-																				validPasswordLength: this.state.fieldCompleteness[field].validPasswordLength,
-																				validPasswordUppercase: this.state.fieldCompleteness[field].validPasswordUppercase,
-																				validPasswordLowercase: this.state.fieldCompleteness[field].validPasswordLowercase,
-																				validPasswordNumber: this.state.fieldCompleteness[field].validPasswordNumber
-																			}}/> :
-																			null
-																	}
-																</div>) : 
-																null
-														}
-													</React.Fragment>
-												);
-											})
-										}
-										<div 
-											//className={CreateAccountStyles.inputContainer_div} 
-											className={CreateAccountStyles.submitContainer_div}
-											//style={{
-											//	'margin-top':'35px', 'height':'30px',
-//
-											//}}
-										>
-											<div className={CreateAccountStyles.termsTextContainer_div}>
-												<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
-													<div className={CreateAccountStyles.inputAcceptTerms_div}>
-														<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
-														</input>
-													</div>
-												</div>
-												<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
-													<div className={CreateAccountStyles.textAcceptTerms_div}>
-														<p>By clicking submit, you are agreeing to the <a style={{color:'var(--color6)'}}>Fitsee Terms of Service</a></p>
-													</div>
+							(<form action="" method="POST">
+								<div className={CreateAccountStyles.formContent_div}>
+									{
+										Object.keys(this.state.fieldValues).map(field => {
+											const fieldValidReducer = (accumulator, currentValue) => (accumulator && this.state.fieldCompleteness[field][currentValue]);
+											return(
+												<React.Fragment>
+													<CreateAccountField 
+														props={{
+															name:field, 
+															placeholder:this.state.fieldPlaceHolders[field], 
+															onChange: (e) => this._handleInputFieldChange(field, e.target.value),
+															selectedFieldName: this.state.selectedFieldName,
+															onSelect: (e) => this._handleInputSelect(field, e),
+															isValid: Object.keys(this.state.fieldCompleteness[field]).reduce(fieldValidReducer, true)
+														}}/>
+													{
+														field === 'password' ? 
+															(<div 
+																//style={{height:'68px', 'padding-top':'10px'}}
+																className={CreateAccountStyles.invalidInputPromptContainer_div}
+															>
+																{
+																	!(this.state.fieldCompleteness[field].validPasswordLength && 
+																		this.state.fieldCompleteness[field].validPasswordLowercase && 
+																		this.state.fieldCompleteness[field].validPasswordNumber && 
+																		this.state.fieldCompleteness[field].validPasswordUppercase) ?
+																		<InvalidPasswordPrompt props={{
+																			validPasswordLength: this.state.fieldCompleteness[field].validPasswordLength,
+																			validPasswordUppercase: this.state.fieldCompleteness[field].validPasswordUppercase,
+																			validPasswordLowercase: this.state.fieldCompleteness[field].validPasswordLowercase,
+																			validPasswordNumber: this.state.fieldCompleteness[field].validPasswordNumber
+																		}}/> :
+																		null
+																}
+															</div>) : 
+															null
+													}
+												</React.Fragment>
+											);
+										})
+									}
+									<div 
+										className={CreateAccountStyles.submitContainer_div}
+									>
+										<div className={CreateAccountStyles.termsTextContainer_div}>
+											<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
+												<div className={CreateAccountStyles.inputAcceptTerms_div}>
+													<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
+													</input>
 												</div>
 											</div>
-											<div className={CreateAccountStyles.submitBtnContainer1_div}>										
-												<div className={CreateAccountStyles.submitBtnContainer_div}>
-													<div
-														className={CreateAccountStyles.submitBtn_div} 
-														onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-														SUBMIT
-													</div>
+											<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
+												<div className={CreateAccountStyles.textAcceptTerms_div}>
+													<p>By clicking submit, you are agreeing to the <a style={{color:'var(--color6)'}}>Fitsee Terms of Service</a></p>
+												</div>
+											</div>
+										</div>
+										<div className={CreateAccountStyles.submitBtnContainer1_div}>										
+											<div className={CreateAccountStyles.submitBtnContainer_div}>
+												<div
+													className={CreateAccountStyles.submitBtn_div} 
+													onClick={
+														() => {
+															logout();
+															this._handleOnSubmit()
+														}
+													} 
+													style={{'text-align':'center'}}>
+													SUBMIT
 												</div>
 											</div>
 										</div>
 									</div>
-								</form>) /*: 
-
-								/*this.props.accountType === 'shopper' ?
-
-									(<form action="" method="POST">
-										<div className={CreateAccountStyles.formContent_div}>
-											<CreateAccountField 
-												props={{
-													name:'email', 
-													placeholder:'Email', 
-													onChange: (e) => this._handleInputFieldChange('email', e),
-													selectedFieldName: this.state.selectedFieldName,
-													onSelect: (e) => this._handleInputSelect('email', e),
-													isValid: this.state.validEmailSyntax
-												}}/>
-											<CreateAccountField 
-												props={{
-													name:'password', 
-													placeholder:'Password', 
-													onChange: (e) => this._handleInputFieldChange('password', e),
-													selectedFieldName: this.state.selectedFieldName,
-													onSelect: (e) => this._handleInputSelect('password', e),
-													isValid: (this.state.validPasswordLength && this.state.validPasswordLowercase && this.state.validPasswordNumber && this.state.validPasswordUppercase)
-												}}/>
-											<div style={{height:'68px', 'padding-top':'10px'}}>
-												{
-													!(this.state.validPasswordLength && this.state.validPasswordLowercase && this.state.validPasswordNumber && this.state.validPasswordUppercase) ?
-														<InvalidPasswordPrompt props={{
-															validPasswordLength: this.state.validPasswordLength,
-															validPasswordUppercase: this.state.validPasswordUppercase,
-															validPasswordLowercase: this.state.validPasswordLowercase,
-															validPasswordNumber: this.state.validPasswordNumber
-														}}/> :
-														null
-												}
-											</div>
-											<CreateAccountField 
-												props={{
-													name:'username', 
-													placeholder:'Username', 
-													onChange: (e) => this._handleInputFieldChange('username',e),
-													selectedFieldName: this.state.selectedFieldName,
-													onSelect: (e) => this._handleInputSelect('username', e),
-													isValid: this.state.validUsername
-												}}/>
-											<div className={CreateAccountStyles.inputContainer_div} style={{'margin-top':'35px', 'height':'30px'}}>
-												<div className={CreateAccountStyles.inputTextContainer_div}>
-													<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
-														<div className={CreateAccountStyles.inputAcceptTerms_div}>
-															<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
-															</input>
-														</div>
-													</div>
-													<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
-														<div className={CreateAccountStyles.textAcceptTerms_div}>
-															I agree to the Wearsit Terms of Service
-														</div>
-													</div>
-												</div>
-												<div className={CreateAccountStyles.validatorIconContainer_div}>										
-													<div className={CreateAccountStyles.submitBtnContainer_div}>
-														<div
-															className={CreateAccountStyles.submitBtn_div} 
-															onClick={() => {this._handleOnSubmit()}} style={{'text-align':'center'}}>
-															Continue
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</form>) : */
-									//null
+								</div>
+							</form>)
 						}
 					</div>
 				</div>
 			</div>
 		);
 	}
-}
+}*/
 
 const radioListStyle = {
 	'display':'inline-block',
@@ -722,7 +616,7 @@ class HowItWorks extends React.Component{
 	}
 }
 
-class CreateAccount extends React.Component{
+export class CreateAccount extends React.Component{
 	constructor(props){
 		super(props);
 	}

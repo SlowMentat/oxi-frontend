@@ -45,15 +45,18 @@ export class MetricPanel extends React.Component{
 
 		return(
 			<div
-				style={
-					isOpen ?  
-						({left:'-1px'}) :
-						({})
-				} 
+				//style={
+				//	isOpen ?  
+				//		//({left:'-1px'}) :
+				//		({transform: `translateX(var(--mobile-metric-panel-width))`}) :
+				//		({transform: 'unset'})
+				//} 
 				className={
-					isFocusedPreview ?
-						Styles.metricBlockPreview :
-						Styles.metricBlock
+					//isFocusedPreview ?
+					//	Styles.metricBlockPreview :
+						isOpen ?
+							Styles['metricBlock--shown'] :
+							Styles.metricBlock
 				}
 			>
 				<div 
@@ -113,6 +116,24 @@ export class MetricPanel extends React.Component{
 							</div>
 						</div>
 						<div className={Styles.metricContainer_div}>
+							<div className={Styles.metricHeader}>								
+								<div 
+									className={MetricStyles.mobileFitIcon_div}
+									style={
+										this.state.fitResult !== OxiAppConstants.fitResultValues.a ? 
+											({
+												'--match-icon-width':'35px',
+												'background-color': 'var(--color2)',
+												//'width':'calc(var(--match-icon-width)/2)',
+												//height:'calc(var(--match-icon-width)/2)',
+												//'line-height': 'calc(var(--match-icon-width)/2)',
+												//'border-radius': 'calc(var(--match-icon-width)/4)',
+											}) : 
+											({}) 
+									} >
+									{this.state.fitResult}
+								</div>
+							</div>
 							<div className={MetricStyles.metricMatch_div}>
 								<div className={MetricStyles.metricMatchLPanel_div}>
 									<div 

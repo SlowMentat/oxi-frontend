@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Styles from '../../root.scss';
 import OutfitNavStyles from '../../outfitNav.scss';
-
+/*import Loader from 'react-loader-spinner';
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";*/
+import LoaderWrapper from '../../Util/LoaderWrapper.js';
 //CSS Styles
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -19,6 +21,7 @@ class PagedList extends React.Component{
 		this.state = {
 			scrollPageHeight: 0,
 			currentScrollPage: 0,
+			loaded: false,
 		}
 	}
 
@@ -56,6 +59,10 @@ class PagedList extends React.Component{
 		return URLArray.join('');
 	}
 
+    _onLoad(){
+    	this.setState({loaded:true});
+    }
+
 	_handleScroll(){
 		//event !== undefined ? event.stopImmediatePropagation() : null;
 		console.log(`\n_handleScroll called (${this.props.id})`);
@@ -90,6 +97,12 @@ class PagedList extends React.Component{
 			case (pagingDown):
 				// Depending on browseSelection, fetch either outfits or items
 				console.log(`${this.props.id} triggered pageDown fetch\n`);
+
+				this.setState(prevState => ({
+					...prevState,
+					loaded:false,
+				}));
+
 				new Promise((resolve, reject) => {
 					switch(this.props.id){
 						case OxiAppConstants.PageListIds.ITEM_LIST_BROWSE:
@@ -109,10 +122,18 @@ class PagedList extends React.Component{
 
 					//set the top of scrollContainerRef to scrollPageHeight * (Page tail - 1)
 					//scrollContainerRef.scrollTop = this.state.scrollPageHeight * (OxiAppConstants.scrollBufferSize - 1.1);
+				
+					/*this.setState(prevState => ({
+						...prevState,
+						loaded: true,
+					}));*/
+
+					this.setState({loaded:true});
+
 					let pageNumbers = Object.keys(this.props.pages)
 					let headPageNumber = parseInt(pageNumbers[0], 10)
 					console.log('response** = ',response);
-					if(response.data._links){
+					if(response && response.data._links){
 						!response.data._links.after ? 
 							this.props.setNextPageURL(null) :
 							this.props.setNextPageURL(response.data._links.after.href);
@@ -189,42 +210,65 @@ class PagedList extends React.Component{
 	}
 
 	render(){
-		console.log('PagedList')
-		let elementHeight = this.props.id === OxiAppConstants.PageListIds.ITEM_LIST_BROWSE ? 
-								112 :
-								this.props.id === OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST ? 
-									60 :
-									0;
-		let {pages, lastPage, webAppView} = this.props;
+		const {
+			loaderContainerStyles,
+			scrollContainerStyle,
+			id,
+			list,
+			pages,
+			lastPage,
+			webAppView,
+		} = this.props;
+
+		let elementHeight = id === OxiAppConstants.PageListIds.ITEM_LIST_BROWSE ? 
+			112 :
+			id === OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST ? 
+				60 :
+				0;
+
 		let endOfPageMargin = pages[lastPage] === undefined ? 
 			0 : 
 			lastPage > 0 ? 
 				(elementHeight * (pages[lastPage - 1].length -  pages[lastPage].length)) : 
 				0;
+
 		return(
-			<div 
-				id={this.props.id} 
-				//className={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this.props.scrollContainerStyle : OutfitNavStyles.previewContainerMobile} 
-				className={ this.props.scrollContainerStyle } 
-				style={ (webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
-					({
-						/*'background-color':'white'*/
-					}) : 
-					({
-						'padding-top': '50px',
-						'padding-bottom': '150px',
-					}))
-				}
-		    	/*className={Styles.pagedListContainer_div}*/
-				ref={this.setScrollContainerRef} >
-					<div
-						style={{
-							'margin-bottom': `${endOfPageMargin}px`
-						}} 
-						ref={this.setContainerRef} >
-						{this.props.list}
-					</div>
-			</div>
+			<React.Fragment>
+				<div 
+					id={id} 
+					//className={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? scrollContainerStyle : OutfitNavStyles.previewContainerMobile} 
+					className={ scrollContainerStyle } 
+					style={ (webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+						({
+							/*'background-color':'white'*/
+						}) : 
+						({
+							'padding-top': '50px',
+							'padding-bottom': '150px',
+						}))
+					}
+		    		/*className={Styles.pagedListContainer_div}*/
+					ref={this.setScrollContainerRef} >
+						<div
+							style={{
+								'margin-bottom': `${endOfPageMargin}px`
+							}} 
+							ref={this.setContainerRef} >
+							{list}
+						</div>
+						<LoaderWrapper 
+							loaded={this.state.loaded}
+							style={
+								loaderContainerStyles ? 
+									(loaderContainerStyles) :
+									({
+										height: '125px',
+    									'padding-top': '43.5px',	
+									})
+							}
+						/>
+				</div>
+			</React.Fragment>
 		);
 	}
 }

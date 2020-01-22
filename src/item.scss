@@ -72,18 +72,6 @@
 	--button-icon-stroke: #4a4547;
 	--size-block-width: 70px;
 	--type-block-width: 50px;
-
-	/*non-expanded items that will faid out when in expandedViewState*/
-    --ic-transition-period: 70ms;
-	/*period to move expanded item to the top of its parent element*/
-	--item-transition-period: 170ms;
-	/*time to wait befor moving expanded item to top of its parent*/
-	--item-transition-delay: calc(var(--ic-transition-period)*0.8);
-    /*time to expand the item info elements*/
-    --item-info-transition-period: 100ms;
-
-	--item-transition-total: calc(var(--item-transition-period) + var(--item-transition-delay));
-	--eif-transition-start: calc(var(--item-transition-total) + var(--item-info-transition-period));
 	
     @include desktop_rules {
         display: inline-block;
@@ -262,16 +250,17 @@
 	/*composes:itemBrowseInitialize-enter-active from './itemBrowse.scss';*/
 	/*height: var(--item-height);*/
 	width: 100%;
-	transition: transform var(--item-transition-period) linear var(--item-transition-delay);
 	will-change: transform;
 
     @include desktop_rules {
+        transition: transform var(--item-transition-period) linear var(--item-transition-delay);
         height: calc((100% - 25px - 5vh)/6 - 4px);
         margin-bottom: 12px;
         width: 100%;
     }
 
     @include mobile_rules {
+        transition: transform var(--item-transition-period) linear var(--item-transition-delay);
         display: none;
         height: calc(100vw / 3.2360679775);
         position: absolute;
@@ -279,6 +268,7 @@
         /* top: 20px; */
         /*calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775))*/
         margin: unset;
+        box-shadow: var(--mat-height-4);
     }
 };
 
@@ -302,7 +292,7 @@
 }
 
 :local(.expandedItemContainer_div){
-	composes:itemContainer_div;
+	composes: itemContainer_div;
 	position: absolute;
 	top: 0px;
 	z-index: 100;
@@ -344,8 +334,10 @@
     }
 
     @include mobile_rules {
-        transform: translateY(var(--item-height) - calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775)));
-        bottom: unset;
+        /*transform: translateY(var(--item-height) - calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775)) - 80px);*/
+        transform: translateY(calc(100vw / 3.2360679775 - 100vh - 0px + 20px + calc(100vw / 3.2360679775)));
+        /*transform: translateY(-80px);*/
+        /*bottom: unset;*/
     }
 }
 
@@ -486,22 +478,25 @@
     /*background-color: #f9f9f9;*/
     position: relative;
     z-index: 100;
-    /*transition: transform var(--item-info-transition-period) linear var(--item-transition-total);*/
 
     @include desktop_rules {
         height:600%;
         background-color: white;
+        transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
     }
 
     @include mobile_rules {
-        height: calc(100vh - (100vw / 3.2360079775) - 120px);
+        /*height: calc(100vh - (100vw / 3.2360079775) - 120px);*/
+        height: calc(100vh - (100vw / 3.2360079775));
         overflow-y: scroll;
         background-color: #f9f9f9;
         padding-bottom: calc(100vw / 3.2360079775);
+        transition: transform var(--item-info-transition-period) linear;
     }
 }
 
 .expandedItemInfoContainer_div-enter{
+    transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
 	transform: translateY(-50%) scaleY(0);
 }
 
@@ -511,6 +506,7 @@
 }
 
 .expandedItemInfoContainer_div-exit{
+    transition: transform var(--item-info-transition-period) linear;
 	transform: translateY(0%) scaleY(1);
 }
 

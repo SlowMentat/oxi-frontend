@@ -131,36 +131,89 @@ class ContentList extends React.Component {
 	}
 
 	render(){
+
+		// Methods
+		const {
+			onClick,
+			getCoverPic,
+			modifyAddedOutfitContents,
+			focusOnAddedContent,
+		} = this.props;
+
+		// Props
+		const {
+			controlDisabled,
+			selectAfterAdd,
+
+			addedContentIds,
+			addedContents,
+			selectedId,
+			contentIds,
+			contentId,
+			contents,
+			
+			selectedOutfit,
+			selectedOutfitId,
+			addedOutfitEntity,
+
+			addedItemIds,
+			modifyContentItems,
+
+			pictures,
+
+			viewState,
+		} = this.props;
+
+		const {
+			coverpicuri,
+		} = selectedOutfit ? selectedOutfit : ({});
+
+		const {
+			smalluri,
+			thumbnailuri,
+		} = !(contents[contentId] && pictures) ? 
+				({}) :
+				pictures[contents[contentId].picture] ?  
+					pictures[contents[contentId].picture] : 
+					({});
+		
+		const addedThumbnailuri = !(addedContents[contentId] && pictures) ? 
+			(null) :
+			pictures[addedContents[contentId].picture] ? 
+				pictures[addedContents[contentId].picture].thumbnailuri : 
+				null;
+
+		const addedCoverpicuri = addedContents[contentId] ? addedContents[contentId].coverpicuri : ({});
 		let addContentButton = null;
 
-		if(this.props.addedContentIds != undefined){
-			if(this.props.addedContentIds.length > 0){
+		if(addedContentIds != undefined){
+			if(addedContentIds.length > 0){
 				console.log('added contents:');
-				console.log(this.props.addedContents);
-				console.log('this.props.addedContents.selectedId:');
-				console.log(this.props.selectedId);
+				console.log(addedContents);
+				console.log('addedContents.selectedId:');
+				console.log(selectedId);
 				console.log('addedContentIds[0]:');
-				console.log(this.props.addedContentIds[0])
+				console.log(addedContentIds[0])
 
 				//TODO:  need to fix this to handle multiple file upload eventually
-				/*if(this.props.selectedId != this.props.addedContentIds[0]){
-					//console.log("calling this.props.focusOnAddedContent");this.props.focusOnAddedContent(this.props.addedContentIds[0]);
-					console.log("calling this.props.focusOnAddedContent");this.props.focusOnAddedContent(1);
+				/*if(selectedId != addedContentIds[0]){
+					//console.log("calling focusOnAddedContent");focusOnAddedContent(addedContentIds[0]);
+					console.log("calling focusOnAddedContent");focusOnAddedContent(1);
 				}*/
-				//if add Contents button was just pressed and the selected content Id is not the last element in this.props.addedContentIds array
-				/*if(this.props.controlDisabled && this.props.selectedId != this.props.addedContentIds[this.props.addedContentIds.length-1]){
-					this.props.selectAfterAdd(this.props.addedContentIds[this.props.addedContentIds.length-1])
+				//if add Contents button was just pressed and the selected content Id is not the last element in addedContentIds array
+				/*if(controlDisabled && selectedId != addedContentIds[addedContentIds.length-1]){
+					selectAfterAdd(addedContentIds[addedContentIds.length-1])
 				}*/
 			}
 		}
 
-		/*switch(this.props.viewState){
+		/*switch(viewState){
 			case OxiAppConstants.viewState.ADD:
-				addContentButton = (<Content onClick={this.props.controlDisabled ?  console.log('Content control disabled!') : () => {this.props.onControlClick()}} isControl={true}>Add Content</Content>);
+				addContentButton = (<Content onClick={controlDisabled ?  console.log('Content control disabled!') : () => {onControlClick()}} isControl={true}>Add Content</Content>);
 
 				break;
 			case OxiAppConstants.viewState.EDIT:
-				addContentButton = (<Content onClick={this.props.controlDisabled ?  console.log('Content control disabled!') : () => {this.props.onControlClick()}} isControl={true}>Add Content</Content>);
+				addContentButton = (<Content onClick={controlDisabled ?  console.log('Content control disabled!') : () => {onControlClick()}} isControl={true}>Add Content</Content>);
 				break;
 			case OxiAppConstants.viewState.PREVIEW:
 				break;
@@ -168,10 +221,10 @@ class ContentList extends React.Component {
 				break;
 		}*/
 
-		if(this.props.selectedOutfitId != false){
-			if(this.props.viewState !== OxiAppConstants.viewState.PREVIEW && this.props.addedOutfitEntity.byIds[this.props.selectedOutfitId] !== undefined){
-				if(this.props.addedOutfitEntity.byIds[this.props.selectedOutfitId].contents.length !== this.props.addedContentIds.length){
-					this.props.modifyAddedOutfitContents(this.props.selectedOutfitId, this.props.addedContentIds)
+		if(selectedOutfitId != false){
+			if(viewState !== OxiAppConstants.viewState.PREVIEW && addedOutfitEntity.byIds[selectedOutfitId] !== undefined){
+				if(addedOutfitEntity.byIds[selectedOutfitId].contents.length !== addedContentIds.length){
+					modifyAddedOutfitContents(selectedOutfitId, addedContentIds)
 				}
 			}
 		}
@@ -180,46 +233,48 @@ class ContentList extends React.Component {
 		    <React.Fragment>
 		    	<div className={ContentStyles.contentListContainer}>
 		    		{/*<AddContentButton 
-		    			shown={this.props.viewState != OxiAppConstants.viewState.PREVIEW} 
-		    			enabled={!this.props.controlDisabled} 
-		    			handleClick={this.props.onControlClick} />*/}
+		    			shown={viewState != OxiAppConstants.viewState.PREVIEW} 
+		    			enabled={!controlDisabled} 
+		    			handleClick={onControlClick} />*/}
 		    		{
-		    			this.props.contentIds.map((contentId) => 
+		    			contentIds.map((contentId) => 
 		    				<Content 
 				    			key = {contentId}
-				    			{...this.props.contents[contentId]} 
+				    			{...contents[contentId]} 
 		    					id={contentId}
-				    			onClick={this.props.onClick} 
+				    			onClick={onClick} 
 				    			isControl={false} 
-				    			selectedId={this.props.selectedId}
-				    			thumbnail={this.props.pictures[this.props.contents[contentId].picture].thumbnailuri} 
-				    			getCoverPic={this.props.getCoverPic}
+				    			selectedId={selectedId}
+				    			thumbnail={thumbnailuri} 
+				    			getCoverPic={getCoverPic}
 				    			isOutfitCoverpic={
-				    				this.props.selectedOutfit !== undefined ? 
-				    					(this.props.pictures[this.props.contents[contentId].picture].smalluri === this.props.selectedOutfit.coverpicuri) :
+				    				!(selectedOutfit && smalluri) ? 
+				    					(smalluri === selectedOutfit.coverpicuri) :
 				    					false 
 				    			}
 		    				/>)
 		    		}
 		    		{
-		    			this.props.addedContentIds.map((contentId) => 
+		    			addedContentIds.map((contentId) => 
 		    				<Content 
 				    			key = {contentId}
-				    			{...this.props.addedContents[contentId]} 
+				    			{...addedContents[contentId]} 
 		    					id={contentId}
 				    			//onClick={onClickAddedContent}		    		
-				    			onClick={this.props.onClick} 
+				    			onClick={onClick} 
 				    			isControl={false} 
 				    			thumbnail={//TODO: this may not be necessary
-				    				(this.props.addedContents[contentId] === undefined) ? undefined : 
-				    					(this.props.addedContents[contentId].coverpicuri === null) ? this.props.pictures[this.props.addedContents[contentId].picture].thumbnailuri : 
-				    						'blob'//this.props.addedContents[contentId].coverpicuri
+				    				!addedContents[contentId] ? 
+				    					undefined : 
+				    					addedCoverpicuri ? 
+				    						addedThumbnailuri : 
+				    						'blob'//addedContents[contentId].coverpicuri
 				    			} 
-				    			getCoverPic={this.props.getCoverPic}
-				    			selectedId={this.props.selectedId}
-				    			addedItemIds={this.props.addedItemIds}
-				    			modifyContentItems={this.props.modifyContentItems}
-				    			addedContents = {this.props.addedContents}
+				    			getCoverPic={getCoverPic}
+				    			selectedId={selectedId}
+				    			addedItemIds={addedItemIds}
+				    			modifyContentItems={modifyContentItems}
+				    			addedContents = {addedContents}
 				    			isOutfitCoverpic={false}
 		    				/>)
 		    		}
@@ -229,9 +284,9 @@ class ContentList extends React.Component {
 		    					right: '0px',
 		    			    	top: '3px',
 		    				}} 
-		    				shown={this.props.viewState != OxiAppConstants.viewState.PREVIEW} 
-		    				enabled={!this.props.controlDisabled} 
-		    				handleClick={this.props.onControlClick} />)*/
+		    				shown={viewState != OxiAppConstants.viewState.PREVIEW} 
+		    				enabled={!controlDisabled} 
+		    				handleClick={onControlClick} />)*/
 		    		}
 		    	</div>
 		    </React.Fragment>

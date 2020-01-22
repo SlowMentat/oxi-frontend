@@ -138,13 +138,13 @@ export class Outfit extends React.Component{
 		let outfitWidth = outfitHeight * OxiAppConstants.aspectRatio;
 		let isBrowse = webAppView === OxiAppConstants.navRequestMap.a.toLowerCase();
 
-		var fill = "none";
-		var stroke = "#666";
+		var fill = "#FFF6";
+		var stroke = "#000";
 		//var isLiked = profileIds.owner ? profileIds.owner.likeCountIds.includes(likeCount.toUpperCase()) : false
 		
 		if(isLiked){
-			fill = "var(--color7)";
-			stroke = isSelected ? "var(--color5)" : '#aaa';
+			fill = "#000";
+			stroke = "#000";//isSelected ? "var(--color5)" : '#aaa';
 		}
 
 		contextualStyles = isBrowse ?
@@ -238,15 +238,16 @@ export class Outfit extends React.Component{
 					onMouseOut={this._handleOnMouseOut}>
 					<img 
 						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
-						style={{
-							width:'100%', 
-							//'max-height':'inherit',
-							height: '100%',
-							'border-radius':'3px',
-							'border-top-left-radius':'0px',
-							'border-bottom-left-radius':'0px',
-							position:'absolute'
-						}}
+						className={OutfitStyles.outfitImage_img}
+						//style={{
+						//	width:'100%', 
+						//	//'max-height':'inherit',
+						//	height: '100%',
+						//	'border-radius':'3px',
+						//	'border-top-left-radius':'0px',
+						//	'border-bottom-left-radius':'0px',
+						//	position:'absolute'
+						//}}
 					/>
 					<CSSTransition 
 						key={id}
