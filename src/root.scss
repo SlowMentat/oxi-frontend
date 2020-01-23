@@ -66,7 +66,7 @@ body{
 	--colorBorder: #c1c1c1;
 	--color-mobile-icong-bg: #263238;
 	--color-generic-icon: #4f4f4f;
-
+	--color-password-req: #f9e5e4;
 
 	/* TODO:
 	*  It makes no sense currently to set these values as sass variable 
@@ -147,9 +147,11 @@ p{
 
     @include desktop_rules {
    		font-family: Roboto, Comfortaa, cursive;
-   		font-size: 18px;
-   		line-height: 23px;
-   		word-spacing: 4px;
+   		/*font-size: 18px;*/
+   		font-size: 14px;
+   		/*line-height: 23px;*/
+   		line-height: 20px;
+   		word-spacing: 2px;
     }
 
     @include mobile_rules {
@@ -354,7 +356,6 @@ a{
 	/*background-color: #35c8fd;*/
 	/*border-bottom: solid 1px #c1c1c1;*/
 	/*grid-area: nav;*/
-    background-color: #eeeeee;
 	top: 0;
 	width: 100%;
 	height: $pageHeaderHeight;
@@ -363,6 +364,7 @@ a{
 
     @include desktop_rules {
     	border-bottom: none;
+    	background-color: var(--color-mobile-icong-bg);
     }
 
     @include mobile_rules {
@@ -370,6 +372,7 @@ a{
     	box-shadow: var(--mat-height-8);
     	transition: transform var(--item-transition-period) linear;
    	 	will-change: transform;
+    	background-color: #eeeeee;
     	/*border-bottom: solid 1px #c1c1c1;*/
     }
 }

@@ -15,7 +15,7 @@
     height: inherit;
 
     @include desktop_rules {
-    	width: 80%;
+    	width: 60%;
 	}
 
 	@include mobile_rules { 
@@ -37,23 +37,26 @@
 :local(.inputText_input){
 	width: 100%;
 	text-align: center;
-	font-size: 20px;
 	outline: currentcolor none medium;
 	height: inherit;
 	border-style: solid;
-	border-color: var(--color2);
 	border-radius: 3px;
-	border-width: 2px;
 	line-height: 20px;
 	padding-left: 20px;    
 	color: #263238;
 
     @include desktop_rules {
-		/*border-color: rgb(73, 73, 73);
-		background-color: rgb(33, 33, 33);*/
+    	font-size: 16px;
+    	border-style: solid;
+    	border-color: var(--color-mobile-icong-bg);
+    	border-width: 1px;
 	}
 
 	@include mobile_rules {
+		font-size: 20px;
+		border-style: solid;
+		border-color: var(--color2);
+		border-width: 2px;
 	}
 }
 
@@ -95,9 +98,16 @@
 :local(.inputAcceptTerms_checkbox){
 	position: relative;
 	display: inline-block;	
-	width: 50px;	
 	height: inherit;
 	margin:	0px;
+
+	@include desktop_rules {
+		width: 30px;	
+	}
+
+	@include mobile_rules {
+		width: 50px;	
+	}
 }
 
 :local(.textAcceptTermsContainer_div){
@@ -112,7 +122,7 @@
 	height: inherit;	
 
 	@include desktop_rules {
-		color: white;
+		color: var(--color-mobile-icong-bg);
 		line-height: 30px;	
 		font-size: 15px;
 	}
@@ -145,7 +155,7 @@
    	padding-top: 80px;
 
 	@include desktop_rules {
-   		background-color: rgb(33, 33, 33);
+   		background-color: var(--main-background-color);
 	}
 
 	@include mobile_rules {
@@ -284,9 +294,12 @@
 
 :local(.invalidInputPromptContainer_div){
 	padding-top: 10px;
+	height: auto;
+	display: inline-block;
 
 	@include desktop_rules {
-		height: 68px;
+		/*height: 100px;*/
+		width: 60%;
 	}
 
 	@include mobile_rules {
@@ -295,9 +308,18 @@
 }
 
 :local(.invalidInputPrompt_div){
-	color: #ecb5b5;
-	text-align: right;
-	/*margin-right: calc(20% + 10px);*/
+    position: relative;
+    color: #ca0e00;
+    text-align: left;
+    width: auto;
+    float: right;
+    border-radius: 4px;
+    border: solid 2px var(--color-password-req);
+    background-color: var(--color-password-req);
+    padding: 6px;
+    transition: height 100ms linear;
+    margin-bottom: 25px;
+    padding-top: 17px;
 }
 
 :local(.invalidMessageContainer_div){
