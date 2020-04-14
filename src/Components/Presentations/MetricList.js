@@ -64,32 +64,63 @@ const BodyFitProjectionOwnerAlign = (ownerX, hostX) => {
 const Curve = ({props}) => {
 	let alterationStyle = {};
 
-	switch(props.alteration){
+	var needsBackdrop = false;
+
+	var {
+		alteration,
+		isMinTol,
+	} = props;
+
+	switch(alteration){
 		case 'lcurve':
+			needsBackdrop = isMinTol;
 			alterationStyle = {
 				'border-top-right-radius':'0px',
-				'border-top-left-radius':'0px'
+				'border-top-left-radius':'0px',
+				//...(isMinTol ? ({right:'calc(-1*var(--moulding-radius))'}) : ({}) ),
+				...(isMinTol ? ({left: '0px'}) : ({right:'calc(-1*var(--moulding-radius))'}) ),
 			};
 			break;
 
 		case 'rcurve':
+			needsBackdrop = isMinTol;
 			alterationStyle = {
 				'border-bottom-right-radius':'0px',
-				'border-bottom-left-radius':'0px'
+				'border-bottom-left-radius':'0px',
+				...(isMinTol ? ({left: '0px'}) : ({right:'calc(-1*var(--moulding-radius))'}) ),
 			};
 			break;
 
 		case 'flippedRcurve':
+			needsBackdrop = !isMinTol;
 			alterationStyle = {
 				'border-bottom-right-radius':'0px',
-				'border-bottom-left-radius':'opx',
+				'border-bottom-left-radius':'0px',
+				...(isMinTol ? ({left:'calc(-1*var(--moulding-radius))'}) : ({right: '0px'}) ),
 			};
 			break;
 
 		case 'jcurve':
+			needsBackdrop = !isMinTol;
 			alterationStyle = {
 				'border-top-right-radius':'0px',
-				'border-top-left-radius':'0px'
+				'border-top-left-radius':'0px',
+				...(isMinTol ? ({left:'calc(-1*var(--moulding-radius))'}) : ({right: '0px'}) ),
+			};
+			break;
+
+		case 'convex':
+			alterationStyle = {
+				//...(isMinTol ? ({left: '0px'}) : ({right: '0px'}) ),	
+				...(isMinTol ? ({left:'calc(-1*var(--moulding-radius))'}) : ({right: 'calc(-1*var(--moulding-radius))'}) ),		// adjusting 1r instead of 2r because creust (width 1r) is expected to be in place here		
+			};
+			break;
+
+		case 'concave':
+			needsBackdrop = true;
+			alterationStyle = {
+				...(isMinTol ? ({left: '0px'}) : ({right: '0px'}) ),	
+				//...(isMinTol ? ({left:'calc(-2*var(--moulding-radius))'}) : ({right: 'calc(-2*var(--moulding-radius))'}) ),				
 			};
 			break;
 
@@ -97,33 +128,61 @@ const Curve = ({props}) => {
 			break;
 	}
 
-	return(
+	const backdrop =
 		<div 
-			id={props.alteration}
-			className={props.className}
+			id="backdrop"
 			style={{
-				'background-color':`${props.color}`,
-				...alterationStyle
-			}} >										
+				//'background-color':'var(--nfz-color)',
+				//width: 'var(--moulding-radius)',
+				//position: 'absolute',
+				//top:'-1px',
+				...(isMinTol ? ({left:'0px', top:'-1px'}) : ({right: '0px', top: '-1px'}))
+			}}
+		>
 		</div>
-	);
+
+	const curveElement = 
+		<React.Fragment>
+			{ needsBackdrop ? (backdrop) : null }
+			<div 
+				id={props.alteration}
+				className={props.className}
+				style={{
+					'background-color':`${props.color}`,
+					...alterationStyle
+				}} 
+			>										
+			</div>
+		</React.Fragment>;
+
+	return( curveElement );
 }
 
 const SCurve = ({props}) => {
-	var { fzColor, nfzColor, isLeftEdge } = props;
-	var posAdjust = isLeftEdge ? ({left:'-10px'}) : ({left:'unset', right:'-10px'});
+	var { fzColor, nfzColor, isMinTol } = props;
+	//var posAdjust = isMinTol ? 
+	//	({left:'-10px'}) : 
+	//	({left:'unset', right:'-10px'});
+		//({left:'calc(-2*var(--moulding-radius))'}) : 
+		//({left:'unset', right:'calc(-2*var(--moulding-radius))'});
+
+
+	var posAdjust = isMinTol ? ({left: 'calc(-2*var(--moulding-radius))'}) : ({left:'unset', right: 'calc(-2*var(--moulding-radius))'});
+
 	return(
 		<div 
 			id="scurve"
 			className={MetricStyles.leftCornerMoulding_div}
 			style={{
-				width:'20px',
+				//width:'20px',
+				width:'calc(4*var(--moulding-radius))',
+				border: 'unset',	// Needed if MetricStyles debugging is turned on
 				...posAdjust,
 			}} >
 			<div style={{position:'relative', width:'100%', height:'100%'}}>
-				<div style={{height:'50%', 'background-color':`${isLeftEdge ? nfzColor : fzColor }`}}>						
+				<div className={MetricStyles.sCurveBackdropTop_div} style={{'background-color':`${isMinTol ? nfzColor : fzColor }`}}>						
 				</div>
-				<div style={{height:'50%', 'background-color':`${isLeftEdge ? fzColor : nfzColor }`}}>						
+				<div className={MetricStyles.sCurveBackdropBottom_div} style={{'background-color':`${isMinTol ? fzColor : nfzColor }`}}>						
 				</div>
 				<div 
 					className={MetricStyles.leftCornerMoulding_div}
@@ -132,9 +191,9 @@ const SCurve = ({props}) => {
 						left:'0px',
 						height:'100%',
 						width:'50%',
-						'background-color':`${isLeftEdge ? nfzColor : fzColor}`,
+						'background-color':`${isMinTol ? nfzColor : fzColor}`,
 						'margin-top':'unset',
-						'border-bottom-left-radius':'0px',
+						...(isMinTol ? ({'border-bottom-left-radius':'0px'}) : ({})),	// set the corner moulding side that overlaps the fit zone to have a curved bottom left radius.  This will handle edge cases for minimum fitzones.
 					}} >
 				</div>
 				<div
@@ -143,9 +202,10 @@ const SCurve = ({props}) => {
 						right:'0px',
 						top:'0px',
 						height:'100%',
-						width:'50%','background-color':`${isLeftEdge ? fzColor : nfzColor}`,
+						width:'50%','background-color':`${isMinTol ? fzColor : nfzColor}`,
 						'margin-top':'unset',
-						'border-top-right-radius':'0px',
+						//'border-top-right-radius':'0px',
+						...(isMinTol ? ({}) : ({'border-top-right-radius':'0px'})),		// set the corner moulding side that overlaps the fit zone to have a curved top right radius
 					}} >
 				</div>
 			</div>
@@ -158,20 +218,24 @@ const SCurve = ({props}) => {
 *	nfzColor: non-fitZone background-color
 */
 const ZCurve = ({props}) => {
-	var { fzColor, nfzColor, isLeftEdge } = props;
-	var posAdjust = isLeftEdge ? ({left:'-10px'}) : ({left:'unset', right:'-10px'});
+	var { fzColor, nfzColor, isMinTol } = props;
+	//var posAdjust = isMinTol ? ({left:'-10px'}) : ({left:'unset', right:'-10px'});
+	var posAdjust = isMinTol ? ({left: 'calc(-2*var(--moulding-radius))'}) : ({left:'unset', right: 'calc(-2*var(--moulding-radius))'});
+
 	return(
 		<div 
 			id="zcurve"
 			className={MetricStyles.leftCornerMoulding_div}
 			style={{
-				width:'20px',
+				//width:'20px',
+				width:'calc(4*var(--moulding-radius))',
+				border: 'unset',	// Needed if MetricStyles debugging is turned on
 				...posAdjust,
 			}} >
 			<div style={{position:'relative', width:'100%', height:'100%'}}>
-				<div style={{height:'50%', 'background-color':`${isLeftEdge ? fzColor : nfzColor }`}}>						
+				<div className={MetricStyles.zCurveBackdropTop_div} style={{'background-color':`${isMinTol ? fzColor : nfzColor }`}}>						
 				</div>
-				<div style={{height:'50%', 'background-color':`${isLeftEdge ? nfzColor : fzColor }`}}>						
+				<div className={MetricStyles.zCurveBackdropBottom_div} style={{'background-color':`${isMinTol ? nfzColor : fzColor }`}}>						
 				</div>
 				<div 
 					className={MetricStyles.leftCornerMoulding_div}
@@ -179,9 +243,11 @@ const ZCurve = ({props}) => {
 						top:'0px', 
 						left:'0px', 
 						height:'100%', 
-						width:'50%','background-color':`${isLeftEdge ? nfzColor : fzColor}`,
+						width:'50%','background-color':`${isMinTol ? nfzColor : fzColor}`,
 						'margin-top':'unset',
-						'border-top-left-radius':'0px',
+						//'border-top-left-radius':'0px',
+						...(isMinTol ? ({'border-top-left-radius':'0px'}) : ({})),
+
 					}} >
 				</div>
 				<div
@@ -190,9 +256,10 @@ const ZCurve = ({props}) => {
 						top:'0px', 
 						right:'0px', 
 						height:'100%', 
-						width:'50%','background-color':`${isLeftEdge ? fzColor : nfzColor}`,
+						width:'50%','background-color':`${isMinTol ? fzColor : nfzColor}`,
 						'margin-top':'unset',
-						'border-bottom-right-radius':'0px',
+						//'border-bottom-right-radius':'0px',
+						...(isMinTol ? ({}) : ({'border-bottom-right-radius':'0px'})),
 					}} >
 				</div>
 			</div>
@@ -245,25 +312,21 @@ class MetricGraph extends React.Component{
 		let yOffsetStart = ( (yPercentOffset - pointRadius*2) / 2);
 		let labelPosMap = {};
 
+		var debugTable = sourceMetricIds.reduce((accum, val) => ({...accum, [val]:{}}), {});
+
 		let output = sourceMetricIds.map((sourceMetricId, ind, metricList) => {
-			//console.log('ind = ', ind)
-			//console.log('yPercentOffset = ', yPercentOffset)
-			//console.log('yOffsetStart = ', yOffsetStart)
-			//console.log('sourceMetricIds = ', sourceMetricIds)
-			//console.log('sourceMetrics = ', sourceMetrics)
-			//console.log('x1:  sourceMetrics[sourceMetricIds[ind-1]] = ', sourceMetrics[sourceMetricIds[ind-1]])
-			//console.log('x2:  sourceMetrics[sourceMetricId] = ', sourceMetrics[sourceMetricId])
-			//let labelPosYCss = `calc((${( yOffsetStart + ( ind * ( yPercentOffset )))} / 100) * (100vh))`
 			const MIN_TOLERANCE = true;
 			const MAX_TOLERANCE = !MIN_TOLERANCE;
 
 			let labelPosYCss = `${( (yOffsetStart*2) + ( (ind) * ( yPercentOffset*2) ) )}%`;
 			labelPosMap[sourceMetricId] = labelPosYCss;
-
 			var fzColor = 'var(--fz-color)';
 			var nfzColor = 'var(--nfz-color)';
+
+			//
 			var concaveColor = fzColor;
 			var convexColor = nfzColor;
+
 			let xScale = 1;// 1.65;
 			let xOffset = Math.abs(sourceMetrics[sourceMetricId]) >= 0 ? 0 : sourceMetrics[sourceMetricId];
 
@@ -293,26 +356,62 @@ class MetricGraph extends React.Component{
 			var roundedUserMetric = roundTo(userMetricsDto[metricList[ind]]);
 			var roundedPrevUserMetric = ind > 0 ? roundTo(userMetricsDto[metricList[ind - 1]]) : undefined;
 			var roundedNextUserMetric = ind < metricList.length - 1 ? roundTo(userMetricsDto[metricList[ind + 1]]) : undefined;
-
-			var toleranceMinDelta = (tolerances[toleranceMinId] - roundedUserMetric);
+			/*
+			//var toleranceMinDelta = (tolerances[toleranceMinId] - roundedUserMetric);
+			var toleranceMinDelta = tolerances[toleranceMinId] - userMetricsDto[metricList[ind]];
 			var prevToleranceMinDelta = prevToleranceMinId ? (tolerances[prevToleranceMinId] - roundedPrevUserMetric) : undefined;
 			var nextToleranceMinDelta = nextToleranceMinId ? (tolerances[nextToleranceMinId] - roundedNextUserMetric) : undefined;
 
-			var toleranceMaxDelta = (tolerances[toleranceMaxId] - roundedUserMetric) ;
+			//var toleranceMaxDelta = (tolerances[toleranceMaxId] - roundedUserMetric) ;
+			var toleranceMaxDelta = tolerances[toleranceMaxId] - userMetricsDto[metricList[ind]];
 			var prevToleranceMaxDelta = prevToleranceMaxId ? (tolerances[prevToleranceMaxId] - roundedPrevUserMetric)  : undefined;
-			var nextToleranceMaxDelta = nextToleranceMaxId ? (tolerances[nextToleranceMaxId] - roundedNextUserMetric)  : undefined;
+			var nextToleranceMaxDelta = nextToleranceMaxId ? (tolerances[nextToleranceMaxId] - roundedNextUserMetric)  : undefined;			
+			*/
+			
+			//var toleranceMinDelta = (tolerances[toleranceMinId] - roundedUserMetric);
+			var toleranceMinDelta = parseFloat(roundTo(tolerances[toleranceMinId] - userMetricsDto[metricList[ind]]));
+			var prevToleranceMinDelta = prevToleranceMinId ? parseFloat(roundTo((tolerances[prevToleranceMinId] - roundedPrevUserMetric))) : undefined;
+			var nextToleranceMinDelta = nextToleranceMinId ? parseFloat(roundTo((tolerances[nextToleranceMinId] - roundedNextUserMetric))) : undefined;
+
+			//var toleranceMaxDelta = (tolerances[toleranceMaxId] - roundedUserMetric) ;
+			var toleranceMaxDelta = parseFloat(roundTo(tolerances[toleranceMaxId] - userMetricsDto[metricList[ind]]));
+			var prevToleranceMaxDelta = prevToleranceMaxId ? parseFloat(roundTo((tolerances[prevToleranceMaxId] - roundedPrevUserMetric)))  : undefined;
+			var nextToleranceMaxDelta = nextToleranceMaxId ? parseFloat(roundTo((tolerances[nextToleranceMaxId] - roundedNextUserMetric)))  : undefined;
+			
+
+			debugTable[metricList[ind]] = {
+				'min prev delta': prevToleranceMinDelta,
+				'min current delta': toleranceMinDelta,
+				'min next delta': nextToleranceMinDelta,
+				'max prev delta': prevToleranceMaxDelta,
+				'max current delta': toleranceMaxDelta,
+				'max next delta': nextToleranceMaxDelta,
+				'MIN TOL': tolerances[toleranceMinId],
+				'MAX TOL': tolerances[toleranceMaxId],
+				'userMetric' : userMetricsDto[metricList[ind]],	
+			}
 
 			var toleranceId = sourceMetrics[sourceMetricId] >= 0 ? toleranceMinId : toleranceMaxId;
 
 			//get the fit zone dimensions, position
+			/*
 			var fitZoneWidth = 100*(Math.abs(tolerances[toleranceMinId] - tolerances[toleranceMaxId]))/10;
 			var fitZonePosition = 100*((userMetricsDto ? tolerances[toleranceMinId] - roundedUserMetric + (range/2) : (range/2) )) / range;
-			var leftCurveAlign = '0px';
-			var rightCurveAlign = '0px';
+			*/
 
-			//get corner moulding curvature:  < 0: concave,  = 0: straight, > 0: convex
-			//where concave and straight correspond to white background-color
-			//and convex correspond to gray background-color of the left/rightMoulding_divs
+			var fitZoneWidth = 100*(Math.abs(parseFloat(roundTo(tolerances[toleranceMinId])) - parseFloat(roundTo(tolerances[toleranceMaxId])) )) / range; 
+			fitZonePosition = fitZoneWidth === 0 ? 1 : fitZoneWidth;
+			var fitZonePosition = 100*((userMetricsDto ? parseFloat(roundTo(tolerances[toleranceMinId])) - parseFloat(roundTo(userMetricsDto[metricList[ind]])) + (range/2) : (range/2) )) / range;
+
+			//var fitZonePosition = 100*((userMetricsDto ? roundTo(tolerances[toleranceMinId] - roundedUserMetric) + (range/2) : (range/2) )) / range;
+			var fzLeftCrust = '0px';
+			var fzRightCrust = '0px';
+
+			/*
+			* Get corner moulding curvature:  < 0: concave,  = 0: straight, > 0: convex
+			* Where concave and straight correspond to white background-color
+			* And convex correspond to gray background-color of the left/rightMoulding_divs
+			*/
 			var leftEdgeCurvature;
 			var rightEdgeCurvature;
 
@@ -338,12 +437,12 @@ class MetricGraph extends React.Component{
 			}
 
 			const zone = {
-				NFZ_L: 0,		//non-fit zone left
-				NFZ_R: 1,		//non-fit zone right
-				FZ: 2,			//fit zone
-				NFZ_L_FZ: 3,	//in-between non-fit zone left and fit zone
-				FZ_NFZ_R: 4,	//in-between fit zone and non-fit zone right
-				NZ: 5,			//no zone 
+				NFZ_L: 0,		// non-fit zone left
+				NFZ_R: 1,		// non-fit zone right
+				FZ: 2,			// fit zone
+				NFZ_L_FZ: 3,	// in-between non-fit zone left and fit zone
+				FZ_NFZ_R: 4,	// in-between fit zone and non-fit zone right
+				NZ: 5,			// no zone 
 			};
 
 			const stackup = {
@@ -354,8 +453,20 @@ class MetricGraph extends React.Component{
 				J_CURVE: 4,
 				L_CURVE: 5,
 				R_CURVE: 6,
-				FR_CURVE: 7,	//flipped R_CURVE
+				FR_CURVE: 7,	// flipped R_CURVE
 				STRAIGHT: 8,
+			}
+
+			const stackupName = {
+				0: 'S_CURVE',
+				1: 'CONCAVE',
+				2: 'Z_CURVE',
+				3: 'CONVEX',
+				4: 'J_CURVE',
+				5: 'L_CURVE',
+				6: 'R_CURVE',
+				7: 'FR_CURVE',
+				8: 'STRAIGHT',
 			}
 
 			/*	Zones
@@ -385,54 +496,78 @@ class MetricGraph extends React.Component{
 			}	
 
 			const curvatures = {
-				0: (isMinTol) => ( <SCurve props={{ fzColor:fzColor, nfzColor:nfzColor, 'isLeftEdge':isMinTol }}/> ),
+				0: (isMinTol) => ( 
+						<SCurve props={{ 
+							fzColor:fzColor, 
+							nfzColor:nfzColor, 
+							isMinTol 
+						}} /> 
+				),
 				1: (isMinTol) => ( 
 						<Curve props={{ 
 							className:(isMinTol ? MetricStyles.leftCornerMoulding_div : MetricStyles.rightCornerMoulding_div), 
-							color: concaveColor 
+							color: concaveColor,
+							alteration: 'concave',
+							isMinTol,
 						}} /> 
 				),
-				2: (isMinTol) => ( <ZCurve props={{ fzColor:fzColor, nfzColor:nfzColor, 'isLeftEdge':isMinTol }}/> ),
+				2: (isMinTol) => ( 
+						<ZCurve props={{ 
+							fzColor:fzColor, 
+							nfzColor:nfzColor, 
+							//'isLeftEdge':isMinTol,
+							isMinTol,
+						}} /> 
+				),
 				3: (isMinTol) => ( 
 						<Curve props={{ 
 							className: (isMinTol ? MetricStyles.leftCornerMoulding_div : MetricStyles.rightCornerMoulding_div), 
-							color: convexColor 
+							color: convexColor,
+							alteration: 'convex',
+							isMinTol,
 						}} /> 
 				),
 				4: (isMinTol) => ( 
 						<Curve props={{ 
 							className: (isMinTol ? MetricStyles.leftCornerMoulding_div : MetricStyles.rightCornerMoulding_div), 
 							color: (isMinTol ? convexColor : concaveColor), 
-							alteration: 'jcurve'
+							alteration: 'jcurve',
+							isMinTol,
 						}} /> 
 				),
 				5: (isMinTol) => ( 
 						<Curve props={{ 
 							className: (isMinTol ? MetricStyles.leftCornerMoulding_div : MetricStyles.rightCornerMoulding_div), 
 							color: (isMinTol ? concaveColor : convexColor),
-							alteration: 'lcurve'
+							alteration: 'lcurve',
+							isMinTol,
 						}} /> 
 				),
 				6: (isMinTol) => ( 
 						<Curve props={{ 
 							className: (isMinTol ? MetricStyles.leftCornerMoulding_div : MetricStyles.rightCornerMoulding_div), 
 							color: (isMinTol ? concaveColor : convexColor),
-							alteration: 'rcurve'
+							alteration: 'rcurve',
+							isMinTol,
 						}} /> 
 				),
 				7: (isMinTol) => ( 
 						<Curve props={{ 
 							className: (isMinTol ? MetricStyles.leftCornerMoulding_div : MetricStyles.rightCornerMoulding_div), 
 							color: (isMinTol ? convexColor : concaveColor),
-							alteration: 'flippedRcurve'
+							alteration: 'flippedRcurve',
+							isMinTol
 						}} /> 
 				),
 				8: (isMinTol) => null,
 			}
 
 			/*
-			*	td (number):  tolerance delta
-			*	ref ({string : number}):  the previous or next set of tolerances with which to compare tolerance delta.
+			* Determines in which zone the tolerance delta (td) exists.  The refernece can either be
+			* the row above or the row below td.
+			*
+			* td (number):  tolerance delta
+			* ref ({string : number}):  the previous or next set of tolerances with which to compare tolerance delta.
 			*
 			*        |///////| <--LTD        RTD--> |/////////|
 			*        |////|   <--td          td--> |//////////|
@@ -442,16 +577,19 @@ class MetricGraph extends React.Component{
 			*        |////|   <--td          td--> |//////////|
 			*        |///////| <--LTD        RTD--> |/////////|
 			*
-			*	isMinTD (boolean):  indicates if tolerance delta is a min or max tolerance indicating left or right edge respectively
 			*/
 			const getZone = (td, ref={LTD:0, RTD:0}) => {
 				var result = undefined;
 				var { LTD, RTD } = ref;
 
-				//Start zone or end zones of the Graph
+				// Exact match to body measurement
+				//if(td === 0){
+				//}
+				// Start zone or end zones of the Graph
 				if(LTD === undefined || RTD === undefined){
 					result = zone.NZ;
-				}else{
+				}
+				else{
 					switch(true){
 						case td > LTD && td < RTD:
 							result = zone.FZ;
@@ -482,6 +620,9 @@ class MetricGraph extends React.Component{
 			}
 
 			/*
+			* Get the stackup curvature of the min talerance boundary.
+			* This function can also be used to fine the right stack-up curvature after a mirroring operation is performed.
+			*
 			*		  NFZ_L    FZ     NFZ_R
 			*		|///////|	   |////////|	topZone
 			*		|////|			   |////|
@@ -491,18 +632,20 @@ class MetricGraph extends React.Component{
 				var result = undefined;
 
 				switch(true){
-					//S_CURVE
+					// S_CURVE
 					case (
-						topZone === zone.FZ_NFZ_R && bottomZone === zone.FZ_NFZ_R ||
+						//topZone === zone.FZ_NFZ_R && bottomZone === zone.FZ_NFZ_R ||
 						topZone === zone.NFZ_L && bottomZone === zone.NZ ||
 						topZone === zone.NFZ_R && bottomZone === zone.NZ ||
 						topZone === zone.FZ_NFZ_R && bottomZone === zone.NZ ||
 						topZone === zone.NFZ_L && bottomZone === zone.FZ ||
-						topZone === zone.NFZ_R && bottomZone === zone.FZ ):
+						topZone === zone.NFZ_R && bottomZone === zone.FZ ||
+						topZone === zone.FZ_NFZ_R && bottomZone === zone.FZ
+					):
 						result = 0;
 						break;
 
-					//CONCAVE
+					// CONCAVE
 					case (
 						topZone === zone.NFZ_L && bottomZone === zone.NFZ_R ||
 						topZone === zone.NFZ_L && bottomZone === zone.NFZ_L ||
@@ -511,12 +654,13 @@ class MetricGraph extends React.Component{
 						topZone === zone.FZ_NFZ_R && bottomZone === zone.NFZ_L ||
 						topZone === zone.FZ_NFZ_R && bottomZone === zone.NFZ_R ||
 						topZone === zone.NFZ_R && bottomZone === zone.NFZ_R ||
-						topZone === zone.NFZ_R && bottomZone === zone.FZ_NFZ_R ||
-						topZone === zone.FZ_NFZ_R && bottomZone === zone.FZ_NFZ_R ):
+						topZone === zone.NFZ_R && bottomZone === zone.FZ_NFZ_R //||
+						//topZone === zone.FZ_NFZ_R && bottomZone === zone.FZ_NFZ_R 
+					):
 						result = 1;
 						break;
 
-					//Z_CURVE
+					// Z_CURVE
 					case (
 						topZone === zone.FZ && bottomZone === zone.NFZ_L ||
 						topZone === zone.FZ && bottomZone === zone.NFZ_R ||
@@ -526,50 +670,60 @@ class MetricGraph extends React.Component{
 						topZone === zone.NZ && bottomZone === zone.FZ_NFZ_R ||
 						topZone === zone.NZ && bottomZone === zone.NFZ_L ||
 						topZone === zone.NZ && bottomZone === zone.NFZ_R ||
-						topZone === zone.NZ && bottomZone === zone.FZ_NFZ_R ):
+						topZone === zone.NZ && bottomZone === zone.FZ_NFZ_R 
+					):
 						result = 2;
 						break;
 
-					//CONVEX
+					// CONVEX
 					case ( 
 						topZone === zone.FZ && bottomZone === zone.FZ ||
 						topZone === zone.NZ && bottomZone === zone.FZ ||
-						topZone === zone.FZ && bottomZone === zone.NZ ):
+						topZone === zone.FZ && bottomZone === zone.NZ 
+					):
 						result = 3;
 						break;
 
-					//J_CURVE
+					// J_CURVE
 					case ( 
 						topZone === zone.NFZ_L_FZ && bottomZone === zone.FZ ||
-						topZone === zone.NFZ_L_FZ && bottomZone === zone.NZ ):
+						topZone === zone.NFZ_L_FZ && bottomZone === zone.NZ 
+					):
 						result = 4;
 						break;
 
-					//L_CURVE
+					// L_CURVE
 					case (
 						topZone === zone.NFZ_L_FZ && bottomZone === zone.NFZ_L ||
 						topZone === zone.NFZ_L_FZ && bottomZone === zone.NFZ_R ||
-						topZone === zone.NFZ_L_FZ && bottomZone === zone.FZ_NFZ_R ):
+						topZone === zone.NFZ_L_FZ && bottomZone === zone.FZ_NFZ_R 
+					):
 						result = 5;
 						break;
 
-					//R_CURVE
+					// R_CURVE
 					case (
 						topZone === zone.NFZ_R && bottomZone === zone.FZ ||
 						topZone === zone.FZ_NFZ_R && bottomZone === zone.NFZ_L_FZ ||
-						topZone === zone.NFZ_L && bottomZone === zone.NFZ_L_FZ ):
+						topZone === zone.NFZ_L && bottomZone === zone.NFZ_L_FZ ||
+						topZone === zone.NZ && bottomZone === zone.FZ_NFZ_R 
+					):
 						result = 6;
 						break;
 
-					//FR_CURVE
+					// FR_CURVE
 					case ( 
 						topZone === zone.FZ && bottomZone === zone.NFZ_L_FZ ||
-						topZone === zone.NZ && bottomZone === zone.NFZ_L_FZ ):
+						topZone === zone.NZ && bottomZone === zone.NFZ_L_FZ 
+					):
 						result = 7;
 						break;
 
-					//STAIGHT
-					case ( topZone === zone.NFZ_L_FZ && bottomZone === zone.NFZ_L_FZ ):
+					// STAIGHT
+					case (
+						topZone === zone.NFZ_L_FZ && bottomZone === zone.NFZ_L_FZ ||
+						topZone === zone.FZ_NFZ_R && bottomZone === zone.FZ_NFZ_R 
+					):
 						result = 8;
 						break;
 
@@ -604,6 +758,10 @@ class MetricGraph extends React.Component{
 				return result;
 			}
 
+			// Determin the top and bottom zones that the current tolerance delta occupies.
+			// Use the top and bottom zone data to get the stackup key, then use the stackup key
+			// to determin the curvature.
+
 			var leftTopZone = getZone(toleranceMinDelta, { LTD: prevToleranceMinDelta, RTD: prevToleranceMaxDelta });
 			var leftBottomZone = getZone(toleranceMinDelta, { LTD: nextToleranceMinDelta, RTD: nextToleranceMaxDelta });
 			var leftStackupKey = getLeftStackup(leftTopZone, leftBottomZone);
@@ -614,63 +772,103 @@ class MetricGraph extends React.Component{
 
 			leftEdgeCurvature = leftStackupKey !== undefined ? curvatures[leftStackupKey](MIN_TOLERANCE) : null;
 			rightEdgeCurvature = rightStackupKey !== undefined ? curvatures[rightStackupKey](MAX_TOLERANCE) : null;
+
+			debugTable[metricList[ind]] = {
+				...debugTable[metricList[ind]],
+				'L stackup':(stackupName[leftStackupKey] ? stackupName[leftStackupKey] : `lsuk = ${leftStackupKey}`),
+				'R stackup':(stackupName[rightStackupKey] ? stackupName[rightStackupKey] : `rsuk = ${rightStackupKey}`),
+			}			
 			
-			
-			//adjustments made to align corner moldings in some edge cases
+			// Fit zone crusts are extentions to the left and right fit zone area.
+			// Their purpose is to fill the background of mouldings with negative curvature (wrt fit zone area).
+			// Cursts have the same background-color as the fit zone background-color.
+			var isLeftCrust = (
+				leftStackupKey === stackup.CONVEX ||
+				leftStackupKey === stackup.J_CURVE ||
+				leftStackupKey === stackup.FR_CURVE //||
+			//	leftStackupKey === stackup.Z_CURVE ||
+			//	leftStackupKey === stackup.S_CURVE
+			);
+
+			var isRightCrust = (
+				rightStackupKey === stackup.CONVEX ||
+				rightStackupKey === stackup.R_CURVE ||
+				rightStackupKey == stackup.L_CURVE //||
+			//	rightStackupKey === stackup.Z_CURVE ||
+			//	rightStackupKey === stackup.S_CURVE 
+			);
+//
+			/*
 			switch(true){
 				case (
 					leftStackupKey === stackup.R_CURVE || 
 					leftStackupKey === stackup.L_CURVE || 
-					leftStackupKey === stackup.CONCAVE ):
-					leftCurveAlign = 'calc(-1*var(--moulding-radius))';
+					leftStackupKey === stackup.CONCAVE 
+				):
+					fzLeftCrust = 'calc(-1*var(--moulding-radius))';
+					//fzLeftCrust = `calc(-1*${deltaX/2}px)`;
 					break;
 
 				case (
 					leftStackupKey === stackup.J_CURVE || 
 					leftStackupKey === stackup.FR_CURVE || 
-					leftStackupKey === stackup.CONVEX ):
-					leftCurveAlign = 'var(--moulding-radius)';
+					leftStackupKey === stackup.CONVEX 
+				):
+					fzLeftCrust = 'var(--moulding-radius)';
+					//fzLeftCrust = `calc(${deltaX/2}px)`;
 					break;
 
 				case leftStackupKey === stackup.STRAIGHT:
-					leftCurveAlign = '0px';
+					fzLeftCrust = '0px';
 					break;
+
+				case (
+					leftStackupKey === stackup.Z_CURVE ||
+					leftStackupKey === stackup.S_CURVE
+				):
+					fzLeftCrust = 'var(--moulding-radius)';
+
 
 				default:
 					break;
 			}
-
-			var isAvailable = (deltaX !== undefined);
 
 			switch(true){
 				case (
 					rightStackupKey === stackup.R_CURVE || 
 					rightStackupKey === stackup.L_CURVE || 
-					rightStackupKey === stackup.CONVEX ):
-					rightCurveAlign = 'var(--moulding-radius)';
+					rightStackupKey === stackup.CONVEX 
+				):
+					fzRightCrust = 'var(--moulding-radius)';
+					//fzRightCrust = `calc(${deltaX/2}px)`;
 					break;
 
 				case (
 					rightStackupKey === stackup.J_CURVE || 
 					rightStackupKey === stackup.FR_CURVE || 
-					rightStackupKey === stackup.CONCAVE ):
-					rightCurveAlign = 'calc(-1*var(--moulding-radius))';
+					rightStackupKey === stackup.CONCAVE 
+				):
+					fzRightCrust = 'calc(-1*var(--moulding-radius))';
+					//fzRightCrust = `calc(-1*${deltaX/2}px)`;
 					break;
 
 				case rightStackupKey === stackup.STRAIGHT:
-					rightCurveAlign = '0px';
+					fzRightCrust = '0px';
 					break;
 
 				default:
 					break;
 			}
+			*/
+//
 
+			var isAvailable = (deltaX !== undefined);
 			var transNegToPos = this.prevDeltaX[sourceMetricId] < 0 && deltaX > 0;
 			var transPosToNeg = this.prevDeltaX[sourceMetricId] > 0 && deltaX < 0;
 			this.prevDeltaX[sourceMetricId] = deltaX;
 
-			console.log('transNegToPos = ', transNegToPos);
-			console.log('transPosToNeg = ', transPosToNeg);
+			//console.log('transNegToPos = ', transNegToPos);
+			//console.log('transPosToNeg = ', transPosToNeg);
 
 			const createBar = (isLeftOfAxis) => {
 				var transitionDelay = null;
@@ -704,11 +902,12 @@ class MetricGraph extends React.Component{
 				return (
 					<div 
 						className={
-							this.props.labelHovered !== sourceMetricId ? 
-								MetricStyles['graphBar_div'] :
-								fitResults[sourceMetricId] !== OxiAppConstants.fitResultValues.b ? 
-									MetricStyles['graphBar_div--highlight'] : 
-									MetricStyles['graphBarNoFit_div--highlight']
+							MetricStyles.graphBar_div
+							//this.props.labelHovered !== sourceMetricId ? 
+							//	MetricStyles['graphBar_div'] :
+							//	fitResults[sourceMetricId] !== OxiAppConstants.fitResultValues.b ? 
+							//		MetricStyles['graphBar_div--highlight'] : 
+							//		MetricStyles['graphBarNoFit_div--highlight']
 						} 
 						style={
 							isAvailable ? 
@@ -717,19 +916,21 @@ class MetricGraph extends React.Component{
 										isLeftOfAxis ? 
 											({
 												'border-right': 'unset',
-												'right': '0px',
+												//'right': '0px',
+												right: 'calc(var(--dot-height)/2)',
 											}) : 
 											({
 												'border-left':'unset',
-												'left': '0px',
+												//'left': '0px',
+												left: 'calc(var(--dot-height)/2)',
 											})
 									),
 									//'text-align': (isLeftOfAxis ? "right" : "unset"),
 									...transitionDelay,
-									'width': (((deltaX < 0 && isLeftOfAxis) || (deltaX >= 0 && !isLeftOfAxis)) ? `calc((${Math.abs(deltaX)} / (${range/2}))*var(--x-axis-range)/2)` : '0px'),
+									width: (((deltaX < 0 && isLeftOfAxis) || (deltaX >= 0 && !isLeftOfAxis)) ? `calc((${Math.abs(deltaX)} / (${range/2}))*var(--x-axis-range)/2 - var(--dot-height))` : '0px'),
 									//'left': (deltaX > 0 ? 'unset' : `calc((50% + (${xScale * xOffset}/100) * (var(--x-axis-range) + 1px)/2 + ${deltaX}*var(--x-axis-range)/2))`),
 									...(fitResults[sourceMetricId] === OxiAppConstants.fitResultValues.b ? 
-										({'--bar-fill-color':'#b1b1b1ad', '--bar-border-color':'var(--color-mobile-icong-bg)'}) : 
+										({'--bar-fill-color':'#b1b1b1ad', '--bar-border-color':'var(--color-mobile-icon-bg)'}) : 
 										({}) ),
 								}) : 
 								({
@@ -746,14 +947,19 @@ class MetricGraph extends React.Component{
 							<div 
 								className={MetricStyles.fitZone_div}
 								style={{
-									width: `calc(${fitZoneWidth}%  + ${leftCurveAlign} + ${rightCurveAlign})`,
-									left: `calc(${fitZonePosition}% - ${leftCurveAlign})`,
-								}}>
-								<div style={{
-									position:'relative',
-									width:'100%',
-									height:'100%',
-								}}> 
+									//width: `calc(${fitZoneWidth}%  + ${fzLeftCrust} + ${fzRightCrust})`,
+									//left: `calc(${fitZonePosition}% - ${fzLeftCrust})`,
+									width: `calc(${fitZoneWidth}%  + ${isLeftCrust ? 'var(--moulding-radius)' : '0px'} + ${isRightCrust ? 'var(--moulding-radius)' : '0px'})`,
+									left: `calc(${fitZonePosition}% - ${isLeftCrust ? 'var(--moulding-radius)' : '0px'})`,
+								}}
+							>
+								<div 
+									style={{
+										position:'relative',
+										width:'100%',
+										height:'100%',
+									}}
+								> 
 									{ leftEdgeCurvature }
 									{ rightEdgeCurvature }
 								</div>
@@ -792,6 +998,21 @@ class MetricGraph extends React.Component{
 							<div id="positiveDeltaWRTOwner" className={MetricStyles.graphBarContainer_div} style={{left: '50%'}}>
 								{createBar(false)}
 							</div>
+							<div 
+								className={MetricStyles.hostDot_div}
+								style={{
+									//left: 'calc(50% - (4/5)*var(--x-axis-range)/2 - var(--dot-height)/2)'
+									left: '50%',
+									transform: `translateX(calc(${deltaX < 0 ? "-" : ""}1*(${Math.abs(deltaX)} / (${range}))*var(--x-axis-range) - var(--dot-height)/2))`,
+								}}
+							>
+							</div>
+							<div className={MetricStyles.ownerDot_div}>
+								<div style={{position:'relative', width:'100%'}}>
+									<div className={MetricStyles.ownerDotIndicator_div}>
+									</div>
+								</div>
+							</div>
 						</div>
 	
 					{/*<line 
@@ -828,6 +1049,8 @@ class MetricGraph extends React.Component{
 
 		});
 
+		console.table(debugTable);
+
 		console.log('labelPosMap = ', labelPosMap);
 		if(updateLabelPositions !== null && updateLabelPositions !== undefined){
 			updateLabelPositions(labelPosMap)
@@ -842,7 +1065,10 @@ class MetricGraph extends React.Component{
 		console.log('fitResults = ', fitResults);
 
 		return(
-			<div className={MetricStyles.metricGraphBarsContainer_div}>
+			<div 
+				className={MetricStyles.metricGraphBarsContainer_div}
+				style={{'--moulding-radius': `calc(var(--x-axis-range)/${4*range})`}}	// Sets moulding radius to the min fit zone width to half the distance between tick count (defined as 2*range)
+			>
 				{output}
 				{/*
 					true ? null :

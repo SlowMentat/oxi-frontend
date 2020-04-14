@@ -6,7 +6,7 @@ import Cookies from 'universal-cookie';
 import qs from 'qs';
 
 import {normalize, denormalize} from 'normalizr';
-import {outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits} from '../../Util/Schema.js';
+import { outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits, outfit } from '../../Util/Schema.js';
 import {buildItemContentsObject} from '../../Util/Schema.js'
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -14,7 +14,7 @@ import * as scaffolding from './Scaffolding.js';
 import * as genericActions from './GenericActions.js';
 import * as types from './Types.js';
 import * as networkActions from './NetworkActions.js';
-import * as entityActions from './entityActions/Index.js';
+import * as entityActions from './EntityActions/Index.js';
 //export * from './AppActions.js';
 //const FormData = require('form-data');
 
@@ -33,6 +33,7 @@ let nextContentId = 0;
 export const setBrowserSelection= scaffolding.makeActionCreator(types.SET_BROWSER_SELECTION, null, 'browseSelection');
 
 export const setFormVisibility	= scaffolding.makeActionCreator(types.SET_VISIBLE_FORM, null, 'modal', 'prevRequestUrl', 'prevRequestType', 'otherData');
+export const setFormOverlayVisibility = scaffolding.makeActionCreator(types.SET_VISIBLE_FORM_OVERLAY, null, 'overlayModal');
 export const editContentView 	= scaffolding.makeActionCreator(types.EDIT_CONTENT_VIEW, null, 'viewState');
 export const previewContent		= scaffolding.makeActionCreator(types.PREVIEW_CONTENT, null, 'shownContentId')
 export const showContentView 	= scaffolding.makeActionCreator(types.SHOW_CONTENT_VIEW, null, 'isContentViewVisible');
@@ -81,6 +82,7 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 			
 			isOwnerProfileEntityPresent ? null : dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));
 			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all'));
+			dispatch(fetchItemMenus());
 			dispatch(unsetPreviewFocus());
 			break;
 
@@ -136,9 +138,13 @@ export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, 
 		dispatch(networkActions.requestNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
-		if(getState().appView.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW){
+		if(
+			getState().appView.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && 
+			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW
+		){
 			dispatch(networkActions.verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
-		}else{
+		}
+		else{
 			dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
 			dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
 			dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
@@ -150,24 +156,7 @@ export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, 
 
 			selectDestination(location, dispatch, isOwnerProfileEntityPresent, hostUsername, owner);
 			dispatch(networkActions.requestNavigation(null));
-		}/*
-		}).then((response) => {
-			console.log('about to call select Navigation')
-			selectDestination(location, dispatch)
-		}).catch((reason) => {
-			console.log('caught exception in navigatTo():', reason)			
-			switch(reason){
-				case OxiAppConstants.NavigationException.USER_CANCELED:
-					//dispatch(setFormVisibility(null));
-					console.log('navigation to ' + location + 'canceled by user');	
-					break;
-				case OxiAppConstants.NavigationException.USER_SUBMITTED:					
-					selectDestination(location, dispatch)
-					break;
-				default:
-					break;			
-			}
-		});*/
+		}
 	}
 }
 
@@ -379,24 +368,38 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`, config)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
-						let json = response.data._embedded.outfitDtoes;//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
+						// Determine json body extraction method by check if response is a paged resource.
+						let json = response.data._embedded ? response.data._embedded.outfitDtoes : response.data;
 						console.log("json");
 						console.log(json);
 						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
-						//normalize received json payload
-						let normalizedJson = normalize(json, outfitsSchema);						
-						console.log('entitiesStateReducer', normalizedJson); 
+
+						let itemContentJson = null;
+						let likeCount =null;
+						let normalizedJson = null;
 
 						//Manually build itemContents join table
-						let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
-						let likeCount = normalizedJson.entities[OxiAppConstants.JsonPropertyNames.LIKE_COUNT]
-						
-						dispatch(entityActions.createItemContent(itemContentJson));	
-						dispatch(entityActions.createLikeCount(likeCount));
+						itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
 
+						// Test if response is from an call to /outfit or /outfits endpoints.  json variable will be an object in the former and an array in the latter.
+						if(Array.isArray(json)){	
+							//normalize received json payload
+							normalizedJson = normalize(json, outfitsSchema);
+							likeCount = normalizedJson.entities[OxiAppConstants.JsonPropertyNames.LIKE_COUNT];
+
+							dispatch(entityActions.createLikeCount(likeCount));
+						}
+						else{
+							//normalize received json payload
+							normalizedJson = normalize(json, outfit);
+							likeCount = normalizedJson.entities[OxiAppConstants.JsonPropertyNames.LIKE_COUNT];
+						}
+
+						dispatch(entityActions.createItemContent(itemContentJson));	
 						mergeResponseEntities(dispatch, normalizedJson);
 						let outfitKeys = Object.keys(normalizedJson.entities.outfits);
 						//genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
+						return normalizedJson;
 					}else{
 						//handleUnauthorizedRequest(response);
 					}
@@ -768,10 +771,18 @@ export function mergeResponseEntities(dispatch, normalizedJson){
 }
 
 export function verifyIntent(intentTo){
-	return function(dispatch){
+	return function(dispatch, getState){
 		switch(intentTo){
 			case OxiAppConstants.Intent.DISCARD_EDITS:
-				dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_EDITS, null, null));
+				
+				if(getState().toggleModal.isModalVisible){
+					// Modal is currrently open so just overlay over existing modal
+					dispatch(setFormOverlayVisibility(OxiAppConstants.FormType.DISCARD_EDITS))
+				}
+				else{
+					dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_EDITS, null, null));
+				}
+
 				break;
 			default:
 				break;
@@ -815,7 +826,6 @@ export function selectAndPropogate(entityType, entityId, targetChildId, entities
 
 //use this action to batch deselect selected nested entities
 //@param {String} valid entityType from OxiAppConstants.EntityTypes to deselect
-//@param {String} valid id of the entity deselected
 export function deselectAndPropogate(entityType){
 	return function(dispatch){
 		console.log("selectAndPropogate entityType = ");

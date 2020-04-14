@@ -99,6 +99,8 @@ const mapStateToProps = (state, props) => {
 		itemState: 		state.entitiesStateReducer.items,
 		pictureState: 	state.entitiesStateReducer.pictures,
 
+		isModalVisible:  state.toggleModal.isModalVisible,
+
 	};
 }
 //TODO:  consolidate all the http request functions below :(

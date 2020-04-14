@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitnav.scss';
+import OutfitNavStyles from '../../outfitNav.scss';
 import Styles from '../../root.scss';
 import NavStyles from '../../nav.scss';
 import OutfitStyles from '../../outfit.scss';
@@ -106,19 +106,24 @@ export class OutfitTileBrowseCtrls extends React.Component{
 					</div>
 				</div>
 				<div className={OutfitStyles.previewMeasureBtnContainer_div}>
-					<Link to={`/shop/profile/${this.props.username}`}>
+					{
+						//<Link to={`/shop/browse/${this.props.username}`}>
+					}
 					{/*<Link to={`/shop/browse`}>*/}
 						<div 
 							className={OutfitStyles.previewMeasureBtn_div}
 							style={{'line-height':'40px'}}
-							onClick={(e) => {
-								//e.stopPropagation();
-								this.props.navToHostProfile(this.props.username, this.props.owner);
-								//this.props.routeToHostProfile();
-							}}>
+							onClick={(event) => {
+								this.props.previewOutfitFromBrowse(this.props.outfitId);
+								//this.props.setPreviewFocus();
+								event.stopPropagation();
+							}}
+						>
 						→
 						</div>
-					</Link>
+					{
+						//</Link>
+					}
 				</div>
 			</div>
 		)

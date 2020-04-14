@@ -18,6 +18,9 @@ import {
 	deselectAndPropogate,
 	selectAndPropogate,
 	clientInvalidateEntities,
+	fetchImage,
+	placeMenu,
+	showMenu,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
@@ -33,6 +36,8 @@ const mapStateToProps = (state, props ) => {
 		isFocusedPreview: state.contentViewState.isFocusedPreview,
 		/*hostProfile: state.entitiesReducer.profile.byIds.host,*/
 		owner: state.entitiesReducer.profile.byIds.owner,
+		ownerpicuri: (state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.pictureDto.smalluri : ''),
+		hostpicuri: (state.entitiesReducer.profile.byIds.host ? state.entitiesReducer.profile.byIds.host.pictureDto.smalluri : ''),
 		formType: state.toggleModal.modal,
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,
@@ -44,6 +49,9 @@ const mapStateToProps = (state, props ) => {
   		pathname: state.router.location.pathname,
   		search: state.router.location.search,
   		hash: state.router.location.hash,		
+
+  		isPopupMenuVisible: state.popupMenusReducer.menuState.isVisible,
+  		popupMenuType: state.popupMenusReducer.menuState.type,
 	};
 }
 
@@ -95,7 +103,11 @@ const mapDispatchToProps = (dispatch, props) => ({
 
 		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitIds));
 		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [1]))
-	}
+	},
+	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
+	positionMenu: (positionx, positiony) => dispatch(placeMenu(OxiAppConstants.MenuTypes.FILTER, positionx, positiony)),
+	showMenu: (menuType) => dispatch(showMenu(menuType, true)),
+	hideMenu: (menuType) => dispatch(showMenu(menuType, false)),
 })
 
 const AppView = connect(mapStateToProps, mapDispatchToProps)(WebAppView);

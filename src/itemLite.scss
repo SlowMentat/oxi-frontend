@@ -33,7 +33,10 @@ div{
     }
 
     @include mobile_rules {
-		background-color: none;
+		/*background-color: none;*/
+		background-color: white;
+		border: none;
+		border-radius: 0px;
     }
 }
 
@@ -75,6 +78,7 @@ div{
 
 :local(.itemRetailerContainer_div){
 	--retailer-container-height: 40px;
+	text-align: left;
 	width: inherit;
 	height: var(--retailer-container-height);
 }
@@ -90,6 +94,7 @@ div{
 
 :local(.itemHandle_div){
 	--handle-line-height: 20px;
+	text-align: left;
 	height: calc(2*var(--handle-line-height));
 	line-height: var(--handle-line-height);
 	font-size: 13px;
@@ -98,7 +103,9 @@ div{
 
 :local(.itemControlsContainer_div){ 
 	width: var(--item-content-container-width);
+	text-align: left;
 	position: absolute;
+	bottom: 0px;
 	bottom: 0px;
 	left: 5px;
 }

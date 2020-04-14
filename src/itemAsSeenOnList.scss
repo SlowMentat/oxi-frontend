@@ -5,8 +5,6 @@
     --aso-margin-left: 2px;
     --aso-img-row-count: 3;
     --aso-container-lr-padding: 15px;
-    --aso-container-border-width: 0px;
-    --aso-img-width: calc(((100vw - 2*var(--aso-container-lr-padding) - 2*var(--aso-container-border-width)) - (var(--aso-img-row-count) + 1)*var(--aso-margin-left))/3);
 
     transition: height var(--item-info-transition-period) linear;
 
@@ -27,11 +25,15 @@
     will-change: height;
 
     @include desktop_rules {
+        --aso-container-border-width: 1px;
+        --aso-img-width: calc(((500px - 23px - 2*var(--aso-container-lr-padding) - 2*var(--aso-container-border-width)) - (var(--aso-img-row-count) + 1)*var(--aso-margin-left))/3);
         border-top-style: none;
         margin-bottom: 15px;
     }
 
     @include mobile_rules {
+        --aso-container-border-width: 0px;
+        --aso-img-width: calc(((100vw - 2*var(--aso-container-lr-padding) - 2*var(--aso-container-border-width)) - (var(--aso-img-row-count) + 1)*var(--aso-margin-left))/3);
         background-color:  #e6e6e6;
         border-bottom: none;
         margin-top: 0px;

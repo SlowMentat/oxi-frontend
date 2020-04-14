@@ -202,8 +202,28 @@ class ImagePreview extends React.Component{
 	//}
 
 	_handleImgLoad(event){
-		this.props.updateImageDimension(event.target.width, event.target.height);
 
+		// target width is not the correct value wrt image aspect ratio
+		// setting the correct width here before updating webAppView state
+		const {
+			naturalHeight,
+			naturalWidth,
+		} = event.target;
+
+		var {
+			width,
+			height,
+		} = event.target;
+
+		var correctedWidth = width;
+		const aspect = naturalWidth / naturalHeight;
+		
+		if(aspect < 1){
+			correctedWidth = height * aspect;
+		}
+
+		this.props.updateImageDimension(correctedWidth, height);
+		//this.props.updateImageDimension(width, height);
 	}
 
 	_handleImgMouseOver(event){
@@ -454,6 +474,7 @@ class ImageAdd extends React.Component{
 				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
 				imgFormStyle={imgFormStyle}
 				imgFormControlStyle={FormStyles.imgFormControlStyle}
+				
 				_handleSubmit={this._handleSubmit}
 				onImageClick={this._handleImgClick}
 				discardChanges={this._handleChangesDiscarded}
@@ -816,7 +837,7 @@ class ImageEdit extends React.Component{
 						}
 					}
 				}
-// DEBUG LOGGING
+				// DEBUG LOGGING
 				//console.log('entitiesStateReducer = ', this.props.entitiesStateReducer);
 				//console.log();
 				//console.log('putRemovePayloadeEmpty = ',putRemovePayloadEmpty);
@@ -826,7 +847,7 @@ class ImageEdit extends React.Component{
 				//console.log('payloadJsonPutRemove = ', payloadJsonPutRemove);
 				//console.log('payloadJsonPut = ', payloadJsonPut);
 				//console.log('payloadJsonPost = ', payloadJsonPost);
-//
+
 				let requestPromise = null;
 				switch(true){
 					case (!putPayloadEmpty && !postPayloadEmpty && !putRemovePayloadEmpty):

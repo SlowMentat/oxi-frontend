@@ -94,10 +94,11 @@
 
 :local(.buttonContainer_div){
 
-	@include desktop_rules {
-		margin-top: 25px;
-		margin-right: 30px;
-		float: right;
+	@include desktop_rules {		
+		position: absolute;		
+		bottom: 5px;		
+		right: 5px;
+		top: calc(50% - 34px);
 	}
 
 	@include mobile_rules {
@@ -114,7 +115,7 @@
 
 	@include desktop_rules {
 		width: unset;
-		margin-bottom: 8px;
+		/*margin-bottom: 8px;*/
 	}
 
 	@include mobile_rules {

@@ -4,84 +4,6 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 import * as types from '../Actions/Types.js';
 
-//import {
-//			ADD_PROFILE,
-//			ADD_OUTFIT,	
-//			ADD_CONTENT,
-//			ADD_CONTENTS,
-//			ADD_ITEM,
-//			ADD_ITEMCONTENT,
-//			CREATE_ITEM,
-//			CREATE_ITEMCONTENT,
-//			CREATE_CONTENT,
-//			CREATE_OUTFIT,
-//			CREATE_LIKE_COUNT,
-//			DISABLE_BUTTON,
-//			DISABLE_CONTENT_BUTTON,
-//			EDIT_CONTENT_VIEW,
-//			INVALIDATE_ENTITIES,
-//			MODIFYITEM,
-//			MODIFYCONTENT,
-//			MODIFYOUTFIT,
-//			MODIFYPROFILE,
-//			MODIFY_ITEM,
-//			MODIFY_CONTENT,
-//			MODIFY_OUTFIT,
-//			MODIFY_PROFILE,
-//			PREVIEW_CONTENT,
-//			REQUEST_ENTITIES, 	
-//			RECEIVE_ENTITIES,
-//			REMOVE_ADDED_CONTENT,
-//			REMOVE_ADDED_ITEM,
-//			REMOVE_ADDED_OUTFIT,
-//			REMOVE_PROFILE,
-//			REMOVE_OUTFIT,
-//			REMOVE_CONTENT,
-//			REMOVE_ITEM,
-//			REMOVE_ITEMCONTENT,
-//			REPLACE_RETAILER,
-//			REPLACE_BRAND,
-//			REQUEST_NAVIGATION,
-//			SELECT_CONTENT,
-//			SELECT_WEB_APP_VIEW,
-//			SELECT_PAGE,
-//			SELECT_OUTFIT,
-//			SELECT_ITEM,
-//			SELECT_NEW_PROFILE,
-//			SELECT_ADDED_OUTFIT,
-//			SELECT_ADDED_CONTENT,
-//			SELECT_NEW_ITEM,
-//			SET_LP_PROFILE_MENU,	
-//			SET_VISIBLE_FORM, 	
-//			SET_XCSRF_TOKEN,
-//			SHOW_MODAL, 
-//			SHOW_CONTENT_VIEW,	
-//			UPDATE_ITEM,
-//			UPDATE_CONTENT,
-//			SET_BROWSER_SELECTION,
-//			SET_POSITION_HELP,
-//			SET_POSITION_FILTER,
-//			SET_VISIBLE_HELP,
-//			SET_VISIBLE_FILTER,
-//			UPDATE_OUTFIT_COVERPICURI,
-//			SET_LP_CREATE_ACCOUNT_VIEW,
-//			RECEIVED_EXISTING_ITEMS_SEARCH,
-//			RECEIVED_RETAILER_NAMES_SEARCH,
-//			RECEIVED_UDR_NAMES_SEARCH,
-//			RECEIVED_UDS_LABELS_SEARCH,
-//			RECEIVED_ALL_APPAREL_TYPES,
-//			CREATE_APPAREL_TYPE,
-//			REPLACE_APPAREL_TYPE,
-//			REPLACE_LIKE_COUNT,
-//			RECEIVED_SIZE_GROUPS_BY_ITEM_ID,
-//			REPLACE_SIZE_CHART,
-//			REPLACE_SIZE_GROUP,
-//			CREATE_SIZE_GROUP,
-//			SET_PREVIEW_FOCUS,
-//			UNSET_PREVIEW_FOCUS,
-//			TOGGLE_OUTFIT_IS_LIKED,
-//		} from '../../Components/Actions/indexActions.js'
-
 //import all reducers here
 
 const iniToggleModal = {
@@ -89,6 +11,7 @@ const iniToggleModal = {
 	'isModalVisible':true,
 	'prevRequestUrl':null,
 	'prevRequestType':null,
+	'overlayModal':null,
 	'otherData':{}
 }
 
@@ -155,6 +78,8 @@ export const toggleModal = (state = iniToggleModal, action) => {
 			action.payload.otherData === undefined ? action.payload.otherData = state.otherData : null
 			return Object.assign({}, state, action.payload);
 		case types.SHOW_MODAL:
+			return Object.assign({}, state, action.payload);
+		case types.SET_VISIBLE_FORM_OVERLAY:
 			return Object.assign({}, state, action.payload);
 		default:
 			return state;
@@ -936,6 +861,15 @@ const popupMenus = (state = {}, action) => {
 	}
 }
 
+const popupMenuState = (state = {}, action) => {
+	switch(action.type){
+		case `SET_VISIBLE_POPUP`:
+			return Object.assign({}, state, {...action.payload});
+		default:
+			return state;
+	}
+}
+
 export const maxOutfitViewCount = 8;
 export const maxContentViewCount = OxiAppConstants.maxContentCount;
 export const maxItemViewCount = 9;
@@ -964,7 +898,7 @@ let defualtEntitiesStore = {
 let defualtMenuStoreState = {
 	positionx: 0, 
 	positiony: 0, 
-	isVisible: false,
+	//isVisible: false,
 };
 
 let defualtEntitiesState = {
@@ -986,6 +920,11 @@ let defualtEntitiesState = {
 let iniMapCacheState = {
 
 };
+
+let defaultMenuVisibilityState  = {
+	isVisible: false,
+	type: null,
+}
 
 const entitiesReducer = combineReducers({
 	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
@@ -1019,8 +958,10 @@ const entitiesStateReducer = combineReducers({
 })
 
 const popupMenusReducer = combineReducers({
+	menuState: popupMenuState,
 	filter : entityReducerFactory(popupMenus, OxiAppConstants.MenuTypes.FILTER, defualtMenuStoreState),
 	help: entityReducerFactory(popupMenus, OxiAppConstants.MenuTypes.HELP, defualtMenuStoreState),
+
 })
 
 const cache = combineReducers({

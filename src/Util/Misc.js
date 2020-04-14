@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 
 export function hextToBase64(data){
 	let convertedData = String.fromCharCode.apply(null, data.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" "));
@@ -84,4 +85,12 @@ export function copyTouch(touch){
   }
 }
 
+
+export function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 

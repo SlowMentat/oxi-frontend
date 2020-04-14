@@ -1,4 +1,5 @@
-import 'babel-polyfill';
+/*import "core-js";
+import "regenerator-runtime/runtime";*/
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Media from "react-media";
@@ -213,14 +214,15 @@ const TolerancePresets = ({props}) => {
 
 const SlideSwitch = ({props}) => (
 	<div 
-		className={ProfileMenuStyles.inputNumberContainer_div}
-		style={{
-			position: 'absolute',
-   			left: 'calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding))',
-   			top: '45px',
-   			'margin-top':'0px',
-			width: '120px',
-		}}
+		//className={ProfileMenuStyles.inputNumberContainer_div}
+		className={ProfileMenuStyles.unitSwitch_div}
+		//style={{
+		//	position: 'absolute',
+   		//	left: 'calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding))',
+   		//	top: '45px',
+   		//	'margin-top':'0px',
+		//	width: '120px',
+		//}}
 	>
 		<div className={ProfileMenuStyles.slideSwitchLabelContainer_div}>
 			<div className={ProfileMenuStyles.slideSwitchLabel_div}>
@@ -836,7 +838,8 @@ class ToleranceSettings extends React.Component{
 							<div 
 								onClick={(event) => this.props.handleOnSubmit()} 
 								className={ProfileMenuStyles.submitBtnText_div}
-								style={{left:'0px'}} >
+								//style={{left:'0px'}} 
+							>
 								Submit
 							</div>
 						</div>
@@ -905,7 +908,7 @@ export function camelize(str){
 //}
 //
 
-function getAccurateAndDisplayMeasurements(isTest, filteredUserMetrics, decimals, scale){
+function getAccurateAndDisplayMeasurements(isTest, filteredUserMetrics, decimals, scale, units){
 	let iniMeasurements ={};
 	let displayedProfileData ={};
 	if(isTest){
@@ -916,10 +919,10 @@ function getAccurateAndDisplayMeasurements(isTest, filteredUserMetrics, decimals
 			Object.assign(iniMeasurements, {[key]: (Math.random()*height)})
 			Object.assign(displayedProfileData, {[key]: (parseFloat( roundTo(iniMeasurements[key], scale, decimals))) } )
 		});
-	}else{		
+	}else{	
 		iniMeasurements = filteredUserMetrics;
 		Object.keys(filteredUserMetrics).map((key, id) => {
-			Object.assign(displayedProfileData, {[key]: (parseFloat( roundTo(iniMeasurements[key], scale, decimals))) } )
+			Object.assign(displayedProfileData, {[key]: (parseFloat( roundTo((units === 'in' ? convertCmToIn(iniMeasurements[key]) : iniMeasurements[key]), scale, decimals))) } )
 		});
 	}
 	return({iniMeasurements, displayedProfileData});
@@ -1137,7 +1140,7 @@ export default class ProfileMenu extends React.Component{
 		//);
 	}
 
-	getStateIniData(){
+	getStateIniData(units='cm'){
 
 		this.profile = this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile;
 		this.prevProfile = this.profile;
@@ -1156,7 +1159,7 @@ export default class ProfileMenu extends React.Component{
 
 		var minToleranceFields = {};
 		var maxToleranceFields = {};
-		var {iniMeasurements, displayedProfileData} = getAccurateAndDisplayMeasurements(this.props.test, this.filteredUserMetrics, this.decimals, this.scale)
+		var {iniMeasurements, displayedProfileData} = getAccurateAndDisplayMeasurements(this.props.test, this.filteredUserMetrics, this.decimals, this.scale, units)
 
 		var toleranceDto = {
 			...(
@@ -1194,7 +1197,7 @@ export default class ProfileMenu extends React.Component{
 		if(!this.props.test){
 			//let toleranceKeys = Object.keys(this.profile.toleranceDto);
 			//var { minToleranceFields, maxToleranceFields } = getMinAndMaxToleranceTicks('min', 'max', toleranceKeys, this.scale, this.ticks, this.profile.toleranceDto, this.profile.userMetricsDto, this.decimals);
-			var { minToleranceFields, maxToleranceFields } = this.getMinAndMaxToleranceTicks(currentToleranceData);
+			var { minToleranceFields, maxToleranceFields } = this.getMinAndMaxToleranceTicks(currentToleranceData, (units === 'in' ? convertCmToIn : undefined), undefined, undefined, this.scale);
 		}else{	
 			for(let field of Object.keys(displayedProfileData)){
 				//values int ticks indecese 
@@ -1421,13 +1424,13 @@ export default class ProfileMenu extends React.Component{
 				maxTolerances,
 			} = this.state.currentToleranceData;
 
-			minTolVal = minTolerances ? minTolerances[field] : null;
-			maxTolVal = maxTolerances ? maxTolerances[field] : null;
+			minTolVal = minTolerances ? parseFloat(minTolerances[field]) : null;
+			maxTolVal = maxTolerances ? parseFloat(maxTolerances[field]) : null;
 		}
 
 		//compute min and max tolerance values (in inches) from the min and max ticks stored in the component state
 		else if(units === 'in'){
-			shownDataVal= parseFloat(this.state.displayedProfileData[field], 10);
+			shownDataVal = parseFloat(this.state.displayedProfileData[field], 10);
 			var {minTolVal, maxTolVal} = this.convertTickToTol(this.state.minTolerances[field], this.state.maxTolerances[field], this.scaleIn, shownDataVal);
 //
 			/*var deltaTickMin = 0;
@@ -1639,10 +1642,22 @@ export default class ProfileMenu extends React.Component{
 
 		// match decimal followed by one or more digits
 		else{
-			var precision = e.target.value.match(/\.(\d){1,}$/);
+			var scale = e.target.value.match(/\.(\d){1,}$/);
+			if(scale != null){
+				//var test = scale[scale.index];
+				//var testlength = test.length;
+				var matchLength = scale[0].length;
 
-			if(precision != null){
-				value = parseFloat(e.target.value).toFixed(precision.length - 1);
+				// Test for scale of more than 1 (string length including decimal point > 2)				
+				if(matchLength > 2 ){
+					value = parseFloat(e.target.value.slice(0, e.target.value.length - (matchLength - 2)));	
+				}
+				else{
+					// Remove the un-needed scale
+					//value = parseFloat(e.target.value.slice(0, e.target.value.length - scale[scale.index].length));
+					value = parseFloat(e.target.value);
+					//value = parseFloat(e.target.value).toFixed(scale.length - 1);
+				}
 			}
 
 			else{
@@ -1677,9 +1692,10 @@ export default class ProfileMenu extends React.Component{
 				...prevState.profileData,				
 				userMetricsDto:{
 					...prevState.profileData.userMetricsDto,
-					[field]:parseFloat(prevState.units === 'cm' ? 
+					/*[field]:parseFloat(prevState.units === 'cm' ? 
 						roundTo(value, this.scaleCm) : 
-						roundTo(convertInToCm(value), this.scaleCm))
+						roundTo(convertInToCm(value), this.scaleCm))*/
+					[field]: (parseFloat(prevState.units === 'cm' ? roundTo(value, this.scaleCm) : roundTo(convertInToCm(value), this.scaleCm)))
 				}
 			},
 			currentToleranceData:{
@@ -2062,7 +2078,7 @@ export default class ProfileMenu extends React.Component{
 		//.filter(field => field != 'dateOfBirth');
 
 		if (this.prevProfile !== this.props.profile ){
-			var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData } = this.getStateIniData();
+			var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData } = this.getStateIniData(this.state.units);
 			this.setState(prevState =>({
 				...prevState,
 				minTolerances: minToleranceFields,
@@ -2126,7 +2142,8 @@ export default class ProfileMenu extends React.Component{
 			//reset the left center tick value
 			this.leftCenterTick = this.ticks.length/2 - 1; 
 			this.rightCenterTick = this.ticks.length/2; 
-		}else{
+		}
+		else{
 			this.ticks = this.ticksIn;
 			this.scale = this.scaleIn;
 			//reset the left center tick value
@@ -2136,6 +2153,7 @@ export default class ProfileMenu extends React.Component{
 
 		console.log('filteredFieldNames');
 		console.log(this.filteredFieldNames);
+
 		let fieldSet = this.filteredFieldNames.map(field => {
 			//console.log(this.state.profileData[field]);
 			var isSelected = this.state.selectedField === field;
@@ -2145,7 +2163,8 @@ export default class ProfileMenu extends React.Component{
 
 				switch(this.state.units){
 					case 'cm':
-						displayedValue = this.state.profileData.userMetricsDto[field];
+						//displayedValue = this.state.profileData.userMetricsDto[field];
+						displayedValue = this.state.displayedProfileData[field];
 						break;
 					case 'in':
 						displayedValue = this.state.displayedProfileData[field];
@@ -2291,6 +2310,7 @@ export default class ProfileMenu extends React.Component{
 													right: '7.5px',
 													height: '24px',
 													top: 'calc(94px/2 + 5.5px)',
+													display: 'none',
 												}}
 											>
 												<div
@@ -2319,12 +2339,13 @@ export default class ProfileMenu extends React.Component{
 											</div>
 
 											<div 
-												style={{
-													'margin-bottom': '10px',
-													'margin-top': '45px',
-													'border-top': 'solid 1px #bbbbbb',
-													'padding-top': '20px',
-												}} 
+												className={ProfileMenuStyles.apparelPreferences_div}
+												//style={{
+												//	'margin-bottom': '10px',
+												//	'margin-top': '45px',
+												//	'border-top': 'solid 1px #bbbbbb',
+												//	'padding-top': '20px',
+												//}} 
 											>
 													<div>
 														<div>

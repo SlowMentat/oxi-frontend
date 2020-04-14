@@ -48,7 +48,7 @@
     @include desktop_rules {
     	font-size: 16px;
     	border-style: solid;
-    	border-color: var(--color-mobile-icong-bg);
+    	border-color: var(--color-mobile-icon-bg);
     	border-width: 1px;
 	}
 
@@ -68,7 +68,7 @@
 	}
 
 	@include mobile_rules {
-		border-color:  var(--color-mobile-icong-bg);
+		border-color:  var(--color-mobile-icon-bg);
 	}
 }
 
@@ -122,7 +122,7 @@
 	height: inherit;	
 
 	@include desktop_rules {
-		color: var(--color-mobile-icong-bg);
+		color: var(--color-mobile-icon-bg);
 		line-height: 30px;	
 		font-size: 15px;
 	}
@@ -279,9 +279,9 @@
     	width: auto;
     	padding-left: 7.5px;
     	padding-right: 7.5px;
-    	background-color: var(--color-mobile-icong-bg);
+    	background-color: var(--color-mobile-icon-bg);
     	color: #fdfdfd;
-    	border: solid 1px var(--color-mobile-icong-bg);
+    	border: solid 1px var(--color-mobile-icon-bg);
 	}
 }
 

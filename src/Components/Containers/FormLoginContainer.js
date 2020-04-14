@@ -20,7 +20,7 @@ import {
 	clearSelectMultipleEntity,
 	fetchSuggestion*/
 } from '../../Components/Actions/indexActions.js';
-import LoginForm from '../../Components/Presentations/LoginForm.js';
+import FormLogin from '../../Components/Presentations/FormLogin.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 import { withRouter } from 'react-router-dom';
@@ -34,14 +34,14 @@ const requestToBatchedDispatchMap = {
 	}
 };
 
-const mapStateToProps = (state, props) => {
-
+const mapStateToProps = (state, ownProps) => {
+	console.log('ownProps = ', ownProps);
 	return {
 		login: 'username',
 		credentials: 'password',
 		serviceURL: OxiAppConstants.serviceURL,
-		requestUrl: state.toggleModal.prevRequestUrl,
-		requestType: state.toggleModal.prevRequestType,
+		requestUrl: state.toggleModal.prevRequestUrl || ownProps.requestUrl,
+		requestType: state.toggleModal.prevRequestType || ownProps.requestType,
 		requestedNav : state.requestedNavigation.location,
 	};
 }
@@ -55,8 +55,16 @@ const mapDispatchToProps = (dispatch) => ({
 				//redirected to login from verification email.  Navigate to Measurmeents to complete profile.
 				dispatch(navigateTo(OxiAppConstants.navRequestMap.c.toLowerCase()));
 			}
-		}
+		},
 })
 
-const LoginFormContainer = connect(mapStateToProps, mapDispatchToProps)(LoginForm);
-export default withRouter(LoginFormContainer);
+/*const mergeProps = (stateProps, dispatchProps, ownProps) => {
+	return {
+		...stateProps,
+		...dispatchProps,
+		...ownProps,
+	}
+}*/
+
+const FormLoginContainer = connect(mapStateToProps, mapDispatchToProps)(FormLogin);
+export default withRouter(FormLoginContainer);

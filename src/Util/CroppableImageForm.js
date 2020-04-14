@@ -619,7 +619,7 @@ class CroppableImageForm extends React.Component{
 				//if(rotation == 90 || rotation == 270){
 				//	ctx.scale(rotScale, rotScale);
 				//}
-	//
+	
 				//ctx.translate(-tx, -ty);
 	
 				//Draw image to canvas
@@ -855,6 +855,7 @@ class CroppableImageForm extends React.Component{
 	_onSelectFile(event){
 		if (event.target.files && event.target.files.length > 0) {
 			const reader = new FileReader();
+			
 			reader.onloadend = () => {
 				this.setState({
 					src: reader.result,
@@ -885,6 +886,7 @@ class CroppableImageForm extends React.Component{
 			contents,
 		} = this.props;
 
+		console.log('calling updateImageDimension with parameters: width=%d, height=%d', img.width, img.height);
 		this.props.updateImageDimension(img.width, img.height);
 		this.props.setupImageRef(img);
 
@@ -1238,19 +1240,17 @@ class CroppableImageForm extends React.Component{
 		const {
 			imageHeight
 		} = Object.keys(images).length > 0 ? images[contentState.selected] : ({});
-
-		contentState.selected = entitiesStateReducer.contents ?  entitiesStateReducer.contents.selected : undefined;
-		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
-		let content = null;
-		//let src = this.getImageSrc();
-		//let {imageElement} = this.props
-		let validImageElement = (this.props.imageElement !== null && this.props.imageElement !== undefined);
-		//let customButtonStyles = {'margin-top':'8px'}
+		
 		const customButtonStyles = {
 			'margin-left':'5%',
 			'vertical-align':'top',
 			display:'inline-block',
 		}
+
+		contentState.selected = entitiesStateReducer.contents ?  entitiesStateReducer.contents.selected : undefined;
+		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
+		let content = null;
+		let validImageElement = (this.props.imageElement !== null && this.props.imageElement !== undefined);
 
 		if(contentState.selected && images[contentState.selected]){
 
@@ -1369,7 +1369,7 @@ class CroppableImageForm extends React.Component{
 								//onClickHandler={} 
 							/>
 						</label>	
-						<Button
+						{/*<Button
 							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
 							//onClickHandler={this.rotateImageClockwise}
 							onClickHandler={(event) => {
@@ -1404,7 +1404,7 @@ class CroppableImageForm extends React.Component{
 							iconStyls={{
 								'padding-top':'1px',
 								'padding-bottom':'4px',
-							}} />
+							}} />*/}
 						<Button
 							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
 							onClickHandler={this._handleAcceptCrop}

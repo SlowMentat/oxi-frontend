@@ -117,6 +117,10 @@ export const OxiAppConstants = Object.freeze({
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
 	webAppBaseURL : 'https://www.oxisalechannel.com',
+	endPoints: {
+		a: '/consumer',
+		b: '/account',
+	},
 	//aspectRatio : (2 / 3),
 	aspectRatio : (3/4),
 	scrollBufferSize: 2,	//size of the scrollHeight in number of pages (PageList component).  Must be > 1
@@ -241,6 +245,13 @@ export const OxiAppConstants = Object.freeze({
 		UPDATE_ITEM: 'UpdateItem',
 		LOGIN: 'Login',
 		DISCARD_EDITS:'DiscardEdits',
+		PROFILE_PIC: 'ProfilePic',
+		OUTFIT_PREVIEW: 'OutfitPreview',
+	},
+	MenuType : {
+		a: 'settings',
+		b: 'messaging',
+		c: 'filter',
 	},
 	//requestToBatchedDispatchMap : {
 	//	outfits: {

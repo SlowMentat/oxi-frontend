@@ -23,6 +23,12 @@ import {
 	getSizeChartByItemId,
 	createSizeGroups,
 	clientInvalidateEntities,
+	fetchImage,
+	modifyProfile,
+	postProfile,
+	postImage,
+	setFormOverlayVisibility,
+	deselectAndPropogate,
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -72,6 +78,7 @@ const mapStateToProps = (state, props) => {
 
 	return {
 		formType: state.toggleModal.modal,
+		overlayModal: state.toggleModal.overlayModal,
 		outfits: outfits,
 
 		contents: contents,
@@ -79,7 +86,7 @@ const mapStateToProps = (state, props) => {
 		itemAllIds: itemAllIds !== null ? itemAllIds : state.addedEntitiesReducer.items.allIds,
 		requestUrl: state.toggleModal.prevRequestUrl,
 		requestType: state.toggleModal.prevRequestType,
-		itemLocation: state.toggleModal.otherData.newItemLocation,
+		itemLocation: state.toggleModal.otherData ? state.toggleModal.otherData.newItemLocation : ({}),
 		brandIds: state.entitiesReducer.brands.allIds,
 		brands: state.entitiesReducer.brands.byIds,
 		retailerIds: state.entitiesReducer.retailers.allIds,
@@ -90,12 +97,13 @@ const mapStateToProps = (state, props) => {
 		addedEntitiesReducer: state.addedEntitiesReducer,
 		allApparelTypes: Object.values(state.entitiesReducer.apparelTypes.byIds),
 		viewState: state.contentViewState.viewState,
+		profile: state.entitiesReducer.profile.byIds
 	};
 }
 
-const mapDispatchToProps = (dispatch) => ({
-		closeModal: (formType) => {
-			dispatch(setFormVisibility(null));
+const mapDispatchToProps = (dispatch, ownProps) => ({
+		closeModal: (formType, isOverlay) => {
+			isOverlay ? dispatch(setFormOverlayVisibility(null)) : dispatch(setFormVisibility(null));
 			//if(formType === OxiAppConstants.FormType.DISCARD_EDITS) throw OxiAppConstants.NavigationException.USER_CANCELED
 		},
 		submitAction: (item) => {
@@ -114,9 +122,13 @@ const mapDispatchToProps = (dispatch) => ({
 		},
 		//entity:  		is the enttiy object to discard
 		//location:  	indicates this method was invoced from a navigation action to location
-		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit) => {
-			console.log("confirmDiscardSubmitAction dispatched")
-			dispatch(setFormVisibility(null));
+		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit, isOverlay) => {
+			console.log("confirmDiscardSubmitAction dispatched");
+			
+			isOverlay ?
+				dispatch(setFormOverlayVisibility(null)) :
+				dispatch(setFormVisibility(null));
+
 			//dispatch action to removeAndPropogate added Outfit.  This assumes that there will only ever be 1 outfit entity with id = 1 in addedEntitiesReducer tree 
 			//TODO: change this to support adding pre-existing outfits/contents/items/pictures containing UUID's
 			//dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, entity))
@@ -189,7 +201,36 @@ const mapDispatchToProps = (dispatch) => ({
 		},
 		createSizeGroup:(sizeGroup)=>{
 			dispatch(createSizeGroups(sizeGroup));
-		}
+		},
+		getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
+		addProfilePic : (imageData, crop) => {
+			
+			const onAddProfilePic = async (pictureId) => {
+				const {
+					owner,
+				} = ownProps;
+
+				var profileWithCrop = {
+					...owner,
+					'pictureDto': {
+						...owner.pictureDto,
+						crop,
+						id: pictureId,
+					}
+				};
+
+				//TODO:  method name misleading.  should be putProfile
+				await dispatch(postProfile(profileWithCrop));
+				//dispatch(setFormVisibility(null));
+			}
+
+			if(imageData !== null) postImage(imageData, () => onAddProfilePic, null, true);
+		},
+		navToOutfitPreviewModal: (posx, posy) => {
+			dispatch(setFormVisibility("OutfitPreview", null, null, null));
+		},
+		deselectAndPropogate: (entityType) => dispatch(deselectAndPropogate(entityType)),
+
 })
 
 const ModalContentSelection = connect(mapStateToProps, mapDispatchToProps)(Modal);

@@ -1,41 +1,55 @@
-import 'babel-polyfill';
-import React from 'react';
+/*import "core-js";
+import "regenerator-runtime/runtime";*/
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { createLogger } from 'redux-logger';
 import { Provider, ReactReduxContext  } from 'react-redux';
-import Cookies from 'universal-cookie';
-import fetch from 'cross-fetch';
+//import Cookies from 'universal-cookie';
+//import fetch from 'cross-fetch';
 import axios from 'axios';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { 
+	//BrowserRouter, 
+	Route, 
+	Switch, 
+	Redirect 
+} from 'react-router-dom';
+
+//import {MDCRipple} from '@material/ripple';
+//const buttonRipple = new MDCRipple(document.querySelector('.mdc-button'));
 
 //CSS Components
-import Styles from './root.scss';
-import ItemStyles from './item.scss';
-import NavStyles from './nav.scss';
-import OutfitNavStyles from './outfitnav.scss';
-import FormStyles from './forms.scss';
-import 'react-image-crop/dist/ReactCrop.css';
+//import 'react-image-crop/dist/ReactCrop.css';
 
 //Display Components
-import FormDeck from './Components/Presentations/Forms.js';
-import FilledModal from './Components/Presentations/Modal.js';
+const PageLogin = lazy(() => import('./Components/Presentations/PageLogin.js'));
+const PageUpdatePassword = lazy(() => import('./Components/Presentations/PageUpdatePassword.js'));
 
 //Container Components
-import ModalContentSelection from './Components/Containers/SelectModalContent.js';
-import VisibleItemList from './Components/Containers/VisibleItemList.js';
-import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js';
-import PicturePreviewContainer from './Components/Containers/PicturePreviewContainer.js';
-import WebAppView from './Components/Containers/WebAppViewContainer.js';
-import { SiteNav } from './Components/Presentations/WebAppView.js';
-import LandingPageContainer from './Components/Containers/LandingPageContainer.js';
+const ModalContentSelection = lazy(() => import('./Components/Containers/SelectModalContent.js'));
+const VisibleItemList = lazy(() => import('./Components/Containers/VisibleItemList.js'));
+const VisibleOutfitList = lazy(() => import('./Components/Containers/VisibleOutfitList.js'));
+const PicturePreviewContainer = lazy(() => import('./Components/Containers/PicturePreviewContainer.js'));
+const WebAppView = lazy(() => import('./Components/Containers/WebAppViewContainer.js'));
+const LandingPageContainer = lazy(() => import('./Components/Containers/LandingPageContainer.js'));
+//import { SiteNav } from './Components/Presentations/WebAppView.js';
 
 //Reducers
 //import _OxiApp from './Components/Reducers/indexReducers.js';
 import createRootReducer from './Components/Reducers/indexReducers.js';
-import {showModal, setFormVisibility, setXcsrfToken, fetchEntities, handleUnauthorizedRequest, insertCsrfToken, cookies} from './Components/Actions/indexActions.js';
+
+//Actions
+import {
+	//showModal, 
+	//setFormVisibility, 
+	//setXcsrfToken, 
+	//fetchEntities, 
+	handleUnauthorizedRequest, 
+	insertCsrfToken, 
+	cookies,
+} from './Components/Actions/indexActions.js';
 
 //See instructions when adding enhancers and middlewares
 import { devToolsEnhancer } from 'redux-devtools-extension';
@@ -45,9 +59,9 @@ import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'connected-react-router';
 import { ConnectedRouter } from 'connected-react-router'
 
+//Constants
 import {OxiAppConstants} from './Util/OxiAppConstants.js';
 
-import LoginPage from './Components/Presentations/LoginPage.js';
 
 export const history = createBrowserHistory();
 
@@ -89,9 +103,11 @@ const unsubscribeStore = store.subscribe(() => console.log(store.getState()));
 //set axios defult headers
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+
 if(cookies.get('authorization')){
 	axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 }
+
 //axios.defaults.headers.common['Authorization'] = 'Bearer';
 //axios.defaults.headers.common['Origin'] = 'https://'
 
@@ -101,25 +117,6 @@ axios.interceptors.response.use((response) => store.dispatch(handleUnauthorizedR
 
 //include the csrf_token from cookies in the X-CSRF-TOJEN header for each request.
 axios.interceptors.request.use(insertCsrfToken);
-
-
-//function navButton(props){
-//	return(
-//		<div className={Styles.navButton}>
-//
-//		</div>
-//	);
-//}
-
-
-//function OutfitFormContent(props){
-//	return(
-//		<div>
-//			<p>Outfit Form Content</p>
-//		</div>
-//	);
-//}
-
 
 class App extends React.Component {
 	constructor(props){
@@ -140,18 +137,45 @@ class App extends React.Component {
 
 	render() {
 		return(	
-			<React.Fragment>	
-				<Switch>
-					<Route push={true} path={OxiAppConstants.routeURIs.shop} component={WebAppView} />
-					<Route push={true} path={OxiAppConstants.routeURIs.login} component={WebAppView} />
-					<Route push={true} path={'/account/user/confirm/user/login'} render={props => (<LoginPage/>)} />
-					<Route path={this.props.match.url} render={({match, location, history}) => (
-						<div id="LandingPageContainer_div">
-							{/*<SiteNav webAppView='landing'/>*/}
-							<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
-						</div>
-					)} />
-				</Switch>
+			<React.Fragment>
+				<Suspense fallback={null}>	
+					<Switch>
+						<Route push={true} path={OxiAppConstants.routeURIs.shop} component={WebAppView} />
+						<Route push={true} path={OxiAppConstants.routeURIs.login} component={WebAppView} />
+						{/*<Route push={true} path={'/account/user/confirm/user/login'} render={props => (<LoginPage/>)} />*/}
+						<Route 
+							push={true} 
+							path={'/verification/user/failedRegistration'} 
+							render={
+								props => 
+									<PageLogin 
+										isIntentToRegister={true}  
+										requestUrl={`${OxiAppConstants.apiBaseURL}/account/user/sendVerificationEmail`}
+										requestType="GET"
+										{...props} 
+									/>
+							} 
+						/>
+						<Route
+							push={true}
+							path={'/form/user/updatePassword'}
+							render={
+								props => 
+									<PageUpdatePassword
+										requestUrl={`${OxiAppConstants.apiBaseURL}/account/edit/password`}
+										requestType="POST"
+										{...props}
+									/>
+							}
+						/>
+						<Route path={this.props.match.url} render={({match, location, history}) => (
+							<div id="LandingPageContainer_div">
+								{/*<SiteNav webAppView='landing'/>*/}
+								<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
+							</div>
+						)} />
+					</Switch>
+				</Suspense>
 			</React.Fragment>
 		);
 		store.getState.router.location.pathnam

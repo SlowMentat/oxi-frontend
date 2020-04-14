@@ -26,8 +26,6 @@ const container2_div = {
     'height': '100%',
 }
 
-
-
 class PagedOutfitList extends React.Component{
 	constructor(props){
 		super(props);
@@ -51,6 +49,8 @@ class PagedOutfitList extends React.Component{
 			URI === owner.username :
 			(false);
 
+		const isProfileView = this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase();
+
 		return(
 			<PagedListContainer
     			scrollContainerStyle={this.props.scrollContainerStyle}
@@ -70,7 +70,7 @@ class PagedOutfitList extends React.Component{
     				<React.Fragment>
 
 			    		<div 
-			    			style={webAppView !== OxiAppConstants.navRequestMap.b.toLowerCase() ? ({display:'none'}) : ({})}
+			    			style={webAppView !== OxiAppConstants.navRequestMap.b.toLowerCase() ? ({display:'none', width:'0px'}) : ({})}
 			    			className={Styles.mobileTitleContainer_div}
 			    		>
 			    			<div 
@@ -95,13 +95,10 @@ class PagedOutfitList extends React.Component{
 							</div>
 						</div>
 						<div className={OutfitStyles.outfitMenuBlockContainer1_div}>
-		    				<div className={OutfitStyles.outfitMenuBlockContainer2_div}>
-								<div className={
-										this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
-											OutfitStyles.outfitMenuBlockProfile : 
-											OutfitStyles.outfitMenuBlock
-									}
-								>	  
+							<div className={OutfitStyles.outfitMenuHeader_div} style={isProfileView ? ({}) : ({display:'none', left: '-100vw'})}>
+							</div>
+		    				<div className={isProfileView ? OutfitStyles.profileOutfitMenuBlockContainer2_div : OutfitStyles.outfitMenuBlockContainer2_div}>
+								<div className={isProfileView ? OutfitStyles.outfitMenuBlockProfile : OutfitStyles.outfitMenuBlock}>	  
 									{this.props.outfitIds !== undefined ? this.props.outfitIds.map((outfitId) => 
 										(this.props.outfits[outfitId] !== undefined ? <Outfit 
 											key={outfitId} 
@@ -136,6 +133,10 @@ class PagedOutfitList extends React.Component{
 											//likeCountIdsSize={this.props.likeCountIdsSize}
 											toggleMetricPanel={this.props.toggleMetricPanel}
 											owner={this.props.owner}
+											getOutfitPreviewForm={this.props.getOutfitPreviewForm}
+											showOutfitPreviewFromBrowse={this.props.showOutfitPreviewFromBrowse}
+											previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
+											previewedOutfitId={this.props.previewedOutfitId}
 										/> :
 										null)
 									) : null}
@@ -154,6 +155,7 @@ class PagedOutfitList extends React.Component{
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
 											owner={this.props.owner}
+											getOutfitPreviewForm={this.props.getOutfitPreviewForm}
 											//containerWidth={this.props.containerWidth}
 											//toggleMetricPanel={this.props.toggleMetricPanel}
 										/>

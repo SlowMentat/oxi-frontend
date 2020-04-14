@@ -48,10 +48,10 @@
     composes:stdOutfitBlock;
 
     @include desktop_rules {
-        margin-right : 50px;
-        margin-bottom : 0px;
-        margin-left : 50px;
-        margin-top : 40px;
+        margin-right: var(--lr-margin);
+        margin-bottom: var(--tb-margin);
+        margin-left: var(--lr-margin);
+        margin-top: var(--tb-margin);
     }
 
     @include mobile_rules {
@@ -68,7 +68,7 @@
     height: 100%;
 
     @include desktop_rules {
-        padding-left: 200px;
+        /*padding-left: 200px;*/
         padding-right: 200px;  
     }
 
@@ -78,8 +78,30 @@
     }
 }
 
+:local(.outfitMenuHeader_div){
+
+    @include desktop_rules {
+        /*height: 100px;*/
+        height: 170px;
+        top: 0px;
+        width: 700px;
+        left: calc(50% - 700px/2 - 150px + 23px);
+        background-color: #f9f9f9;
+        border-bottom: solid 1px #c9c9c9;
+        z-index: 10;
+        margin: auto;
+        position: -webkit-sticky;
+        position: sticky;
+    }
+
+    @include mobile_rules {
+        display: none;
+        width: 0px;
+        height: 0px;
+    }
+}
+
 :local(.outfitMenuBlockContainer2_div) {
-    width: 900px;
     margin: auto;
     height: 100%;   
 
@@ -87,10 +109,27 @@
     /*@media screen and (max-aspect-ratio: 1/1){
         width: unset;
     }*/
+    @include desktop_rules {
+        width: 900px;
+        /*padding-left: 23px;*/
+        padding-top: 150px;
+    }
 
     @include mobile_rules {
         width: unset;
     }
+}
+
+:local(.profileOutfitMenuBlockContainer2_div){
+    composes: outfitMenuBlockContainer2_div;
+
+    @include desktop_rules {
+        width: 700px;
+    }
+
+    @include mobile_rules {
+    }
+
 }
 
 
@@ -102,9 +141,14 @@
 
 :local(.outfitMenuBlockProfile){
     composes: outfitMenuBlock;
+    --lr-margin: 10px;
+    --tb-margin: 20px;
 
     @include desktop_rules {
-        margin-left: -128.5px;
+        /*margin-left: -128.5px;*/
+        width: 100%;
+        margin: auto;
+        text-align: center;
     }
 
     @include mobile_rules {
@@ -252,7 +296,7 @@
     vertical-align: top;
     padding-left: 8px;
     padding-right: 8px;*/
-    bottom: 0px;
+    top: 18px;
     width: 50px;
     /*height: 100%;*/
     position: absolute;
@@ -260,7 +304,7 @@
     padding-bottom:5px;
     /*display: inline-block;
     vertical-align: top;*/
-    left: 0px;
+    left: -42px;
 }
 
 :local(.likesBtn_svg){
@@ -281,15 +325,22 @@
     /*background-color: #212121c7;*/
     position: absolute;
     height: 100%;
-    /*width: 100%;*/
-    width: calc(100% - 50px);
-    margin-left: 50px;
     /*top: calc((200px * 1/var(--img-aspect-ratio)) - 70px);*/
     overflow: hidden;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
     display:none;
     background-color: rgba(0, 0, 0, 0.36);
+
+    @include desktop_rules {
+        width: 100%;
+        margin-left: 0px;
+    }
+
+    @include mobile_rules {
+        width: calc(100% - 50px);
+        margin-left: 50px;
+    }
 }
 
 .outfitMenuContainer-enter{
@@ -389,9 +440,7 @@
     border-width: 1px;
     border-color: #b8b8b8;
     border-right-style: none;*/
-    background-color: #fcfcfc78;
     padding: 10px 14px 10px 14px;
-    width: 50px;
     /*height: calc(200px + 200px/2);*/
     height: inherit;
     /*margin-left: -50px;*/
@@ -404,6 +453,8 @@
     }
 
     @include mobile_rules {
+        background-color: #fcfcfc78;
+        width: 50px;
     }
 }
 
@@ -424,8 +475,7 @@
 
     @include desktop_rules {
         border-radius: 3px;
-        border-top-left-radius: 0px;
-        border-bottom-left-radius: 0px;
+        /*border-top-left-radius: 0px;*/
     }
 
     @include mobile_rules {
@@ -437,17 +487,28 @@
     position: absolute;
     height: 100%;
     width: 26px;
-    z-index: 10;
-    left: 0px;
+    z-index: 5;
     background-color: #f9f9f9;
 
     transition: background-color 150ms, color 150ms,  border-color 150ms;
 
     @include desktop_rules { 
+        /*left: -25px;*/
+        border: solid 1px #b8b8b8;
+        border-right-color: rgb(184, 184, 184);
+        border-right-style: solid;
+        border-right-width: 1px;
+        border-right: none;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+
+        display: none;
+        left: -100vw;
     }
 
     @include mobile_rules {
         display: none;
+        left: -100vw;
     }
 }
 
@@ -473,6 +534,24 @@
     margin-top: 4px;
 }
 
+:local(.tempPPIcon_div){
+
+    @include desktop_rules {
+        position: absolute;
+        width: 58px;
+        height: 58px;
+        border-radius: 29px;
+        border: solid 5px#f9f9f9;
+        top: -28px;
+        left: -28px;
+        background-color:#263238;    
+    }
+
+    @include mobile_rules {
+        display: none;
+    }
+}
+
 :local(.outfitUsername_div){
     height: 50px;
 	/*height: 100%;
@@ -484,7 +563,14 @@
     text-orientation: upright;*/
     /*position: relative;*/
     position: absolute;
-    top: -50px;
-    left: 55px;
     color: black;
+    top: -50px;
+
+    @include desktop_rules {
+        left: 24px;
+    }
+
+    @include mobile_rules {
+        left: 55px;
+    }
 }

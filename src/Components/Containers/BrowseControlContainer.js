@@ -14,7 +14,7 @@ import BrowseControl from '../../Components/Presentations/BrowseControl.js';
 const mapStateToProps = (state, props) => ({
 	browseSelection: state.browseState.browseSelection,
 	name: props.name,
-	filterVisible: state.popupMenusReducer.filter.isVisible,
+	filterVisible: state.popupMenusReducer.menuState.isVisible,
 })
 
 const mapDispatchToProps = (dispatch) => ({

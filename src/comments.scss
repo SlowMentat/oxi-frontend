@@ -1,0 +1,66 @@
+@import "root";
+
+:local(.commentsContainer_div){	
+	position: absolute;
+
+    @include desktop_rules {
+		width: calc(100% - 0.75*var(--img-preview-modal-height) - 400px);
+		left: 0px;
+		height: 100%;
+    }
+
+    @include mobile_rules {
+    	top: 0px;
+    	height: calc(100% - 40px);
+    	left: calc(100vw + 1px);
+    	width: calc(85vw - 1px);
+    }
+}
+
+:local(.comments_div){
+	display: table-cell;
+	vertical-align: bottom;
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	bottom: 200px;
+	padding-bottom: 50px;
+	overflow-y: scroll;
+	max-height: calc(100% - 200px - 60px);
+	padding-top: 40px;
+	text-align: center;
+}
+
+:local(.comment_div){
+	border: solid 1px #3fc9ff;
+	padding: 10px;
+	width: 85%;
+	margin: auto;
+	border-radius: 8px;
+	border-top-left-radius: 8px;
+	display: inline-block;
+	vertical-align: bottom;
+	background-color: #f9fdff;
+	margin-bottom: 25px;
+	border-top-left-radius: 0px;
+}
+
+:local(.commentText_div){
+	font-size: 1.32rem;
+	letter-spacing: .08rem;
+	word-spacing: .2rem;
+	text-align: left;
+	color: #363636;
+}
+
+:local(.textArea_div){
+	width: 100%;
+	height: 200px;
+	/*border-top: solid 1px gray;
+	border-radius: 3px;*/
+	position: absolute;
+	/*left: 2%;*/
+	bottom: 1%;
+	text-align: left;
+	background-color: #f9f9f9;
+}

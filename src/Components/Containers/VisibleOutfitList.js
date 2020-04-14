@@ -24,6 +24,7 @@ import {
 	navigateTo,
 	postLike,
 	postUnlike,
+	fetchEntities
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -74,10 +75,11 @@ const mapStateToProps = (state, props) => {
 	});
 }
 
-const mapDispatchToProps = (dispatch, state) => ({
+const mapDispatchToProps = (dispatch, props) => ({
 	onClickContextProfile : (outfitId, targetChildId) => {
-		console.log("view Outfit div clicked")
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));
+		console.log("view Outfit div clicked");
+		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));	
+		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 	},
 	onClickContextBrowse : (outfitId, targetChildId) => {
 		console.log("outfit tile selected");
@@ -155,6 +157,31 @@ const mapDispatchToProps = (dispatch, state) => ({
 	
 		dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase(), null, hostUsername, owner));
 	},
+	previewOutfitFromBrowse: (outfitId) => {
+		new Promise((resolve, reject) => {
+			return resolve(dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, null, null, `${OxiAppConstants.serviceURL}/outfit/${outfitId}`)));
+		})
+		.then(normalizedJson => {
+			const {
+				outfits,
+				contents,
+				picture,
+			} = normalizedJson.entities ? normalizedJson.entities : ({});
+
+			// TODO:  assign all outfits' coverpicuri to their corresponding picture uuid
+			var contentArrays = Object.keys(contents);
+			const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
+
+			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
+			dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+			//props.setPreviewedOutfit(outfitId);
+		});
+	},
+	showOutfitPreviewFromBrowse : (outfitId) => {	
+		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+		//dispatch(fetchEntities())
+		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+	},
 	compareHostMeasurements: (outfitId) => {
 
 	},
@@ -163,7 +190,10 @@ const mapDispatchToProps = (dispatch, state) => ({
 	},
 	unlike: (outfitId, outfit) => {
 		dispatch(postUnlike(outfitId, outfit));
-	}
+	},
+	getOutfitPreviewForm: (posx, posy) => {
+		dispatch(setFormVisibility("OutfitPreview", null, null, null));
+	},
 })
 
 const VisibleOutfitList = connect(mapStateToProps, mapDispatchToProps)(OutfitList);

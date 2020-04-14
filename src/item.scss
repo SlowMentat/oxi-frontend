@@ -164,6 +164,7 @@
 	bottom: 3px;
 	width: 100%;
 	height: var(--item-controls-container-height);
+    text-align: left;
 }
 
 :local(.itemButtonContainer_div){
@@ -262,7 +263,8 @@
     @include mobile_rules {
         transition: transform var(--item-transition-period) linear var(--item-transition-delay);
         display: none;
-        height: calc(100vw / 3.2360679775);
+        /*height: calc(100vw / 3.2360679775);*/
+        height: var(--item-height);
         position: absolute;
         /* top: -35px; */
         /* top: 20px; */
@@ -315,7 +317,8 @@
         width: 100vw;
         margin: unset;
         display: block;
-        bottom: calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775));
+        //bottom: calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775));
+        bottom: calc(-100vh + var(--cc-mobile-height) + var(--clc-mobile-height) + var(--item-height));
         background-color: white;
     }
 }
@@ -329,13 +332,14 @@
     z-index: 100;
 
     @include desktop_rules {
-        transform: translateY( calc(-1*var(--index)*(var(--item-height) + 6px)) );
+        transform: translateY( calc(-1*var(--index)*(var(--item-height) + 10px)) );
         position: absolute;
     }
 
     @include mobile_rules {
         /*transform: translateY(var(--item-height) - calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775)) - 80px);*/
-        transform: translateY(calc(100vw / 3.2360679775 - 100vh - 0px + 20px + calc(100vw / 3.2360679775)));
+       /* transform: translateY(calc(100vw / 3.2360679775 - 100vh - 0px + 20px + calc(100vw / 3.2360679775)));*/
+        transform: translateY(calc(-100vh + 2*var(--item-height) + var(--cc-mobile-height) + var(--clc-mobile-height)));
         /*transform: translateY(-80px);*/
         /*bottom: unset;*/
     }
@@ -464,7 +468,7 @@
 }
 
 
-.expandedItemInfoContainer_div{
+.expandedItemInfoContainer__div{
 	/*--variable-A: calc(100vh - 180px - 5vh - 25px);*/
     white-space: pre-wrap;
 	--expanded-item-content-width: 93%;
@@ -482,7 +486,7 @@
     @include desktop_rules {
         height:600%;
         background-color: white;
-        transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
+        //transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
     }
 
     @include mobile_rules {
@@ -491,47 +495,61 @@
         overflow-y: scroll;
         background-color: #f9f9f9;
         padding-bottom: calc(100vw / 3.2360079775);
-        transition: transform var(--item-info-transition-period) linear;
+        //transition: transform var(--item-info-transition-period) linear;
     }
 }
 
 .expandedItemInfoContainer_div-enter{
-    transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
+    //transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
+    opacity: 1;    
 	transform: translateY(-50%) scaleY(0);
 }
 
 .expandedItemInfoContainer_div-enter-active{
+    opacity: 1;
+    transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
+    //transition: transform 600ms linear 100ms;
 	transform: translateY(0%) scaleY(1);
-	transition: transform var(--item-info-transition-period) linear var(--item-transition-total);
 }
 
 .expandedItemInfoContainer_div-exit{
-    transition: transform var(--item-info-transition-period) linear;
+    opacity: 1;
+    //transition: transform var(--item-info-transition-period) linear;
 	transform: translateY(0%) scaleY(1);
 }
 
 .expandedItemInfoContainer_div-exit-active{
+    opacity: 0;
+    transition: transform var(--item-info-transition-period) linear 70ms, opacity 0ms linear var(--item-transition-total);
+    //transition: transform 600ms linear 70ms;
 	transform: translateY(-50%) scaleY(0);	
-	transition: transform var(--item-info-transition-period) linear 70ms;
 }
 
 
-.expandedItemInfo_div{
-	/*opacity: 0;*/
-	
+.expandedItemInfo__div{  
+    opacity: 0;  
+    transition: opacity 70ms linear var(--item-transition-total);
 }
 
-.expandedItemInfo_div-enter{
+.expandedItemInfo_div-appear,
+.expandedItemInfo_div-enter {
 	opacity: 0;
 }
 
+.expandedItemInfo_div-appear-active
 .expandedItemInfo_div-enter-active{
 	opacity: 1;
-	transition: opacity 70ms linear var(--eif-transition-start);
+	//transition: opacity 70ms linear var(--eif-transition-start);
+    transition: opacity 70ms linear var(--item-transition-total);
+    //transition: opacity 70ms linear 900ms;
+}
+
+.expandedItemInfo_div-enter-done{
+    opacity: 1;
 }
 
 .expandedItemInfo_div-exit{
-	opacity: 1
+	opacity: 1;
 }
 
 .expandedItemInfo_div-exit-active{

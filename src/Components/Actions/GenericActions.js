@@ -91,7 +91,8 @@ export const clearSelectMultipleEntity = (entityType) => {
 
 export const showMenu = (menuType, isVisible) => {
 	return function(dispatch){
-		dispatch(makeActionCreator(`SET_VISIBLE_${menuType.toUpperCase()}`, menuType.toUpperCase(), 'isVisible')(isVisible));
+		//dispatch(makeActionCreator(`SET_VISIBLE_${menuType.toUpperCase()}`, menuType.toUpperCase(), 'isVisible')(isVisible));
+		dispatch(makeActionCreator(`SET_VISIBLE_POPUP`, menuType.toUpperCase(), 'isVisible', 'type')(isVisible, menuType));
 	}
 }
 

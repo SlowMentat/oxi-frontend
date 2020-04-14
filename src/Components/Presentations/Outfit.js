@@ -6,6 +6,7 @@ import {OutfitSocialStatistics} from './OutfitSocialStatistics.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
 
 var showOutfitTileControls = {
 	position: 'relative',
@@ -21,6 +22,7 @@ export class Outfit extends React.Component{
 		this.state = {
 			coverpic: coverpic || null,
 			base64Image: null,
+			base64ImageProfile: null,
 			hovering: hovering || false
 		};
 
@@ -30,18 +32,54 @@ export class Outfit extends React.Component{
 		this._handleOnMouseOut = this._handleOnMouseOut.bind(this);
 	}
 
-	componentDidMount(){
+	async componentDidMount(){
+		// Methods
+		const {
+			getCoverPic,
+		} = this.props;
+
+		// Variables
+		const {
+			coverpicuri,
+			profilePicUri,
+		} = this.props;
+
+		var profilePicData = null;
+		var coverpicData = null
+
+		const updateProfilePicData = (event, data) => {profilePicData = data;}
+		const updateCoverpicData = (event, data) => {coverpicData = data;}
+
 		//if coverpic filename exists, call get request for content coverpic data
-		console.log("small = ", this.props.coverpicuri)
-		if(this.props.coverpicuri !== null  && this.props.coverpicuri !== undefined) this.props.getCoverPic(this.props.coverpicuri, this._handleImageReceived, 'small');
+		console.log("small = ", coverpicuri)
+		if(profilePicUri !== null  && profilePicUri !== undefined) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
+		if(coverpicuri !== null  && coverpicuri !== undefined) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
+
+		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);
 	}
 
-	componentDidUpdate(prevProps){
-		//console.log('this.prosp.coverpicuri = ', this.props.coverpicuri);
-		//console.log('prevProps.coverpicuri = ', prevProps.coverpicuri);
-		if(this.props.coverpicuri !== prevProps.coverpicuri){
-			this.props.getCoverPic(this.props.coverpicuri, this._handleImageReceived, 'small');
-		}
+	async componentDidUpdate(prevProps){
+		// Methods
+		const {
+			getCoverPic,
+		} = this.props;
+
+		// Variables
+		const {
+			coverpicuri,
+			profilePicUri,
+		} = this.props;
+
+		var profilePicData = null;
+		var coverpicData = null
+
+		const updateProfilePicData = (data) => {profilePicData = data;}
+		const updateCoverpicData = (data) => {coverpicData = data;}
+
+		if(profilePicUri !== null && profilePicUri !== prevProps.profilePicUri) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
+		if(coverpicuri !== prevProps.coverpicuri) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
+
+		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);
 	}
 
 	_handleTileClicked(event){
@@ -95,10 +133,12 @@ export class Outfit extends React.Component{
 		}		
 	}
 
-	_handleImageReceived(event, data){
-		this.setState({
-			base64Image: 'data:image/jpeg;base64,' + data
-		});
+	_handleImageReceived(event, coverpicData, profilePicData){
+		this.setState(prevState => ({
+			...prevState,
+			base64Image: coverpicData ? ('data:image/jpeg;base64,' + coverpicData) : prevState.base64Image,
+			base64ImageProfile: profilePicData ? ('data:image/jpeg;base64,' + profilePicData) : prevState.base64ImageProfile,
+		}));
 	}
 
 	render(){
@@ -132,6 +172,17 @@ export class Outfit extends React.Component{
 			isSelected,
 			webAppView
 		} = this.props;
+
+		const tempPPIcon_div = {
+        	'position':' absolute',
+        	'width':' 58px',
+        	'height':' 58px',
+        	'border-radius':' 29px',
+        	'border':' solid 5px#f9f9f9',
+        	'top':' -28px',
+        	'left':' -28px',
+        	'background-color':'#263238',
+		}
 
 		let contextualStyles = null;
 		let outfitHeight = containerHeight;///3;
@@ -183,6 +234,10 @@ export class Outfit extends React.Component{
 								<div className={OutfitStyles.outfitUsername_div}>
 									{username !== undefined && username !== null ? username.toUpperCase() : "Username"}
 								</div>
+								<PpIcon base64Image={this.state.base64ImageProfile} isMobile={false} customStyle={tempPPIcon_div}/>
+								{/*<div className={OutfitStyles.tempPPIcon_div}>
+																	
+								</div>*/}
 								<div 
 									className={OutfitStyles.likesBtn_div}
 									onClick={(event) => {
@@ -216,38 +271,13 @@ export class Outfit extends React.Component{
 							</div>
 						)
 				}
-				{
-					//<div 
-					//	className={isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
-					//	style={{'padding':'0px'}} >
-					//	<div className={OutfitStyles.outfitUsername_div}>
-					//		{username !== undefined && username !== null ? username.toUpperCase() : "Username"}
-					//	</div>
-					//	<div className={OutfitStyles.likesBtn_div} >
-					//			<SvgIcon 
-					//				className={OutfitStyles.likesBtn_svg} 
-					//				name="HeartIcon" 
-					//				fill="none" 
-					//				stroke="#666" 
-					//				strokeWidth="3" />
-					//	</div>
-					//</div>
-				}
 				<div
+					style={{'text-align': 'left'}}
 					onMouseOver={this._handleOnMouseOver}
 					onMouseOut={this._handleOnMouseOut}>
 					<img 
-						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
+						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
 						className={OutfitStyles.outfitImage_img}
-						//style={{
-						//	width:'100%', 
-						//	//'max-height':'inherit',
-						//	height: '100%',
-						//	'border-radius':'3px',
-						//	'border-top-left-radius':'0px',
-						//	'border-bottom-left-radius':'0px',
-						//	position:'absolute'
-						//}}
 					/>
 					<CSSTransition 
 						key={id}
@@ -281,15 +311,17 @@ export class Outfit extends React.Component{
 											handleTileSelected={this._handleTileClicked}
 											toggleMetricPanel={this.props.toggleMetricPanel}
 											owner={this.props.owner}
+											showOutfitPreviewFromBrowse={() => this.props.showOutfitPreviewFromBrowse(id)}
+											outfitId={this.props.id}
+											contentIds={this.props.contentIds}
+											previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
+											setPreviewFocus={this.props.setPreviewFocus}
 										/>
 									)
 							}
 						</div>
 					</CSSTransition>
-				</div>
-				{
-					//<OutfitSocialStatistics webAppView={webAppView}/>
-				}
+				</div>				
 			</div>
 		);
 	}

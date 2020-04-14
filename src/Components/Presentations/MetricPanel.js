@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
 import ProfileTitleContainer from '../../Components/Containers/ProfileTitleContainer.js';
 import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js';
+import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
 
 import MetricStyles from '../../metric.scss';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -41,7 +42,15 @@ export class MetricPanel extends React.Component{
 			isFocusedPreview,
 			isOpen,
 			profileStats,
+			base64HostImage,
+			base64OwnerImage,
 		} = this.props;
+
+		const ppIconStyles = {
+			'padding':'2px',
+			'border-radius': '24px',
+			'font-size': '38px',
+		}
 
 		return(
 			<div
@@ -86,31 +95,27 @@ export class MetricPanel extends React.Component{
 			    		<div className={Styles.titleContainer_div}>
 			    			<div 
 								style={{
-									//'padding-top': '15px',
-    								'padding-bottom': '15px',
+    								'padding-bottom': '5px',
     								'height': '165px',
-    								//'border-bottom-style': 'solid',
-    								//'border-width': '1px',
-    								//'border-color': '#e2e2e2',
-    								'margin-right':'-1px',
+    								//'margin-right':'-1px',
     								'position':'relative',
 								}}
 							>
-								<ProfileTitleContainer />
-								{webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
-									//<ProfileControlContainer /> :
-									(
-										<div className={Styles.points_div}>
-											{
-												!profileStats ? 
-													null :
-													profileStats.points >= 0 ?
-														profileStats.points : 
-														null
-											}
-										</div>
-									) :
-									<BrowseControlContainer />
+								<ProfileTitleContainer base64Image={this.props.base64OwnerImage}/>
+								{
+									webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+										(
+											<div className={Styles.points_div}>
+												{
+													!profileStats ? 
+														null :
+														profileStats.points >= 0 ?
+															profileStats.points : 
+															null
+												}
+											</div>
+										) :
+										<BrowseControlContainer />
 								}
 				
 							</div>
@@ -135,6 +140,52 @@ export class MetricPanel extends React.Component{
 								</div>
 							</div>
 							<div className={MetricStyles.metricMatch_div}>
+								<div className={MetricStyles.metricMatchIcons_div}>
+									<div className={MetricStyles.hostIconContainer_div}>
+										<PpIcon base64Image={base64HostImage} isMobile={false} customStyle={ppIconStyles}/>
+										{/*
+											base64HostImage ?
+												(<img 
+													src={base64HostImage === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (base64HostImage) }
+													style={{
+														'width': 'calc(100% - 2px)',
+    													'height': 'calc(100% - 2px)',
+    													'border-radius': '24px',
+    													'padding-top': '2px',
+    													'padding-left': '2px',
+													}}
+												/>) :
+												(<i class="material-icons" style={ isMobile ? ({'font-size':'48px', 'color':'#ffffff5c'}) : ({'font-size':'48px', 'color': 'var(--color-mobile-icon-bg)'}) }> account_circle </i>)
+										*/}
+									</div>
+									<div className={MetricStyles.hostToOwner_div}>
+										<div className={MetricStyles.hostToOwnerLine_div}>
+
+										</div>
+									</div>
+									<div className={MetricStyles.ownerIconContainer_div}>
+										<div style={{position:'relative'}}>
+											<div className={MetricStyles.ownerIndicator}>
+											</div>
+										</div>
+										<PpIcon base64Image={base64OwnerImage} isMobile={false} customStyle={ppIconStyles}/>
+										{/*
+											base64OwnerImage ?
+												(<img 
+													src={base64OwnerImage === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (base64OwnerImage) }
+													style={{
+														'width': 'calc(100% - 2px)',
+    													'height': 'calc(100% - 2px)',
+    													'border-radius': '24px',
+    													'padding-top': '2px',
+    													'padding-left': '2px',
+													}}
+												/>) :
+												(<i class="material-icons" style={ isMobile ? ({'font-size':'48px', 'color':'#ffffff5c'}) : ({'font-size':'48px', 'color': 'var(--color-mobile-icon-bg)'}) }> account_circle </i>)
+										*/}
+									</div>
+								</div>
+							{/*
 								<div className={MetricStyles.metricMatchLPanel_div}>
 									<div 
 										className={MetricStyles.fitIcon_div}
@@ -172,6 +223,7 @@ export class MetricPanel extends React.Component{
 									  </div>
 									</div>
 								</div>
+							*/}
 							</div>
 							<VisibleMetricList setFitResult={this.setFitResult} fitResult={this.state.fitResult}/>
 						</div>

@@ -142,6 +142,7 @@ export default class ItemList extends React.Component{
 			    											retailers={this.props.retailers}
 			    											itemIdHovered={this.props.itemIdHovered}
 			    											webAppView={this.props.webAppView}
+			    											browseSelection={this.props.browseSelection}
 			    											viewState={this.props.viewState}
 			    											_handleMouseOver={(event) => this.props.changeItemHovered(itemId, event)}
 			    											_handleMouseLeave={(event) => this.props.changeItemHovered(null, event)}
@@ -211,6 +212,7 @@ export default class ItemList extends React.Component{
 			    											itemIdHovered={this.props.itemIdHovered}
 			    											viewState={this.props.viewState}
 			    											webAppView={this.props.webAppView}
+			    											browseSelection={this.props.browseSelection}
 			    											_handleMouseOver={(event) => this.props.changeItemHovered(itemId)}
 			    											_handleMouseLeave={(event) => this.props.changeItemHovered(null)} 
 			    											apparelTypeByIds={this.props.apparelTypeByIds}

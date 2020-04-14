@@ -4,6 +4,8 @@ $metricCount: 13;
 $metricLabelPadding: 2px;
 $mobileMetricPanelWidth: 320px;
 $desktopMetricPanelWidth: 300px;
+$gbcTransPeriod: 200;
+$isDebug: false;
 
 :local(.metricNodeBlock) {
 	background-color: rgba(0,0,0,0);
@@ -16,10 +18,8 @@ $desktopMetricPanelWidth: 300px;
 	padding-top: 15px;
     margin-top: -15px;
     display: inline-block;
-    margin-right: 10px;
     margin-left: 10px;
     padding-right: 10px;
-    border-right: 1px solid rgb(212, 212, 212);
     width: 13vh;
 
     @include desktop_rules { 
@@ -27,7 +27,9 @@ $desktopMetricPanelWidth: 300px;
     }
 
     @include mobile_rules {
+        border-right: 1px solid rgb(212, 212, 212);
         width: 17vh;
+        margin-right: 10px;
     }
 }
 
@@ -38,25 +40,64 @@ $desktopMetricPanelWidth: 300px;
 :local(.barGraphContainer_div){
 	width: 100%;
 	/*height: calc(1.5vh + 4px);*/
-    padding-top: 2px;
+    --bgc-padding: 2px;
+    --bgc-trans-period: 200ms;
+    padding-top: var(--bgc-padding);
     background-color: var(--nfz-color);
-    transition: margin-left 200ms ease-in-out;
+    transition: margin-left var(--bgc-trans-period) ease-in-out;
+    position: relative;
 
     @include desktop_rules {
-        height: calc(1.5vh + 2 * #{$metricLabelPadding});
+        --bgc-height: calc(1.5vh + 2 * #{$metricLabelPadding});
+        height: var(--bgc-height);
+        --dot-height: calc(var(--bgc-height) - 2*var(--bgc-padding) * 1.6);
     }
 
     @include mobile_rules {
-        height: calc(100vh / (2 * #{$metricCount}));
+        --bgc-height: calc(100vh / (2 * #{$metricCount}));
+        height: var(--bgc-height);
+        --dot-height: calc(var(--bgc-height) - 2*var(--bgc-padding) * 1.6);
+
     } 
 }
 
 :local(.graphBarContainer_div){
+    --gbc-line-width: 2px;
     position: absolute;
     vertical-align: top;
     /*text-align: right;*/
     /* height: calc(1.5vh + 2px); */
     width: 50%;
+}
+
+:local(.ownerDot_div){
+    position: absolute;
+    left: calc(50% - var(--dot-height)/2);
+    width: var(--dot-height);
+    border-radius: calc(var(--dot-height)/2);
+    border: solid 1px var(--color-01);
+    height: var(--dot-height);
+    background-color: #ffffff;
+    transition: transform 400ms linear;
+}
+
+:local(.ownerDotIndicator_div){
+    position: absolute;
+    left: calc(50% - var(--indicator-width)/2 + 0px);
+    top: calc(-1*var(--indicator-height));
+    width: var(--indicator-width);
+    background-color: var(--color-01);
+    height: var(--indicator-height);
+    --indicator-height: 4px;
+    --indicator-width: 6px;
+    border-radius: calc(var(--indicator-width)/2);
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+:local(.hostDot_div){
+    composes: ownerDot_div;
+    border: solid 1px var(--color-01);
 }
 
 :local(.metricGraphBarsContainer_div){
@@ -138,15 +179,51 @@ $desktopMetricPanelWidth: 300px;
     position: absolute;
     height: calc(100% + 2px);
     margin-top: -1px;
-    width: 10px;
+    //height: calc(100% + 1px);
+    //margin-top: -0.5px;
+    width: calc(2*var(--moulding-radius));
     border-radius: var(--moulding-radius);
     left: calc(-1*var(--moulding-radius));
+
+    @if $isDebug {
+        border: solid 1px #4c4c4c;
+    }
 }
 
 :local(.rightCornerMoulding_div){
     composes:leftCornerMoulding_div;
     right: calc(-1*var(--moulding-radius));
     left:unset;
+    
+    @if $isDebug {
+        border: solid 1px #ff00e3;
+    }
+}
+
+#backdrop{
+    background-color: var(--nfz-color);
+    width: var(--moulding-radius);
+    position: absolute;
+    height: calc(100% + 2px);
+    top: -1px;
+}
+
+:local(.sCurveBackdropTop_div){
+    height: 50%;
+    width: 75%;
+}
+
+:local(.sCurveBackdropBottom_div){
+    composes: sCurveBackdropTop_div;
+    margin-left: 25%;
+}
+
+:local(.zCurveBackdropTop_div){    
+    composes: sCurveBackdropBottom_div;
+}
+
+:local(.zCurveBackdropBottom_div){    
+    composes: sCurveBackdropTop_div;
 }
 
 :local(.fitZone_div){
@@ -168,37 +245,62 @@ $desktopMetricPanelWidth: 300px;
     }
 }
 
-
-:local(.graphBar_div){
-	/*height:1.5vh;*/
-    border-style: solid;
-    border-width: 1px;
-    border-radius: 2px;
-    border-color: black;
-    
-    /*position: absolute;*/
-    display: inline-block;
-    height: 1.5vh;
-    position: absolute;
-
-    background-color: var(--bar-fill-color);
-    border-color: var(--bar-border-color);
-	transition: 
-        background-color 100ms linear,
-        border-color 100ms linear, 
-        color 200ms ease-in-out, 
-        width 200ms linear;	
-
-    @include desktop_rules {
-        height: calc(1.5vh);
-    }
-
-    @include mobile_rules {
-        height: calc(100vh / (2 * #{$metricCount}) - (2 * #{$metricLabelPadding}));
+#scurve .leftCornerMoulding_div{
+    @if isDebug {
+        border: solid 1px #00ff28;
     }
 }
 
-:local(.graphBar_div--highlight){
+#scurve .rightCornerMoulding_div{
+    @if isDebug {
+        border: dotted 1px #f00;
+    }
+}
+
+#zcurve .leftCornerMoulding_div{
+    @if isDebug {
+        border: solid 1px #00ff28;
+    }
+}
+
+#zcurve .rightCornerMoulding_div{
+    @if isDebug {
+        border: dotted 1px #f00;
+    }
+}
+
+
+:local(.graphBar_div){
+	/*height:1.5vh;*/
+    /*border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+    border-color: black;*/
+    
+    /*position: absolute;*/
+    display: inline-block;
+    /*height: 1.5vh;*/
+    position: absolute;
+
+    /*background-color: var(--bar-fill-color);*/
+    /*border-color: var(--bar-border-color);*/
+    border-bottom: dotted var(--gbc-line-width) var(--color-01);
+	transition: 
+        /*background-color 100ms linear,
+        border-color 100ms linear, 
+        color 200ms ease-in-out, */
+        width 200ms linear;	
+
+    @include desktop_rules {
+        height: calc(1.5vh/2 + var(--gbc-line-width)/2);
+    }
+
+    @include mobile_rules {
+        height: calc((100vh / (2 * #{$metricCount}) - (2 * #{$metricLabelPadding}))/2);
+    }
+}
+
+/*:local(.graphBar_div--highlight){
 	composes:graphBar_div;
 	background-color: #70ccf4e9;
 	transition: background-color 200ms ease-in-out, color 200ms ease-in-out;	
@@ -208,7 +310,7 @@ $desktopMetricPanelWidth: 300px;
     composes:graphBar_div;
     background-color: #b1b1b1cd;
     transition: background-color 200ms ease-in-out, color 200ms ease-in-out;    
-}
+}*/
 
 :local(.labelFormatting_div){
 	composes:defaultCursor from "./root.scss";
@@ -271,14 +373,22 @@ $desktopMetricPanelWidth: 300px;
 
 :local(.metricsDataHeader_div){
 	/*height: calc(5vh + 28px);*/
-    --default-pic-icon-size: 48px;
-    --profile-pic-border: 2px;
+    --default-pic-icon-size: 36px;
+    --profile-pic-border: 0px;
     --details-container-height: calc(var(--default-pic-icon-size) + 2*var(--profile-pic-border));
     font-size: 2em;
 
     @include desktop_rules {
         color: rgb(11, 11, 115);
         margin: 10px 0px 0px 10px;
+
+        position: absolute;
+        top: calc(-1*var(--page-header-height));
+        left: calc(100vw - 50px - 23px);
+        width: var(--default-pic-icon-size);
+        height: var(--default-pic-icon-size);
+        margin: 0px;
+        /*margin-top: 5px;*/
     }
 
     @include mobile_rules {        
@@ -289,7 +399,8 @@ $desktopMetricPanelWidth: 300px;
 :local(.profilePicContainer_div){
 	display: inline-block;
     vertical-align: top;
-    width: 50px;
+    width: calc(var(--default-pic-icon-size));
+    height: calc(var(--default-pic-icon-size));
 }
 
 :local(.profilePic_div){
@@ -297,12 +408,15 @@ $desktopMetricPanelWidth: 300px;
     padding: 0px;
     height: calc(var(--details-container-height));
     border-style: solid;
-    border-radius: 6px;
+    border-radius: calc(var(--default-pic-icon-size)/2);
     left: 25px;
     border-width: var(--profile-pic-border);
 
     @include desktop_rules {
         border-color: rgb(112, 204, 244);
+        border-color: white;
+        cursor: pointer;
+        margin-top: calc((var(--page-header-height) - var(--default-pic-icon-size))/2);
     }
 
     @include mobile_rules {        
@@ -312,6 +426,7 @@ $desktopMetricPanelWidth: 300px;
 
 :local(.profileDetails_div){
 	display: inline-block;
+    display: none;
     vertical-align: top;
     margin-left: 10px;
     margin-top: var(--profile-pic-border);
@@ -404,14 +519,15 @@ $desktopMetricPanelWidth: 300px;
     position: relative;
 
     @include desktop_rules{
-        height: calc(90% - 100px);
+        /*height: calc(90% - 100px);*/
+        height: calc(100vh - var(--page-header-height) - 7px - 8px - 177px - var(--body-height) - var(--metric-match-height) - 10px);
     }
 }
 
 :local(.mbodyDiagramContainer_div){
     /*position: absolute;*/
     bottom: 0px;
-    --body-height: calc((100vh - 80px - 165px - 20px - 6px - 45px)*0.5);    
+    /*--body-height: calc((100vh - 80px - 165px - 20px - 6px - 45px)*0.5);*/
     left: calc(150px - var(--body-height)/1.2/2);
 
     /*web*/
@@ -428,8 +544,68 @@ $desktopMetricPanelWidth: 300px;
 }
 
 :local(.metricMatch_div){    
-    --metric-match-height: 100px;
+    text-align: center;
+    --icon-width: 48px;
+    --outline-width: 3px;
+    --metric-match-height: 150px;
     height: var(--metric-match-height);
+}
+
+:local(.metricMatchIcons_div){
+    width: 100%;
+    /*height: 72px;*/
+    display: inline-block;
+    max-width: 192px;
+    transition: width 200ms linear;
+    /*width: 48px;*/
+    min-width: 48px;
+    margin-top: calc((var(--metric-match-height) - var(--icon-width))/2);
+    position: relative;
+}
+
+:local(.hostIconContainer_div){
+    /*float: left;*/
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 48px;
+    height: 48px;
+    display: inline-block;
+    vertical-align: top;
+    border: solid var(--outline-width) var(--color-01);
+    border-radius: calc(var(--icon-width)/2);
+}
+
+:local(.ownerIconContainer_div){
+    composes: hostIconContainer_div;
+   /* float: right;*/
+   right:0px;
+   left: unset;
+   background-color: white;
+   border: solid var(--outline-width) var(--color-01);
+}
+
+:local(.ownerIndicator){
+    position: absolute;
+    background-color: var(--color-01);
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    top: -8px;
+    left: 16px;
+}
+
+:local(.hostToOwner_div){
+    display: inline-block;
+    vertical-align: top;
+    width: calc(100% - 2* var(--icon-width));
+    height: calc(var(--icon-width)/2);
+}
+
+:local(.hostToOwnerLine_div){
+    height: inherit;
+    width: 100%;
+    border-bottom: dotted var(--outline-width) var(--color-01);
 }
 
 :local(.metricMatchLPanel_div){

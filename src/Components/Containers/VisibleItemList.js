@@ -127,6 +127,7 @@ const mapStateToProps = (state, props) => {
 		retailers : retailers,
 		viewState: state.contentViewState.viewState,
 		webAppView: state.appView.webAppView,
+		browseSelection: state.browseState.browseSelection,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
 		selectedId: state.entitiesStateReducer.items.selected,
 		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],

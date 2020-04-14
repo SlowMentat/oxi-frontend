@@ -1,5 +1,6 @@
-import 'babel-polyfill';
-import React from 'react';
+import "core-js";
+import "regenerator-runtime/runtime";
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import test from '../../test.scss';
@@ -14,10 +15,11 @@ import VisibleMetricList from '../../Components/Containers/VisibleMetricList.js'
 import ProfileTitleContainer from '../../Components/Containers/ProfileTitleContainer.js';
 import LandingPageContainer from '../../Components/Containers/LandingPageContainer.js';
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
-import ProfileControlContainer from '../../Components/Containers/ProfileControlContainer.js';
+import BrowseFilterMenuContainer from '../../Components/Containers/BrowseFilterMenuContainer.js';
 import ProfileMenuContainer from '../../Components/Containers/ProfileMenuContainer.js';
 import { MetricPanel } from '../../Components/Presentations/MetricPanel.js'
 import ProfileViewControlsContainer from '../../Components/Containers/ProfileViewControlsContainer.js';
+import MenusContainer from '../../Components/Containers/MenusContainer.js';
 
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -54,7 +56,8 @@ const logo_svg = {
     'margin-left':' 300px',
     'padding-top':' 12.5px',
     'padding-bottom':' 12.5px',*/
-    left:'227px',
+    //left:'227px',
+    left:'0px',
     top:'50%',
     'margin-top':'calc(-1*var(--logo-height)/2)',
     height:'var(--logo-height)',
@@ -62,7 +65,52 @@ const logo_svg = {
     'z-ingex':'-1',
 }
 
-export function SiteNav(props){		
+const ligatureManagementStyles = {
+	color: 'var(--color-01)',
+}
+
+const customMngmtCotnianerStyles = {
+	'margin-right':'20px',
+	display: 'inline-block',
+	'vertical-align': 'top',
+}
+
+export function SiteNav(props){
+	const {
+		showMenu,
+		hideMenu,
+		positionMenu,
+	} = props;
+
+	const {
+		isPopupMenuVisible,
+		popupMenuType,
+	} = props;
+
+	const [ isSettingsOpen, setIsSettingsOpen ] = useState(false);
+
+	const getMenuPosition = (menuType) => {
+		var position = {};
+		switch(menuType){
+			case OxiAppConstants.MenuType.a:
+				position = {
+					right: `calc(-5px)`,					
+				};
+				break;
+
+			case OxiAppConstants.MenuType.c:
+				position = {
+					right: `calc(64px - 25px)`,					
+				};
+				break;
+
+			default:
+				break;
+		}
+
+		return position;
+	} 
+
     return(
     	<div className={props.isHeaderHidden ? Styles['headerBlock--hidden'] : Styles.headerBlock}>
     		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
@@ -100,6 +148,80 @@ export function SiteNav(props){
     										/>
     									)
     							}
+    						</div>
+    						<div className={NavStyles.managementContainer_div}>
+    							<div 
+    								style={{
+    									position:'relative', 
+    									'text-align':'right', 
+    									'padding-top':'calc(var(--page-header-height)/3)'
+    								}}
+    							>
+									<Button
+										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //dynamic icon button
+										onClickHandler={null}
+										title='add'
+										iconName='ShopIcon'
+										iconStyles={{width:'100%',height:'100%',padding:'0px'}}
+										buttonHeight={26}
+										customButtonStyles={customMngmtCotnianerStyles}
+										puDirection='WEST' 
+									/>
+									<Button
+										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} // Static icon button
+										onClickHandler={() => {
+											if(isPopupMenuVisible){
+												console.log('popupMenuType = ', popupMenuType);
+												popupMenuType === OxiAppConstants.MenuType.c ? hideMenu('') : showMenu(OxiAppConstants.MenuType.c);
+											}
+											else{
+												//positionMenu(50, 50);
+												showMenu(OxiAppConstants.MenuType.c);
+											}
+										}}
+										title='photos'
+										iconName='Notifications'
+										ligature="notifications_none"
+										customButtonStyles={customMngmtCotnianerStyles}
+										ligatureStyles={ligatureManagementStyles}
+										puDirection='SOUTH'
+										textHeight={17}
+										//onClickHandler={} 
+									/>
+									<Button
+										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} // Static icon button
+										onClickHandler={() => {
+											if(isPopupMenuVisible){
+												popupMenuType === OxiAppConstants.MenuType.a ? hideMenu('') : showMenu(OxiAppConstants.MenuType.a);
+											}
+											else{
+												//positionMenu(50, 50);
+												showMenu(OxiAppConstants.MenuType.a);
+											}
+										}}
+										title='photos'
+										iconName='Settings'
+										ligature="settings"
+										customButtonStyles={customMngmtCotnianerStyles}
+										ligatureStyles={ligatureManagementStyles}
+										puDirection='SOUTH'
+										textHeight={17}
+										//onClickHandler={} 
+									/>
+								</div>
+								{ 
+									isPopupMenuVisible ? 
+										<MenusContainer 
+											menuType={popupMenuType} 
+											position={{
+												top: '65px',
+												bottom: 'unset',
+												left: 'unset',
+												...getMenuPosition(popupMenuType)
+											}}
+										/> : 
+										null 
+								}
     						</div>
     					</React.Fragment>
     				)
@@ -243,12 +365,17 @@ class OutfitNav extends React.Component{
 	}
 
 	render(){
+		//const {
+		//	setPreviewedOutfit,
+		//} = this.props;
+
 		const {
 			owner,
 			pathname,
 			webAppView,
 			imageHeight,
 			imageWidth,
+			previewedOutfitId,
 		} = this.props;
 
 		var URI = pathname ? pathname.split('/') : '';
@@ -284,7 +411,8 @@ class OutfitNav extends React.Component{
 								customButtonStyles={{
 									color:'white',
 									'margin':'auto',		
-								}} />
+								}} 
+							/>
 						</div>) :
 						null
 				}
@@ -318,6 +446,8 @@ class OutfitNav extends React.Component{
 							containerWidth={containerWidth !== 0 ? containerWidth : null}
 							setPreviewFocus={this.props.setPreviewFocus}
 							toggleMetricPanel={this.props.toggleMetricPanel}
+							//setPreviewedOutfit={setPreviewedOutfit}
+							previewedOutfitId={previewedOutfitId}
 							/*routeToHostProfile={this.props.routeToHostProfile}*/ 
 						/>
 					</React.Fragment>
@@ -328,6 +458,8 @@ class OutfitNav extends React.Component{
 						<VisibleItemListBrowse 
 							changeItemHovered={()=>{}} 
 							scrollContainerStyle={OutfitNavStyles.previewContainer} 
+							//setPreviewedOutfit={setPreviewedOutfit}
+							previewedOutfitId={previewedOutfitId}
 						/>
 				);
 				break
@@ -343,7 +475,8 @@ class OutfitNav extends React.Component{
     					(
     						<React.Fragment>
     							<div 
-    								style={{'border-radius': '0px'}}
+    								//style={{'border-radius': '0px'}}
+    								style={ webAppView === OxiAppConstants.navRequestMap.a ? ({'border-radius': '0px', 'margin-top':'var(--page-header-height)'}) : ({'border-radius': '0px'}) }
     								className={
     									this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
     										Styles.outfitBlock/*Styles['outfitBlock_div--profileView']*/ : 
@@ -393,6 +526,9 @@ export default class webAppView extends React.Component {
 			isMetricPanelOpen : false,
 			isHeaderHidden: false,
 			isControlsHidden: false,
+			base64HostImage: null,
+			base64OwnerImage: null,
+			previewedOutfitId: null,
 		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
@@ -402,6 +538,9 @@ export default class webAppView extends React.Component {
 		this.setPreviewFocus = this.setPreviewFocus.bind(this);
 		this._handleAddOutfitClicked = this._handleAddOutfitClicked.bind(this);
 		this.toggleMetricPanel = this.toggleMetricPanel.bind(this);
+		this._handleOwnerImageReceived = this._handleOwnerImageReceived.bind(this);
+		this._handleHostImageReceived = this._handleHostImageReceived.bind(this);
+		//this.setPreviewedOutfit = this.setPreviewedOutfit.bind(this);
 		this.previousLocation = props.location;
 
 		var {
@@ -432,6 +571,23 @@ export default class webAppView extends React.Component {
 		}
 	}
 
+	async componentDidMount(){
+		var { ownerpicuri, hostpicuri } = this.props;
+
+		//if coverpic filename exists, call get request for content coverpic data
+		console.log("ownerpicuri = ", ownerpicuri)
+		if(hostpicuri) await this.props.getCoverPic(hostpicuri, this._handleHostImageReceived, 'small');
+		if(ownerpicuri) await this.props.getCoverPic(ownerpicuri, this._handleOwnerImageReceived, 'small');
+
+	}
+
+	async componentDidUpdate(prevProps){
+		var { ownerpicuri, hostpicuri } = this.props;
+		if(hostpicuri !== prevProps.hostpicuri) await this.props.getCoverPic(hostpicuri, this._handleHostImageReceived, 'small');
+		if(ownerpicuri !== prevProps.ownerpicuri) await this.props.getCoverPic(ownerpicuri, this._handleOwnerImageReceived, 'small');
+		
+	}
+
 	/*shouldComponentUpdate(nextProps, nextState) {
         const differentView = this.props.webAppView !== nextProps.webAppView;
         console.log('differentView = ',differentView);
@@ -451,6 +607,18 @@ export default class webAppView extends React.Component {
 			imageWidth: width,
 			imageHeight: height
 		}))
+	}
+
+	_handleOwnerImageReceived(event, data){
+		this.setState({
+			base64OwnerImage: 'data:image/jpeg;base64,' + data
+		});
+	}
+
+	_handleHostImageReceived(event, data){
+		this.setState({
+			base64HostImage: 'data:image/jpeg;base64,' + data
+		});
 	}
 
 	_handleItemsListUpdated(visibleItemsByIds){
@@ -600,10 +768,23 @@ export default class webAppView extends React.Component {
 		}))
 	}
 
+	// Needed to refresh OutfitPreview Modal with the complete outfit entity (containing child contents array) returned from http request
+	//setPreviewedOutfit(id){
+	//	this.setState(prevState => ({
+	//		...prevState,
+	//		previewedOutfitId: id,
+	//	}))
+	//}
+
 	render() {
 		const {
+			navEventCallbacks,
+			match,
 			setPreviewFocus,
 			unsetPreviewFocus,
+			showMenu,
+			hideMenu,
+			positionMenu,
 		} = this.props;
 
 		var { 
@@ -612,13 +793,16 @@ export default class webAppView extends React.Component {
 			owner,
 			viewState,
 			isFocusedPreview,
+			isPopupMenuVisible,
+			popupMenuType,
+			webAppView,
 		} =  this.props;
 
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
 		console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
 		let modalContent = null;
 
-		const createModalFragment = (pathname) => (
+		const createModalFragment = (pathname, iniOutfitPreview) => (
 			<React.Fragment>
 				{/*
 					<Redirect push={true} to={{
@@ -627,13 +811,96 @@ export default class webAppView extends React.Component {
 					}}/>
 					<Route path={pathname} component={ModalContentSelection} />
 				*/}
-				<ModalContentSelection/>
+				<ModalContentSelection owner={owner} iniOutfitPreview={iniOutfitPreview}/>
 			</React.Fragment>
 		);
+
+		const getSiteNav = () => (
+			<SiteNav 
+				navEventCallbacks={navEventCallbacks} 
+				webAppView={webAppView} 
+				match={match}
+				ownerUsernamePath={ownerUsernamePath} 
+				showMenu={showMenu}
+				hideMenu={hideMenu}
+				positionMenu={positionMenu}
+				isPopupMenuVisible={isPopupMenuVisible}
+				popupMenuType={popupMenuType}
+			/>
+		);
+
+		const getOutfitPreviewModal = (props) => {
+
+			const {
+				showComments,
+			} = props;
+
+			const {
+				compoundStyles,
+				overrideOnExit,
+				isCommentsShown,
+			} = props;
+
+			return(
+				<div 
+					className={Styles.contentContainerFocused}
+					style={{
+						padding:'0px',
+						margin:'0px',
+						display: 'inline-block',
+						//height:'calc(100% - 20px)',
+						...compoundStyles,
+					}}
+				>
+	
+					<PicturePreviewContainer 
+						imageWidth={this.state.imageWidth}
+						imageHeight={this.state.imageHeight}									
+						imageResized={this._handleImageResized}
+						visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+						populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
+						itemIdHovered={this.state.itemIdHovered}
+						changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
+						unsetPreviewFocus={unsetPreviewFocus}
+						isCommentsShown={isCommentsShown}
+					/>
+	
+					<VisibleItemList 
+						visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
+						populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)} 
+						itemIdHovered={this.state.itemIdHovered}
+						changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
+						imageHeight={this.state.imageHeight} 
+						toggleMetricPanel={this.toggleMetricPanel}
+						hideHeader={
+							(isHidden) => this.setState(prevState => ({
+								isHeaderHidden: isHidden,
+							}))
+						}
+						hideControls={
+							(isHidden) => this.setState(prevState => ({
+								isControlsHidden: isHidden,
+							}))
+						} />
+	
+					<ProfileViewControlsContainer 
+						unsetPreviewFocus={unsetPreviewFocus}
+						isControlsHidden={this.state.isControlsHidden} 
+						overrideOnExit={overrideOnExit}
+						isCommentsShown={isCommentsShown}
+						showComments={(event, isShown) => {
+							showComments(isShown);
+						}}
+					/>
+	
+				</div>
+			);
+		}
 
 		//Get the users saved items if not already exists
 		Object.keys(this.props.savedItemMap).length === 0 ? this.props.getSavedItems() : null;
 
+		// TODO make this switch statement depend on OxiAppConstants FormTypes
 		switch(true){
 			case this.props.formType === OxiAppConstants.FormType.LOGIN:
 				modalContent = createModalFragment(`${this.props.match.url}/login`);
@@ -647,9 +914,16 @@ export default class webAppView extends React.Component {
 			case this.props.formType === OxiAppConstants.FormType.DISCARD_EDITS:
 				modalContent = createModalFragment(`${this.props.match.url}/discard-edits`);
 				break;
+			case this.props.formType === OxiAppConstants.FormType.PROFILE_PIC:
+				modalContent = createModalFragment(`${this.props.match.url}/edit-profile-pic`);
+				break;
+			case this.props.formType === OxiAppConstants.FormType.OUTFIT_PREVIEW:
+				modalContent = createModalFragment(`${this.props.match.url}/outfit_preview`, (compoundStyles, overrideOnExit, showComments, isCommentsShown) => getOutfitPreviewModal({compoundStyles, overrideOnExit, showComments, isCommentsShown}));
+				break;
 			default:
 				break;
 		}
+
 		console.log('this.previousLocation = ', this.previousLocation);
 		console.log('location = ', location);
 		console.log('owner = ', owner);
@@ -659,6 +933,7 @@ export default class webAppView extends React.Component {
 				<Route path={this.props.match.url + 'profile'}/>
 		}*/
 		let ownerUsernamePath = owner ? `/${owner.username}` : '';
+
 		return(
 			<React.Fragment>
 				<Switch pathname >{/*location={isModal ? this.previousLocation : location}>*/}
@@ -679,11 +954,7 @@ export default class webAppView extends React.Component {
 							//Fetch all necesary data from the api server for the /browse page
 							<div>
 								{ /*this.props.navEventCallbacks.a(true)*/ }
-								<SiteNav 
-									navEventCallbacks={this.props.navEventCallbacks} 
-									webAppView={this.props.webAppView} 
-									match={this.props.match}
-									ownerUsernamePath={ownerUsernamePath} />
+								{getSiteNav()}
 								<div className={Styles.contentBlock}>
 									<div className={Styles.containerBrowse}>
 										{/*<div className={Styles.metricsContainer_div}>
@@ -693,6 +964,8 @@ export default class webAppView extends React.Component {
 											isOpen={this.state.isMetricPanelOpen}
 											toggleMetricPanel={this.toggleMetricPanel}
 											isFocusedPreview={isFocusedPreview}
+											base64OwnerImage={this.state.base64OwnerImage}
+											base64HostImage={this.state.base64HostImage}											
 										/>
 										<OutfitNav 
 											webAppView={this.props.webAppView}
@@ -701,6 +974,8 @@ export default class webAppView extends React.Component {
 											handleAddOutfitClicked={this._handleAddOutfitClicked}
 											pathname={pathname}
 											owner={owner}
+											//setPreviewedOutfit={this.setPreviewedOutfit}
+											previewedOutfitId={this.state.previewedOutfitId}
 											/*routeToHostProfile={(usernameUri) => this._handleNavBtnSelected(`/profile${usernameUri}`)}*/ />
 										{/*(location.state && location.state.modal) ? <ModalContentSelection/> : null*/}
 										<Admin/>
@@ -715,13 +990,7 @@ export default class webAppView extends React.Component {
 						render={(props) => (
 							<div>
 								{/*this.props.webAppView !== 'profile' ? this.props.navEventCallbacks.b(this.props.match.params.username) : null*/}
-								<SiteNav 
-									navEventCallbacks={this.props.navEventCallbacks} 
-									webAppView={this.props.webAppView} 
-									match={this.props.match}
-									ownerUsernamePath={ownerUsernamePath}
-									isHeaderHidden={this.state.isHeaderHidden}
-								/>
+								{getSiteNav()}
 								<div className={Styles.contentBlock}>
 									<div 
 										className={Styles.containerProfile} 
@@ -736,10 +1005,12 @@ export default class webAppView extends React.Component {
 											isOpen={this.state.isMetricPanelOpen}
 											toggleMetricPanel={this.toggleMetricPanel}
 											isFocusedPreview={isFocusedPreview}
+											base64OwnerImage={this.state.base64OwnerImage}
+											base64HostImage={this.state.base64HostImage}
 										/>
 
 										{
-											isFocusedPreview ?
+											false/*isDevice && isFocusedPreview*/ ?
 												(
 													<div 
 														className={Styles.contentContainerFocused}
@@ -795,6 +1066,8 @@ export default class webAppView extends React.Component {
 															handleAddOutfitClicked={this._handleAddOutfitClicked}
 															pathname={pathname}
 															owner={owner}
+															//setPreviewedOutfit={this.setPreviewedOutfit}
+															previewedOutfitId={this.state.previewedOutfitId}
 														/>
 
 														
@@ -820,11 +1093,7 @@ export default class webAppView extends React.Component {
 						render={(props) => (
 							<div>							
 								{ /*this.props.navEventCallbacks.c() */}
-								<SiteNav 
-									navEventCallbacks={this.props.navEventCallbacks} 
-									webAppView={this.props.webAppView} 
-									match={this.props.match}
-									ownerUsernamePath={ownerUsernamePath} />
+								{getSiteNav()}
 								{/*this.props.webAppView !== 'measurements' ? this.props.navEventCallbacks.c(this.props.match.params.username) : null*/}
 								<ProfileMenuContainer
 									//profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 

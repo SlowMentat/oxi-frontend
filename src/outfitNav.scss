@@ -60,12 +60,13 @@
 
 :local(.previewBrowseContainer){
 	composes:previewContainer;
-	background-color: var(--main-background-color);
 
 	@include desktop_rules {
+		background-color: unset;
 	}
 
 	@include mobile_rules {
+		background-color: var(--main-background-color);
 		border-radius: 0px;
 	}
 }
@@ -100,10 +101,11 @@
     color: white;
 
     @include desktop_rules {
-
+    	margin: 0px auto auto;
     }
 
     @include mobile_rules {
+    	margin: calc( ((5vh + 25px) / 4) - 5px ) auto auto;
     	display: inline-block;
     	margin: 0px;
     	width: unset;

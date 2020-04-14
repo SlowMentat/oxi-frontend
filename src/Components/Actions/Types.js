@@ -4,6 +4,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //Action Types
 export const SET_VISIBLE_FORM 		= 'SET_VISIBLE_FORM';
+export const SET_VISIBLE_FORM_OVERLAY = 'SET_VISIBLE_FORM_OVERLAY';
 export const SHOW_MODAL 			= 'SHOW_MODAL';
 export const SET_XCSRF_TOKEN 		= 'SET_XCSRF_TOKEN';
 export const SET_REQUEST_BODY 		= 'SET_REQUEST_BODY';
@@ -85,6 +86,7 @@ export const SET_POSITION_FILTER	= 'SET_POSITION_' + OxiAppConstants.MenuTypes.F
 export const SET_POSITION_HELP		= 'SET_POSITION_' + OxiAppConstants.MenuTypes.FILTER;
 export const SET_VISIBLE_HELP		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
 export const SET_VISIBLE_FILTER		= 'SET_VISIBLE_' + OxiAppConstants.MenuTypes.HELP;
+export const SET_VISIBLE_POPUP		= 'SET_VISIBLE_POPUP';
 
 export const UPDATE_OUTFIT_COVERPICURI = 'UPDATE_OUTFIT_COVERPICURI';
 

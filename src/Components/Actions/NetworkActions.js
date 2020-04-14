@@ -1,7 +1,7 @@
-import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import {normalize, denormalize} from 'normalizr';
-import {outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits} from '../../Util/Schema.js';
-import {buildItemContentsObject} from '../../Util/Schema.js'
+import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
+import { normalize, denormalize } from 'normalizr';
+import { outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits } from '../../Util/Schema.js';
+import { buildItemContentsObject } from '../../Util/Schema.js'
 import Cookies from 'universal-cookie';
 import qs from 'qs';
 import axios from 'axios';
@@ -21,8 +21,8 @@ import * as entityActions from './EntityActions/Index.js';
 import * as types from './Types.js';
 import * as genericActions from './GenericActions.js';
 import * as scaffolding from './Scaffolding.js';
-import {setFormVisibility} from './indexActions.js';
-import {RequestFailedException} from '../../Util/CustomExceptions.js';
+import { setFormVisibility , navigateTo} from './indexActions.js';
+import { RequestFailedException } from '../../Util/CustomExceptions.js';
 
 
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
@@ -71,6 +71,7 @@ export const loginConfig = (payload, serviceURL/*username, password*/) => {
 export function handleUnauthorizedRequest(response){
 	return function(dispatch){
 		console.log('response', response);
+
 		if(response.status === OxiAppConstants.HttpStatus.UNAUTHORIZED || response.status === OxiAppConstants.HttpStatus.REDIRECT){
 			console.log('Setting new csrf token');
 			console.log(response.headers['x-csrf-token']);
@@ -82,13 +83,15 @@ export function handleUnauthorizedRequest(response){
 			dispatch(setFormVisibility("Login", response.request.responseURL, response.config.method));
 			return response;
 		}
+		
 		return response;
 	}	
 };
 
 export function logout(){
 	//clear authorization token
-	if(cookies.set('authorization', null));
+	cookies.set('authorization', null);
+	axios.defaults.headers.common['authorization'] = null
 }
 
 //Thunks dispatched by anonymous callback functions passed to Axios response interceptor
@@ -187,7 +190,7 @@ export function createCompany(formData){
 
 //Post new profile entities to the server.  There should only ever be one profile entity,
 //however support for multiple profile entities is implemented here
-export function postProfile(profile){
+export function postProfile(profile, destination=OxiAppConstants.navRequestMap.b.toLowerCase()){
 	return function(dispatch){
 		//keep loacal ids
 		let id = profile.id;
@@ -202,7 +205,9 @@ export function postProfile(profile){
 				console.log("dispatching removeProfile");
 				//Change switch to profile view
 				//dispatch(setWebAppView('profile'));
-				dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
+
+				//dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase()));
+
 				//Add new profile data returned in the response body to the redux tree
 				dispatch(entityActions.replaceProfile({'owner': response.data}));
 				//populate the profile view with usr content
@@ -407,13 +412,13 @@ export function fetchImage(filename, callback, picture, cancel=()=>{} ){
 *
 *  @returns {object}		Promise resolving to an object where key is the filename and value is the response body (key:{string}, value:{object})		
 */
-export async function postImage(imageFile, generateOnSuccessHandler, filename){
+export async function postImage(imageFile, generateOnSuccessHandler, filename, isProfile=false){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
 	console.log("in postImage action");
 
 	return axios.post(
-		OxiAppConstants.serviceURL + '/uploadPhoto', 
+		OxiAppConstants.serviceURL + (isProfile ? '/updateProfilePhoto' : '/uploadPhoto'), 
 		imageFormData,
 		{
 			headers:{

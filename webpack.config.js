@@ -10,12 +10,28 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
 	//devtool: 'eval-source-map',
 	optimization:{
-		minimize: false
+		minimize: false,
+		chunkIds: 'named',
+		splitChunks: {
+			cacheGroups: {
+				default: false,
+				vendor: false,
+				//vendor chunk
+				vendor: {
+					name:'vendor',
+					//sy + async chunks
+					chunks: 'all',
+					//import file path contianing nodemodules
+					test: /node_modules/
+				}
+			}
+		}
 	},
 	entry: './src/App.js',
 	output: {
 		filename: "App.js",
-		path: path.resolve(__dirname, 'shop')
+		chunkFilename: '[name].js',
+		path: path.resolve(__dirname, 'shop'),
 	},
 	externals: {
 	  lodash: {
@@ -55,7 +71,8 @@ module.exports = {
 	    				loader:'babel-loader',
 	    				options: {
 	    					cacheDirectory: true, 
-	    					presets: ['react','env'],
+	    					presets: ['@babel/react','@babel/env'],
+	    					plugins: ["@babel/plugin-syntax-dynamic-import", "@babel/plugin-proposal-object-rest-spread",]
 	    				},
 	    			}
 	    		],

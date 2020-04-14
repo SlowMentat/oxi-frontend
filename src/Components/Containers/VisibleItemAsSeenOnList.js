@@ -19,7 +19,6 @@ const mapStateToProps = (state, props) => {
 	return ({
 		webAppView: state.appView.webAppView,
 		browseSelection: state.browseState.browseSelection,
-		browseSelection: state.browseState.browseSelection,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
 		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],
 

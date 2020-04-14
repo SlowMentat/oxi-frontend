@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {OxiAppConstants} from '../../../Util/OxiAppConstants.js'
 
 
-export default class MenuPointer extends React.Component{
+export default class MenuTail extends React.Component{
 	constructor(props){
 		super(props);
 	}
@@ -33,7 +33,7 @@ export default class MenuPointer extends React.Component{
 						d="m50 2.84e-5 -27.5 23.75 27.5 26.25" 
 						fill="none" 
 						stroke={stroke} 
-						stroke-width="5"/>
+						stroke-width={strokeWidth}/>
 				</g>
 			</svg>
 		);

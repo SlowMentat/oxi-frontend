@@ -17,9 +17,13 @@ input{
 }
 
 input::placeholder {
-	color: #fdfdfd50;
-  	font-size: 1.2em;
+	/*color: #fdfdfd50;
+  	font-size: 1.2em;*/
 	font-family: Roboto, cursive;
+
+    color: #999999;
+    font-size: 14px;
+    text-align: left;
 }
 
 .inputTextContainer_div input::placeholder {
@@ -123,17 +127,19 @@ input::placeholder {
 
 :local(.previewImageContainer_div){
     position: relative;
-    width: auto;
     max-height: 100%;
     height: 100%;
 
     @include desktop_rules {
-        padding-top: calc(5vh + 25px);
+        width: auto;
+        /*padding-top: calc(5vh + 25px);*/
+        padding-top: var(--pic-padding-top);
     }
 
     @include mobile_rules {
         /*padding-top: 40px;*/
         padding-top: 0px;
+        width: 100vw;
     }
 }
 
@@ -144,12 +150,15 @@ input::placeholder {
 
     @include desktop_rules {
         /*padding-top: calc(5vh + 25px);*/
-        max-width: calc((100vh - 200px) * var(--img-aspect-ratio));
-        border-radius: 4px;
+        /*max-width: calc((100vh - 200px) * var(--img-aspect-ratio));*/
+       /*border-radius: 4px;
         border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
+        border-bottom-right-radius: 0px;*/
         float: right;
         object-fit: contain;
+/*mark*/
+        object-fit: cover;
+        object-position: top;
     }
 
     @include mobile_rules {
@@ -177,6 +186,8 @@ input::placeholder {
     @include desktop_rules {
         margin-top: calc(5vh + 25px);
         height: 100%;
+/*mark*/
+        margin-top: 0px;
     }
 
     @include mobile_rules {
@@ -215,14 +226,18 @@ input::placeholder {
 }
 
 :local(.contentListContainer_div){
+    text-align: center;
+
     @include desktop_rules {
         float: right;
     }
 
     @include mobile_rules {
         height: 20px;
-        width: 100%;
-        margin: auto;
+        height: var(--clc-mobile-height);
+        /*width: 100%;*/
+        width: 100vw;
+        /*margin: auto;*/
     }
 }
 
@@ -254,7 +269,6 @@ input::placeholder {
     --retailer-dd-field-color: #4e4e4e;
     --user-dd-field-color: #4e4e4e;
     --form-lr-padding: 27px;
-    background-color: #fdfdfd;
     padding-top: 10px;
     padding-bottom: 10px;   
     --form-view-width: calc(100% - 20px);
@@ -264,12 +278,26 @@ input::placeholder {
         width: 600px;
         height: 780px;
         /*height: inherit;*/
-        border-radius: 3px;
-        position: relative;
+        /*border-radius: 3px;*/
+        /*position: relative;*/
+
+        --fvc-border-color: var(--color3);
+        margin: auto;
+        border-left: solid 1px var(--fvc-border-color);
+        border-right: solid 1px var(--fvc-border-color);
+        height: 100%;
+        background-color: #f9f9f9;
+
+        position: absolute;
+        top: 0px;
+        left: calc(50% - 600px/2);
+        opacity: 0;
+        transition: opacity 200ms linear;
     }
 
     @include mobile_rules {
         overflow: visible;
+        background-color: #fdfdfd;
         /*height: calc(100vh - #{$pageHeaderHeight});*/
         height: inherit;
         width: 100%;
@@ -358,6 +386,9 @@ input::placeholder {
     line-height: calc(var(--selectable-height) - 2*var(--submittable-border-width));
     padding: 0px;
     border-radius: var(--submittable-border-radius);
+
+    font-weight: unset;
+    color: #4b4b4b;
 }
 
 :local(.bangTab_div){
@@ -399,6 +430,19 @@ input::placeholder {
     position: relative;
     width: 100%;
     height: 35px;
+}
+
+/* resendEmailMessage_container_div */
+:local(.rem_container_div){
+    max-width: 300px;
+    padding: 17px;
+    margin-top: 68px;
+}
+
+:local(.rem_div){
+    font-size: 1.4rem;
+    letter-spacing: .08rem;
+    line-height: 2.1rem;
 }
 
 :local(.loginForm){
@@ -549,6 +593,74 @@ input::placeholder {
 }
 
 
+:local(.editProfilePic_div){
+    background-color: white;
+    border-radius: 4px;
+    --ctrls-height: 40px;
+    --picture-height: calc(100% - var(--ctrls-height) - 24px);
+
+    @include desktop_rules {
+        width: 500px;
+        height: 500px;
+    }
+
+    @include mobile_rules {
+        width: 90%;
+        height: 75%;
+    }
+}
+
+:local(.eppHeader_div){
+    padding-left: 10px;
+    position: relative;
+    height: 24px;
+    line-height: 24px;
+    font-size: 14px;
+    color: var(--color-mobile-icon-bg);
+}
+
+:local(.eppPicture_div){
+    height: var(--picture-height);
+    width: 100%;
+    text-align: center;
+    /*background-color: var(--color-mobile-icon-bg);*/
+    background-color: black;
+    /*background-color: #b2b2b2;*/
+}
+
+:local(.editProfilePicCtrls_div){
+    height: var(--ctrls-height);
+    width: 100%;
+    overflow: hidden;
+}
+
+.buttonHorizontalSlider_div{
+    --eepControlsTransitionPeriod: 200ms;
+    height: inherit;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    transition: transform 200ms cubic-bezier(.86,0,.07,1), opacity 200ms linear;
+}
+
+:local(.eppDisplayedControls_div){
+    display: inline-block;
+    width: 100%;
+    transition: opacity var(--eepControlsTransitionPeriod);
+}
+
+
+
+:local(.eppCtrl_div){
+    display: inline-block;
+    vertical-align: top;
+    font-size: 24px;
+    width: 48%;
+    height: inherit;
+    line-height: 40px;
+}
+
+
 :local(.controlContainerStyle){
     position: relative;
     height:  calc(5vh + 25px);
@@ -557,6 +669,7 @@ input::placeholder {
 
     @include desktop_rules {
         display: inline-flex;
+        display: none;
     }
 
     @include mobile_rules {
@@ -568,7 +681,8 @@ input::placeholder {
     text-align: center;
 
     @include desktop_rules {
-         height: calc(100% - 80px);
+         /*height: calc(100% - 80px);*/
+         height: calc(100%);
     }
 
     @include mobile_rules {
@@ -601,6 +715,14 @@ input::placeholder {
         left: 275px;
         top: calc(25px + 5vh);
         text-align: center; 
+
+        width: var(--ie-ctrl-width);
+        left: calc(-1*var(--ie-ctrl-width));        
+        top: 0px;        
+        --ie-ctrl-width: calc(75vw - 0.75*var(--img-preview-modal-height) - 400px);        
+        height: 60px;
+        width: 300px;        
+        margin-top: calc(30px - 12px);
     }
 
     @include mobile_rules {
@@ -624,7 +746,7 @@ input::placeholder {
 
     @include desktop_rules {
         object-fit: contain;
-        max-width: calc((100vh - 200px) * var(--img-aspect-ratio));
+        /*max-width: calc((100vh - 200px) * var(--img-aspect-ratio));*/        
         float: right;
     }
 
@@ -633,6 +755,37 @@ input::placeholder {
         max-width: 100vw;
         object-fit: cover;
 
+    }
+}
+
+:local(.outfitPreview_div){
+    --top-margin: 70px;
+    --img-preview-modal-height: 91vh;
+    background-color: #F9F9F9;
+    position: absolute;
+    box-shadow: 0px 0px 10px 0px #0000;
+
+    @include desktop_rules {
+        border-radius: 7px;
+        text-align: right;
+        width: 75%;
+        height: calc(var(--img-preview-modal-height));
+        left: 307px;
+        top: var(--top-margin);
+    }
+
+    @include mobile_rules {
+        border-radius: 0px;
+        text-align: left;
+        height: 100vh;
+        width: 185vw;
+        left: 0px;
+        /* left: 0px; */
+        top: 0px;
+        transition: transform 200ms ease-out;
+        border-radius: 0px;
+        transform: translateX(85vw);
+        transform: translateX(0px);
     }
 }
 

@@ -6,8 +6,7 @@ $sliderWidth: 15px;
 
     background-color: var(--main-background-color);
     --container-height: 714.5px;
-    height: calc(100vh - 80px);
-    margin-top: 80px;
+    height: calc(100vh - var(--page-header-height));
 
     @include desktop_rules {
         overflow: hidden;
@@ -15,6 +14,7 @@ $sliderWidth: 15px;
 
     @include mobile_rules {
         position: relative;
+        margin-top: var(--page-header-height);
     }
 }
 
@@ -136,7 +136,7 @@ $sliderWidth: 15px;
     margin-bottom: 10px;
 
     @include desktop_rules {
-        height: 100px;
+        height: 60px;
     }
 
     @include mobile_rules {
@@ -152,15 +152,17 @@ $sliderWidth: 15px;
 
 :local(.toleranceSettingsContianer_div){
     height: calc(100% - 110px);
-    --main-height: 25px;
     position: relative;
 
     @include desktop_rules {
-        padding-top: 50px;
+        padding-top: 0px;
+        height: calc(100% - 64px);
+        --main-height: 24px;
     }
 
     @include mobile_rules {
         padding-top: 0px;
+        --main-height: 25px;
     }
 }
 
@@ -169,8 +171,10 @@ $sliderWidth: 15px;
     width: 300px;
 
     @include desktop_rules {
-        margin-bottom: 20px;
+        /*margin-bottom: 20px;*/
         border-right: none;
+        padding-top: calc(23px + 25px);
+        height: calc(123px + 40px);
     }
 
     @include mobile_rules {
@@ -189,7 +193,7 @@ $sliderWidth: 15px;
 
     @include desktop_rules {
         font-size:30px;
-        margin-top: calc(50px - 15px);
+        margin-top: calc(30px - 15px);
     }
 
     @include mobile_rules {
@@ -197,6 +201,20 @@ $sliderWidth: 15px;
         margin-top: calc(25px - 15px);
         text-align: left;
         margin-left: calc(-1*var(--profile-ctrl-container-padding)/2);
+    }
+}
+
+:local(.apparelPreferences_div){
+
+    @include desktop_rules {
+        margin-bottom: 40px;
+    }
+
+    @include mobile_rules {
+        margin-bottom: 10px;
+        margin-top: 45px;
+        border-top: solid 1px #bbbbbb;
+        padding-top: 20px;
     }
 }
 
@@ -269,6 +287,22 @@ $sliderWidth: 15px;
 
     @include mobile_rules {
         top: 5px;
+    }
+}
+
+:local(.unitSwitch_div){
+    composes: inputNumberContainer_div;
+    position: absolute;
+    top: 45px;
+    margin-top: 0px;
+    width: 120px;
+
+    @inlcude desktop_rules {
+        right: 300px;
+    }
+
+    @include mobile_rules {
+        left: calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding));
     }
 }
 
@@ -371,7 +405,6 @@ $sliderWidth: 15px;
 
 :local(.measurements_div){
     position:relative;
-    --main-height:25px; 
     --tick-display-cnt: 9;
     /*--mvalue-width: calc(100%/var(--tick-display-cnt)); */  
     --tick-border-width: 1px;
@@ -381,6 +414,15 @@ $sliderWidth: 15px;
     height: var(--main-height);
     margin-top: 2px;
     margin-bottom: 2px;
+
+
+    @include desktop_rules {
+    --main-height:24px; 
+    }
+
+    @include mobile_rules {
+    --main-height:25px; 
+    }
 }
 
 :local(.measurementValue_div){ 
@@ -513,10 +555,19 @@ $sliderWidth: 15px;
 
 :local(.toleranceUnitContainer_div){
     position: absolute;
-    height: 100%;
     width: 100px;
-    top: 0px;
     left: calc(var(--profile-ctrl-contianer-width) - var(--profile-ctrl-container-padding) + 5px);
+
+    @include desktop_rules {
+        bottom: 0px;
+        height: 50px;
+        width: 50px;
+    }
+
+    @include mobile_rules {
+        top: 0px;
+        height: 100%;
+    }
 }
 
 :local(.toleranceUnit_div){

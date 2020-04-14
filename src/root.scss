@@ -1,6 +1,7 @@
 @use "sass:map";
+@use "@material/button/mdc-button";
 
-$pageHeaderHeight: 80px;
+$pageHeaderHeight: 60px;
 $mobileFooterHeight: 40px;
 $mobileMetricPanelWidth: 320px;
 $desktopMetricPanelWidth: 300px;
@@ -44,15 +45,29 @@ html{
 	font-size: 10px;
 	height: 100%;
 
-	/*@media screen and (max-aspect-ratio: 1/1){
-		position: fixed;
-	}*/
+	@include desktop_rules{
+		overflow: hidden;
+	}
 	@include mobile_rules {
 		position: fixed;
 	};
 }
 
 body{
+
+	--color-01: #304244;
+		--color-01-tint-01: #506a6d; --color-01-tint-02: #90a7a9; 
+		--color-01-shade-01: #152628; --color-01-shade-02: #071719;
+	--color-02: #d1c6c3;
+		--color-02-tint-01: #fffaf9; --color-02-tint-02: #ffffff; 
+		--color-02-shade-01: #9A8B88; --color-02-shade-02: #534845;
+	--color-03: #ece0dc; 
+		--color-03-tint-01: #fffcfc; --color-03-tint-02: #ffffff; 
+		--color-03-shade-01: #B4A19B; --color-03-shade-02: #76635C;
+	--color-04: #bb8558; 
+		--color-04-tint-01: #ffcfa6; --color-04-tint-02: #ffddc0; 
+		--color-04-shade-01: #86552c; --color-04-shade-02: #48280D;
+	--gray02: #fcfcfc;
 
 	--color1: #565656;
 	--color2: #d9d9d9;	
@@ -64,7 +79,8 @@ body{
 	--color8: #fd357e;
 	--color9: #263238;
 	--colorBorder: #c1c1c1;
-	--color-mobile-icong-bg: #263238;
+	/*--color-mobile-icon-bg: #263238;*/
+	--color-mobile-icon-bg: #fff;
 	--color-generic-icon: #4f4f4f;
 	--color-password-req: #f9e5e4;
 
@@ -77,6 +93,7 @@ body{
 	--mobile-metric-panel-width: calc(1*#{$mobileMetricPanelWidth});
 	--page-header-height: calc(1*#{$pageHeaderHeight});
 	--mobile-footer-height: calc(1*#{$mobileFooterHeight});
+	--desktop-footer-height: 0px;
 
 	--shadow-color: #00000025;
 	--mat-height-4: 0px 0px 4px 0px var(--shadow-color);
@@ -98,6 +115,12 @@ body{
 
 	/*outfit.scss*/
 	--ombc-frame: 3px;
+	/*previewImageContainer_div padidng-top*/
+	--pic-padding-top: 0px;
+	--cc-mobile-height: 40px;
+	--cc-desktop-height: 60px;
+	/* contentListContainer_div height */
+	--clc-mobile-height: 20px;
 
 
 	background-color: #fdfdfd;
@@ -170,23 +193,24 @@ a{
 :local(.logoContainer_div){
 	/*width: 100%;*/
     transition: width 175ms linear;
-    height: 78%;
     margin-top: 8px;
     /* display: inline-table; */
     position: absolute;
     top: 0px;
     /*background-color: #3b3739;*/
-    background-color: #263238;
+    /*background-color: #263238;*/
 
 	@include desktop_rules {
 		left:0px;
-		width:307px;
+		/*width:307px;*/
     	border-bottom-right-radius: 5px;
     	border-top-right-radius: 5px;
+    	height: calc(.78*var(--page-header-height));
     }
 
     @include mobile_rules {
     	right:0px;
+    	height: 78%;
     	width:80px;
         border-bottom-left-radius: 5px;
     	border-top-left-radius: 5px;
@@ -203,7 +227,7 @@ a{
     z-ingex: -1;
 
     @include desktop_rules {
-    	left: 227px;
+    	left: 0px;
     }
 
     @include mobile_rules {
@@ -336,7 +360,7 @@ a{
 :local(.metricsContainer_div){
 	position: absolute;
     left: 0px;
-    height: calc(100vh - #{$pageHeaderHeight} - 40px);
+    height: calc(100vh - #{$pageHeaderHeight} - var(--desktop-footer-height));
     border-right-style: solid;
     border-right-width: 1px;
 
@@ -359,20 +383,21 @@ a{
 	top: 0;
 	width: 100%;
 	height: $pageHeaderHeight;
-	position: fixed;
 	font-size: 100%;
 
     @include desktop_rules {
-    	border-bottom: none;
-    	background-color: var(--color-mobile-icong-bg);
+    	border-bottom: solid 1px var(--color-02);
+    	background-color: var(--color-mobile-icon-bg);
     }
 
     @include mobile_rules {
+		position: fixed;
     	/*box-shadow: 0px -11px 15px 0px black;*/
     	box-shadow: var(--mat-height-8);
     	transition: transform var(--item-transition-period) linear;
    	 	will-change: transform;
     	background-color: #eeeeee;
+    	height: 80px;
     	/*border-bottom: solid 1px #c1c1c1;*/
     }
 }
@@ -403,6 +428,24 @@ a{
     }
 }
 
+:local(.managementContainer_div){
+	position: absolute;
+	right: calc(23px + 50px);
+	top: 0px;
+
+    @include desktop_rules {
+		width: 300px;
+		height: var(--page-header-height);
+    }
+
+    @include mobile_rules {
+    	width: 0px;
+    	display: none;
+    	height: 0px;
+    	top: calc(-1*var(--page-header-height))
+    }
+}
+
 /*:local(.logo_svg){
 	position: absolute;
     width: auto;
@@ -414,12 +457,14 @@ a{
 
 :local(.contentContainer){
 	position: relative;
-    height: calc(100% - 40px);
+    /*height: calc(100% - 40px);*/
 	padding-left: 0px;
 
     @include desktop_rules {
-		/*padding-left: 400px; */
-		padding-top: 80px;
+		/*margin-top: var(--page-header-height);*/
+		margin-top: 0px;
+		height: calc(100vh - var(--page-header-height));
+		padding-top: 0px;
     }
 
     @include mobile_rules {
@@ -432,21 +477,110 @@ a{
 
 :local(.contentContainerFocused){
 	composes:contentContainer;
-	width:70%;
 	white-space:nowrap;
 
 	@include desktop_rules {
 		padding-left: 400px; 
 		margin-left: 300px;
-		padding-top: 80px
+		padding-top: 80px;
+        transition: opacity 200ms linear;
+        width: auto;
+        height: inherit;
 		/*padding-top: 0px;*/
     }
 
     @include mobile_rules {
 		padding-left: 0px; 
-		width: 100%;
+		width: 100vw;
 		/*height: 100%;*/
 		/*height: calc(100% - 55px);*/
+    }
+}
+
+/*.contentContainerFocused-enter{	
+	@include desktop_rules {
+		transform: scale(0);
+		opacity: 0;
+    }
+
+    @include mobile_rules {
+    }
+}
+
+.contentContainerFocused-enter-active{
+	@include desktop_rules {
+		transform: scale(1);
+		opacity: 1;
+    }
+
+    @include mobile_rules {
+    }
+}
+
+.contentContainerFocused-exit{
+	@include desktop_rules {
+		transform: scale(1);
+		opacity: 1;
+    }
+
+    @include mobile_rules {
+    }
+}*/
+
+.contentContainerFocused-exit-active{
+	@include desktop_rules {
+		transform: scale(0);
+		opacity: 0;
+    }
+
+    @include mobile_rules {
+    }
+}
+
+
+.itemFormContainer{
+	opacity: 0;
+	transition: transform 200 linear;
+
+}
+
+.itemFormContainer-enter{	
+	@include desktop_rules {
+		transform: scale(2);
+		opacity: 0;
+    }
+
+    @include mobile_rules {
+    }
+}
+
+.itemFormContainer-enter-active{
+	@include desktop_rules {
+		transform: scale(1);
+		opacity: 1;
+    }
+
+    @include mobile_rules {
+    }
+}
+
+.itemFormContainer-exit{
+	@include desktop_rules {
+		transform: scale(1);
+		opacity: 1;
+    }
+
+    @include mobile_rules {
+    }
+}
+
+.itemFormContainer-exit-active{
+	@include desktop_rules {
+		transform: scale(2);
+		opacity: 0;
+    }
+
+    @include mobile_rules {
     }
 }
 
@@ -461,6 +595,20 @@ a{
     	width: 45px;
     	border-right: solid 1px var(--color2);
     	padding-right: 5px;
+
+    	left: 307px;
+    	height: var(--cc-desktop-height);
+    	padding: 0px;
+    	top: var(--top-margin);
+    	border: none;
+		background-color: #a1c3d2;
+    	border-top-left-radius: 6px;
+    	border-top-right-radius: 6px;
+    	--icon-color: black;
+    	width: inherit;
+    	border: none;
+    	padding-top: 15px;
+		text-align: center;
     }
 
     @include mobile_rules {
@@ -469,10 +617,11 @@ a{
     	left: 0px;
    		top: unset;
    		bottom: 0px;
-   		height: 40px;
+   		height: var(--cc-mobile-height);
    		padding-right: 0px;
    		padding-top: 7.5px;
-   		width: 100vw;
+   		/*width: 100vw;*/
+   		width:100%;
    		display: block;
    		/*border: unset;
    		border-top: solid 1px #a1a1a1;*/   		
@@ -484,8 +633,16 @@ a{
 	/*composes: controlsContainer;*/
 
 	@include desktop_rules {
-    	background-color: var(--main-background-color);
-    }
+    	/*background-color: var(--main-background-color);*/
+    	position: absolute;
+		top: 120px;
+		width: 120px;
+		text-align: center;
+		background-color:#d59ab1;
+		border-radius: 2px;
+		z-index: 100;
+		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 10px);    
+	}
 
     @include mobile_rules {
     	background-color: var(--main-background-color);
@@ -504,12 +661,23 @@ a{
 
 :local(.controlsContainerPreviewMode){
 	composes:controlsContainer;
+	--translate-y: 0px;
 
 	@include desktop_rules {
+		/* OLD
     	left: 275px;
+    	*/
+    	left: 307px;
+    	width: 16%;
+		width: calc(75% - 0.75*var(--img-preview-modal-height) - 400px);
+		background-color: unset;
+		border-bottom: solid 1px var(--color2);
+		border-radius: 0px;
+		background-color: white;
     }
 
     @include mobile_rules {
+    	transform: 'translateY(var(--translaty-y))';
     }
 }
 
@@ -526,6 +694,8 @@ a{
 		position: absolute;
     	display: block;
     	border-bottom: solid 1px #d9d9d9;
+
+    	display: none;
     }
 
     @include mobile_rules {
@@ -588,12 +758,13 @@ a{
 	will-change: transform;
 	transition: transform 100ms linear; 
 
-	--fz-color: #ffffff;
-    --nfz-color: #515151;
+	--fz-color: var(--color-01-tint-02);
+    --nfz-color: var(--color-03);
     --bar-fill-color: #54c2f1a8;
     /*--bar-border-color: #54c2f1;*/
-    --bar-border-color: var(--color-mobile-icong-bg);
+    --bar-border-color: var(--color-mobile-icon-bg);
     --moulding-radius:5px;
+    --body-height: calc((100vh - 80px - 165px - 20px - 6px - 45px)*0.5);
 	border-bottom-style: none;
     border-width: 20px;
     border-color: #dadada;
@@ -602,11 +773,14 @@ a{
     /*--x-axis-range: calc(300px - 13vh - 30px);*/
 
 	@include desktop_rules {
-    	--x-axis-range: calc(#{$desktopMetricPanelWidth} - 13vh - 30px);
-		height: calc(100vh - #{$pageHeaderHeight} - 40px - 8px);
+		border-right: solid 1px var(--color-02);
+		padding-top: 0px;
+
+    	--x-axis-range: calc(#{$desktopMetricPanelWidth} - 13vh - 23px);
+		height: calc(100vh - #{$pageHeaderHeight} - var(--desktop-footer-height) - 8px);
 		/*padding-top: calc(80px + 7px);*/
-		margin-top:80px;
-		padding-top: 7px;
+		/*margin-top: $pageHeaderHeight;*/
+		margin-top: 0px;
 		left: -1px;
 		z-index: unset;
 	}
@@ -623,6 +797,7 @@ a{
     	height: calc(100vh + 2px);
     	border-radius: 0px;
     	top: -9px;
+    	background-color: #ffffff;
 	}
 } 
 
@@ -651,11 +826,13 @@ a{
 }
 
 :local(.titleContainer_div){
-	border: solid 1px var(--colorBorder);
+	/*border: solid 1px var(--colorBorder);
     background-color: white;
-    border-radius: 5px;
+    border-radius: 5px;*/
 
 	@include desktop_rules {
+		/*background-color: var(--gray02);*/
+		/*background-color: #ffffff;*/
 		display: block;
 	}
 
@@ -703,16 +880,19 @@ a{
 	/*height:100%;*/
     border-style: solid;
     border-width: 1px;
-    border-color: #c1c1c1;
+    /*border-color: #c1c1c1;
     border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    background-color: white;
+    border-bottom-right-radius: 3px;*/
+    /*background-color: white;*/
     margin-top: 8px;
     left: 0px;
 
 	/*web*/
 	/*@media screen and (min-aspect-ratio: 1/1){*/
 	@include desktop_rules {
+		margin-top: 0px;
+		border: unset;
+		border-radius: unset;
 	}
 
 	/*mobile*/
@@ -789,7 +969,8 @@ a{
 	/*background-color: rgba(28, 32, 35, 0);*/
 
 	@include desktop_rules {		
-		height: calc(100% - #{$pageHeaderHeight});
+		/*height: calc(100% - #{$pageHeaderHeight});*/
+		height: 100%;
 		width: auto;
 	}
 
@@ -800,6 +981,8 @@ a{
 		height: calc(100% - 40px);
 		/*margin-top: -30px;*/
 		margin-top: 0px;
+		background-color: black;
+		border-radius: 0px;
 	}
 }
 
@@ -821,13 +1004,16 @@ a{
 
 :local(.outfitBlock){
 	composes: stdBlock;
-	height: calc(100vh - #{$pageHeaderHeight} + 40px);
+	height: calc(100vh - #{$pageHeaderHeight} + var(--desktop-footer-height));
 	position: relative;
 
 	@include desktop_rules {
 		margin-left: 307px;
-		height: clac(100vh -40px);
-		padding-top: 80px;
+		/*height: calc(100vh - var(--desktop-footer-height));*/
+		height: inherit;
+		height:calc(100vh - var(--page-header-height) + var(--desktop-footer-height));
+		/*padding-top: var(--page-header-height);*/
+		padding-top: 0px;
 	}
 
 	@include mobile_rules {
@@ -952,7 +1138,7 @@ a{
 	height: 270px;
     width: 100%;
     margin: 0px;
-    background-color: var(--color-mobile-icong-bg);
+    background-color: var(--color-mobile-icon-bg);
     padding-top: 25px;
 
 	@include desktop_rules {
@@ -1041,7 +1227,7 @@ a{
     	margin: unset;
     	width: 100vw;
     	height: 50px;
-    	background-color: var(--color-mobile-icong-bg);
+    	background-color: var(--color-mobile-icon-bg);
 	}
 }
 
@@ -1127,7 +1313,7 @@ a{
     	--button-width: 150px;
     	width: var(--button-width);
     	margin: auto;
-    	border: solid 8px var(--color-mobile-icong-bg);
+    	border: solid 8px var(--color-mobile-icon-bg);
     	border-radius: 15px;
     	background-color: var(--color8);
 	}

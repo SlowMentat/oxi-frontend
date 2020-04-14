@@ -47,8 +47,8 @@ class BrowseFilterMenu extends React.Component{
 			    	'top': `${this.props.filterMenuPositiony}`,				
 				}}>
 				<div>
-					<div className={menuStyles.menuTitleContainer_div}>
-			   		 <SvgIcon name='MenuPointer' />
+					<div className={menuStyles.menuTail_div}>
+			   		 <SvgIcon name='MenuTail' />
 			   		</div>
 			   		<div>
 			   			<div id="filterTitle" className={menuStyles.menuTitle_div}>

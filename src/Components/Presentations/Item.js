@@ -259,22 +259,30 @@ export class ItemInfo extends React.Component {
 
 		return(
 			<CSSTransition
-				tiemout={400}
+				//tiemout={1000}
+				timeout={{enter:400, exit:400}}
 				classNames="expandedItemInfoContainer_div"
 				in={isExpanded}
-				unmountOnExit 
+				unmountOnExit={false} 
 			>
 				<div 
-					className={ItemStyles.expandedItemInfoContainer_div} 
-					style={this.props.styles}
+					className={ItemStyles.expandedItemInfoContainer__div} 
+					style={{
+						...this.props.styles, 
+						...(isExpanded ? 
+							({opacity: 1}) : 
+							({opacity: 0, transition: 'transform var(--item-info-transition-period) linear 70ms, opacity 0ms linear var(--item-transition-total)'}))
+					}}
 				>
 					<CSSTransition
-						//timeout={}
+						timeout={{enter:400, exit:400}}
 						classNames="expandedItemInfo_div"
 						in={isExpanded} 
-						unmountOnExit 
+						unmountOnExit={false} 
 					>
-						<div className={ItemStyles.expandedItemInfo_div}>
+						<div 
+							className={ItemStyles.expandedItemInfo__div}
+						>
 							<div className={ItemStyles.variantOptionsContainer_div}>
 								<div className={ItemStyles.variantSizeOptionsContainer_div}>
 									<div className={ItemStyles.variantTitle_div}>
@@ -286,7 +294,7 @@ export class ItemInfo extends React.Component {
 												availableSizes.map(size => (
 													<div 
 														className={ItemStyles.sizeVariant_div}
-														style={size === this.state.selectedSize ? ({'background-color':'var(--color-mobile-icong-bg)',color:'white'}) : ({})}
+														style={size === this.state.selectedSize ? ({'background-color':'var(--color-mobile-icon-bg)',color:'white'}) : ({})}
 														onTouchStart={(event) => {
 															event.stopPropagation();
 															toggleMetricPanel(event, true); 
@@ -881,29 +889,24 @@ export class Item extends React.Component{
 		let isProfileView = (this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase());
 	
 		switch(true){
-			//Profile webAppView
-			case this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase():
-				//itemContainerStyles = !isSelected ?
-				//	ItemStyles.itemContainer_div :
-				//	this.props.viewState === OxiAppConstants.viewState.PREVIEW ? 
-				//		ItemStyles['itemContainerPreview_div--selected'] : 
-				//		ItemStyles['itemContainerEdit_div--selected'];
-
-				//itemContainerStyles = isExpanded ?
-				//	ItemStyles.expandedItemContainer_div : 
+			// Not Browsing apparel
+			case this.props.browseSelection !== OxiAppConstants.browseSelection.b:
 					itemContainerStyles = isCurrentSelection ?
 						ItemStyles['itemContainerPreview_div--selected'] : 
 						ItemStyles.itemContainer_div
 				break;
-			//Browse webAppView
-			case this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase():
 
+			// webAppView is Browse and Browsing Apparel.
+			case 
+				this.props.browseSelection === OxiAppConstants.browseSelection.b &&
+				this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase():
 				itemContainerStyles = !isSelected ? 
 					ItemStyles.itemContainer_div :
 					this.props.browseSelection === 'apparel' ?
 						ItemStyles['itemContainerBrowse_div--selected'] :
 						null;
 				break;
+
 			default:
 				break;
 		}
@@ -952,6 +955,7 @@ export class Item extends React.Component{
 			    tiemout={200}
 			    classNames="itemContainer_div"
 			    in={this.props.expandedViewState && !isExpanded}
+			    //in={isExpanded}
 			>
 				<div 
 					className={isExpanded ? ItemStyles['itemContainerPreview_div--opened'] : itemContainerStyles}
@@ -1036,9 +1040,11 @@ export class Item extends React.Component{
 						collapseItem={collapseItem}
 						expandItem={expandItem}
 						apparelTypeIcon={
-							apparelTypeByIds !== undefined && platform === OxiAppConstants.PLATFORM ? 
-								apparelTypeByIds[apparelType].iconName : 
-								null
+							apparelTypeByIds === undefined || platform !== OxiAppConstants.PLATFORM ? 
+								null :
+								apparelTypeByIds[apparelType] ? 
+									apparelTypeByIds[apparelType].iconName : 
+									null
 						}
 						onBookmarkClicked={(event) => {
 							event.stopPropagation();

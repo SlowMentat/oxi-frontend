@@ -1,15 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
 //import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';
-import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import {denormalizeOutfit} from '../../Util/Schema.js';
+
+import {
+	handleUnauthorizedRequest, 
+	requestInterceptor, 
+	loginConfig,
+	cookies
+} from '../../Components/Actions/indexActions.js';
+
+import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
+import { denormalizeOutfit } from '../../Util/Schema.js';
 import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js'
-import LoginFormContainer from '../../Components/Containers/LoginFormContainer.js'
+import FormLoginContainer from '../../Components/Containers/FormLoginContainer.js'
 import {InputTextField, InputTextFieldAccount} from '../../Components/Presentations/CommonElements.js';
 /*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
 import TypePants from '../SvgAssets/Icons/TypePants.js';
@@ -20,49 +27,48 @@ import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import CreateAccountStyles from '../../createAccount.scss';
 
 import { Route, Switch, Redirect } from 'react-router-dom';
+import {logout} from '../../Components/Actions/indexActions.js';
+import {Button} from './Controls.js';
+
+import CroppableImageForm from '../../Util/CroppableImageForm.js';
+import ReactCrop, { makeAspectCrop } from 'react-image-crop';
+import {ReactCropStyles} from '../../reactCrop.scss';
+import { usePrevious } from '../../Util/Misc.js';
+import Comments from '../../Components/Presentations/Comments.js';
 
 
 //=========Form selection switch block//=========
 
+const testComments = [
+	"This is a bangarang outfit. So bangarang, in fact, that I became pan the womaaaan and defeated captian hook... He said my form was goooood.",
+	"Just came here to say SWAG!",
+	"O..M..G... love EEEEEHT"
+]
+
 function FormDeck(props){
-	switch(props.formType){
-		case OxiAppConstants.FormType.LOGIN:
-			console.log('login hit')
-			return (
-				<LoginFormContainer isModal={true}/>
-			)
+	const [isCommentsShown, setIsCommentsShown] = useState(false);
 
-		case OxiAppConstants.FormType.ADD_ITEM:
-			return (
-				<ItemForm 
-					{
-						...{
-							...props,
-							submitContext: "Add",
-						}
-					}			
-				/>
-			)
+	const {
+		iniOutfitPreview,
+		closeModal,
+		deselectAndPropogate
+	} = props;
+	
+	const {
+		formType,
+		content,
+		overlayModal,
+	} = props;
 
-		case OxiAppConstants.FormType.UPDATE_ITEM:
-			return (
-				<ItemForm 
-					cancelAction={props.cancelAction} 
-					submitAction={props.submitAction} 
-					submitContext="Update"
+	console.log('props.formType = ', formType);
 
-					math={props.match}
-					history={props.history}
+	const [iniOP, setIniOP] = useState(() => iniOutfitPreview);
+	var overlayForm = null;
+	var form = null;
 
-					getSuggestion={props.getSuggestion}
-					getApparelTypes={props.getApparelTypes}
-
-					allApparelTypes={props.allApparelTypes}
-				/>
-			)
-
-		case OxiAppConstants.FormType.DISCARD_EDITS:
-			return (
+	switch(true){
+		case overlayModal === OxiAppConstants.FormType.DISCARD_EDITS:
+			overlayForm = (
 				<DiscardForm 
 					requestedNav={props.requestedNav}
 					cancelAction={props.cancelAction}
@@ -72,14 +78,167 @@ function FormDeck(props){
 					items={props.items}
 					clearUpdates={props.clearUpdates}
 					clearInvalidations={props.clearInvalidations}
-					math={props.match}
+					match={props.match}
 					history={props.history}
-				/>
-			)
+					isOverlay={true}
+					customStyles={{
+						'background-color':'unset'
+					}}
+				/>		
+			);
+			break;
 
 		default:
-			return null
+			break;
+	}
+
+	switch(true){
+		case formType === OxiAppConstants.FormType.LOGIN:
+			console.log('login hit')
+			form = (
+				<FormLoginContainer isModal={true}/>
+			)
+			break;
+
+		/*case formType === OxiAppConstants.FormType.ADD_ITEM:
+			return (
+				<ItemForm 
+					{
+						...{
+							...props,
+							submitContext: "Add",
+						}
+					}			
+				/>
+			)*/
+
+		case formType === OxiAppConstants.FormType.UPDATE_ITEM:
+			form = (
+				<ItemForm 
+					cancelAction={props.cancelAction} 
+					submitAction={props.submitAction} 
+					submitContext="Update"
+
+					match={props.match}
+					history={props.history}
+
+					getSuggestion={props.getSuggestion}
+					getApparelTypes={props.getApparelTypes}
+
+					allApparelTypes={props.allApparelTypes}
+				/>
+			)
+			break;
+
+		case formType === OxiAppConstants.FormType.DISCARD_EDITS:
+			form = (
+				<DiscardForm 
+					requestedNav={props.requestedNav}
+					cancelAction={props.cancelAction}
+					submitAction={props.confirmDiscardSubmitAction}
+					outfits={props.outfits}
+					contents={props.contents}
+					items={props.items}
+					clearUpdates={props.clearUpdates}
+					clearInvalidations={props.clearInvalidations}
+					match={props.match}
+					history={props.history}
+					isOverlay={false}
+				/>
+			)
+			break;
+
+		case formType === OxiAppConstants.FormType.PROFILE_PIC:
+			form = (
+				<ProfilePicForm
+					cancelAction={props.cancelAction} 
+					submitAction={props.submitAction} 
+					//profile={props.profile}
+					owner={props.owner}
+					getCoverPic={props.getCoverPic}
+					addProfilePic={props.addProfilePic}
+					//username={props.profile.username}}
+				/>
+			)
+			break;
+
+		case (
+			formType === OxiAppConstants.FormType.OUTFIT_PREVIEW || 
+			formType === OxiAppConstants.FormType.ADD_ITEM ||
+			formType !== OxiAppConstants.FormType.OUTFIT_PREVIEW
+		):
+			console.log('formType = ', formType);
+
+			const compoundOPStyles = formType !== OxiAppConstants.FormType.OUTFIT_PREVIEW ? 
+				({
+					opacity: 0,
+				}) : 
+				({
+					opacity: 1,
+				});
+
+			const compoundAIStyles = formType !== OxiAppConstants.FormType.ADD_ITEM ? 
+				({
+					left:'-100vw', 
+					'z-index': -1,
+					opacity: 0,
+				}) : 
+				({
+					opacity: 1,
+					'z-index': 100,
+				});
+
+			form = (
+				<div 
+					className={Styles.modal}
+					style={ initialInnerHeight > 0 ? ({height: `${initialInnerHeight}px`}) : ({}) }
+				>
+					<div 
+						className={FormStyles.outfitPreview_div}
+						style={ isCommentsShown ? ({transform: 'translateX(-85vw)'}) : ({}) }
+					>
+						{ isDevice ? null : <Comments comments={testComments}/> }
+						{ 
+							iniOP ? 
+								iniOP(
+									compoundOPStyles, 
+									() => {
+										closeModal();
+										deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT);
+									},
+									setIsCommentsShown,
+									isCommentsShown,
+								) : 
+								null 
+						}
+						{
+							isDevice ? 
+								<Comments comments={testComments}/> :
+								<ItemForm
+									{
+										...{
+											...props,
+											compoundAIStyles: compoundAIStyles,
+											submitContext: "Add",
+										}
+									}	 
+								/>
+						}
+					</div>
+				</div>
+			)
+			break;
+
+		default:
+			break;
 	} 
+
+	return (
+		<React.Fragment>
+			{form}
+			{overlayForm}
+		</React.Fragment>
+	);
 }
 
 
@@ -212,6 +371,389 @@ class DropDownField extends React.Component{
 								filteredApparelTypes={this.props.filteredApparelTypes}
 								dropdownOptionSelected={this.props.dropdownOptionSelected} />
 						}
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
+
+export class ProfilePicForm extends React.Component{
+	constructor(props){
+		super(props);
+
+		const {
+			crop,			
+		} = props.owner ? props.owner.pictureDto : ({});
+
+		this.state = {
+			isEditing: false,
+			src: null,
+			base64Image: null,
+			crop: (
+				crop ? 
+					crop : 
+					({
+						unit: '%',
+						x: 0,
+						y: 0,
+						width: 0,
+						height: 0,
+						aspect: 1,
+					})
+			),
+			ctrlsTransition:0,
+		};
+
+		this.ctrlsPageLeft = 100;
+		this.ctrlsPageRight = -100;
+
+		this._editPicture = this._editPicture.bind(this);
+		this._addNewPicture = this._addNewPicture.bind(this);
+		this._onCropChange = this._onCropChange.bind(this);
+		this._handleSubmit = this._handleSubmit.bind(this);
+		this.setupCropImgRoot = this.setupCropImgRoot.bind(this);
+		this._onSelectFile = this._onSelectFile.bind(this);
+		this.pageLeft = this.pageLeft.bind(this);
+		this.pageRight = this.pageRight.bind(this);
+		this._handleImageReceived = this._handleImageReceived.bind(this);
+	}
+
+	componentDidMount(){
+		const {
+			owner
+		} = this.props;
+
+		const {
+			originaluri
+		} = owner ? owner.pictureDto : ({});
+
+		if(originaluri) this.props.getCoverPic(originaluri, this._handleImageReceived, 'original');
+		else console.log('originaluri is null or undefined');
+	}
+
+	componentDidUpdate(prevProps){
+		const {
+			owner
+		} = this.props;
+
+		const {
+			originaluri
+		} = owner ? owner.pictureDto : ({});
+
+		if(this.state.src !== originaluri){
+			this.props.getCoverPic(originaluri, this._handleImageReceived, 'original');
+		}
+	}
+
+	_handleImageReceived(event, data){
+		console.log('setting profile img data')
+		console.log('originaluri = ', this.props.owner.pictureDto.originaluri);
+		console.log('is data null or undefined', (data == null || data == undefined));
+		this.setState(prevState => ({
+			...prevState,
+			base64Image: 'data:image/jpeg;base64,' + data,
+			src: this.props.owner.pictureDto.originaluri,
+		}));
+	}
+
+	_editPicture(event){
+		this.setState(prevState => ({
+			...prevState,
+			isEditing: true,
+		}));
+	}
+
+	_addNewPicture(event){
+		this.setState(prevState => ({
+			...prevState,
+			isEditing: true,
+		}));
+	}
+
+	_onCropChange(pixelCrop, percentCrop){
+		this.setState(prevState => ({
+			...prevState,
+			crop:{
+				...prevState.crop,
+				...percentCrop,
+			}
+		}));
+	}
+
+	_handleSubmit(event) {
+		event.preventDefault();
+
+		//methods
+
+		//variables
+		const {
+			images,
+		} = this.props;
+
+		let isCropping = false;
+
+
+		
+		this.props.addProfilePic(this.state.base64Image, JSON.stringify(this.state.crop));
+			//reaload images
+			//this.forceUpdate();
+		
+
+		//event.preventDefault();
+	}
+
+	setupCropImgRoot(div){
+		//div ? div.className = FormStyles.imgEditContainer_div : null;  //Don't do this
+		this.cropImgRoot = div;
+	}
+
+	_onSelectFile(event){
+		if (event.target.files && event.target.files.length > 0) {
+			const reader = new FileReader();
+			
+			reader.onloadend = () => {
+				this.setState(prevState => ({
+					...prevState,
+					base64Image: reader.result,
+					isEditing: true,
+					ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
+				}))
+			}
+			// reader.addEventListener('load',(this) => this.setState({src: reader.result}), false);
+			reader.readAsDataURL(event.target.files[0]);
+		}
+	}
+
+	pageLeft(){
+		this.setState(prevState => ({
+			...prevState,
+			ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageLeft,
+		}))
+	}
+
+	pageRight(){
+		this.setState(prevState => ({
+			...prevState,
+			ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
+		}))
+	}
+
+	render(){
+		const {
+			cancelAction,
+		} = this.props;
+
+		const {
+			currentImage,
+		} = this.props;
+
+		const eppCtrl_div = {
+    		'display': 'inline-block',
+    		'vertical-align': 'top',
+    		'font-size': '24px',
+    		'width': '48%',
+    		'height': 'inherit',
+    		'line-height': '40px',
+    		'text-align': 'center',
+		}
+
+		const page1ButtonStyles = this.state.base64Image ? 
+			({
+				width: '33%',
+			}) :
+			({})
+
+		var content = null;
+
+		if(this.state.isEditing){ 
+			content = (
+				<ReactCrop
+					//className={ReactCropStyles}
+					//rotation={images[contentState.selected].rotation}
+					//This is a percentage of actual image height wrp <img> tag height
+					//maxHeight={this.maxHeight}
+					//maxWidth={100}
+					//minY={this.minYPercent}
+					style={{
+						height:'100%',
+						'max-height': '100%',
+						width: 'auto',
+					}}
+					cropImgRoot={this.cropImgRoot}
+					src={this.state.base64Image}
+					crop={this.state.crop}
+					//onImageLoaded={(imageElement) => {this._onImageLoaded(imageElement)} }
+					//onComplete={this._onCropComplete}
+					onChange={this._onCropChange}
+					//setupImageRef={this.props.setupImageRef}
+					//flag={this.state.flag}
+					ruleOfThirds={true}
+					circularCrop={true}
+				/>
+			)
+		}
+		else{			
+			content = (
+				<img 
+					style={{
+						float: 'unset',
+    					'max-width': 'unset',
+    					'object-fit': 'cover',
+    					display: 'inline',
+					}}
+					className={FormStyles.imgEdit_img}
+					src={this.state.base64Image}
+					onClick={this.props.onImageClick} 
+					onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
+					//ref={this.props.setupImageRef}
+					loading="lazy" />	
+			)
+		}
+
+		return(
+			<div 
+				className={Styles.modal}
+				onClick={(event) => {
+					event.stopPropagation();
+					//cancelAction();
+				}}
+			>
+				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
+					<input 
+						id="fileInput" 
+						ref={input => this.fileInput = input}
+						type="file" 
+						//multiple name="imageFile" 
+						//onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
+						onChange={this._onSelectFile}
+						style={{display:'none'}} 
+					/>
+					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
+						Upload Image
+					</button>
+				</form>
+				<div 
+					className={FormStyles.editProfilePic_div}
+					onClick={event => {event.stopPropagation()}}
+				>
+					<div className={FormStyles.eppHeader_div}>
+						Profile Pic
+						<Button
+							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //dynamic icon button
+							onClickHandler={(event) => cancelAction(event)}
+							title='discard'
+							iconName='DiscardIcon'
+							ligature="cancel"
+							customButtonStyles={{
+								position:'absolute',
+								top:'0px',
+								right:'0px',
+							}}
+						/>
+					</div>
+					<div 
+						className={FormStyles.eppPicture_div}
+						ref={this.setupCropImgRoot} 						
+					>
+						{
+							content ? 
+								content : 
+								<i class="material-icons" style={{'font-size': 'calc(.90*500px)', color: 'var(--color2)'}}> account_circle </i> 
+						}
+					</div>
+					<div className={FormStyles.editProfilePicCtrls_div}>
+						<div 
+							className={FormStyles.buttonHorizontalSlider_div}
+							style={{transform: `translateX(${this.state.ctrlsTransition}%)`}}
+						>
+
+							<div 
+								id="ctrlPage1"
+								className={FormStyles.eppDisplayedControls_div} 
+								style={this.state.ctrlsTransition === 0 ? ({opacity: 1}) : ({opacity: 0})}
+							>
+								<Button
+									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //static icon toggle
+									onClickHandler={this._editPicture}
+									ligature="edit"
+									title="Edit"
+									customButtonStyles={{...eppCtrl_div, ...page1ButtonStyles}} 
+								/>
+								<label 
+									for="fileInput" 
+									style={{
+										//'margin-right':'5%',
+										'width':'auto'
+									}}>
+									<Button
+										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //static icon toggle
+										//onClickHandler={this._addNewPicture}
+										ligature="add_a_photo"
+										title="New"
+										customButtonStyles={{...eppCtrl_div, ...page1ButtonStyles}}
+									/>
+								</label>
+		
+  								{
+  									// If image is already loaded in browser
+  									this.state.base64Image ? 
+  										(<Button
+											buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
+											onClickHandler={(event) => {
+												this.pageRight();
+												//this.forceUpdate();
+											}}
+											title=''
+											ligature="arrow_forward"
+											iconName={null}
+											//customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}} 
+											customButtonStyles={{...eppCtrl_div, ...page1ButtonStyles}}
+										/>) : 
+										null
+  								}
+  							</div>	
+
+							<div 
+								id="ctrlPage2"
+								className={FormStyles.eppDisplayedControls_div} 
+								style={this.state.ctrlsTransition === -100 ? ({opacity: 1}) : ({opacity: 0})}
+							>
+								<Button
+									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
+									onClickHandler={(event) => {
+										this.pageLeft();
+										//this.forceUpdate();
+									}}
+									title=''
+									ligature="arrow_back"
+									iconName={null}
+									//customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}} 
+									customButtonStyles={eppCtrl_div}
+								/>
+								<label 
+									for="submitButton" 
+									style={{
+										//'width':'20%',
+										//position: 'absolute',
+										//right: '0px'
+									}}>
+									{/*<div 
+										className={this.props.imgFormControlStyle}
+										style={{width:'100%'}}
+										onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
+										onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>							
+										<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
+									</div>*/}
+									<Button
+										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
+										//title='submit'
+										ligature="cloud_upload"
+										customButtonStyles={eppCtrl_div} />
+								</label>
+  							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -394,7 +936,9 @@ export class ItemForm extends React.Component{
 		//TODO:  	commenting out line below, but there is a need to handle the ids of server persisted items as UUID
 		// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
 		//this.props.editingItem(this.props.itemAllIds);
-		this.props.cancelAction();
+		
+		//this.props.cancelAction();
+		this.props.navToOutfitPreviewModal();
 	}
 
 	//_handleDropdownSelected(event, selectionType, valueSelected){	
@@ -445,10 +989,6 @@ export class ItemForm extends React.Component{
 			});
 		}
 		return(
-			<div 
-				className={Styles.modal}
-				style={ initialInnerHeight > 0 ? ({height: `${initialInnerHeight}px`}) : ({}) }
-			>
 				<CSSTransition 
 					timeout={300}
 					classNames="formViewContainer_div"
@@ -457,6 +997,7 @@ export class ItemForm extends React.Component{
 					<div 
 						id="form_container_add_item"
 						className={FormStyles.formViewContainer_div}
+						style={this.props.compoundAIStyles}
 					>
 						<div style={{'text-align':'center', height:'25px'}}>
 							<div 
@@ -494,7 +1035,7 @@ export class ItemForm extends React.Component{
 								updateApparelTypes ={(data) => this._updateApparelTypes(data)}
 								getApparelTypes={(uri) => this.props.getApparelTypes(uri)}
 								getSuggestion={(uri) => this.props.getSuggestion(uri)}
-								fieldsObj={this.state.type2Entry} 
+								fieldsObj={this.state.type2Entry}
 								hydrateTasks={this.hydrateType2Tasks}
 								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
 								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
@@ -502,7 +1043,7 @@ export class ItemForm extends React.Component{
 						</CSSTransition>
 						<div className={FormStyles.addItemCtrlContainer_div}>
 							<div className={FormStyles.addItem_div}>
-								<div className={FormStyles.formL3Button} onClick={() => {this._handleOnSubmit(event)}}>
+								<div className={FormStyles.formL3Button} onClick={(event) => {this._handleOnSubmit(event)}}>
 									{this.props.submitContext}
 								</div>
 							</div>
@@ -514,7 +1055,11 @@ export class ItemForm extends React.Component{
 											'text-align': 'right', 
 											right: '17px'
 										}}
-										onClick={this.props.cancelAction} >
+										onClick={(event) => {
+											//this.props.cancelAction;
+											this.props.navToOutfitPreviewModal();
+										}}
+									>
 										cancel
 									</div>
 								</div>
@@ -522,7 +1067,6 @@ export class ItemForm extends React.Component{
 						</div>
 					</div>
 				</CSSTransition>
-			</div>
 		);
 	}
 }
@@ -631,7 +1175,7 @@ export class DiscardForm extends React.Component{
 		console.log('denormOutfit = ', denormOutfit)
 
 		return(
-			<div className={Styles.modal}>
+			<div className={Styles.modal} styles={this.props.customStyles}>
 				<div 
 					id="form_container_add_item" 
 					className={FormStyles.discardFormViewContainer_div}
@@ -652,7 +1196,7 @@ export class DiscardForm extends React.Component{
 								className={FormStyles.formL3Button} 
 								style={{position:'absolute', left:'0px', top:'0px'}} 
 								onClick={() => {
-									this.props.submitAction(this.props.requestedNav/*, denormOutfit*/);
+									this.props.submitAction(this.props.requestedNav, this.props.isOverlay);
 									this.props.clearUpdates();
 									this.props.clearInvalidations();
 								}
@@ -664,7 +1208,7 @@ export class DiscardForm extends React.Component{
 								style={{position:'absolute', right:'0px', top:'0px'}} 
 								onClick={(event) => {
 									event.stopPropagation();
-									this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS);
+									this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS, this.props.isOverlay);
 								}}>
 								Cancel
 							</div>
@@ -726,7 +1270,7 @@ const InvalidPasswordPrompt = ({props}) => (
 	</div>
 )
 
-//TODO:  Make sure to perfom server side validation as weell.
+//TODO:  Make sure to perfom server side validation as well.
 const validateEmail = (email) => {
     //regular expression that accepts unicode
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
@@ -990,7 +1534,7 @@ export class CreateAccountForm extends React.Component{
 										className={CreateAccountStyles.submitContainer_div}
 										//style={{
 										//	'margin-top':'35px', 'height':'30px',
-//
+
 										//}}
 									>
 										<div className={CreateAccountStyles.termsTextContainer_div}>

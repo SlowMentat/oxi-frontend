@@ -24,7 +24,7 @@
     /* margin-left: 330px; */
 
     @include desktop_rules {
-        padding-top: 40px;
+        padding-top: calc(var(--page-header-height)/3);
         text-align: center;
         width: 45%;
         margin: auto;
@@ -46,15 +46,16 @@
 	font-size: 83%;
 	text-align: center;
 	/*background-color: #00BCD4;*/
-	color: #3b3739;
     vertical-align: top;
 
     @include desktop_rules {
+        color: var(--color-01);
         width:20%;
         margin-bottom: 5px;
     }
 
     @include mobile_rules {
+        color: #3b3739;
         padding: unset;
         margin: unset;
         width: calc((100vw - 80px)/3 - 10px)
@@ -87,7 +88,7 @@
 :local(.navButtonText_div--selected){
 	composes: navButtonText_div;
     color: white;
-    background-color: #4a4a4a;
+    background-color: var(--color-01);
     border-radius: 4px;
 }
 
