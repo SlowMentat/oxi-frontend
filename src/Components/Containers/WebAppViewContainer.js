@@ -52,6 +52,7 @@ const mapStateToProps = (state, props ) => {
 
   		isPopupMenuVisible: state.popupMenusReducer.menuState.isVisible,
   		popupMenuType: state.popupMenusReducer.menuState.type,
+  		entitiesStateReducer: state.entitiesStateReducer,
 	};
 }
 
@@ -89,8 +90,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 		let outfitIds = [1];
 
 		//First add outfit entity passing child id addedContentIds taken from state mapping above
-		//Note:  this is anticipating content id of 1 since there should only 
-		//be one content entity present in the addedEntitiesReducer at anygiven time.
+		//Note:  this is anticipating content id of 1 since there should only be one content entity present in the addedEntitiesReducer at anygiven time.
 		dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT));
 
 		dispatch(addOutfit(Object.assign({}, OxiAppConstants.EntityTemplates.OUTFIT, {contents: outfitIds})));
@@ -102,7 +102,9 @@ const mapDispatchToProps = (dispatch, props) => ({
 		dispatch(editContentView(OxiAppConstants.viewState.ADD));
 
 		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitIds));
-		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [1]))
+		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [1]));
+
+		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 	},
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 	positionMenu: (positionx, positiony) => dispatch(placeMenu(OxiAppConstants.MenuTypes.FILTER, positionx, positiony)),

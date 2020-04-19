@@ -68,8 +68,11 @@ export default class ProfileViewControls extends React.Component{
 			isControlsHidden,
 			isCommentsShown,
 			username,
-			previewedUsername,
 		} = this.props;
+
+		var previewedUsername = viewState === OxiAppConstants.viewState.ADD ? 
+			(username) :
+			outfits[entitiesStateReducer.outfits.selected].username;
 
 		var isEditting = viewState != OxiAppConstants.viewState.PREVIEW.toLowerCase();
 		var buttonDisplay = isEditting ? 'none' : 'inline-block';

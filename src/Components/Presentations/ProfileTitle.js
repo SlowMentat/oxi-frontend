@@ -3,6 +3,7 @@ import MetricStyles from '../../metric.scss';
 import Metric from './Metric.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import Styles from '../../root.scss';
 
 const metricTitleContainer_div = {
 	'height': 'calc(5vh + 28px)',
@@ -12,6 +13,10 @@ const metricTitleContainer_div = {
     'font-size': '2em',
 }
 
+const defaultPpIconStyles = {
+	'border-width': '0px',
+}
+
 const ligatureStyles = {};
 
 export const PpIcon = (props) => {
@@ -19,32 +24,45 @@ export const PpIcon = (props) => {
 		base64Image,
 		isMobile,
 		customStyle,
+		customDefaultStyle,
+		onClick,
 	} = props;
 
 	return(
 		base64Image ?
 			(<img 
 				src={base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (base64Image) }
+				className={Styles.ppIcon_img}
 				style={{
 					'width': 'calc(100%)',
     				'height': 'calc(100%)',
     				'border-radius': '48px',
+    				'cursor':'pointer',
     				//'padding-top': '2px',
     				//'padding-left': '2px',
     				//'border-radius':'calc(var(--default-pic-icon-size)/2)',
     				...customStyle,
 				}}
+				onClick={(e) => {
+					e.stopPropagation();
+					onClick ? onClick(e) : null;
+				}}
 			/>) :
 			(<i 
 				class="material-icons" 
 				style={ 
-					isMobile ? 
-						({'font-size':'48px', 'color':'#ffffff5c'}) : 
+					//isMobile ? 
+					isDevice ?
+						({
+							'font-size':'48px', 'color':'#ffffff5c',
+        					'border':'solid 5px #f9f9f9',
+						}) : 
 						({ 
 							'background-color':'#f9f9f9', 
 							'font-size':'48px', 
 							'color': 'var(--color-mobile-icon-bg)',
-							...customStyle, 
+							'background-color': 'var(--color-01-tint-01)',
+							...customDefaultStyle, 
 						}) 
 				}
 			> 
@@ -98,10 +116,29 @@ class ProfileTitle extends React.Component{
 			//ownerpicuri,
 			base64Image,
 		} = this.props;
+
+		const customStyle = {
+			'font-size':'calc(var(--details-container-height))',
+			color: 'var(--color-01-tint-02)',
+			'background-color': 'none',
+			border: 'solid 0px #FFF',
+		}
+
+		const customDefaultStyle = {
+			...customStyle
+		}
 	
 		const pathArray = location.pathname.split('/');
 		var name = 'unknown';
 		var URI = pathArray[pathArray.length - 1];
+
+		var props = {
+			base64Image,
+			isMobile,
+			customStyle,
+			customDefaultStyle,
+			onClick: (e) => openProfilePicForm(),
+		}
 	
 		if(webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && URI){
 			name = URI;
@@ -110,24 +147,22 @@ class ProfileTitle extends React.Component{
 		}
 	
 		return (
-		    <div className={MetricStyles.metricsDataHeader_div}>
-		    	<div className={MetricStyles.profilePicContainer_div}>
-		    		<div 
-		    			className={MetricStyles.profilePic_div}
-		    			onClick={(event) => {
-		    				//dispatch ProfilePic form
-		    				openProfilePicForm();
-		    			}}
-		    		>
-		    			<PpIcon 
-		    				base64Image={base64Image} 
-		    				isMobile={isMobile} 
-		    				customStyle={{
-		    					'font-size':'calc(var(--details-container-height))',
-		    					color: 'var(--color-01-tint-02)',
-		    					'background-color': 'none',
-		    				}}
-		    			/>
+			<div className={MetricStyles.metricsDataHeader_div}>
+				<div className={MetricStyles.profilePicContainer_div}>
+					<div 
+						className={MetricStyles.profilePic_div}
+					>
+						<PpIcon 
+							{...props}
+							/*base64Image={base64Image} 
+							isMobile={isMobile} 
+							customStyle={customStyle}
+							customDefaultStyle={customDefaultStyle}
+							onClick={(e) => {
+								//dispatch ProfilePic form
+								openProfilePicForm();
+							}}*/
+						/>
 						{/*
 							base64Image ?
 								(<img 

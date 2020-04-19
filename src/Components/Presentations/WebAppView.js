@@ -394,25 +394,46 @@ class OutfitNav extends React.Component{
 						(<div 
 							className={OutfitNavStyles.outfitCtrlBtn_div}
 							style={{
-							}}>
+							}}
+							onClick={this.props.handleAddOutfitClicked}
+						>
 							{/*<div
 									className={OutfitNavStyles.outfitCtrlBtnContent_div}
 									style={{
 									}}>
 									+
 								</div>*/}
+
 							<Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
-								onClickHandler={this.props.handleAddOutfitClicked}
-								title='add new outfit'
-								iconName='AddOutfitIcon'
-								expandedWidth={150}
-								buttonHeight={40}
+								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
+								//onClickHandler={this.props.handleAddOutfitClicked}
+								iconName=''
+								ligature="add"
 								customButtonStyles={{
 									color:'white',
-									'margin':'auto',		
+									'margin':'auto',
+									height:'100%',		
 								}} 
+								ligatureStyles={{
+									color:'white',
+									height:'100%',
+									'margin-top':'50%',
+								}}
 							/>
+							{
+								//<Button
+								//	buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
+								//	onClickHandler={this.props.handleAddOutfitClicked}
+								//	title='add new outfit'
+								//	iconName='AddOutfitIcon'
+								//	expandedWidth={150}
+								//	buttonHeight={40}
+								//	customButtonStyles={{
+								//		color:'white',
+								//		'margin':'auto',		
+								//	}} 
+								//>
+							}
 						</div>) :
 						null
 				}

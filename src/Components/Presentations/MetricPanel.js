@@ -50,6 +50,12 @@ export class MetricPanel extends React.Component{
 			'padding':'2px',
 			'border-radius': '24px',
 			'font-size': '38px',
+			//'--border-width':'0px',
+        	'border':'solid 0px #f9f9f9',
+		}
+
+		const ppIconDefaultStyle = {
+			...ppIconStyles,
 		}
 
 		return(
@@ -142,7 +148,7 @@ export class MetricPanel extends React.Component{
 							<div className={MetricStyles.metricMatch_div}>
 								<div className={MetricStyles.metricMatchIcons_div}>
 									<div className={MetricStyles.hostIconContainer_div}>
-										<PpIcon base64Image={base64HostImage} isMobile={false} customStyle={ppIconStyles}/>
+										<PpIcon base64Image={base64HostImage} isMobile={false} customStyle={ppIconStyles} customDefaultStyle={ppIconDefaultStyle}/>
 										{/*
 											base64HostImage ?
 												(<img 
@@ -168,7 +174,7 @@ export class MetricPanel extends React.Component{
 											<div className={MetricStyles.ownerIndicator}>
 											</div>
 										</div>
-										<PpIcon base64Image={base64OwnerImage} isMobile={false} customStyle={ppIconStyles}/>
+										<PpIcon base64Image={base64OwnerImage} isMobile={false} customStyle={ppIconStyles} customDefaultStyle={ppIconDefaultStyle}/>
 										{/*
 											base64OwnerImage ?
 												(<img 

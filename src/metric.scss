@@ -245,25 +245,25 @@ $isDebug: false;
     }
 }
 
-#scurve .leftCornerMoulding_div{
+:local(#scurve .leftCornerMoulding_div){
     @if isDebug {
         border: solid 1px #00ff28;
     }
 }
 
-#scurve .rightCornerMoulding_div{
+:local(#scurve .rightCornerMoulding_div){
     @if isDebug {
         border: dotted 1px #f00;
     }
 }
 
-#zcurve .leftCornerMoulding_div{
+:local(#zcurve .leftCornerMoulding_div){
     @if isDebug {
         border: solid 1px #00ff28;
     }
 }
 
-#zcurve .rightCornerMoulding_div{
+:local(#zcurve .rightCornerMoulding_div){
     @if isDebug {
         border: dotted 1px #f00;
     }

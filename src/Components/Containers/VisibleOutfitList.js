@@ -29,6 +29,7 @@ import {
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
 import {maskEdits} from '../../Util/CommonSelectors.js';
+import { withRouter } from 'react-router-dom';
 
 
 
@@ -68,6 +69,7 @@ const mapStateToProps = (state, props) => {
 
 		likeCountIds: state.entitiesReducer.likeCount.byIds,
 		owner: state.entitiesReducer.profile.byIds.owner,
+		profile: state.entitiesReducer.profile.byIds,
 		profileStats : state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.profileStatsDto : undefined,
 		location: state.router.location,
 		//profileIds: state.entitiesReducer.profile.byIds,
@@ -197,4 +199,5 @@ const mapDispatchToProps = (dispatch, props) => ({
 })
 
 const VisibleOutfitList = connect(mapStateToProps, mapDispatchToProps)(OutfitList);
-export default VisibleOutfitList;
+export default withRouter(VisibleOutfitList);
+//export default VisibleOutfitList;

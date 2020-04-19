@@ -54,7 +54,7 @@ const mapStateToProps = (state, props) => {
 		pictures: state.entitiesReducer.pictures.byIds,
 
 		username: state.entitiesReducer.profile.byIds.owner.username,
-		previewedUsername: state.entitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected].username,
+		//previewedUsername: state.entitiesReducer.outfits.byIds[state.entitiesStateReducer.outfits.selected].username,
 
 		// State
 		entitiesStateReducer: state.entitiesStateReducer,

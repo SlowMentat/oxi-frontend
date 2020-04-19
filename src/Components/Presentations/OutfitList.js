@@ -9,6 +9,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import PagedListContainer from '../../Components/Containers/PagedListContainer.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import {Button} from '../../Components/Presentations/Controls.js';
+import ProfileHeader from '../../Components/Presentations/ProfileHeader.js';
 import ProfileTitleContainer from '../../Components/Containers/ProfileTitleContainer.js';
 
 //Presentation Component 
@@ -43,13 +44,14 @@ class PagedOutfitList extends React.Component{
 		} = owner ? owner : ({});
 
 		const pathArray = location.pathname.split('/');
-		var URI = pathArray[pathArray.length - 1];
+		var uri = pathArray[pathArray.length - 1];
 
 		const isOwner = owner ?
-			URI === owner.username :
+			uri === owner.username :
 			(false);
 
 		const isProfileView = this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase();
+		const usernameSelected = this.props.outfits[this.props.selectedId] ? this.props.outfits[this.props.selectedId].username : undefined;
 
 		return(
 			<PagedListContainer
@@ -95,8 +97,14 @@ class PagedOutfitList extends React.Component{
 							</div>
 						</div>
 						<div className={OutfitStyles.outfitMenuBlockContainer1_div}>
-							<div className={OutfitStyles.outfitMenuHeader_div} style={isProfileView ? ({}) : ({display:'none', left: '-100vw'})}>
-							</div>
+							<ProfileHeader 
+								profile={this.props.profile} 
+								username={ uri }
+								getCoverPic={this.props.getCoverPic}
+								isProfileView={ isProfileView }
+							>
+							</ProfileHeader>
+							
 		    				<div className={isProfileView ? OutfitStyles.profileOutfitMenuBlockContainer2_div : OutfitStyles.outfitMenuBlockContainer2_div}>
 								<div className={isProfileView ? OutfitStyles.outfitMenuBlockProfile : OutfitStyles.outfitMenuBlock}>	  
 									{this.props.outfitIds !== undefined ? this.props.outfitIds.map((outfitId) => 
@@ -137,6 +145,7 @@ class PagedOutfitList extends React.Component{
 											showOutfitPreviewFromBrowse={this.props.showOutfitPreviewFromBrowse}
 											previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
 											previewedOutfitId={this.props.previewedOutfitId}
+											history={this.props.history}
 										/> :
 										null)
 									) : null}

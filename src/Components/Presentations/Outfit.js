@@ -7,6 +7,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
+import { Route, Switch, Redirect, Link } from 'react-router-dom';
 
 var showOutfitTileControls = {
 	position: 'relative',
@@ -155,11 +156,17 @@ export class Outfit extends React.Component{
 			navToHostProfile,
 			routeToHostProfile,
 			getHostMeasurements,
+			toggleMetricPanel,
+			previewOutfitFromBrowse,
+			setPreviewFocus,
+			showOutfitPreviewFromBrowse,
 		} = this.props;
 
 		var {
 			contents,
+			contentIds,
 			webAppView,
+			owner,
 			outfit,
 			containerHeight,
 			isLiked,
@@ -170,17 +177,17 @@ export class Outfit extends React.Component{
 			viewState,
 			username,
 			isSelected,
-			webAppView
+			webAppView,
+			history,
 		} = this.props;
 
-		const tempPPIcon_div = {
+		const ppIconStyles = {
         	'position':' absolute',
         	'width':' 58px',
         	'height':' 58px',
         	'border-radius':' 29px',
-        	'border':' solid 5px#f9f9f9',
         	'top':' -28px',
-        	'left':' -28px',
+        	'left':' calc(-28px + var(--outfit-btn-container-width))',
         	'background-color':'#263238',
 		}
 
@@ -209,7 +216,8 @@ export class Outfit extends React.Component{
 			} :
 			containerHeight !== null ? 
 				contextualStyles ={
-					height:`calc(${outfitHeight}px)`,
+					//height:`calc(${outfitHeight}px)`,
+					height:`calc(${outfitWidth}px)`,
 					width:`calc(${outfitWidth}px)`,
 					//'margin-left':'130px',
 					//'margin-bottom':'50px',
@@ -234,12 +242,45 @@ export class Outfit extends React.Component{
 								<div className={OutfitStyles.outfitUsername_div}>
 									{username !== undefined && username !== null ? username.toUpperCase() : "Username"}
 								</div>
-								<PpIcon base64Image={this.state.base64ImageProfile} isMobile={false} customStyle={tempPPIcon_div}/>
-								{/*<div className={OutfitStyles.tempPPIcon_div}>
+								
+								<PpIcon 
+									base64Image={this.state.base64ImageProfile} 
+									isMobile={false} 
+									customStyle={ppIconStyles}
+									customDefaultStyle={{
+										...ppIconStyles,
+										'border':'solid 5px var(--color-desktop-01)',
+									}}
+									onClick={(e) => {
+										history.push(`/shop/profile/${username}`);
+										navToHostProfile(username, owner);
+									}}
+								/>
+								
+								{/*<div className={OutfitStyles.ppIconStyles}>
 																	
 								</div>*/}
 								<div 
-									className={OutfitStyles.likesBtn_div}
+									className={ OutfitStyles.measureBtn_div }
+									style={{
+										'margin-top':'36px',
+									}}
+									onClick={(e) => {
+										e.stopPropagation();
+										this._handleTileClicked();
+										getHostMeasurements(id);
+										toggleMetricPanel(e, true);
+									}}>
+									<SvgIcon 
+										className={OutfitStyles.measureBtn_svg} 
+										name="MeasureIcon" 
+										//fill={fill}
+										//stroke={stroke} 
+										strokeWidth="2"
+									/>
+								</div>
+								<div 
+									className={ OutfitStyles.likesBtn_div }
 									onClick={(event) => {
 										isLiked ?
 											unlike(id, outfit) :
@@ -250,7 +291,8 @@ export class Outfit extends React.Component{
 											name="HeartIcon" 
 											fill={fill}
 											stroke={stroke} 
-											strokeWidth="3" />
+											strokeWidth="3" 
+										/>
 								</div>
 							</div>
 						) : (
@@ -278,12 +320,19 @@ export class Outfit extends React.Component{
 					<img 
 						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
 						className={OutfitStyles.outfitImage_img}
+						style={{
+							'object-fit':'cover'
+						}}
+						onClick={(event) => {
+							previewOutfitFromBrowse(id);
+							event.stopPropagation();
+						}}
 					/>
 					<CSSTransition 
 						key={id}
 					    tiemout={200}
 					    classNames="outfitMenuContainer"
-					    in={(this.state.hovering && viewState === OxiAppConstants.viewState.PREVIEW)}
+					    in={(this.state.hovering && viewState === OxiAppConstants.viewState.PREVIEW && isDevice)}
 					    unmountOnExit >
 						<div 
 							className={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
@@ -309,13 +358,14 @@ export class Outfit extends React.Component{
 											username={isBrowse ? username : null}
 											getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
 											handleTileSelected={this._handleTileClicked}
-											toggleMetricPanel={this.props.toggleMetricPanel}
-											owner={this.props.owner}
-											showOutfitPreviewFromBrowse={() => this.props.showOutfitPreviewFromBrowse(id)}
-											outfitId={this.props.id}
-											contentIds={this.props.contentIds}
-											previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
-											setPreviewFocus={this.props.setPreviewFocus}
+											showOutfitPreviewFromBrowse={() => showOutfitPreviewFromBrowse(id)}
+											
+											toggleMetricPanel={toggleMetricPanel}
+											owner={owner}
+											outfitId={id}
+											contentIds={contentIds}
+											previewOutfitFromBrowse={previewOutfitFromBrowse}
+											setPreviewFocus={setPreviewFocus}
 										/>
 									)
 							}

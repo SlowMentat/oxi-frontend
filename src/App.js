@@ -168,12 +168,15 @@ class App extends React.Component {
 									/>
 							}
 						/>
-						<Route path={this.props.match.url} render={({match, location, history}) => (
-							<div id="LandingPageContainer_div">
-								{/*<SiteNav webAppView='landing'/>*/}
-								<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
-							</div>
-						)} />
+						<Route 
+							path={this.props.match.url} 
+							render={({match, location, history}) => (
+								<div id="LandingPageContainer_div">
+									{/*<SiteNav webAppView='landing'/>*/}
+									<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
+								</div>
+							)} 
+						/>
 					</Switch>
 				</Suspense>
 			</React.Fragment>

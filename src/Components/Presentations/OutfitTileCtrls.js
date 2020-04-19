@@ -101,8 +101,14 @@ export class OutfitTileBrowseCtrls extends React.Component{
 							this.props.handleTileSelected();
 							this.props.getHostMeasurementsHandler();
 							this.props.toggleMetricPanel(e, true);
-						}}>
-					•
+						}}
+					>
+						<SvgIcon 
+							className={OutfitStyles.measureBtn_svg} 
+							name="MeasureIcon" 
+							fill={fill}
+							stroke={stroke} 
+							strokeWidth={null} />
 					</div>
 				</div>
 				<div className={OutfitStyles.previewMeasureBtnContainer_div}>

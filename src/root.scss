@@ -67,6 +67,12 @@ body{
 	--color-04: #bb8558; 
 		--color-04-tint-01: #ffcfa6; --color-04-tint-02: #ffddc0; 
 		--color-04-shade-01: #86552c; --color-04-shade-02: #48280D;
+	--color-05: #e24441; 
+		--color-05-tint-01: #fd6e6a; --color-05-tint-02: #ff9795; 
+		--color-05-shade-01: #c6211d; --color-05-shade-02: #9d0e0a;
+
+	--color-desktop-01: #f9f9f9;
+
 	--gray02: #fcfcfc;
 
 	--color1: #565656;
@@ -218,7 +224,6 @@ a{
 }
 
 :local(.logo_svg){	
-	--logo-height: 45px;
 	position:  absolute;
     top: 50%;
     margin-top: calc(-1*var(--logo-height)/2);
@@ -228,10 +233,13 @@ a{
 
     @include desktop_rules {
     	left: 0px;
+		--logo-height: 37px;
+
     }
 
     @include mobile_rules {
     	left: 0px;
+		--logo-height: 45px;
     }
 }
 
@@ -636,12 +644,13 @@ a{
     	/*background-color: var(--main-background-color);*/
     	position: absolute;
 		top: 120px;
-		width: 120px;
+		width: 48px;
+		height: 48px;
 		text-align: center;
-		background-color:#d59ab1;
-		border-radius: 2px;
+		background-color: var(--color-05-tint-01);
+		border-radius: 24px;
 		z-index: 100;
-		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 10px);    
+		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 85px);
 	}
 
     @include mobile_rules {
@@ -1375,5 +1384,16 @@ a{
 	left: 0;
 	right: 0;
 }*/
+
+.ppIcon_img {
+	--border-width: 5px;
+	--border-color: var(--color-desktop-01);
+	transition: border-color 50ms linear;
+	border: solid var(--border-width) var(--border-color);
+}
+
+.ppIcon_img:hover{
+	--border-color: var(--color-05-tint-01);
+}
 
 
