@@ -8,8 +8,55 @@ import VisibleItemAsSeenOnList from '../../Components/Containers/VisibleItemAsSe
 import { SvgIcon } from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import {Button} from '../../Components/Presentations/Controls.js';
-import {camelize} from '../../Util/Misc.js';
+import { Button } from '../../Components/Presentations/Controls.js';
+import { camelize } from '../../Util/Misc.js';
+import Rating from '../../Components/Presentations/Rating.js';
+
+//import { 
+//	Card, 
+//	CardPrimaryAction, 
+//	CardActions, 
+//	CardMedia, 
+//	CardActionButton, 
+//	CardActionButtons,
+//	CardActionIcon,
+//	CardActionIcons,
+//
+//	CollapsibleList, 
+//} from '@rmwc/list';
+import {
+	Typography
+} from '@rmwc/typography';
+
+import '@rmwc/list/styles';
+import {
+	CollapsibleList,
+	List,
+	SimpleListItem,
+} from '@rmwc/list';
+
+import '@rmwc/grid-list/styles';
+import {
+	GridList,
+	GridTile,
+	GridTilePrimary,
+	GridTilePrimaryContent,
+	GridTileSecondary,
+	GridTileIcon,
+	GridTileTitle, 
+} from '@rmwc/grid-list';
+
+import '@rmwc/card/styles';
+import {
+	Card, 
+	CardPrimaryAction, 
+	CardActions, 
+	CardMedia, 
+	CardActionButton, 
+	CardActionButtons,
+	CardActionIcon,
+	CardActionIcons,
+} from '@rmwc/card';
 
 const itemContainerHovered = {
 	'height': '75px',
@@ -485,126 +532,103 @@ export class ItemBrowse extends React.Component{
 
 		return(		
 			<React.Fragment>
-  				<div 
-  					className={ItemLiteStyles.itemLiteBrowse_div}
-  					//className={ItemLiteStyles.itemLite_div}
-  					//style={{
-					//	'margin-bottom': '15px',
-					//	height:'125px',
-  					//}}
-  					onMouseOver={(event) => onSizeHover(event)}
-					onClick={(event) => {
-						removeContentEntities();
-						getContentsByItemId();
-						//onDeselect(selectedAllIds.filter(id => id != item.id)[0]);
-						if(isSelected === true){
-							onDeselect(item.id)
-						}else{
-							clearSelectMultipleEntity(); 
-							onSelect(item.id);
-						}
-					}} >
-
-  					<div className={ItemLiteStyles.itemContentContainer_div}>
-  						<div
-  							style={{
-  								position:'absolute',
-  								height:'100%',
-  								//width:'100%',
-  								right:'0px',
-  								padding:'5px',
-  							}}
-  						>
-  							<img 
-  								src={
+				<Card 
+					style={{
+						width:'100%',
+						'margin-bottom':'50px',
+					}}
+				>
+					<CardPrimaryAction>
+						<CardMedia
+							sixteenByNine
+							style={{
+								width:'50%',
+								'margin-left':'50%',
+								'border-radius':'0px',
+								backgroundImage: `url(${
   									featuredImage !== undefined ? 
   										featuredImage.originalSrc :   										
 										this.state.base64Image === null ? 
 											(OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : 
-											(this.state.base64Image)
-  								}
-								style={{
-									//'position':'absolute',
-									'height':'100%',
-									'left':'0%',
-									'vertical-align':'middle',
-									'border-radius':'4px',
-								}} 
-							/>
-  						</div>
-  						<div className={ItemLiteStyles.itemRetailerContainer_div}>
-  							<div className={ItemLiteStyles.itemRetailer_div}>
+											(this.state.base64Image)									
+								})`
+							}}
+						/>
+						<div
+							style={{
+								position:'absolute',
+								width:'calc(50% - 1rem)',
+								padding: '0 1rem 1rem 1rem',
+							}}
+						>
+							<Typography
+								use="headline6"
+								tag="h2"
+							>
   								{ vendor || udr }
-  							</div>
-  						</div>
-  						
-  						<div className={ItemLiteStyles.itemHandle_div}>
-  							{ handle }
-  						</div>
-  						
-  						<div className={ItemLiteStyles.itemControlsContainer_div}>
-  							<div style={{positionr:'relative',width:'100%'}}>
-  								<div 
-  									id="bookmark" 
-  									className={ItemLiteStyles.bookmarkIcon_div}
-  									onClick={(event) => {
-  										event.stopPropagation();
-  										onBookmarkClicked(event)
-  									}} >
-  									<SvgIcon 
-  										name="BookmarkIcon" 
-  										stroke="var(--button-icon-stroke)"
-  										//fill = {isSaved ? "var(--button-icon-stroke)" : null} 
-  									/>
-  								</div>
-  								{
-  									//isActive ? 
-  									(<div 
-  										id="dropdown" 
-  										className={ItemLiteStyles.dropdownIcon_div}
-  										//style={this.props.isExpanded ? ({transform:'scaleY(-1)'}) : ({}) }
-  										//onClick={(event) => {
-										//	event.stopPropagation();
-										//	isExpanded ?
-										//		collapseItem() :
-										//		expandItem(id.toLowerCase());
-										//}}
-  										>
-  									 	<SvgIcon name="DropdownIcon2" stokeWidth="2" stroke="var(--color1)" fill="var(--color1)" />
-  									 </div>) /*:
-  									null*/
-  								}
-  							</div>
-  						</div>
-  						
-  						<div>
-  						</div>
-		
-  					</div>
-  					{
-  					//<div 
-  					//	className={ItemLiteStyles.apparelIconContainer_div}
-  					//	style={/*isActive ? */({'background-color':'var(--color4)'})/* : ({})*/} >
-  					//	
-  					//	<div id="apparelTypeIcon" className={ItemLiteStyles.apparelTypeIcon_div}>
-  					//			{/*<SvgIcon name={apparelTypeIcon} stroke="var(--color1)"/>*/}
-  					//	</div>
-  					//	
-  					//	<div 
-  					//		id="selectedSizeIcon" 
-  					//		className={ItemLiteStyles.selectedSize_div} >
-  					//		<span> XX </span>
-  					//	</div>
-		//
-  					//</div>
-  					}
-  				</div>
-  				{
-					isSelected ?
-						( <VisibleItemAsSeenOnList selectedItemId={ item.id } /> ) :
-						null
-  				}
-  				
+							</Typography>
+							<Typography
+								use="subtitle2"
+								tag="h3"
+								theme="textSecondaryOnBackground"
+								style={{marginTop: '-1rem'}}
+							>
+								{}
+							</Typography>
+							<Typography
+								use="body1"
+								tag="div"
+								theme="textSecondaryOnBackground"
+							>
+								{handle}
+							</Typography>
+						</div>
+					</CardPrimaryAction>
+					<CardActions>
+						<Rating value={3} />
+						<CardActionButtons>
+							<CardActionButton>
+								{`${758} Reviews`}
+							</CardActionButton>
+						</CardActionButtons>
+						<CardActionIcons>
+							<CardActionIcon onIcon="bookmark" icon="bookmark_border" />
+							<CardActionIcon icon="share" />
+							<CardActionIcon icon="more_vert" />
+						</CardActionIcons>
+					</CardActions>
+					<CollapsibleList
+						handle={
+							<SimpleListItem
+								text="Who's Wearing"
+								graphic="face"
+								metaIcon="chevron_right"
+							/>
+						}
+						//defaultOpen={ isSelected }
+						onOpen={() => {
+							removeContentEntities();
+							getContentsByItemId();
+							clearSelectMultipleEntity(); 
+							onSelect(item.id);
+						}}
+						onClose={() => {
+							onDeselect(item.id)
+						}}
+					>
+						<List
+							style={{maxHeight: '100%', overflow:'auto'}}
+						>
+							{
+								isSelected ?
+									( <VisibleItemAsSeenOnList selectedItemId={ item.id } /> ) :
+									null
+							}
+						</List>
+					</CollapsibleList>
+				</Card>
+
+
   			</React.Fragment>
 		);
 	}

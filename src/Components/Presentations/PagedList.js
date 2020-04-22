@@ -244,7 +244,7 @@ class PagedList extends React.Component{
 						}) : 
 						({
 							'padding-top': '50px',
-							'padding-bottom': '150px',
+							//'padding-bottom': '150px',
 						}))
 					}
 		    		/*className={Styles.pagedListContainer_div}*/
@@ -262,6 +262,7 @@ class PagedList extends React.Component{
 								loaderContainerStyles ? 
 									(loaderContainerStyles) :
 									({
+										display:'none',
 										height: '125px',
     									'padding-top': '43.5px',	
 									})

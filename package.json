@@ -16,7 +16,8 @@
   "author": "Deven Bryant <chromosome24@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "@material-ui/core": "^4.9.9",
+    "@material/button": "^5.1.0",
+    "@material/icon-button": "^5.1.0",
     "axios": "^0.18.1",
     "blueimp-load-image": "^2.24.0",
     "connected-react-router": "^6.5.2",
@@ -46,6 +47,7 @@
     "redux-promise-middleware": "^5.1.1",
     "redux-thunk": "^2.3.0",
     "requirejs": "^2.3.6",
+    "rmwc": "^6.0.14",
     "universal-cookie": "^2.2.0"
   },
   "devDependencies": {

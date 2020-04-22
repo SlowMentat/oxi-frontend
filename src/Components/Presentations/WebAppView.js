@@ -40,6 +40,10 @@ import OutfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 import isEqual from 'lodash.isequal';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
 
+import '@rmwc/fab/styles';
+import '@rmwc/tabs/styles';
+import { Fab } from '@rmwc/fab';
+import { Tab, TabBar } from '@rmwc/tabs';
 
 const bannerTitleImg = {
 	'position': 'fixed',
@@ -273,66 +277,77 @@ class Nav extends React.Component{
 		let blockList = [];
 		blockList = (
 			<div 
-				//style={
-				//	webAppView === 'landing' ? 
-				//		//user is on the home page; hide all header nav options
-				//		({
-				//			display: 'none',
-				//		}) : 
-				//		({})
-				//}
 				className={NavStyles.stdNavButtonContainer_div}
 			>
 				{
-
 					webAppView !== 'landing' ?
 					(
-						this.props.blocks.map((block) => {
-							console.log('block = ', block);
-							console.log('selected = ', this.state.selected);
-							let navHeader = block.toString();
-							let selectionPath = '';
-							
-							if(navHeader === 'b' || navHeader === 'c'){
-								selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${ownerUsernamePath}`;
-							}else if(navHeader !== ''){
-								selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
+						<TabBar>
+							{
+								this.props.blocks.map((block) => {
+									console.log('block = ', block);
+									console.log('selected = ', this.state.selected);
+									let navHeader = block.toString();
+									let selectionPath = '';
+									
+									if(navHeader === 'b' || navHeader === 'c'){
+										selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${ownerUsernamePath}`;
+									}
+									else if(navHeader !== ''){
+										selectionPath = `/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`;
+									}
+				
+									return(
+										<Link
+											style={{
+												width:'33%',
+											}} 
+											to={`${match.url}${selectionPath}`}>
+											<Tab
+												style={{
+													height: 'var(--page-header-height)',
+													width:'100%',
+													'font-size':'12px',
+												}}
+												onClick={() => {
+													this.setState(prevState => ({
+														selected: navHeader
+													}));
+													//call back to webAppView component to change child component to reflect navHeader selection
+													navEventCallbacks[navHeader]();
+												}}
+												label={ OxiAppConstants.navRequestMap[navHeader] }
+											>
+												 
+												{/*<div 
+													key={navHeader} 
+													className={NavStyles.stdNavButtonBlock} 
+													onClick={() => {
+														this.setState(prevState => ({
+															selected: navHeader
+														}));
+														//call back to webAppView component to change child component to reflect navHeader selection
+														navEventCallbacks[navHeader]();
+													}}
+												>
+													<div className={
+														this.state.selected === null ? 
+															NavStyles.navButtonText_div :
+															//this.props.webAppView === OxiAppConstants.navRequestMap[this.state.selected].toLowerCase() ? 
+															navHeader === this.state.selected ?
+																NavStyles['navButtonText_div--selected'] : 
+																NavStyles.navButtonText_div  
+														}
+													>
+														{ OxiAppConstants.navRequestMap[navHeader] } 
+													</div>
+												</div>*/}
+											</Tab> 
+										</Link>
+									);
+								})
 							}
-		
-							return(
-								<Link to={`${match.url}${selectionPath}`}>
-									<div 
-										key={navHeader} 
-										className={NavStyles.stdNavButtonBlock} 
-										onClick={() => {
-											this.setState(prevState => ({
-												selected: navHeader
-											}));
-											//call back to webAppView component to change child component to reflect navHeader selection
-											navEventCallbacks[navHeader]();
-										}}
-									>
-										{/*
-											this.state.selected !== navHeader ? 
-												null :
-													this.props.match.path.includes('/shop/profile') ? 
-														<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}${this.props.ownerUsernamePath}`} /> : 
-														<Redirect push={true} to={`/${this.props.match.path.split('/')[1]}/${OxiAppConstants.navRequestMap[navHeader].toLowerCase()}`} /> 
-										*/}
-										<div className={
-											this.state.selected === null ? 
-												NavStyles.navButtonText_div :
-												//this.props.webAppView === OxiAppConstants.navRequestMap[this.state.selected].toLowerCase() ? 
-												navHeader === this.state.selected ?
-													NavStyles['navButtonText_div--selected'] : 
-													NavStyles.navButtonText_div  
-											}
-										>
-											{ OxiAppConstants.navRequestMap[navHeader] } 
-										</div>
-									</div>
-								</Link>)
-						})
+						</TabBar>
 					) :
 					null
 				}
@@ -391,50 +406,15 @@ class OutfitNav extends React.Component{
 			>
 				{
 					owner && owner.username === URI[URI.length - 1] ?
-						(<div 
-							className={OutfitNavStyles.outfitCtrlBtn_div}
+						(<Fab
+							icon="add"
 							style={{
+								'background-color':'var(--color-05-tint-01)',
+								'color':'white',
 							}}
+							ripple={true}
 							onClick={this.props.handleAddOutfitClicked}
-						>
-							{/*<div
-									className={OutfitNavStyles.outfitCtrlBtnContent_div}
-									style={{
-									}}>
-									+
-								</div>*/}
-
-							<Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
-								//onClickHandler={this.props.handleAddOutfitClicked}
-								iconName=''
-								ligature="add"
-								customButtonStyles={{
-									color:'white',
-									'margin':'auto',
-									height:'100%',		
-								}} 
-								ligatureStyles={{
-									color:'white',
-									height:'100%',
-									'margin-top':'50%',
-								}}
-							/>
-							{
-								//<Button
-								//	buttonType={OxiAppConstants.ControlConstants.ButtonTypes.b} //dynamic icon button
-								//	onClickHandler={this.props.handleAddOutfitClicked}
-								//	title='add new outfit'
-								//	iconName='AddOutfitIcon'
-								//	expandedWidth={150}
-								//	buttonHeight={40}
-								//	customButtonStyles={{
-								//		color:'white',
-								//		'margin':'auto',		
-								//	}} 
-								//>
-							}
-						</div>) :
+						/>) :
 						null
 				}
 			</div> 

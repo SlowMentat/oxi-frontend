@@ -1,5 +1,13 @@
 /*import "core-js";
 import "regenerator-runtime/runtime";*/
+
+// !Must be imported before any other stylesheet
+import '@rmwc/typography/styles';
+import '@rmwc/theme/styles';
+import { RMWCProvider } from '@rmwc/provider';
+import { ThemeProvider } from '@rmwc/theme';
+
+
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
@@ -235,7 +243,21 @@ const startApp = () => {
 	ReactDOM.render(
 		<Provider store={store} context={ReactReduxContext}>
 			<ConnectedRouter history={history}  context={ReactReduxContext}>
-				<Route path="/" component={App}/>
+				<RMWCProvider
+					// Set global configuration options for RMWC here
+					// ex:
+					// 		ripple={false}
+					// 		typography={{ defaultTag:'div' }}
+				>	
+					<ThemeProvider
+						options={{
+							primary: 'var(--color-02-shade-01)',
+							secondary: 'var(--color-05-tint-01)',
+						}}
+					>
+						<Route path="/" component={App}/>
+					</ThemeProvider>
+				</RMWCProvider>
 			</ConnectedRouter>
 		</Provider>,
 		document.getElementById('root')

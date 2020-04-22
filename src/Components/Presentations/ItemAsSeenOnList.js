@@ -36,6 +36,11 @@ class ItemAsSeenOn extends React.Component{
 	render(){
 		let imageWidth = 65;
 		let borderWidth = 2;
+
+		const {
+			navToHostProfile
+		} = this.props;
+
 		var {
 			username,
 			likes,
@@ -44,8 +49,15 @@ class ItemAsSeenOn extends React.Component{
 
 		return(			    				
 			<div 
-				className={AsSeenOnStyles.itemAsSeenOnContainer_div} >
-				<div className={AsSeenOnStyles.itemAsSeenOn_div} >
+				className={AsSeenOnStyles.itemAsSeenOnContainer_div} 
+				>
+				<div
+					onClick={(event) => {
+						previewOutfitFromBrowse(this.props.id);
+						event.stopPropagation();
+					}}
+					className={AsSeenOnStyles.itemAsSeenOn_div} 
+				>
 					<div className={AsSeenOnStyles.imageContainer_div}>
 						<img className={AsSeenOnStyles.imageApparel_img/*.image_img*/} src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} />
 					</div>
@@ -106,6 +118,7 @@ class ItemAsSeenOnList extends React.Component{
     				list={this.props.contentIds.map((contentId => {
 						return(
 							<ItemAsSeenOn 
+								onClickContextBrowse={this.props.onClickContextBrowse}
 								contentId={contentId}
 								contentWithOutfit = {this.props.contents[contentId]}
     							prevPageURL={this.props.prevPageURL}

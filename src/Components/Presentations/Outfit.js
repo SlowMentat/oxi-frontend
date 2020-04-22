@@ -8,6 +8,11 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
+import '@rmwc/icon-button/styles';
+import  '@rmwc/elevation/styles';
+import { IconButton } from '@rmwc/icon-button';
+import { Ripple } from '@rmwc/ripple';
+import { Elevation } from '@rmwc/elevation';
 
 var showOutfitTileControls = {
 	position: 'relative',
@@ -226,6 +231,7 @@ export class Outfit extends React.Component{
 				null;
 
 		return(
+			<Elevation z={1} wrap>
 			<div 
 				//className={isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
 				className={isBrowse ? OutfitStyles.stdOutfitBlock : OutfitStyles.stdOutfitBlockProfile_div} 
@@ -260,25 +266,39 @@ export class Outfit extends React.Component{
 								{/*<div className={OutfitStyles.ppIconStyles}>
 																	
 								</div>*/}
-								<div 
-									className={ OutfitStyles.measureBtn_div }
+								<IconButton 
+									ripple={true}
 									style={{
 										'margin-top':'36px',
+										'border':'unset',
+										outline:'none',
+	
 									}}
 									onClick={(e) => {
-										e.stopPropagation();
+										console.log('onchange event e = ', e);
+										//e.stopPropagation();
 										this._handleTileClicked();
 										getHostMeasurements(id);
 										toggleMetricPanel(e, true);
-									}}>
-									<SvgIcon 
-										className={OutfitStyles.measureBtn_svg} 
-										name="MeasureIcon" 
-										//fill={fill}
-										//stroke={stroke} 
-										strokeWidth="2"
-									/>
-								</div>
+									}}
+									icon={
+										<div
+											style={{
+												width:'24px',
+												height:'24px',
+												'border-radius':'50%',
+											}}
+										>
+											<SvgIcon 
+												className={OutfitStyles.measureBtn_svg} 
+												name="MeasureIcon" 
+												//fill={fill}
+												//stroke={stroke} 
+												strokeWidth="2"
+											/>
+										</div>
+									}
+								/>
 								<div 
 									className={ OutfitStyles.likesBtn_div }
 									onClick={(event) => {
@@ -316,7 +336,8 @@ export class Outfit extends React.Component{
 				<div
 					style={{'text-align': 'left'}}
 					onMouseOver={this._handleOnMouseOver}
-					onMouseOut={this._handleOnMouseOut}>
+					onMouseOut={this._handleOnMouseOut}
+					>
 					<img 
 						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
 						className={OutfitStyles.outfitImage_img}
@@ -373,6 +394,7 @@ export class Outfit extends React.Component{
 					</CSSTransition>
 				</div>				
 			</div>
+			</Elevation>
 		);
 	}
 }

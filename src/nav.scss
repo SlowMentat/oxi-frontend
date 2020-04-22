@@ -24,11 +24,11 @@
     /* margin-left: 330px; */
 
     @include desktop_rules {
-        padding-top: calc(var(--page-header-height)/3);
+        /*padding-top: calc(var(--page-header-height)/3);*/
+        padding-left: 75px;
         text-align: center;
-        width: 45%;
+        width: 600px;
         margin: auto;
-        padding-left: 50px; 
     }
 
     @include mobile_rules {

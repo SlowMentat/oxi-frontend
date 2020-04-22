@@ -84,7 +84,7 @@
 
     @include desktop_rules {
         /*height: 100px;*/
-        height: 170px;
+        height: var(--outfit-header-height);
         top: 0px;
         width: 700px;
         left: calc(50% - 700px/2 - 150px + 23px);
@@ -342,7 +342,6 @@
 }
 
 :local(.likesBtn_div){
-    width: 50px;
     padding: 13px;
     padding-bottom:5px;
     width: var(--button-width);
@@ -359,6 +358,10 @@
 
 :local(.measureBtn_div){
     composes: likesBtn_div;
+    background-color: unset;
+    display: block;
+    margin-top: 36px;
+    padding: 0px;
 }
 
 :local(.measureBtn_svg){

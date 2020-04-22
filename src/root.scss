@@ -1,5 +1,5 @@
 @use "sass:map";
-@use "@material/button/mdc-button";
+/*@use "@material/button/mdc-button";*/
 
 $pageHeaderHeight: 60px;
 $mobileFooterHeight: 40px;
@@ -42,19 +42,6 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 html{
-	font-size: 10px;
-	height: 100%;
-
-	@include desktop_rules{
-		overflow: hidden;
-	}
-	@include mobile_rules {
-		position: fixed;
-	};
-}
-
-body{
-
 	--color-01: #304244;
 		--color-01-tint-01: #506a6d; --color-01-tint-02: #90a7a9; 
 		--color-01-shade-01: #152628; --color-01-shade-02: #071719;
@@ -72,7 +59,19 @@ body{
 		--color-05-shade-01: #c6211d; --color-05-shade-02: #9d0e0a;
 
 	--color-desktop-01: #f9f9f9;
+	
+	font-size: 10px;
+	height: 100%;
 
+	@include desktop_rules{
+		overflow: hidden;
+	}
+	@include mobile_rules {
+		position: fixed;
+	};
+}
+
+body{
 	--gray02: #fcfcfc;
 
 	--color1: #565656;
@@ -141,6 +140,11 @@ body{
     @include mobile_rules {
     	margin: 0px;
     }
+}
+
+button{
+	outline: none;
+	border: unset;
 }
 
 div{
@@ -643,12 +647,7 @@ a{
 	@include desktop_rules {
     	/*background-color: var(--main-background-color);*/
     	position: absolute;
-		top: 120px;
-		width: 48px;
-		height: 48px;
-		text-align: center;
-		background-color: var(--color-05-tint-01);
-		border-radius: 24px;
+		top: calc(var(--outfit-header-height) - 28px);
 		z-index: 100;
 		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 85px);
 	}
@@ -1015,6 +1014,8 @@ a{
 	composes: stdBlock;
 	height: calc(100vh - #{$pageHeaderHeight} + var(--desktop-footer-height));
 	position: relative;
+
+    --outfit-header-height: 170px;
 
 	@include desktop_rules {
 		margin-left: 307px;

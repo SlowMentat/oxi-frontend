@@ -7,6 +7,7 @@ import {
 	setCurrentEntityPage,
 	setEntityScrollPageHeight,
 	fetchImage, 
+	selectAndPropogate,
 } from '../../Components/Actions/indexActions.js';
 import ItemAsSeenOnList from '../../Components/Presentations/ItemAsSeenOnList.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -45,6 +46,10 @@ const mapDispatchToProps = dispatch => ({
 	setScrollPageHeight: (scrollPageHeight) => dispatch(setEntityScrollPageHeight(OxiAppConstants.EntityTypes.CONTENT, scrollPageHeight)),
 	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.CONTENT, page)),
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
+	onClickContextBrowse : (outfitId, targetChildId) => {
+		console.log("outfit tile selected");
+		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+	},
 })
 
 const VisibleItemAsSeenOnList = connect(mapStateToProps, mapDispatchToProps)(ItemAsSeenOnList);

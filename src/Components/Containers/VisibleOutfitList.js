@@ -147,16 +147,6 @@ const mapDispatchToProps = (dispatch, props) => ({
 		});
 	},	
 	navToHostProfile : (hostUsername, owner) => {	
-		//Deselect everything
-		/*dispatch(selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
-		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, false));
-		dispatch(selectEntity(OxiAppConstants.EntityTypes.OUTFIT, false));
-		//remove all entitiy data from entitiesReducer branch
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM_CONTENT));
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT));
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.ITEM));
-		dispatch(removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));*/
-	
 		dispatch(navigateTo(OxiAppConstants.navRequestMap.b.toLowerCase(), null, hostUsername, owner));
 	},
 	previewOutfitFromBrowse: (outfitId) => {
