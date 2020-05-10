@@ -1471,9 +1471,10 @@ class PicturePreview extends React.Component{
 				/>
 					<div 
 						style={{
-							width: (this.image === undefined || this.image === null) ? '0px' : `${this.image.clientWidth}px`,
+							width: (this.image === undefined || this.image === null) ? '0px' : 'calc(400px + 100%)',//`${this.image.clientWidth}px`,
 							display: (this.image === undefined || this.image === null) ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
-							//float: 'right',
+							'margin-right': '-400px',
+							'background-color': '#a9a9a9',
 						}}
 						className={FormStyles.contentListContainer_div}
 					>

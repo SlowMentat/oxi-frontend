@@ -188,6 +188,10 @@ input::placeholder {
         height: 100%;
 /*mark*/
         margin-top: 0px;
+        max-height: unset;
+        max-width: unset;
+        height: var(--img-preview-modal-height);
+
     }
 
     @include mobile_rules {
@@ -213,7 +217,10 @@ input::placeholder {
     background-color: #e91e6300;
 
     @include desktop_rules {
-        max-height: calc(100vh - 200px - 80px );
+        /*max-height: calc(100vh - 200px - 80px );*/
+        height: 100%;
+        width: 100%;
+        max-height: unset;
         float: right;
     }
 
@@ -275,22 +282,18 @@ input::placeholder {
 
     @include desktop_rules {
         overflow: hidden;
-        width: 600px;
+        /*width: 600px;*/
+        width: calc(100% - 400px);
         height: 780px;
-        /*height: inherit;*/
-        /*border-radius: 3px;*/
-        /*position: relative;*/
-
-        --fvc-border-color: var(--color3);
         margin: auto;
-        border-left: solid 1px var(--fvc-border-color);
-        border-right: solid 1px var(--fvc-border-color);
+        border-right: solid 1px #d9d9d9;
         height: 100%;
         background-color: #f9f9f9;
 
         position: absolute;
         top: 0px;
-        left: calc(50% - 600px/2);
+        /*left: calc(50% - 600px/2);*/
+        left: 0px;
         opacity: 0;
         transition: opacity 200ms linear;
     }
@@ -455,6 +458,7 @@ input::placeholder {
     padding-left: 17px;
     padding-right: 17px;
     padding-bottom: 17px;
+    padding: 0px;
 }
 
 :local(.addItemForm){
@@ -462,7 +466,7 @@ input::placeholder {
     border-color: #212121;
     border-width: 1px;
     width: 100%;
-    position: absolute;
+    /*position: absolute;*/
     
     @include desktop_rules {
         padding-left:var(--form-lr-padding);
@@ -507,8 +511,10 @@ input::placeholder {
 }
 
 :local(.addItemCtrlContainer_div){ 
+    display: flex;
+    justify-content: space-between;
     position: absolute;
-    bottom: 0px;
+    bottom: 10px;
     margin-left: var(--form-lr-padding);
     width: calc(100% - 2*var(--form-lr-padding));
 }
@@ -551,10 +557,7 @@ input::placeholder {
     background-color: #f1f1f1;
 
     @include desktop_rules {
-        /*margin-left: 17px;
-        margin-right: 17px;
-        margin-top: -7px;*/
-        height: 400px;
+        height: calc(100vh - 50px - (4*(10px + 57px)) - 7px - 20px - 64px);
     }
 
     @include mobile_rules {
@@ -596,8 +599,8 @@ input::placeholder {
 :local(.editProfilePic_div){
     background-color: white;
     border-radius: 4px;
-    --ctrls-height: 40px;
-    --picture-height: calc(100% - var(--ctrls-height) - 24px);
+    --ctrls-height: 48px;
+    --picture-height: calc(100% - 2*var(--ctrls-height));
 
     @include desktop_rules {
         width: 500px;
@@ -611,12 +614,12 @@ input::placeholder {
 }
 
 :local(.eppHeader_div){
-    padding-left: 10px;
+    /*padding-left: 10px;*/
     position: relative;
-    height: 24px;
+    height: var(--ctrls-height);
     line-height: 24px;
     font-size: 14px;
-    color: var(--color-mobile-icon-bg);
+    /*color: var(--color-mobile-icon-bg);*/
 }
 
 :local(.eppPicture_div){
@@ -629,22 +632,27 @@ input::placeholder {
 }
 
 :local(.editProfilePicCtrls_div){
-    height: var(--ctrls-height);
+    //height: var(--ctrls-height);
+    height: auto;
     width: 100%;
     overflow: hidden;
 }
 
 .buttonHorizontalSlider_div{
     --eepControlsTransitionPeriod: 200ms;
+    display: flex;
+    justify-content: space-evenly;
     height: inherit;
-    width: 100%;
+    width: 200%;
     text-align: center;
     white-space: nowrap;
     transition: transform 200ms cubic-bezier(.86,0,.07,1), opacity 200ms linear;
 }
 
 :local(.eppDisplayedControls_div){
-    display: inline-block;
+    /*display: inline-block;*/
+    display: flex;
+    justify-content: space-evenly;
     width: 100%;
     transition: opacity var(--eepControlsTransitionPeriod);
 }
@@ -710,19 +718,25 @@ input::placeholder {
 :local(.imgEditControls_div){
     position: absolute;
     z-index: 100;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 
     @include desktop_rules {
         left: 275px;
-        top: calc(25px + 5vh);
         text-align: center; 
 
         width: var(--ie-ctrl-width);
-        left: calc(-1*var(--ie-ctrl-width));        
-        top: 0px;        
-        --ie-ctrl-width: calc(75vw - 0.75*var(--img-preview-modal-height) - 400px);        
-        height: 60px;
+        left: calc(-1*var(--ie-ctrl-width)); 
+        --ie-ctrl-width: calc(75vw - 0.75*var(--img-preview-modal-height) - 400px);     
+        height: auto;
         width: 300px;        
-        margin-top: calc(30px - 12px);
+        //border-bottom: solid 1px var(--color2);
+        margin-top: 7px;
+
+        right:0px;
+        left: unset;
+        width: 400px;
     }
 
     @include mobile_rules {
@@ -760,18 +774,22 @@ input::placeholder {
 
 :local(.outfitPreview_div){
     --top-margin: 70px;
-    --img-preview-modal-height: 91vh;
+    --img-preview-modal-height: calc(100vh - 7px - 20px);
+    --modal-left-adj: 0px;
     background-color: #F9F9F9;
     position: absolute;
     box-shadow: 0px 0px 10px 0px #0000;
 
     @include desktop_rules {
+        margin-left: var(--modal-left-adj);
         border-radius: 7px;
         text-align: right;
-        width: 75%;
+        /*width: 75%;*/
+        width: auto;
         height: calc(var(--img-preview-modal-height));
-        left: 307px;
-        top: var(--top-margin);
+        /*left: 307px;*/
+        /*top: var(--top-margin);*/
+        top: 7px;
     }
 
     @include mobile_rules {

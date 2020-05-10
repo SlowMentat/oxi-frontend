@@ -24,6 +24,8 @@ import {
 	Switch, 
 	Redirect 
 } from 'react-router-dom';
+// Re-export with a default theme
+import { StylesProvider } from '@material-ui/core/styles';
 
 //import {MDCRipple} from '@material/ripple';
 //const buttonRipple = new MDCRipple(document.querySelector('.mdc-button'));
@@ -32,7 +34,7 @@ import {
 //import 'react-image-crop/dist/ReactCrop.css';
 
 //Display Components
-const PageLogin = lazy(() => import('./Components/Presentations/PageLogin.js'));
+/*const PageLogin = lazy(() => import('./Components/Presentations/PageLogin.js'));
 const PageUpdatePassword = lazy(() => import('./Components/Presentations/PageUpdatePassword.js'));
 
 //Container Components
@@ -41,8 +43,20 @@ const VisibleItemList = lazy(() => import('./Components/Containers/VisibleItemLi
 const VisibleOutfitList = lazy(() => import('./Components/Containers/VisibleOutfitList.js'));
 const PicturePreviewContainer = lazy(() => import('./Components/Containers/PicturePreviewContainer.js'));
 const WebAppView = lazy(() => import('./Components/Containers/WebAppViewContainer.js'));
-const LandingPageContainer = lazy(() => import('./Components/Containers/LandingPageContainer.js'));
+const LandingPageContainer = lazy(() => import('./Components/Containers/LandingPageContainer.js'));*/
 //import { SiteNav } from './Components/Presentations/WebAppView.js';
+
+import PageLogin from './Components/Presentations/PageLogin.js';
+import PageUpdatePassword from './Components/Presentations/PageUpdatePassword.js';
+
+//Container Components
+import ModalContentSelection from './Components/Containers/SelectModalContent.js';
+import VisibleItemList from './Components/Containers/VisibleItemList.js';
+import VisibleOutfitList from './Components/Containers/VisibleOutfitList.js';
+import PicturePreviewContainer from './Components/Containers/PicturePreviewContainer.js';
+import WebAppView from './Components/Containers/WebAppViewContainer.js';
+import LandingPageContainer from './Components/Containers/LandingPageContainer.js';
+
 
 //Reducers
 //import _OxiApp from './Components/Reducers/indexReducers.js';
@@ -66,6 +80,8 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'connected-react-router';
 import { ConnectedRouter } from 'connected-react-router'
+
+import { Portal } from '@rmwc/base';
 
 //Constants
 import {OxiAppConstants} from './Util/OxiAppConstants.js';
@@ -116,14 +132,7 @@ if(cookies.get('authorization')){
 	axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 }
 
-//axios.defaults.headers.common['Authorization'] = 'Bearer';
-//axios.defaults.headers.common['Origin'] = 'https://'
-
-//Set interceptor for responses with unauthorized status.
-//This will save the provided csrf token dispatch the login Form for authentication.
 axios.interceptors.response.use((response) => store.dispatch(handleUnauthorizedRequest(response)));
-
-//include the csrf_token from cookies in the X-CSRF-TOJEN header for each request.
 axios.interceptors.request.use(insertCsrfToken);
 
 class App extends React.Component {
@@ -190,50 +199,34 @@ class App extends React.Component {
 			</React.Fragment>
 		);
 		store.getState.router.location.pathnam
-		// first route based on URIs other than / in the address border-radius
-
-		// find route based on toPortal stat property
-		//switch(this.state.toPortal){
-		//	case OxiAppConstants.toPortals.consumer:
-		//		return (
-		//			<React.Fragment>
-		//				<Redirect push={true} to={OxiAppConstants.routeURIs.browse}/>
-	   	//			<Route path={this.props.match.url + 'shop'} component={ WebAppView }/>
-	   	//		</React.Fragment>
-		//		);
-		//		break;
-		//	case OxiAppConstants.toPortals.retailer:
-		//		return <Redirect push to='/retailer'/>;
-		//		break;
-		//	case OxiAppConstants.toPortals.designer:
-		//		return <Redirect push to='/designer'/>;
-		//		break;
-		//	default: // Default to landing page or predefined urls 
-		//		return(	
-		//			<React.Fragment>	
-		//				<Switch>
-		//					<Route push={true} path={OxiAppConstants.routeURIs.shop} component={WebAppView} />
-		//					<Route push={true} path={OxiAppConstants.routeURIs.login} component={WebAppView} />
-		//					<Route push={true} path={'/account/user/confirm/user/login'} render={props => (<LoginPage/>)} />
-		//					<Route path={this.props.match.url} render={({match, location, history}) => (
-		//						<div id="LandingPageContainer_div">
-		//							{/*<SiteNav webAppView='landing'/>*/}
-		//							<LandingPageContainer navEventCallbacks={() => (null)} handlePortalSelect={(toPortal) => this._handlePortalSelect(toPortal)}/>
-		//						</div>
-		//					)} />
-		//				</Switch>
-		//			</React.Fragment>
-		//		);
-		//}
 	}
 }
 
-	//<Provider store={store}>
-	//	<BrowserRouter>
-	//		<Route path="/" component={App} />
-	//	</BrowserRouter>
-	//</Provider>,
-	//document.getElementById('root')
+export const WrapMuiProviders = (children) => (
+
+	<RMWCProvider
+		// Set global configuration options for RMWC here
+		// ex:
+		// 		ripple={false}
+		// 		typography={{ defaultTag:'div' }}
+		typography={{
+			button: ({ children, ...rest }) => (
+				<span style={{font: '12px'}}>
+					{ children }
+				</span>
+			)
+		}}
+	>	
+		<ThemeProvider
+			options={{
+				primary: 'var(--color-01)',
+				secondary: 'var(--color-05-tint-02)',
+			}}
+		>
+			{ children }
+		</ThemeProvider>
+	</RMWCProvider>
+);
 
 const startApp = () => {
 	/*if(window.device && device.platform === 'iOS'){
@@ -242,23 +235,12 @@ const startApp = () => {
 
 	ReactDOM.render(
 		<Provider store={store} context={ReactReduxContext}>
-			<ConnectedRouter history={history}  context={ReactReduxContext}>
-				<RMWCProvider
-					// Set global configuration options for RMWC here
-					// ex:
-					// 		ripple={false}
-					// 		typography={{ defaultTag:'div' }}
-				>	
-					<ThemeProvider
-						options={{
-							primary: 'var(--color-02-shade-01)',
-							secondary: 'var(--color-05-tint-01)',
-						}}
-					>
-						<Route path="/" component={App}/>
-					</ThemeProvider>
-				</RMWCProvider>
-			</ConnectedRouter>
+			<StylesProvider injectFirst>
+				<ConnectedRouter history={history}  context={ReactReduxContext}>
+					{ WrapMuiProviders(<Route path="/" component={App}/>) }
+				</ConnectedRouter>
+				<Portal />
+			</StylesProvider>
 		</Provider>,
 		document.getElementById('root')
 	);

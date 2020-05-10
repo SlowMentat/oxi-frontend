@@ -78,7 +78,7 @@ export default class ItemList extends React.Component{
 
 		return (
 		    <div className={ItemStyles.itemBlock}>
-		    	<div style={{'height':'calc(5vh + 25px)'}}>
+		    	<div style={{'height':'60px'}}>
 		    		<div className={ItemStyles.itemMenuHeaderContainer}>
 		    			<div className={ItemStyles.itemMenuHeader}>
 		    				<div className={ItemStyles.itemMenuHeaderIconContainer}>

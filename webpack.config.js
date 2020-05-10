@@ -17,17 +17,17 @@ module.exports = {
 				default: false,
 				vendor: false,
 				//vendor chunk
-				vendor: {
-					name:'vendor',
-					//sy + async chunks
-					chunks: 'all',
-					//import file path contianing nodemodules
-					test: /node_modules/
-				}
+				//vendor: {
+				//	name:'vendor',
+				//	//sy + async chunks
+				//	chunks: 'all',
+				//	//import file path contianing nodemodules
+				//	test: /node_modules/
+				//}
 			}
 		}
 	},
-	entry: './src/App.js',
+	entry: ['./src/App.js'],
 	output: {
 		filename: "App.js",
 		chunkFilename: '[name].js',
@@ -72,7 +72,7 @@ module.exports = {
 	    				options: {
 	    					cacheDirectory: true, 
 	    					presets: ['@babel/react','@babel/env'],
-	    					plugins: ["@babel/plugin-syntax-dynamic-import", "@babel/plugin-proposal-object-rest-spread",]
+	    					plugins: ["@babel/plugin-syntax-dynamic-import", "@babel/plugin-proposal-object-rest-spread", "babel-plugin-styled-components"]
 	    				},
 	    			}
 	    		],

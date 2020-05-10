@@ -2,6 +2,7 @@ import React from 'react';
 import ItemStyles from '../../item.scss';
 import PropTypes from 'prop-types';
 import ItemLiteStyles from '../../itemLite.scss';
+import Styles from '../../root.scss';
 //import DeleteIcon from '../SvgAssets/Icons/DeleteIcon.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js';
 import VisibleItemAsSeenOnList from '../../Components/Containers/VisibleItemAsSeenOnList.js';
@@ -11,6 +12,8 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import { Button } from '../../Components/Presentations/Controls.js';
 import { camelize } from '../../Util/Misc.js';
 import Rating from '../../Components/Presentations/Rating.js';
+import { Tooltip } from '@rmwc/tooltip';
+import '@rmwc/tooltip/tooltip.css';
 
 //import { 
 //	Card, 
@@ -173,6 +176,153 @@ export class ItemLite extends React.Component{
 
 		return(  		
 			<React.Fragment>
+
+
+  				<div 
+  					className={ItemLiteStyles.itemLite_div}
+  					onMouseOver={(event) => onSizeHover(event)} >
+
+  					<Card style={{height:'100%'}}>
+						<CardPrimaryAction style={{height:'66.7px'}}>
+							<CardMedia
+								sixteenByNine
+								style={{
+									width:'50%',
+									height: '100%',
+									'margin-left':'50%',
+									'border-radius':'0px',
+								}}
+							>
+								{/*<div
+									style={{
+										position:'absolute',
+										top: '0px',
+										right: '35%',
+										width: '35%',
+										height: 'calc(100% - 2*7px)',
+										'margin-top': '7px',
+									}}
+								>									
+									<SvgIcon name={apparelTypeIcon} stroke="var(--color1)"/>
+								</div>*/}
+
+  								<div 
+  									id="selectedSizeIcon" 
+  									className={ItemLiteStyles.selectedSize_div} 
+  								>
+  									<span> { sizeLabel } </span>
+  								</div>
+								<div
+									style={{
+										position: 'absolute',
+										top: '0px',
+										right:'0px',
+										width: '35%',
+										height: 'calc(100% - 2*7px)',
+										'margin-top': '7px',
+									}}
+								>
+									<SvgIcon 
+										name={apparelTypeIcon} 
+										stroke="var(--color1)"
+									/>
+								</div>
+							</CardMedia>
+							<div
+								style={{
+									position:'absolute',
+									width:'calc(50% - 1rem)',
+									padding: '0 1rem 1rem 1rem',
+									'text-align':'left',
+								}}
+							>
+								<Typography
+									use="headline6"
+									tag="h2"
+								>
+  									{ retailerName }
+								</Typography>
+								<Typography
+									use="subtitle2"
+									tag="h3"
+									theme="textSecondaryOnBackground"
+									style={{marginTop: '-1rem'}}
+								>
+									{}
+								</Typography>
+								<Typography
+									use="body1"
+									tag="div"
+									theme="textSecondaryOnBackground"
+								>
+									{handle}
+								</Typography>
+							</div>
+						</CardPrimaryAction>
+
+						<CardActions>
+							<Rating value={3} />
+							<CardActionButtons>
+								<CardActionButton>
+									{`${758} Reviews`}
+								</CardActionButton>
+							</CardActionButtons>
+							<CardActionIcons>
+								<CardActionIcon 
+									icon={isSaved ? "bookmark" : "bookmark_border" } 
+									//onIcon={isSaved ? "bookmark_border" : "bookmark"} 
+									onClick={(event) => onBookmarkClicked(event)} 
+								/>
+								<CardActionIcon icon="share" />
+								<Tooltip 
+									showArrow
+									content="coming soon"
+								>
+									<CardActionIcon 
+										icon={
+											<div
+												style={{
+													width:'24px',
+													height:'24px',
+													'border-radius':'50%',
+												}}
+											>
+												<SvgIcon 
+													className={Styles.btn_svg} 
+													name="ShopIcon" 
+													strokeWidth="2"
+												/>
+											</div>
+										} 
+									/>
+								</Tooltip>
+							</CardActionIcons>
+						</CardActions>
+						{
+							isActive ? 
+								(<CollapsibleList
+									handle={
+										<SimpleListItem
+											text="See more"
+											graphic=""
+											metaIcon="expand_more"
+										/>
+									}
+									//defaultOpen={ isSelected }
+									onOpen={ () => expandItem(id.toLowerCase()) }
+									onClose={ () => collapseItem() }
+								>
+									<List style={{maxHeight: '100%', overflow:'auto'}} >
+										{ infoComponent ? infoComponent(isExpanded) : null }
+									</List>
+								</CollapsibleList>) :
+								null
+						}
+
+					</Card>
+				</div>
+
+			{/*}
   				<div 
   					className={ItemLiteStyles.itemLite_div}
   					onMouseOver={(event) => onSizeHover(event)} >
@@ -246,6 +396,7 @@ export class ItemLite extends React.Component{
   				{
   					infoComponent ? infoComponent(isExpanded) : null
   				}
+  			*/}
   			</React.Fragment>
 		);
 	}
@@ -426,6 +577,7 @@ export class ItemInfo extends React.Component {
 									{description}
 								</div>
 							</div>
+							{/*
 							<div className={ItemStyles.shopBtn_div}>
 								<Button
 									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
@@ -438,6 +590,7 @@ export class ItemInfo extends React.Component {
 									puDirection='WEST' 
 								/>
 							</div>
+							*/}
 						</div>
 					</CSSTransition>
 				</div>
@@ -794,6 +947,7 @@ export class Item extends React.Component{
 			isColorOptionsOpen:false,
 			selectedColor:null,
 			selectedSize:null,
+			isSaved: props.isSaved,
 		};
 
 		this._handleImageReceived = this._handleImageReceived.bind(this);
@@ -845,12 +999,14 @@ export class Item extends React.Component{
 		} = this.props;
 
 		const {
-			isSaved,
+			//isSaved,
 			item,
 			isExpanded,
 			imageHeight,
 			apparelTypeByIds,
 		} = this.props;
+
+		const { isSaved } = this.state;
 
 		const {
 			product, 
@@ -985,7 +1141,7 @@ export class Item extends React.Component{
 					className={isExpanded ? ItemStyles['itemContainerPreview_div--opened'] : itemContainerStyles}
 					onMouseOver={this.props._handleMouseOver.bind(this)}
 					onMouseLeave={this.props._handleMouseLeave.bind(null)} 
-					style={{'--index':`${this.props.index}`}}
+					style={{'--index':`${this.props.index}`, height:'auto'}}
 					//style={
 					//	!isProfileView ? 
 					//	{} : 
@@ -1072,6 +1228,11 @@ export class Item extends React.Component{
 						}
 						onBookmarkClicked={(event) => {
 							event.stopPropagation();
+
+							this.setState(prevState => ({
+								isSaved: !prevState.isSaved,
+							}));
+
 							!isSaved ? 
 								(saveItem !== undefined ? saveItem(item.id) : null) :
 								(unsaveItem !== undefined ? unsaveItem(item.id) : null);
@@ -1098,7 +1259,7 @@ export class Item extends React.Component{
 							() => (null)
 						} />
 	
-					{
+					{/*
 						//TODO:  figure out what to do with this
 						this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase() ?
 							null :
@@ -1109,7 +1270,7 @@ export class Item extends React.Component{
 										<VisibleItemAsSeenOnList selectedItemId={this.props.item.id} />
 									) :
 									null
-					}
+					*/}
 				</div>	
 			</CSSTransition>	
 		);	

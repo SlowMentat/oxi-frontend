@@ -6,26 +6,18 @@ div{
 }
 
 :local(.itemLite_div){
-	/*--item-height: 120px;*//* Set for testing purposes */
 	--item-width: 100%;
 	--item-padding-left: 10px;
-
 	--item-lite-border-width:1px;
-
 	--apparel-icon-container-width: 51px;
 
 	position: relative;
 	width: var(--item-width);
 	height: 100%;
-	/*border-bottom: solid var(--item-lite-border-width) var(--color2);*/
-	/*border-left: solid var(--item-lite-border-width) var(--color2);*/
-	/*border-bottom-left-radius: 4px;*/
-	border: solid var(--item-lite-border-width) var(--color2);
+	/*border: solid var(--item-lite-border-width) var(--color2);
 	border-radius: 4px;
 	padding-bottom: 5px;
-	padding-left: 10px;
-	/*margin-top: 22px;*/
-
+	padding-left: 10px;*/
 	cursor: default;
 
 	@include desktop_rules {
@@ -33,7 +25,6 @@ div{
     }
 
     @include mobile_rules {
-		/*background-color: none;*/
 		background-color: white;
 		border: none;
 		border-radius: 0px;
@@ -148,7 +139,8 @@ div{
 }
 
 :local(.selectedSize_div){
-	--selected-size-height: 27px;
+	/*--selected-size-height: 27px;*/
+	--selected-size-height: 40px;
 	--selected-size-border: 1px;
 
 	position: absolute;
@@ -162,8 +154,13 @@ div{
 	border-radius: 4px;
 	bottom: 10px;
 	left: calc(50% - var(--selected-size-height)/2);
+
+	right: calc(35% + 5px);
+	left: unset;
+	top: 14px;
 }
 
 :local(#selectedSizeIcon span){
 	color: var(--color1);
+	font-size: 18px;
 }

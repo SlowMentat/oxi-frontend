@@ -5,6 +5,8 @@
 
     @include desktop_rules {
 		width: calc(100% - 0.75*var(--img-preview-modal-height) - 400px);
+		display: none;
+		widows: 0px;
 		left: 0px;
 		height: 100%;
     }

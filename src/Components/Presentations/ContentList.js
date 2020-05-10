@@ -5,12 +5,19 @@ import Content from './Content.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {AddContentButton, DeleteContentButton} from './ContentListControls.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+import { MenuSurfaceAnchor, MenuSurface} from '@rmwc/menu';
+import '@rmwc/menu/styles';
 
 class ContentList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			addedItemIds: this.props.addedItemIds
+			addedItemIds: this.props.addedItemIds,
+			picPreviewOpen: false,
+			picPreviewActive: false,
+			base64Images: {
+
+			}
 		};
 		this.extractAddedElement = this.extractAddedElement.bind(this);
 		this.syncronizeState = this.syncronizeState.bind(this);
@@ -63,9 +70,11 @@ class ContentList extends React.Component {
 			case (itemIdsLengthDiff >= 1):
 				let addedItemId = this.extractAddedElement(this.state.addedItemIds, this.props.addedItemIds);
 				console.log('addedItemId = ', addedItemId);
+
 				if(addedItemId !== null){
 					let duplicate = false;
-					//Fence posting kinda:  checking for duplicate entries.  
+
+					//Fence posting:  checking for duplicate entries.  
 					//On entry into edit contentext view the selected outfit and all child entities are copied to the addedEntitiesReducer.
 					//This means the selected contents will have its child items array populated.  Adding a new content in this context will 
 					//duplicate the elements in previously selected content's items array before the select leaf of the entitesStateReducer.contents tree
@@ -76,6 +85,7 @@ class ContentList extends React.Component {
 							break;
 						}
 					}
+
 					//Note:  This block will not be executed during componentDidMount
 					if(!duplicate){
 						this.props.modifyContentItems(this.props.selectedId, [...this.props.addedContents[this.props.selectedId].items, addedItemId]);
@@ -86,20 +96,26 @@ class ContentList extends React.Component {
 						}
 					}
 				}
+
 				this.setState({
 					addedItemIds: this.props.addedItemIds
 				});
+
 				break;
+
 			case (itemIdsLengthDiff >= 2):
 				console.log('Unexpected de-sync between item id arrays:  ContetList component state, addedItemIds contains more than 1 less elements than redux state.addedEntitiesReducer.items.allIds!');
 				break;
-			//Remove all elements form state.addedItemIds array when all edits have been discarded (indicated by a switch to PREVIEW viewStat)
+
+			//Remove all elements form state.addedItemIds array when all edits have been discarded (indicated by a switch to PREVIEW viewState)
 			case (itemIdsLengthDiff < 0):
+
 				if(this.props.viewState === OxiAppConstants.viewState.PREVIEW){
 					this.setState({
 						addedItemIds: []
 					})
-				}else{
+				}
+				else{
 					//TODO: handle the case when an added item entity is removed during and EDITING viewState
 					/*let result = this.extractNonExistingIds(this.state.addedItemIds, this.props.addedItemIds);
 					console.log('result = ', result);
@@ -113,10 +129,13 @@ class ContentList extends React.Component {
 						addedItemIds: this.props.addedItemIds
 					});
 				}
+
 				break;
+
 			case (itemIdsLengthDiff <= 2):
 				//console.log('Unexpected de-sync between item id arrays:  ContetList component state, addedItemIds more than 1 less elements than redux state.addedEntitiesReducer.items.allIds!');
 				break;
+
 			default:
 				break;
 		}		
@@ -134,7 +153,7 @@ class ContentList extends React.Component {
 
 		// Methods
 		const {
-			onClick,
+			selectContentView,
 			getCoverPic,
 			modifyAddedOutfitContents,
 			focusOnAddedContent,
@@ -163,6 +182,11 @@ class ContentList extends React.Component {
 
 			viewState,
 		} = this.props;
+
+		const {
+			picPreviewOpen,
+			picPreviewActive,
+		} = this.state;
 
 		const {
 			coverpicuri,
@@ -231,64 +255,121 @@ class ContentList extends React.Component {
 
 		return (			
 		    <React.Fragment>
-		    	<div className={ContentStyles.contentListContainer}>
-		    		{/*<AddContentButton 
-		    			shown={viewState != OxiAppConstants.viewState.PREVIEW} 
-		    			enabled={!controlDisabled} 
-		    			handleClick={onControlClick} />*/}
-		    		{
-		    			contentIds.map((contentId) => 
-		    				<Content 
-				    			key = {contentId}
-				    			{...contents[contentId]} 
-		    					id={contentId}
-				    			onClick={onClick} 
-				    			isControl={false} 
-				    			selectedId={selectedId}
-				    			thumbnail={thumbnailuri} 
-				    			getCoverPic={getCoverPic}
-				    			isOutfitCoverpic={
-				    				!(selectedOutfit && smalluri) ? 
-				    					(smalluri === selectedOutfit.coverpicuri) :
-				    					false 
-				    			}
-		    				/>)
-		    		}
-		    		{
-		    			addedContentIds.map((contentId) => 
-		    				<Content 
-				    			key = {contentId}
-				    			{...addedContents[contentId]} 
-		    					id={contentId}
-				    			//onClick={onClickAddedContent}		    		
-				    			onClick={onClick} 
-				    			isControl={false} 
-				    			thumbnail={//TODO: this may not be necessary
-				    				!addedContents[contentId] ? 
-				    					undefined : 
-				    					addedCoverpicuri ? 
-				    						addedThumbnailuri : 
-				    						'blob'//addedContents[contentId].coverpicuri
-				    			} 
-				    			getCoverPic={getCoverPic}
-				    			selectedId={selectedId}
-				    			addedItemIds={addedItemIds}
-				    			modifyContentItems={modifyContentItems}
-				    			addedContents = {addedContents}
-				    			isOutfitCoverpic={false}
-		    				/>)
-		    		}
-		    		{
-		    			/*(<DeleteContentButton 
+		    	<MenuSurfaceAnchor>
+		    		<MenuSurface
+		    			onMouseLeave={e => this.setState({picPreviewActive: false})}
+		    			onMouseEnter={e => this.setState({picPreviewActive: true})}
+		    			open={ picPreviewOpen || picPreviewActive }
+		    			onSelect={e => this.setState({picPreviewActive: false})}
+		    			renderToPortal={true}
+		    			style={{
+		    				'--ip-width': 'calc((100vh - 7px - 20px)*3/4)',
+		    				'--ic-height': '100px',
+		    				'--ic-width': 'calc(6*(2/3)*var(--ic-height))',
+		    				'margin-left':'calc((var(--ip-width) - var(--ic-width))/2)',
+		    				bottom:'20px',
+		    			}}
+		    		>
+		    			<div
 		    				style={{
-		    					right: '0px',
-		    			    	top: '3px',
-		    				}} 
+		    					//width: 'calc((100vh - 7px - 20px)*3/4 - 40px)',
+		    					width: 'var(--ic-width)',
+		    					height: 'var(--ic-height)',
+		    					display:'flex',
+		    					'justify-content': 'center',
+		    					overflow:'hidden',
+		    				}}
+		    			>
+		    				{
+		    					(viewState === OxiAppConstants.viewState.EDIT ? (addedContentIds) : (contentIds)).map(id => {
+		    						return(
+		    							<div 
+		    								style={{
+		    									display: 'inline',
+		    									height: '100%',
+		    									'padding-top': '5px',
+		    									'padding-bottom': '5px',
+		    									margin:'5px 5px 5px 5px',
+		    									'border-bottome': (selectedId === id ? 'solid 1px var(--color-01)' : '')
+		    								}}
+		    							>
+		    								<img 
+		    									style={{
+		    										height: 'calc(100% - 10px)',
+		    										cursor: 'pointer',
+		    									}}
+		    									src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[id].coverpicuri : contents[id].coverpicuri}.jpg`}
+		    									onClick={e => selectContentView(id)}
+		    								/>
+		    							</div>
+		    						);
+		    					})
+		    				}
+		    			</div>
+		    		</MenuSurface>
+		    		<div 
+		    			className={ContentStyles.contentListContainer}
+		    			onMouseOver={e => window.isDevice ? null : this.setState({picPreviewOpen: true})}
+		    			onMouseLeave={e => window.isDevice ? null : this.setState({picPreviewOpen: false})}
+		    		>
+		    			{/*<AddContentButton 
 		    				shown={viewState != OxiAppConstants.viewState.PREVIEW} 
 		    				enabled={!controlDisabled} 
-		    				handleClick={onControlClick} />)*/
-		    		}
-		    	</div>
+		    				handleClick={onControlClick} />*/}
+		    			{
+		    				contentIds.map((contentId) => 
+		    					<Content 
+					    			key = {contentId}
+					    			{...contents[contentId]} 
+		    						id={contentId}
+					    			selectContentView={selectContentView} 
+					    			isControl={false} 
+					    			selectedId={selectedId}
+					    			thumbnail={thumbnailuri} 
+					    			getCoverPic={getCoverPic}
+					    			isOutfitCoverpic={
+					    				!(selectedOutfit && smalluri) ? 
+					    					(smalluri === selectedOutfit.coverpicuri) :
+					    					false 
+					    			}
+		    					/>)
+		    			}
+		    			{
+		    				addedContentIds.map((contentId) => 
+		    					<Content 
+					    			key = {contentId}
+					    			{...addedContents[contentId]} 
+		    						id={contentId}
+					    			//onClick={onClickAddedContent}		    		
+					    			selectContentView={selectContentView} 
+					    			isControl={false} 
+					    			thumbnail={//TODO: this may not be necessary
+					    				!addedContents[contentId] ? 
+					    					undefined : 
+					    					addedCoverpicuri ? 
+					    						addedThumbnailuri : 
+					    						'blob'//addedContents[contentId].coverpicuri
+					    			} 
+					    			getCoverPic={getCoverPic}
+					    			selectedId={selectedId}
+					    			addedItemIds={addedItemIds}
+					    			modifyContentItems={modifyContentItems}
+					    			addedContents = {addedContents}
+					    			isOutfitCoverpic={false}
+		    					/>)
+		    			}
+		    			{
+		    				/*(<DeleteContentButton 
+		    					style={{
+		    						right: '0px',
+		    				    	top: '3px',
+		    					}} 
+		    					shown={viewState != OxiAppConstants.viewState.PREVIEW} 
+		    					enabled={!controlDisabled} 
+		    					handleClick={onControlClick} />)*/
+		    			}
+		    		</div>
+		    	</MenuSurfaceAnchor>
 		    </React.Fragment>
 		);
 	}

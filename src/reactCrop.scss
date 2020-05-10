@@ -32,8 +32,8 @@
 
     @include desktop_rules {
         float: right;
+        max-width: calc(var(--img-preview-modal-height) * .75);
         /*max-width: calc((100vh - 200px) * var(--img-aspect-ratio));*/
-        max-width: calc(var(--img-preview-modal-height) * .75)
     }
 
     @include mobile_rules {

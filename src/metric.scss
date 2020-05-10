@@ -7,6 +7,12 @@ $desktopMetricPanelWidth: 300px;
 $gbcTransPeriod: 200;
 $isDebug: false;
 
+@mixin debug-styles(){
+    @if $isDebug {
+        @content;
+    }
+}
+
 :local(.metricNodeBlock) {
 	background-color: rgba(0,0,0,0);
 	width:13px;
@@ -185,7 +191,7 @@ $isDebug: false;
     border-radius: var(--moulding-radius);
     left: calc(-1*var(--moulding-radius));
 
-    @if $isDebug {
+    @include debug-styles {
         border: solid 1px #4c4c4c;
     }
 }
@@ -195,7 +201,7 @@ $isDebug: false;
     right: calc(-1*var(--moulding-radius));
     left:unset;
     
-    @if $isDebug {
+    @include debug-styles {
         border: solid 1px #ff00e3;
     }
 }
@@ -246,25 +252,25 @@ $isDebug: false;
 }
 
 :local(#scurve .leftCornerMoulding_div){
-    @if isDebug {
+    @include debug-styles {
         border: solid 1px #00ff28;
     }
 }
 
 :local(#scurve .rightCornerMoulding_div){
-    @if isDebug {
+    @include debug-styles {
         border: dotted 1px #f00;
     }
 }
 
 :local(#zcurve .leftCornerMoulding_div){
-    @if isDebug {
+    @include debug-styles {
         border: solid 1px #00ff28;
     }
 }
 
 :local(#zcurve .rightCornerMoulding_div){
-    @if isDebug {
+    @include debug-styles {
         border: dotted 1px #f00;
     }
 }
@@ -383,10 +389,10 @@ $isDebug: false;
         margin: 10px 0px 0px 10px;
 
         position: absolute;
-        top: calc(-1*var(--page-header-height));
+        top: calc(-1*var(--page-header-height) - 2px);
         left: calc(100vw - 50px - 23px);
         width: var(--default-pic-icon-size);
-        height: var(--default-pic-icon-size);
+        height: var(--page-header-height);
         margin: 0px;
         /*margin-top: 5px;*/
     }
@@ -397,10 +403,11 @@ $isDebug: false;
 }
 
 :local(.profilePicContainer_div){
-	display: inline-block;
+    height: 100%;
+	display: flex;
+    align-item: center;
     vertical-align: top;
     width: calc(var(--default-pic-icon-size));
-    height: calc(var(--default-pic-icon-size));
 }
 
 :local(.profilePic_div){

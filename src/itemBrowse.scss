@@ -117,7 +117,8 @@
 
 .itemListBrowseContainer_div{
 	@include desktop_rules {
-		width: 500px;
+		--ilbc-width: 400px;
+		width: var(--ilbc-width);
     	margin-left: 400px;
     }
 

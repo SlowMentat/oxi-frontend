@@ -9,6 +9,9 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
+import  '@rmwc/ripple/styles';
+import { Ripple } from '@rmwc/ripple';
+
 
 class ItemAsSeenOn extends React.Component{
 	constructor(props){
@@ -52,17 +55,22 @@ class ItemAsSeenOn extends React.Component{
 				className={AsSeenOnStyles.itemAsSeenOnContainer_div} 
 				>
 				<div
-					onClick={(event) => {
-						previewOutfitFromBrowse(this.props.id);
-						event.stopPropagation();
-					}}
 					className={AsSeenOnStyles.itemAsSeenOn_div} 
 				>
-					<div className={AsSeenOnStyles.imageContainer_div}>
-						<img className={AsSeenOnStyles.imageApparel_img/*.image_img*/} src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} />
-					</div>
+					<Ripple>
+						<div className={AsSeenOnStyles.imageContainer_div}>
+							<img 
+								className={AsSeenOnStyles.imageApparel_img/*.image_img*/} 
+								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
+								onClick={(event) => {
+									this.props.previewOutfitFromBrowse(this.props.outfitId ? this.props.outfitId.toLowerCase() : this.props.outfitId);
+									event.stopPropagation();
+								}}
+							/>
+						</div>
+					</Ripple>
 				</div>
-				<div className={AsSeenOnStyles.infoContainer_div}>
+				{/*<div className={AsSeenOnStyles.infoContainer_div}>
 					<div className={AsSeenOnStyles.infoName_div}>
 						{ username }
 					</div>
@@ -80,7 +88,7 @@ class ItemAsSeenOn extends React.Component{
 							</span>
 						</div>
 					</div>
-				</div>
+				</div>*/}
 			</div>
 		);
 	}
@@ -118,8 +126,9 @@ class ItemAsSeenOnList extends React.Component{
     				list={this.props.contentIds.map((contentId => {
 						return(
 							<ItemAsSeenOn 
-								onClickContextBrowse={this.props.onClickContextBrowse}
+								previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
 								contentId={contentId}
+								outfitId={ this.props.contents[contentId].outfitId }
 								contentWithOutfit = {this.props.contents[contentId]}
     							prevPageURL={this.props.prevPageURL}
     							nextPageURL={this.props.nextPageURL}

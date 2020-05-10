@@ -1,5 +1,6 @@
 @use "sass:map";
 /*@use "@material/button/mdc-button";*/
+/*@use "@material/ripple";*/
 
 $pageHeaderHeight: 60px;
 $mobileFooterHeight: 40px;
@@ -12,6 +13,9 @@ $loaderContainerWidth: 100px;
 	@media screen and (min-aspect-ratio: 13/9){
 		@content;
 	}
+	/*@media screen and (max-aspect-ratio: ) {
+
+	}*/
 };
 
 @mixin mobile_rules{
@@ -19,7 +23,7 @@ $loaderContainerWidth: 100px;
 	@media screen and (max-aspect-ratio: 13/9){
 		@content;
 	}
-};
+}
 
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
@@ -39,6 +43,14 @@ input[type=number]::-webkit-outer-spin-button {
 	user-select: none; /* Standard */
 
 	-webkit-tap-highlight-color:  rgba(255, 255, 255, 0);
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 html{
@@ -123,7 +135,8 @@ body{
 	/*previewImageContainer_div padidng-top*/
 	--pic-padding-top: 0px;
 	--cc-mobile-height: 40px;
-	--cc-desktop-height: 60px;
+	--cc-desktop-height: 75px;
+	--pic-prev-controls-top: 7px;
 	/* contentListContainer_div height */
 	--clc-mobile-height: 20px;
 
@@ -147,6 +160,12 @@ button{
 	border: unset;
 }
 
+:local(.btn_svg){
+    height: 100%;
+    width: 100%;
+    cursor:pointer; 
+}
+
 div{
 	font-family: Roboto, cursive;
     letter-spacing: 0.08rem;
@@ -161,6 +180,18 @@ div{
 .ReactCrop__rule-of-thirds-vt::after{
 	top:0px;
 }
+/*
+.customSurface{
+	@include ripple.surface { height: 100%; }
+	@include ripple.radius-bounded { }
+	@include ripple.states-base-color(black);
+	@include ripple.states-opacities((hover: .1, focus: .3, press: .4));
+}
+
+:local(.customSurfaceBrowse){
+	composes:customSurface;
+	height: 100%;
+}*/
 
 h2{
 	font-family: 'Archivo Black', sans-serif;
@@ -265,7 +296,7 @@ a{
 }
 
 .modal{	
-	background-color: rgba(0,0,0,0.6);
+	/*background-color: rgba(0,0,0,0.6);*/
 	position: fixed;
 	height: 100%;
 	width: 100%;
@@ -275,7 +306,8 @@ a{
 	justify-content: center;
 
     @include desktop_rules {
-		align-items: center;	
+		align-items: center;
+		justify-content: center;
     }
 
     @include mobile_rules {
@@ -446,7 +478,8 @@ a{
 	top: 0px;
 
     @include desktop_rules {
-		width: 300px;
+    	margin-right: 12px; /* Tempory fixt to properly space profile icon with button in this div*/
+		width: auto;
 		height: var(--page-header-height);
     }
 
@@ -492,6 +525,7 @@ a{
 	white-space:nowrap;
 
 	@include desktop_rules {
+		position: relative;
 		padding-left: 400px; 
 		margin-left: 300px;
 		padding-top: 80px;
@@ -648,13 +682,14 @@ a{
     	/*background-color: var(--main-background-color);*/
     	position: absolute;
 		top: calc(var(--outfit-header-height) - 28px);
-		z-index: 100;
+		z-index: 7;
 		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 85px);
 	}
 
     @include mobile_rules {
     	background-color: var(--main-background-color);
-    	z-index: 11;
+    	/*z-index: 11;*/
+    	z-index: 7;
     	box-shadow: black 0px 11px 15px 0px;
 		position: fixed;
    		bottom: 0px;
@@ -669,19 +704,26 @@ a{
 
 :local(.controlsContainerPreviewMode){
 	composes:controlsContainer;
+	display: flex;
+	justify-content: space-between;
 	--translate-y: 0px;
 
 	@include desktop_rules {
-		/* OLD
-    	left: 275px;
-    	*/
+		padding: 0px 17px 0px 17px;
     	left: 307px;
     	width: 16%;
 		width: calc(75% - 0.75*var(--img-preview-modal-height) - 400px);
 		background-color: unset;
-		border-bottom: solid 1px var(--color2);
+		//border-bottom: solid 1px var(--color2);
 		border-radius: 0px;
 		background-color: white;
+		top: var(--pic-prev-controls-top);
+		right: 0px;
+		left: unset;
+		position: absolute;
+		width: 400px;
+		background-color: unset;
+    	height: var(--cc-desktop-height);;
     }
 
     @include mobile_rules {
@@ -980,6 +1022,7 @@ a{
 		/*height: calc(100% - #{$pageHeaderHeight});*/
 		height: 100%;
 		width: auto;
+		max-width: calc(100vw - 400px - 7px);
 	}
 
 	@include mobile_rules {
@@ -1391,6 +1434,12 @@ a{
 	--border-color: var(--color-desktop-01);
 	transition: border-color 50ms linear;
 	border: solid var(--border-width) var(--border-color);
+
+	@include desktop_rules {
+    }
+
+    @include mobile_rules {
+    }
 }
 
 .ppIcon_img:hover{

@@ -27,7 +27,8 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import ItemLocationMap from './ItemLocationMap.js';
 import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import {Button} from '../../Components/Presentations/Controls.js';
+//import {Button} from '../../Components/Presentations/Controls.js';
+import { IconButton, Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
 
 //import { Button as ButtonMUI } from '@material-ui/core/Button';
 //import { makeStyles } from '@material-ui/core/styles';
@@ -70,17 +71,19 @@ export default class ProfileViewControls extends React.Component{
 			username,
 		} = this.props;
 
-		var previewedUsername = viewState === OxiAppConstants.viewState.ADD ? 
+		var previewedUsername = (viewState === OxiAppConstants.viewState.ADD || viewState === OxiAppConstants.viewState.EDIT) ? 
 			(username) :
-			outfits[entitiesStateReducer.outfits.selected].username;
+			outfits[entitiesStateReducer.outfits.selected].username ?
+				outfits[entitiesStateReducer.outfits.selected].username : 
+				addedOutfits[entitiesStateReducer.outfits.selected].username;
 
 		var isEditting = viewState != OxiAppConstants.viewState.PREVIEW.toLowerCase();
-		var buttonDisplay = isEditting ? 'none' : 'inline-block';
+		
 		const customButtonStyles = {
-			display: buttonDisplay,
-			'margin-left':'5%',
-			'vertical-align':'top',
-			color:'var(--icon-color)',
+			display: (isEditting ? 'none' : null),
+			//'margin-left':'5%',
+			//'vertical-align':'top',
+			//color:'var(--icon-color)',
 		}
 
 		return(
@@ -95,17 +98,15 @@ export default class ProfileViewControls extends React.Component{
 						{(isEditting ? 'Editting' : null)}
 					</div>
 					<Button
-						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-						onClickHandler={(event) => {
+						onClick={(event) => {
 							overrideOnExit ? overrideOnExit() : null;
 							unsetPreviewFocus();
 							//this.forceUpdate();
 						}}
-						title=''
-						ligature="arrow_back"
-						iconName={null}
-						//customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}} 
-						customButtonStyles={customButtonStyles}
+						icon="arrow_back"
+						label="back"
+						theme="textPrimaryOnLight"
+						style={customButtonStyles}
 					/>
 					{/*<ButtonMUI
 						color="default"
@@ -119,48 +120,42 @@ export default class ProfileViewControls extends React.Component{
 					</button>*/}
 					{
 						username === previewedUsername ?
-							(<React.Fragment><Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-								onClickHandler={(event) => {
-									editOutfit(outfits[selectedOutfitId], entitiesStateReducer, contents, selectedContentId, items); 
-								}}
-								title=''
-								ligature="edit"
-								iconName={null}
-								customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}}
-								customButtonStyles={customButtonStyles}
-							/>
-							<Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-								onClickHandler={() => {
-									new Promise((resolve, reject) => {
-										resolve( changeOutfitCoverPic({ 
-											id: entitiesStateReducer.outfits.selected,
-											coverpicuri: pictures[contents[selectedContentId].picture].smalluri 
-										}) );
-									});
-								}}
-								title=''
-								//ligature="collections"
-								ligature="portrait"
-								iconName={null}
-								customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}}
-								customButtonStyles={customButtonStyles}
-							/></React.Fragment>) :
+							(<React.Fragment>
+								<Button									
+									onClick={(event) => {
+										editOutfit(outfits[selectedOutfitId], entitiesStateReducer, contents, selectedContentId, items); 
+									}}									
+									icon="edit"
+									label="edit"
+									theme="textPrimaryOnLight"						
+									style={customButtonStyles}
+								/>
+								<Button									
+									onClick={() => {
+										new Promise((resolve, reject) => {
+											resolve( changeOutfitCoverPic({ 
+												id: entitiesStateReducer.outfits.selected,
+												coverpicuri: pictures[contents[selectedContentId].picture].smalluri 
+											}) );
+										});
+									}}									
+									icon="portrait"		
+									label="cover pic"
+									theme="textPrimaryOnLight"				
+									style={customButtonStyles}
+								/>
+							</React.Fragment>) :
 							null
 					}
 					{
 						!isDevice ? 
 							null :
-							<Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-								onClickHandler={(event) => {
+							<IconButton								
+								onClick={(event) => {
 									showComments(event, !isCommentsShown);
 								}}
-								title='comment'
-								ligature={isCommentsShown ? "arrow_back" : "mode_comment"}
-								iconName={null}
-								customButtonStyles={{...customButtonStyles, right: 'calc(85vw + 10px)', position: 'absolute'}}								
+								icon={isCommentsShown ? "arrow_back" : "mode_comment"}								
+								style={{...customButtonStyles, right: 'calc(85vw + 10px)', position: 'absolute'}}								
 							/>
 					}
 				</div>				

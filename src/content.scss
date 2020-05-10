@@ -21,6 +21,7 @@
         width: 200px;
         --clc-height: 20px;
         height: var(--clc-height);
+        margin-left: -400px;
     }
 
     @include mobile_rules {

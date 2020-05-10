@@ -97,7 +97,7 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-	onClick : (contentId) => {
+	selectContentView : (contentId) => {
 		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
 		dispatch(previewContent(contentId)); 
 	},

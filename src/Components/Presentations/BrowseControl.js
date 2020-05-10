@@ -11,7 +11,10 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import BrowseControlStyles from '../../browseControl.scss';
-import {Button} from './Controls.js';
+//import {Button} from './Controls.js';
+import '@rmwc/button/styles';
+import { Button } from '@rmwc/button';
+import styled from 'styled-components';
 
 
 const makeBrowseSelection = (props) => {
@@ -84,6 +87,27 @@ const ControlButton = (props) => {
 	);
 }
 
+const BrowseSelectionButton = styled(({labelSize = '12px', iconSize = '24px', ...otherProps}) => (
+	<Button {...otherProps} />
+))`
+	display: block;
+	width: 100%;
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+	${
+		props => `
+			& .mdc-button__icon {
+				font-size: ${props.iconSize};
+				margin-right: 16px; 
+			}
+			& .mdc-button__label {
+				font-size: ${props.labelSize};
+				line-height: ${props.iconSize};
+			}
+		`
+	}
+`;
+
 class BrowseControl extends React.Component{
 	constructor(props){
 		super(props);
@@ -140,9 +164,50 @@ class BrowseControl extends React.Component{
 			color:'var(--color6)',
 		}
 
+		const buttonStyle = {
+			display: 'block',
+			width: '100%',
+			'border-top-right-radius': '0px',
+			'border-bottom-right-radius':'0px',
+		}
+
 		return(
 			<React.Fragment>	
 				<div className={BrowseControlStyles.buttonContainer_div}>
+					<BrowseSelectionButton 
+						label="Outfits"
+						icon="style"
+						//theme="primary"
+						style={{
+							//...buttonStyle,
+							'border-bottom-left-radius': '0px',
+						}}
+						onClick={() => {
+							this.props.selectBrowserType('outfits');
+							//this.props.getOutfits('all')
+						}}
+						unelevated={isOutfitBrowse}
+						labelSize="12px"
+						iconSize="24px"
+					/>
+					<BrowseSelectionButton 
+						label="Apparel"
+						icon="local_offer"
+						//theme="primary"
+						style={{
+							//...buttonStyle,
+							'border-top-left-radius': '0px',
+						}}
+						onClick={() => {
+							this.props.selectBrowserType('apparel');
+							this.props.getItems('all');
+						}}
+						unelevated={!isOutfitBrowse}
+						labelSize="12px"
+						iconSize="24px"
+					/>
+
+					{/*
 					<Button
 						innerRootRef={this.setInnerRootStyles}
 						buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} 
@@ -189,6 +254,8 @@ class BrowseControl extends React.Component{
 						}
 						ligatureStyles={ligatureStyles}
 					/>
+					*/}
+
 				</div>
 				{/*<ControlButton 
 					name='Outfits' 

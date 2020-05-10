@@ -11,7 +11,8 @@ import {FileUploadIcon} from '../Components/SvgAssets/Icons/FileUploadIcon.js';
 //import CropIcon from '../Components/SvgAssets/Icons/CropIcon.js';
 //import OkIcon from '../Components/SvgAssets/Icons/OkIcon.js';
 import {SvgIcon} from '../Components/SvgAssets/SvgIcon.js';
-import {Button} from '../Components/Presentations/Controls.js';
+//import {Button} from '../Components/Presentations/Controls.js';
+import { IconButton, Button } from '../Components/Presentations/FitseeUI/Buttons/index.js'; 
 
 import { arrayBufferToDataURL } from '../Util/Misc.js';
 
@@ -1201,6 +1202,7 @@ class CroppableImageForm extends React.Component{
 
 		let scaledHeight = img ? ((img.clientWidth / naturalWidth) * naturalHeight) : undefined;
 		let scaledWidth = img ? ((img.clientHeight / naturalHeight) * naturalWidth) : undefined;
+
 		return({
 			scaledHeight, 
 			scaledWidth,
@@ -1242,9 +1244,9 @@ class CroppableImageForm extends React.Component{
 		} = Object.keys(images).length > 0 ? images[contentState.selected] : ({});
 		
 		const customButtonStyles = {
-			'margin-left':'5%',
-			'vertical-align':'top',
-			display:'inline-block',
+			//'margin-left':'5%',
+			//'vertical-align':'top',
+			//display:'inline-block',
 		}
 
 		contentState.selected = entitiesStateReducer.contents ?  entitiesStateReducer.contents.selected : undefined;
@@ -1253,11 +1255,10 @@ class CroppableImageForm extends React.Component{
 		let validImageElement = (this.props.imageElement !== null && this.props.imageElement !== undefined);
 
 		if(contentState.selected && images[contentState.selected]){
-
 			if(images[contentState.selected].cropping){
 				content = (
 					<ReactCrop
-						//className={ReactCropStyles}
+						className={ReactCropStyles}
 						rotation={images[contentState.selected].rotation}
 						//This is a percentage of actual image height wrp <img> tag height
 						maxHeight={this.maxHeight}
@@ -1280,7 +1281,8 @@ class CroppableImageForm extends React.Component{
 						ruleOfThirds={true}
 					/>
 				)
-			}else{
+			}
+			else{
 				
 				content = (
 					<img 
@@ -1315,42 +1317,21 @@ class CroppableImageForm extends React.Component{
 						onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
 						style={{display:'none'}} 
 					/>
-					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
-						Upload Image
-					</button>
 				</form>
 
-				<div 
-					className={FormStyles.imgEditAndCtrlContainer_div}
-					//style={{
-					//	'text-align':'center', 
-					//	//'height':'calc(100% - 5vh - 25px)',
-					//	height:'calc(100% - 80px)'
-					//}}
-				>
+				<div className={FormStyles.imgEditAndCtrlContainer_div} >
 
-					<div
-						//className={FormStyles.controlContainerStyle} 
-						className={FormStyles.imgEditControls_div}
-						//style={{
-						//	position:'absolute',
-						//	left: '275px',
-    					//	//top: 'calc(25px + 5vh + 3*(24px + 8px))',
-    					//	top: 'calc(25px + 5vh)',
-						//	'text-align':'center', 
-						//	'z-index':'100',
-						//	//width:`${validImageElement ? this.props.imageElement.clientWidth : 0}px`,
-						//	//display: (validImageElement && this.props.imageElement.clientWidth > 0) ? 'inline-flex' :  'none'
-						//}} 
-					>
+					<div className={FormStyles.imgEditControls_div} >
 						<Button
-							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-							onClickHandler={this.props.discardChanges}
-							title='discard'
-							iconName='DiscardIcon'
-							ligature="cancel"
-							customButtonStyles={customButtonStyles}
-							puDirection='SOUTH' />
+							theme="textPrimaryOnLight"
+							class=""
+							label="discard"
+							labelSize="1.2rem"
+							onClick={this.props.discardChanges}
+							icon="cancel"
+							class="material-icons-outlined"
+							style={customButtonStyles}
+						/>
 						<label 
 							for="fileInput" 
 							style={{
@@ -1358,81 +1339,29 @@ class CroppableImageForm extends React.Component{
 								'width':'auto'
 							}}>
 							<Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-								//onClickHandler={this.rotateImageClockwise}
-								title='photos'
-								iconName='FileUploadIcon'
-								ligature="folder_shared"
-								customButtonStyles={customButtonStyles}
-								puDirection='SOUTH'
-								textHeight={17}
-								//onClickHandler={} 
+								theme="textPrimaryOnLight"								
+								label="file"
+								labelSize="1.2rem"
+								icon="folder_shared"
+								style={customButtonStyles}
 							/>
-						</label>	
-						{/*<Button
-							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.e} //dynamic icon button
-							//onClickHandler={this.rotateImageClockwise}
-							onClickHandler={(event) => {
-								event.stopPropagation();
-								Camera.sourceType = Camera.PictureSourceType.CAMERA;
-
-								const onCameraSuccess = (imgURL) => {
-									// resolveLocalFileSystemURL from cordova-plugin-file
-									window.resolveLocalFileSystemURL(imgURL, (entry) => {
-										const onFileSuccess = (file) => this._onSelectMultipleFiles(event, file);
-										const onFileFail = (error) => console.error(error);
-										entry.file(onFileSuccess, onFileFail);
-									});
-
-									console.log("picture retreived successfully");
-								};
-
-								const onCameraFail = () => {
-									console.log("pictrue retreival failed");
-								};
-
-								navigator.camera.getPicture(onCameraSuccess, onCameraFail, {
-									quality: 100, 
-									destinationType: Camera.DestinationType.FILE_URI,
-								});
-							}}
-							title='rotate'
-							//ligature="rotate_right"
-							ligature="add_a_photo"
-							iconName='RotateClockwiseIcon'
-							customButtonStyles={customButtonStyles}
-							iconStyls={{
-								'padding-top':'1px',
-								'padding-bottom':'4px',
-							}} />*/}
+						</label>
 						<Button
-							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.c} //static icon toggle
-							onClickHandler={this._handleAcceptCrop}
-							toggleActiveTitle='accept crop'
-							toggleInactiveTitle='start crop'
-							isToggleActive={images[contentState.selected] ? images[contentState.selected].cropping : false}
-							iconName='CropIcon'
-							ligature="crop"
-							customButtonStyles={customButtonStyles} />
-						<label 
-							for="submitButton" 
-							style={{
-								//'width':'20%',
-								//position: 'absolute',
-								//right: '0px'
-							}}>
-							{/*<div 
-								className={this.props.imgFormControlStyle}
-								style={{width:'100%'}}
-								onMouseOver={(event) => this._handleIconHover(event, 'submit', true)}
-								onMouseLeave={(event) => this._handleIconHover(event, 'submit', false)}>							
-								<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
-							</div>*/}
+							theme="textPrimaryOnLight"							
+							label="crop"
+							labelSize="1.2rem"
+							onClick={this._handleAcceptCrop}
+							icon="crop"
+							style={customButtonStyles} />
+						<label for="submitButton" >
 							<Button
-								buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-								//title='submit'
-								ligature="cloud_upload"
-								customButtonStyles={customButtonStyles} />
+								//icon="cloud_upload"
+								theme="textPrimaryOnDark"
+								raised
+								label="save"
+								labelSize="1.2rem"
+								icon="cloud_upload"
+								style={customButtonStyles} />
 						</label>
 					</div>
 
@@ -1440,19 +1369,6 @@ class CroppableImageForm extends React.Component{
 						id="imgAndItemMapdiv" /*ref={this.props.setupContentViewRef}*/
 						ref={this.setupCropImgRoot} 
 						className={FormStyles.imgEditContainer_div}
-						//style={{
-						//	'position':'relative',
-						//	width:'auto',
-						//	height:'100%',
-						//	///padding:'0px 10% 0px 10%',
-						//	'text-align':'center', 
-						//	///background-color':'#ececec',
-						//	'max-height':'100%',
-						//	'float':'right',
-						//	//'height':'calc(100vh - 200px * (3/2))',
-						//	//'height':'calc((100vh - 300px))',
-						//	'background-color': '#39372f',
-						//}}
 					>
 						{content}
 						{

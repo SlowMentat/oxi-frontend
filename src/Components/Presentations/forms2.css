@@ -16,12 +16,12 @@ input{
 ======Login Form Styles======
 */
 :local(.loginForm){
-	left:auto;
-	right:auto;
-	width:300px;
-	background-color:rgba(0,0,0,0);
-	color:white;
-	padding-top:7px;
+	left: auto;
+	right: auto;
+	width: 300px;
+	background-color: rgba(0,0,0,0);
+	color: white;
+	padding:  7px 0px 0px 17px;
 }
 
 :local(.nameField){

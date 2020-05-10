@@ -100,7 +100,6 @@ const mapStateToProps = (state, props) => {
 		pictureState: 	state.entitiesStateReducer.pictures,
 
 		isModalVisible:  state.toggleModal.isModalVisible,
-
 	};
 }
 //TODO:  consolidate all the http request functions below :(
@@ -401,9 +400,8 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 	
 			//Remove all entities from addedEntitiesReducer
 			dispatch(clearAllAddedEntitiesState(addedEntities));
-			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
-	
 			let itemContentJson = {};
+
 			switch(overwriteItemContents){
 				case null:
 					break;
@@ -416,16 +414,19 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 				default:
 					break;
 			}
-			if(Object.keys(itemContentJson).length > 0) dispatch(createItemContent(itemContentJson));
-	
+
+			if(Object.keys(itemContentJson).length > 0) dispatch(createItemContent(itemContentJson));	
 			mergeResponseEntities(dispatch, normalizedJson);
-			selectAddedContentId(dispatch, schema.schema._key);	
-	
+			
 			//Remove all ids from edditingIds array associated to each entity
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.OUTFIT));
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.CONTENT));
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.ITEM));
 			dispatch(clearEdittingIds(OxiAppConstants.EntityTypes.PROFILE));
+
+			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
+			selectAddedContentId(dispatch, schema.schema._key);		
+	
 	
 			console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations');
 	

@@ -3,6 +3,15 @@
   "version": "1.0.0",
   "description": "poc",
   "main": "site.js",
+
+  "//": [
+    "A side effect is defined as code that performs a special behavior when imported, other than",
+    "exposing one or more exports. An example of this are polyfills, which affect the global scope", 
+    "and usually do not provide an export.",
+    "Hint informing webpack what unused exports it can NOT safely prune."
+  ],
+
+  "sideEffects":["*.css"],
   "scripts": {
     "homepage": "../www",
     "build": "webpack",
@@ -16,8 +25,11 @@
   "author": "Deven Bryant <chromosome24@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@material-ui/core": "^4.9.12",
+    "@material-ui/styles": "^4.9.10",
     "@material/button": "^5.1.0",
     "@material/icon-button": "^5.1.0",
+    "@material/typography": "^6.0.0",
     "axios": "^0.18.1",
     "blueimp-load-image": "^2.24.0",
     "connected-react-router": "^6.5.2",
@@ -48,6 +60,7 @@
     "redux-thunk": "^2.3.0",
     "requirejs": "^2.3.6",
     "rmwc": "^6.0.14",
+    "styled-components": "^5.1.0",
     "universal-cookie": "^2.2.0"
   },
   "devDependencies": {
@@ -63,6 +76,7 @@
     "@storybook/react": "^5.1.11",
     "babel-jest": "^23.6.0",
     "babel-loader": "^8.1.0",
+    "babel-plugin-styled-components": "^1.10.7",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "css-loader": "^3.0.0",

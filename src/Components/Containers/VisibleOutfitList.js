@@ -159,7 +159,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 				contents,
 				picture,
 			} = normalizedJson.entities ? normalizedJson.entities : ({});
-
+			
 			// TODO:  assign all outfits' coverpicuri to their corresponding picture uuid
 			var contentArrays = Object.keys(contents);
 			const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);

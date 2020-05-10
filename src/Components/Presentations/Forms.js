@@ -17,24 +17,45 @@ import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
 import { denormalizeOutfit } from '../../Util/Schema.js';
 import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js'
 import FormLoginContainer from '../../Components/Containers/FormLoginContainer.js'
-import {InputTextField, InputTextFieldAccount} from '../../Components/Presentations/CommonElements.js';
-/*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
-import TypePants from '../SvgAssets/Icons/TypePants.js';
-import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
-import TypeShirtT from '../SvgAssets/Icons/TypeShirtT.js';
-import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/
+import { 
+	//InputTextField, 
+	InputTextFieldAccount 
+} from '../../Components/Presentations/CommonElements.js';
+
+import { ItemTextField } from '../../Components/Presentations/FitseeUI/InputsAndControls/TextField.js'
+
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import CreateAccountStyles from '../../createAccount.scss';
 
 import { Route, Switch, Redirect } from 'react-router-dom';
 import {logout} from '../../Components/Actions/indexActions.js';
-import {Button} from './Controls.js';
+//import {Button} from './Controls.js';
 
 import CroppableImageForm from '../../Util/CroppableImageForm.js';
 import ReactCrop, { makeAspectCrop } from 'react-image-crop';
 import {ReactCropStyles} from '../../reactCrop.scss';
 import { usePrevious } from '../../Util/Misc.js';
 import Comments from '../../Components/Presentations/Comments.js';
+
+import { 
+	Dialog,
+	DialogTitle, 
+	DialogContent,
+	DialogActions,
+	DialogButton,
+} from '@rmwc/dialog';
+import '@rmwc/dialog/styles';
+
+import '@rmwc/tabs/styles';
+import { Tab, TabBar } from '@rmwc/tabs';
+import { Theme } from '@rmwc/theme';
+/*import { Button } from '@rmwc/button';
+import '@rmwc/button/styles';*/
+import { Button, IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
+//import { MenuSurfaceAnchor, MenuSurface } from '@rmwc/menu';
+import { Elevation } from '@rmwc/elevation';
+import '@rmwc/elevation/styles';
+//import '@rmwc/button/styles'; 
 
 
 //=========Form selection switch block//=========
@@ -171,7 +192,7 @@ function FormDeck(props){
 
 			const compoundOPStyles = formType !== OxiAppConstants.FormType.OUTFIT_PREVIEW ? 
 				({
-					opacity: 0,
+					opacity: 1,
 				}) : 
 				({
 					opacity: 1,
@@ -186,6 +207,7 @@ function FormDeck(props){
 				({
 					opacity: 1,
 					'z-index': 100,
+					left:'0px',
 				});
 
 			form = (
@@ -349,14 +371,16 @@ class DropDownField extends React.Component{
 			<div
 				className={FormStyles.nameFieldContainer_div}
 			>
-				<InputTextField 
+				{/*<InputTextField */}
+				<ItemTextField
 					context={this.props.context}
 					textValue={this.props.inputValue}
 					fieldType={this.props.fieldType} 
-					name={this.props.fieldType.toLowerCase()}
+					label={this.props.fieldType.toLowerCase()}
 					onChange={() => {this.props.onInputChange(event)}} 
 					toggleFocus={() => this._handleOnInputFocus(event)}
 					toggleBlur={() => this._handleOnInputBlur(event)}
+					style={{'margin-top':'10px', width:'100%'}}
 				/>
 				<div
 					className={this.state.isDown ? FormStyles.dropDownContainer : FormStyles['dropDownContainer--hidden']}
@@ -406,8 +430,8 @@ export class ProfilePicForm extends React.Component{
 			ctrlsTransition:0,
 		};
 
-		this.ctrlsPageLeft = 100;
-		this.ctrlsPageRight = -100;
+		this.ctrlsPageLeft = 50;
+		this.ctrlsPageRight = -50;
 
 		this._editPicture = this._editPicture.bind(this);
 		this._addNewPicture = this._addNewPicture.bind(this);
@@ -529,14 +553,14 @@ export class ProfilePicForm extends React.Component{
 	pageLeft(){
 		this.setState(prevState => ({
 			...prevState,
-			ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageLeft,
+			ctrlsTransition: 0,//prevState.ctrlsTransition + this.ctrlsPageLeft,
 		}))
 	}
 
 	pageRight(){
 		this.setState(prevState => ({
 			...prevState,
-			ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
+			ctrlsTransition:-50,//prevState.ctrlsTransition + this.ctrlsPageRight,
 		}))
 	}
 
@@ -615,6 +639,10 @@ export class ProfilePicForm extends React.Component{
 		return(
 			<div 
 				className={Styles.modal}
+				style={{
+					position: 'relative',
+					width: '500px',
+				}}
 				onClick={(event) => {
 					event.stopPropagation();
 					//cancelAction();
@@ -630,9 +658,11 @@ export class ProfilePicForm extends React.Component{
 						onChange={this._onSelectFile}
 						style={{display:'none'}} 
 					/>
-					<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>
-						Upload Image
-					</button>
+					<IconButton 
+						id="submitButton" 
+						type="submit" 
+						onClick={this._handleSubmit} style={{display:'none'}}
+					/>
 				</form>
 				<div 
 					className={FormStyles.editProfilePic_div}
@@ -640,13 +670,10 @@ export class ProfilePicForm extends React.Component{
 				>
 					<div className={FormStyles.eppHeader_div}>
 						Profile Pic
-						<Button
-							buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //dynamic icon button
-							onClickHandler={(event) => cancelAction(event)}
-							title='discard'
-							iconName='DiscardIcon'
-							ligature="cancel"
-							customButtonStyles={{
+						<IconButton
+							onClick={(event) => cancelAction(event)}
+							icon="cancel"
+							style={{
 								position:'absolute',
 								top:'0px',
 								right:'0px',
@@ -674,12 +701,10 @@ export class ProfilePicForm extends React.Component{
 								className={FormStyles.eppDisplayedControls_div} 
 								style={this.state.ctrlsTransition === 0 ? ({opacity: 1}) : ({opacity: 0})}
 							>
-								<Button
-									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //static icon toggle
-									onClickHandler={this._editPicture}
-									ligature="edit"
-									title="Edit"
-									customButtonStyles={{...eppCtrl_div, ...page1ButtonStyles}} 
+								<IconButton
+									onClick={this._editPicture}
+									icon="edit"
+									//style={{...eppCtrl_div, ...page1ButtonStyles}} 
 								/>
 								<label 
 									for="fileInput" 
@@ -687,30 +712,26 @@ export class ProfilePicForm extends React.Component{
 										//'margin-right':'5%',
 										'width':'auto'
 									}}>
-									<Button
-										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //static icon toggle
-										//onClickHandler={this._addNewPicture}
-										ligature="add_a_photo"
-										title="New"
-										customButtonStyles={{...eppCtrl_div, ...page1ButtonStyles}}
+									<IconButton
+										//onClick={this._addNewPicture}
+										icon="add_a_photo"
+										//style={{...eppCtrl_div, ...page1ButtonStyles}}
 									/>
 								</label>
 		
   								{
   									// If image is already loaded in browser
   									this.state.base64Image ? 
-  										(<Button
-											buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-											onClickHandler={(event) => {
+  										<IconButton
+											onClick={(event) => {
 												this.pageRight();
 												//this.forceUpdate();
 											}}
-											title=''
-											ligature="arrow_forward"
+											icon="arrow_forward"
 											iconName={null}
-											//customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}} 
-											customButtonStyles={{...eppCtrl_div, ...page1ButtonStyles}}
-										/>) : 
+											//style={{display:buttonDisplay, 'margin-top':'8px'}} 
+											//style={{...eppCtrl_div, ...page1ButtonStyles}}
+										/> : 
 										null
   								}
   							</div>	
@@ -718,27 +739,25 @@ export class ProfilePicForm extends React.Component{
 							<div 
 								id="ctrlPage2"
 								className={FormStyles.eppDisplayedControls_div} 
-								style={this.state.ctrlsTransition === -100 ? ({opacity: 1}) : ({opacity: 0})}
+								style={this.state.ctrlsTransition === 0 ? ({opacity: 0}) : ({opacity: 1})}
 							>
-								<Button
-									buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-									onClickHandler={(event) => {
+								<IconButton
+									onClick={(event) => {
 										this.pageLeft();
 										//this.forceUpdate();
 									}}
-									title=''
-									ligature="arrow_back"
-									iconName={null}
-									//customButtonStyles={{display:buttonDisplay, 'margin-top':'8px'}} 
-									customButtonStyles={eppCtrl_div}
+									icon="arrow_back"
+									//iconName={null}
+									//style={eppCtrl_div}
 								/>
 								<label 
 									for="submitButton" 
 									style={{
-										//'width':'20%',
-										//position: 'absolute',
-										//right: '0px'
-									}}>
+										'display': 'flex',
+										'flex-direction': 'column',
+										'justify-content': 'center',
+									}}
+								>
 									{/*<div 
 										className={this.props.imgFormControlStyle}
 										style={{width:'100%'}}
@@ -747,10 +766,13 @@ export class ProfilePicForm extends React.Component{
 										<SvgIcon name={'OkIcon'} hovered={this.state.submitHovering}/>
 									</div>*/}
 									<Button
-										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a}
-										//title='submit'
-										ligature="cloud_upload"
-										customButtonStyles={eppCtrl_div} />
+										//icon="cloud_upload"
+										theme='secondaryBg'
+										label='save'
+										labelSize='12px'
+										raised
+										//style={eppCtrl_div} 
+									/>
 								</label>
   							</div>
 						</div>
@@ -976,12 +998,21 @@ export class ItemForm extends React.Component{
 	render(){
 		let retailerNames = [];	
 		let brandNames = [];
+
+		const itemFormButtons = {
+			position: 'relative',
+			display:'inline-block',
+			width:'50%',
+			'vertical-align':'top',			
+		}
+
 		if(this.props.brands !== undefined && this.props.brands !== null){
 			//create and array of names from the the byIds object to pass to DropDownField component
 			brandNames = Object.values(this.props.brands).map((brand, ind) => {
 				return (brand.name)
 			});
 		}
+
 		if(this.props.retailers !== undefined && this.props.retailers !== null){
 			//create and array of names from the the byIds object to pass to DropDownField component
 			retailerNames = Object.values(this.props.retailers).map((retailer, ind) => {
@@ -999,18 +1030,30 @@ export class ItemForm extends React.Component{
 						className={FormStyles.formViewContainer_div}
 						style={this.props.compoundAIStyles}
 					>
-						<div style={{'text-align':'center', height:'25px'}}>
-							<div 
-								className={this.state.selectedFormType === this.formType.type1 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
-								onClick={event => this.setState({selectedFormType:this.formType.type1})} >
-								{this.formType.type1}
-							</div>
-							<div
-								className={this.state.selectedFormType === this.formType.type2 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
-								onClick={event => this.setState({selectedFormType:this.formType.type2})} >
-								{this.formType.type2}
-							</div>
-						</div>
+						<Theme use="secondary">
+						<TabBar 
+							style={{
+								'text-align':'center', 
+								height:'50px'
+							}}
+						> 
+							<Tab			
+								//className={this.state.selectedFormType === this.formType.type1 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
+								onClick={event => this.setState({selectedFormType:this.formType.type1})}
+								label={this.formType.type1}
+								style={{height:'50px'}}
+							>
+							</Tab>
+							<Tab
+								theme="secondary"
+								//className={this.state.selectedFormType === this.formType.type2 ? FormStyles['bangTab_div--selected'] : FormStyles.bangTab_div}
+								onClick={event => this.setState({selectedFormType:this.formType.type2})}
+								label={this.formType.type2}
+								style={{height:'50px'}}
+							>
+							</Tab>
+						</TabBar>
+						</Theme>
 						<CSSTransition
 						    timeout={200}
 						    classNames="retailerItemFormContainer"
@@ -1042,12 +1085,27 @@ export class ItemForm extends React.Component{
 								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', valueObj) }  />
 						</CSSTransition>
 						<div className={FormStyles.addItemCtrlContainer_div}>
-							<div className={FormStyles.addItem_div}>
+
+							{/*<div className={FormStyles.addItem_div}>
 								<div className={FormStyles.formL3Button} onClick={(event) => {this._handleOnSubmit(event)}}>
 									{this.props.submitContext}
 								</div>
-							</div>
-							<div style={{width:'100%'}}>
+							</div>*/}
+							<Button
+								theme="primary"
+	 							icon="arrow_back"
+								label="back"
+								onClick={(event) => this.props.navToOutfitPreviewModal()}
+							/>
+							<Button
+								theme={["textPrimaryOnDark", "primaryBg"]}
+								unelevated
+								trailingIcon="arrow_forward"
+								label="add"
+								onClick={(event) => this._handleOnSubmit(event)}								
+							/>
+
+							{/*<div style={{width:'100%'}}>
 								<div className={FormStyles.cancelSelection_div}>
 									<div 
 										className={FormStyles.l1Button_div}
@@ -1063,7 +1121,7 @@ export class ItemForm extends React.Component{
 										cancel
 									</div>
 								</div>
-							</div>
+							</div>*/}
 						</div>
 					</div>
 				</CSSTransition>
@@ -1176,45 +1234,48 @@ export class DiscardForm extends React.Component{
 
 		return(
 			<div className={Styles.modal} styles={this.props.customStyles}>
-				<div 
-					id="form_container_add_item" 
-					className={FormStyles.discardFormViewContainer_div}
-				>
-					<div id="prompt">
-						<div style={{'text-align':'center','width':'75%','margin':'auto','margin-bottom':'60px'}}>
-							<div style={{'text-align':'left'}}>
-								<p style={{color: '#353535'}}> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
+				<Elevation z={10}>
+					<div 
+						id="form_container_add_item" 
+						className={FormStyles.discardFormViewContainer_div}
+					>
+						<div id="prompt">
+							<div style={{'text-align':'center','width':'75%','margin':'auto','margin-bottom':'60px'}}>
+								<div style={{'text-align':'left'}}>
+									<p style={{color: '#353535'}}> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
+								</div>
 							</div>
-						</div>
-						<div style={{
-							width:'75%',
-							margin: 'auto',
-							position: 'relative',
-							height: '36px'
-						}}>
-							<div 
-								className={FormStyles.formL3Button} 
-								style={{position:'absolute', left:'0px', top:'0px'}} 
-								onClick={() => {
-									this.props.submitAction(this.props.requestedNav, this.props.isOverlay);
-									this.props.clearUpdates();
-									this.props.clearInvalidations();
-								}
-							}>
-								Continue
-							</div>
-							<div 
-								className={FormStyles.formL3Button} 
-								style={{position:'absolute', right:'0px', top:'0px'}} 
-								onClick={(event) => {
-									event.stopPropagation();
-									this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS, this.props.isOverlay);
-								}}>
-								Cancel
+							<div style={{
+								width:'75%',
+								margin: 'auto',
+								position: 'relative',
+								height: '36px'
+							}}>
+								<Button 
+									//className={FormStyles.formL3Button} 
+									style={{position:'absolute', left:'0px', top:'0px'}} 
+									label="continue"
+									unelevated
+									onClick={() => {
+										this.props.submitAction(this.props.requestedNav, this.props.isOverlay);
+										this.props.clearUpdates();
+										this.props.clearInvalidations();
+									}}
+								/>
+								<Button 
+									//className={FormStyles.formL3Button} 
+									style={{position:'absolute', right:'0px', top:'0px'}} 
+									label="cancel"
+									outlined
+									onClick={(event) => {
+										event.stopPropagation();
+										this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS, this.props.isOverlay);
+									}}
+								/>
 							</div>
 						</div>
 					</div>
-				</div>
+				</Elevation>
 			</div>
 		);
 	}

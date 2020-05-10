@@ -17,7 +17,7 @@ import axios from 'axios';
 //import {...} from './EntityActions/ProfileActions.js';
 //import {...} from './EntityActions/RetailerActions.js';
 //import {...} from './EntityActions/SizeChartActions.js';
-import * as entityActions from './EntityActions/Index.js';
+import * as entityActions from './EntityActions/Index.js'; 
 import * as types from './Types.js';
 import * as genericActions from './GenericActions.js';
 import * as scaffolding from './Scaffolding.js';

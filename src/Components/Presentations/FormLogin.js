@@ -22,6 +22,15 @@ import { SvgIcon } from '../SvgAssets/SvgIcon.js';
 import { Button } from '../../Components/Presentations/Controls.js';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
+//import { TextField } from '@rmwc/textfield';
+//import '@rmwc/textfield/styles';
+import { TextField } from './FitseeUI/index.js'
+import { Typography } from '@rmwc/typography';
+import '@rmwc/typography/styles';
+import { Theme } from '@rmwc/theme';
+import '@rmwc/theme/styles';
+import { ThemeProvider } from '@rmwc/theme';
+
 
 
 export default class FormLogin extends React.Component{
@@ -322,14 +331,39 @@ export default class FormLogin extends React.Component{
 								) : null
 							}
 							<form className={FormStyles.loginForm} action="" method="POST">
-								<InputTextField 
+								{/*<InputTextField 
 									type="Login" 
 									name={login} 
 									onChange={(event) => {this._handleInputFieldChange(event, login)}}/>
 								<InputTextField 
 									type="Credentials" 
 									name={credentials}
-									onChange={(event) => {this._handleInputFieldChange(event, credentials)}}/>
+									onChange={(event) => {this._handleInputFieldChange(event, credentials)}}/>*/}
+								{/*<Typography use="overline">	*/}
+								<ThemeProvider
+									options={{
+										primary: 'var(--color-01-tint-02)',
+										secondary: 'var(--color-05-tint-01)',
+									}}
+								>
+								<Theme use="secondary">
+								<TextField
+									style={{'margin-top':'7px', width: '100%', 'font-size':'14px'}}
+									theme="secondary"
+									outlined
+									label={login}
+									onChange={(event) => {this._handleInputFieldChange(event, login)}}
+								/>
+								<TextField
+									style={{'margin-top':'17px', width: '100%', 'font-size':'14px'}}
+									theme="secondary"
+									outlined
+									label={credentials}
+									onChange={(event) => {this._handleInputFieldChange(event, credentials)}}
+								/>
+								</Theme>
+								</ThemeProvider>
+								{/*</Typography>*/}
 								<div 
 									className={FormStyles.l3Button} 
 									style={{

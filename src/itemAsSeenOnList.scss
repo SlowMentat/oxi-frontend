@@ -2,7 +2,7 @@
 
 .contentContainer_div{
     /* as seen on (aso) */
-    --aso-margin-left: 2px;
+    --aso-margin-left: 5px;
     --aso-img-row-count: 3;
     --aso-container-lr-padding: 15px;
 
@@ -26,7 +26,7 @@
 
     @include desktop_rules {
         --aso-container-border-width: 1px;
-        --aso-img-width: calc(((500px - 23px - 2*var(--aso-container-lr-padding) - 2*var(--aso-container-border-width)) - (var(--aso-img-row-count) + 1)*var(--aso-margin-left))/3);
+        --aso-img-width: calc((( var(--ilbc-width) - 23px - 2*var(--aso-container-lr-padding) - 2*var(--aso-container-border-width)) - (var(--aso-img-row-count) + 1)*var(--aso-margin-left))/3);
         border-top-style: none;
         margin-bottom: 15px;
         border: unset;
@@ -82,7 +82,7 @@
     /*height: 100%;*/
     height: var(--aso-img-width);
     width: inherit;
-    border-radius: 3px;
+    /*border-radius: 3px;*/
     border-width: 2px;
 }
 
@@ -96,7 +96,8 @@
     height: inherit;
     width: 100%;
     object-fit: cover;
-    border-radius: 2px;
+    cursor: pointer;
+    /*border-radius: 2px;*/
 }
 
 :local(.infoContainer_div){

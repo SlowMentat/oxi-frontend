@@ -365,6 +365,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				URI = linkURL ? '' : '/outfits';
 				username = linkURL ? '' : username;
 				console.log(`requestParams = ${requestParams}, URI = ${URI}, username = ${username}, linkURL = ${linkURL}`)
+				
 				return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`, config)
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){

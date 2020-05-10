@@ -97,7 +97,8 @@
 	@include desktop_rules {		
 		position: absolute;		
 		bottom: 5px;		
-		right: 5px;
+		/*right: 5px;*/
+		right: -1px;
 		top: calc(50% - 34px);
 	}
 

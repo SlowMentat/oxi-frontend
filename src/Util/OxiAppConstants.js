@@ -252,6 +252,7 @@ export const OxiAppConstants = Object.freeze({
 		a: 'settings',
 		b: 'messaging',
 		c: 'filter',
+		c: ''
 	},
 	//requestToBatchedDispatchMap : {
 	//	outfits: {

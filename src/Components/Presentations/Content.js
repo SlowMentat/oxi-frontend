@@ -26,7 +26,7 @@ export class Content extends React.Component{
 	_handleOnClick(event){
 		console.log("control click event in Content div");
 		console.log(this.props.id);
-		this.props.onClick(this.props.id);
+		this.props.selectContentView(this.props.id);
 	}
 
 	_handleImageReceived(event, data){

@@ -8,15 +8,25 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
+import Style from '../../root.scss';
+import styled from 'styled-components';
+
 import '@rmwc/icon-button/styles';
-import  '@rmwc/elevation/styles';
 import { IconButton } from '@rmwc/icon-button';
+import  '@rmwc/ripple/styles';
 import { Ripple } from '@rmwc/ripple';
+import  '@rmwc/elevation/styles';
 import { Elevation } from '@rmwc/elevation';
 
 var showOutfitTileControls = {
 	position: 'relative',
 };
+
+const LikeButton = styled(({...props}) => (
+	<IconButton {...props} />
+))`
+	color: var(--color-01);
+`;
 
 export class Outfit extends React.Component{
 	constructor(props){
@@ -194,6 +204,14 @@ export class Outfit extends React.Component{
         	'top':' -28px',
         	'left':' calc(-28px + var(--outfit-btn-container-width))',
         	'background-color':'#263238',
+        	...(isDevice ? 
+        		({
+        			left: '0px',
+        			top: '-64px',
+        		}) : 
+        		({
+
+        		}))
 		}
 
 		let contextualStyles = null;
@@ -209,6 +227,7 @@ export class Outfit extends React.Component{
 			fill = "#000";
 			stroke = "#000";//isSelected ? "var(--color5)" : '#aaa';
 		}
+
 
 		contextualStyles = isBrowse ?
 			contextualStyles = {
@@ -231,169 +250,183 @@ export class Outfit extends React.Component{
 				null;
 
 		return(
-			<Elevation z={1} wrap>
-			<div 
-				//className={isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
-				className={isBrowse ? OutfitStyles.stdOutfitBlock : OutfitStyles.stdOutfitBlockProfile_div} 
-				style={contextualStyles} 
-				onClick={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this._handleTileClicked : null}
-		
-			>
-				{
-					isBrowse ? 
-						(
-							<div 
-								className={isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
-								style={{'padding':'0px'}} >
-								<div className={OutfitStyles.outfitUsername_div}>
-									{username !== undefined && username !== null ? username.toUpperCase() : "Username"}
-								</div>
-								
-								<PpIcon 
-									base64Image={this.state.base64ImageProfile} 
-									isMobile={false} 
-									customStyle={ppIconStyles}
-									customDefaultStyle={{
-										...ppIconStyles,
-										'border':'solid 5px var(--color-desktop-01)',
-									}}
-									onClick={(e) => {
-										history.push(`/shop/profile/${username}`);
-										navToHostProfile(username, owner);
-									}}
-								/>
-								
-								{/*<div className={OutfitStyles.ppIconStyles}>
-																	
-								</div>*/}
-								<IconButton 
-									ripple={true}
-									style={{
-										'margin-top':'36px',
-										'border':'unset',
-										outline:'none',
-	
-									}}
-									onClick={(e) => {
-										console.log('onchange event e = ', e);
-										//e.stopPropagation();
-										this._handleTileClicked();
-										getHostMeasurements(id);
-										toggleMetricPanel(e, true);
-									}}
-									icon={
-										<div
-											style={{
-												width:'24px',
-												height:'24px',
-												'border-radius':'50%',
-											}}
-										>
-											<SvgIcon 
-												className={OutfitStyles.measureBtn_svg} 
-												name="MeasureIcon" 
-												//fill={fill}
-												//stroke={stroke} 
-												strokeWidth="2"
-											/>
-										</div>
-									}
-								/>
+			<Elevation z={1} wrap style={{'z-index':'6'}}>
+				<div 
+					//className={isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
+					className={isBrowse ? OutfitStyles.stdOutfitBlock : OutfitStyles.stdOutfitBlockProfile_div} 
+					style={contextualStyles} 
+					onClick={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? this._handleTileClicked : null}
+				
+				>
+					{
+						isBrowse ? 
+							(
 								<div 
-									className={ OutfitStyles.likesBtn_div }
-									onClick={(event) => {
-										isLiked ?
-											unlike(id, outfit) :
-											like(id, outfit)
-									}} >
-										<SvgIcon 
-											className={OutfitStyles.likesBtn_svg} 
-											name="HeartIcon" 
-											fill={fill}
-											stroke={stroke} 
-											strokeWidth="3" 
-										/>
-								</div>
-							</div>
-						) : (
-							<div className={isSelected ? OutfitStyles['outfitMultiPicContainer_div--selected'] : OutfitStyles.outfitMultiPicContainer_div}>
-								<div className={OutfitStyles.outfitMultiPic_div}>
-									{
-										Object.keys(contents).length > 1 ? 
-											(<SvgIcon 
+									className={isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
+									style={{'padding':'0px'}} >
+									<div className={OutfitStyles.outfitUsername_div}>
+										{ username !== undefined && username !== null ? username.toUpperCase() : "Username" }
+									</div>
+									
+									<PpIcon 
+										base64Image={this.state.base64ImageProfile} 
+										isMobile={false} 
+										customStyle={ppIconStyles}
+										customDefaultStyle={{
+											...ppIconStyles,
+											'border':'solid 5px var(--color-desktop-01)',
+										}}
+										onClick={(e) => {
+											history.push(`/shop/profile/${username}`);
+											navToHostProfile(username, owner);
+										}}
+									/>
+									
+									{/*<div className={OutfitStyles.ppIconStyles}>
+																		
+									</div>*/}
+									<IconButton 
+										ripple={true}
+										style={{
+											'margin-top':'36px',
+											'border':'unset',
+											outline:'none',
+											'line-height': '18px',
+			
+										}}
+										onClick={(e) => {
+											console.log('onchange event e = ', e);
+											//e.stopPropagation();
+											this._handleTileClicked();
+											getHostMeasurements(id);
+											toggleMetricPanel(e, true);
+										}}
+										icon={
+											<div
 												style={{
-													width:'100%', 
-													height:'100%'
-												}} 
-												name="MultiplePicIcon" 
-												stroke={isSelected ? '#FFF' : '#000'}/>) :
-											null
+													width:'24px',
+													height:'24px',
+													'border-radius':'50%',
+												}}
+											>
+												<SvgIcon 
+													className={OutfitStyles.measureBtn_svg} 
+													name="MeasureIcon" 
+													//fill={fill}
+													//stroke={stroke} 
+													strokeWidth="2"
+												/>
+											</div>
+										}
+									/>
+									<LikeButton
+										//style={{color:'var(--color-01)', 'line-height':'18px',}}
+										onClick={(event) => {
+											isLiked ?
+												unlike(id, outfit) :
+												like(id, outfit)
+										}}	
+										icon={isLiked ? "favorite" : "favorite_border"}	
+										//onIcon={isLiked ? "favorite_border" : "favorite"}	
+									/>
+									{/*<div 
+										className={ OutfitStyles.likesBtn_div }
+										onClick={(event) => {
+											isLiked ?
+												unlike(id, outfit) :
+												like(id, outfit)
+										}} >
+											<SvgIcon 
+												className={OutfitStyles.likesBtn_svg} 
+												name="HeartIcon" 
+												fill={fill}
+												stroke={stroke} 
+												strokeWidth="3" 
+											/>
+									</div>*/}
+								</div>
+							) : (
+								<div className={isSelected ? OutfitStyles['outfitMultiPicContainer_div--selected'] : OutfitStyles.outfitMultiPicContainer_div}>
+									<div className={OutfitStyles.outfitMultiPic_div}>
+										{
+											Object.keys(contents).length > 1 ? 
+												(<SvgIcon 
+													style={{
+														width:'100%', 
+														height:'100%'
+													}} 
+													name="MultiplePicIcon" 
+													stroke={isSelected ? '#FFF' : '#000'}/>) :
+												null
+										}
+									</div>
+								</div>
+							)
+					}
+					<Ripple
+					>
+						<div
+							style={{'text-align': 'left', height:'100%'}}
+							onMouseOver={this._handleOnMouseOver}
+							onMouseOut={this._handleOnMouseOut}
+							>
+							<img 
+								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
+								className={OutfitStyles.outfitImage_img}
+								style={{
+									'object-fit':'cover'
+								}}
+								onClick={(event) => {
+									previewOutfitFromBrowse(id);
+									event.stopPropagation();
+								}}
+							/>
+							<CSSTransition 
+								key={id}
+							    tiemout={200}
+							    classNames="outfitMenuContainer"
+							    in={(this.state.hovering && viewState === OxiAppConstants.viewState.PREVIEW && isDevice)}
+							    unmountOnExit >
+								<div 
+									className={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
+										OutfitStyles.outfitMenuContainer : 
+											!isSelected ? 
+												OutfitStyles.outfitTileMask : 
+												null } 
+									style={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
+										showOutfitTileControls : 
+										({
+											'display':'block', 
+											'top':`calc(${outfitHeight} - 70px`
+										})}
+									//onMouseOver={(event) => event.stopPropagation()} 
+								>	
+									{
+										(webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && viewState === OxiAppConstants.viewState.PREVIEW) ?
+											( <OutfitEditDelete editOutfit={editOutfit}/> ) : 
+											(
+												<OutfitTileBrowseCtrls 
+													navToHostProfile={navToHostProfile} 
+													routeToHostProfile={routeToHostProfile}
+													username={isBrowse ? username : null}
+													getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
+													handleTileSelected={this._handleTileClicked}
+													showOutfitPreviewFromBrowse={() => showOutfitPreviewFromBrowse(id)}
+													
+													toggleMetricPanel={toggleMetricPanel}
+													owner={owner}
+													outfitId={id}
+													contentIds={contentIds}
+													previewOutfitFromBrowse={previewOutfitFromBrowse}
+													setPreviewFocus={setPreviewFocus}
+												/>
+											)
 									}
 								</div>
-							</div>
-						)
-				}
-				<div
-					style={{'text-align': 'left'}}
-					onMouseOver={this._handleOnMouseOver}
-					onMouseOut={this._handleOnMouseOut}
-					>
-					<img 
-						src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
-						className={OutfitStyles.outfitImage_img}
-						style={{
-							'object-fit':'cover'
-						}}
-						onClick={(event) => {
-							previewOutfitFromBrowse(id);
-							event.stopPropagation();
-						}}
-					/>
-					<CSSTransition 
-						key={id}
-					    tiemout={200}
-					    classNames="outfitMenuContainer"
-					    in={(this.state.hovering && viewState === OxiAppConstants.viewState.PREVIEW && isDevice)}
-					    unmountOnExit >
-						<div 
-							className={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
-								OutfitStyles.outfitMenuContainer : 
-									!isSelected ? 
-										OutfitStyles.outfitTileMask : 
-										null } 
-							style={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
-								showOutfitTileControls : 
-								({
-									'display':'block', 
-									'top':`calc(${outfitHeight} - 70px`
-								})}
-							//onMouseOver={(event) => event.stopPropagation()} 
-						>	
-							{
-								(webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && viewState === OxiAppConstants.viewState.PREVIEW) ?
-									( <OutfitEditDelete editOutfit={editOutfit}/> ) : 
-									(
-										<OutfitTileBrowseCtrls 
-											navToHostProfile={navToHostProfile} 
-											routeToHostProfile={routeToHostProfile}
-											username={isBrowse ? username : null}
-											getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
-											handleTileSelected={this._handleTileClicked}
-											showOutfitPreviewFromBrowse={() => showOutfitPreviewFromBrowse(id)}
-											
-											toggleMetricPanel={toggleMetricPanel}
-											owner={owner}
-											outfitId={id}
-											contentIds={contentIds}
-											previewOutfitFromBrowse={previewOutfitFromBrowse}
-											setPreviewFocus={setPreviewFocus}
-										/>
-									)
-							}
+							</CSSTransition>
 						</div>
-					</CSSTransition>
-				</div>				
-			</div>
+					</Ripple>		
+				</div>
 			</Elevation>
 		);
 	}

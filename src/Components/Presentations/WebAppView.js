@@ -41,9 +41,16 @@ import isEqual from 'lodash.isequal';
 import { Route, Switch, Redirect, Link } from 'react-router-dom';
 
 import '@rmwc/fab/styles';
-import '@rmwc/tabs/styles';
 import { Fab } from '@rmwc/fab';
+import '@rmwc/tabs/styles';
 import { Tab, TabBar } from '@rmwc/tabs';
+import { IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
+import { Tooltip } from '../../Components/Presentations/FitseeUI/Tooltip.js';
+import '@rmwc/tooltip/styles';
+import { MenuSurfaceAnchor, Menu, MenuItem } from '../../Components/Presentations/FitseeUI/Menu.js';
+import '@rmwc/menu/styles';
+
+import { logout } from '../../Components/Actions/indexActions.js';
 
 const bannerTitleImg = {
 	'position': 'fixed',
@@ -74,9 +81,9 @@ const ligatureManagementStyles = {
 }
 
 const customMngmtCotnianerStyles = {
-	'margin-right':'20px',
-	display: 'inline-block',
-	'vertical-align': 'top',
+	//'margin-right':'20px',
+	//display: 'inline-block',
+	//'vertical-align': 'top',
 }
 
 export function SiteNav(props){
@@ -87,7 +94,7 @@ export function SiteNav(props){
 	} = props;
 
 	const {
-		isPopupMenuVisible,
+		isMenu,
 		popupMenuType,
 	} = props;
 
@@ -156,65 +163,74 @@ export function SiteNav(props){
     						<div className={NavStyles.managementContainer_div}>
     							<div 
     								style={{
+    									height:'100%',
     									position:'relative', 
-    									'text-align':'right', 
-    									'padding-top':'calc(var(--page-header-height)/3)'
+    									display: 'flex',
+    									'justify-content':'space-evenly',
+    									'align-items':'center',
     								}}
     							>
-									<Button
-										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} //dynamic icon button
-										onClickHandler={null}
-										title='add'
-										iconName='ShopIcon'
-										iconStyles={{width:'100%',height:'100%',padding:'0px'}}
-										buttonHeight={26}
-										customButtonStyles={customMngmtCotnianerStyles}
-										puDirection='WEST' 
-									/>
-									<Button
-										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} // Static icon button
-										onClickHandler={() => {
-											if(isPopupMenuVisible){
-												console.log('popupMenuType = ', popupMenuType);
-												popupMenuType === OxiAppConstants.MenuType.c ? hideMenu('') : showMenu(OxiAppConstants.MenuType.c);
+    								<Tooltip content="coming soon" showArrow>
+										<IconButton
+											onClick={e => hideMenu('')}
+											icon="shopping_cart"
+											style={customMngmtCotnianerStyles}
+											class="material-icons material-icons--outline"
+										/>
+									</Tooltip>
+
+									<MenuSurfaceAnchor>
+										<Menu 
+											open={isMenu && popupMenuType === OxiAppConstants.MenuType.c} 
+											style={{top:'60px', width: '200px'}}
+										>
+											{/* get notifcation list <MenuItem>Logout</MenuItem>*/}
+										</Menu>
+										<IconButton
+											onClick={() => {
+												if(isMenu){
+													console.log('popupMenuType = ', popupMenuType);
+													popupMenuType === OxiAppConstants.MenuType.c ? hideMenu('') : showMenu(OxiAppConstants.MenuType.c);
+												}
+												else{
+													//positionMenu(50, 50);
+													showMenu(OxiAppConstants.MenuType.c);
+												}
+											}}
+											style={customMngmtCotnianerStyles}
+											icon="notifications_none"
+										/>
+									</MenuSurfaceAnchor>
+
+									<MenuSurfaceAnchor>
+										<Menu 
+											open={isMenu && popupMenuType === OxiAppConstants.MenuType.a}
+											style={{top:'60px', width:'200px'}}
+										>
+											{
+												["Account", "Logout"].map(option => {
+													return(<MenuItem onClick={e => logout()}>{option}</MenuItem>);
+												})
 											}
-											else{
-												//positionMenu(50, 50);
-												showMenu(OxiAppConstants.MenuType.c);
-											}
-										}}
-										title='photos'
-										iconName='Notifications'
-										ligature="notifications_none"
-										customButtonStyles={customMngmtCotnianerStyles}
-										ligatureStyles={ligatureManagementStyles}
-										puDirection='SOUTH'
-										textHeight={17}
-										//onClickHandler={} 
-									/>
-									<Button
-										buttonType={OxiAppConstants.ControlConstants.ButtonTypes.a} // Static icon button
-										onClickHandler={() => {
-											if(isPopupMenuVisible){
-												popupMenuType === OxiAppConstants.MenuType.a ? hideMenu('') : showMenu(OxiAppConstants.MenuType.a);
-											}
-											else{
-												//positionMenu(50, 50);
-												showMenu(OxiAppConstants.MenuType.a);
-											}
-										}}
-										title='photos'
-										iconName='Settings'
-										ligature="settings"
-										customButtonStyles={customMngmtCotnianerStyles}
-										ligatureStyles={ligatureManagementStyles}
-										puDirection='SOUTH'
-										textHeight={17}
-										//onClickHandler={} 
-									/>
+										</Menu>
+										<IconButton 
+											onClick={() => {
+												if(isMenu){
+													popupMenuType === OxiAppConstants.MenuType.a ? hideMenu('') : showMenu(OxiAppConstants.MenuType.a);
+												}
+												else{
+													//positionMenu(50, 50);
+													showMenu(OxiAppConstants.MenuType.a);
+												}
+											}}
+											icon="settings"
+											style={customMngmtCotnianerStyles}
+										/>
+									</MenuSurfaceAnchor>
+
 								</div>
-								{ 
-									isPopupMenuVisible ? 
+								{ /*
+									isMenu ? 
 										<MenusContainer 
 											menuType={popupMenuType} 
 											position={{
@@ -225,7 +241,7 @@ export function SiteNav(props){
 											}}
 										/> : 
 										null 
-								}
+								*/}
     						</div>
     					</React.Fragment>
     				)
@@ -433,9 +449,6 @@ class OutfitNav extends React.Component{
 			case 'outfits':
 				browseContent = (controls) => (
 					<React.Fragment>
-						{
-							this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? controls : null
-						}
 						<VisibleOutfitList 
 							view={this.props.webAppView} 
 							scrollContainerStyle={
@@ -451,6 +464,9 @@ class OutfitNav extends React.Component{
 							previewedOutfitId={previewedOutfitId}
 							/*routeToHostProfile={this.props.routeToHostProfile}*/ 
 						/>
+						{
+							this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? controls : null
+						}
 					</React.Fragment>
 				);
 				break;
@@ -794,7 +810,7 @@ export default class webAppView extends React.Component {
 			owner,
 			viewState,
 			isFocusedPreview,
-			isPopupMenuVisible,
+			isMenu,
 			popupMenuType,
 			webAppView,
 		} =  this.props;
@@ -825,7 +841,7 @@ export default class webAppView extends React.Component {
 				showMenu={showMenu}
 				hideMenu={hideMenu}
 				positionMenu={positionMenu}
-				isPopupMenuVisible={isPopupMenuVisible}
+				isMenu={isMenu}
 				popupMenuType={popupMenuType}
 			/>
 		);

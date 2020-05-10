@@ -29,6 +29,7 @@ import {
 	postImage,
 	setFormOverlayVisibility,
 	deselectAndPropogate,
+	verifyIntent,
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -106,6 +107,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			isOverlay ? dispatch(setFormOverlayVisibility(null)) : dispatch(setFormVisibility(null));
 			//if(formType === OxiAppConstants.FormType.DISCARD_EDITS) throw OxiAppConstants.NavigationException.USER_CANCELED
 		},
+		//confirmDiscard : () => dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS)),
 		submitAction: (item) => {
 			dispatch(addItem(item));
 			//dispatch(selectAddedEntity(OxiAppConstants.EntityTypes.ITEM, addedOutfitId))
@@ -122,7 +124,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 		},
 		//entity:  		is the enttiy object to discard
 		//location:  	indicates this method was invoced from a navigation action to location
-		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit, isOverlay) => {
+		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit, isOverlay, formType) => {
 			console.log("confirmDiscardSubmitAction dispatched");
 			
 			isOverlay ?
@@ -140,6 +142,9 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			//check if the form was created due to a navigation action.  If so, follow up with navigation.
 			if(location !== null){
 				dispatch(navigateTo(location));
+			}
+			if(formType === OxiAppConstants.FormType.ADD_ITEM){
+				dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW));
 			}
 			//Enable the button that adds outfits
 			dispatch(disableAddOutfit(false));

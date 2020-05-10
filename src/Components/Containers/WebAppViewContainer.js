@@ -50,7 +50,7 @@ const mapStateToProps = (state, props ) => {
   		search: state.router.location.search,
   		hash: state.router.location.hash,		
 
-  		isPopupMenuVisible: state.popupMenusReducer.menuState.isVisible,
+  		isMenu: state.popupMenusReducer.menuState.isVisible,
   		popupMenuType: state.popupMenusReducer.menuState.type,
   		entitiesStateReducer: state.entitiesStateReducer,
 	};

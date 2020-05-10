@@ -6,8 +6,10 @@ import {
 	deselectMultipleEntity,
 	setCurrentEntityPage,
 	setEntityScrollPageHeight,
-	fetchImage, 
-	selectAndPropogate,
+	fetchImage,
+
+	fetchEntities,
+	selectAndPropogate,	
 } from '../../Components/Actions/indexActions.js';
 import ItemAsSeenOnList from '../../Components/Presentations/ItemAsSeenOnList.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -46,9 +48,28 @@ const mapDispatchToProps = dispatch => ({
 	setScrollPageHeight: (scrollPageHeight) => dispatch(setEntityScrollPageHeight(OxiAppConstants.EntityTypes.CONTENT, scrollPageHeight)),
 	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.CONTENT, page)),
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
-	onClickContextBrowse : (outfitId, targetChildId) => {
-		console.log("outfit tile selected");
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+	previewOutfitFromBrowse: (outfitId) => {
+		new Promise(async (resolve, reject) => {
+			var result = await dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, null, null, `${OxiAppConstants.serviceURL}/outfit/${outfitId}`));
+			resolve(result);
+		})
+		.then(normalizedJson => {
+			const {
+				outfits,
+				contents,
+				picture,
+			} = normalizedJson ? normalizedJson.entities : ({});
+
+			if(contents){
+				// TODO:  assign all outfits' coverpicuri to their corresponding picture uuid
+				var contentArrays = Object.keys(contents);
+				const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
+				dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
+				dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+			}
+
+			//props.setPreviewedOutfit(outfitId);
+		});
 	},
 })
 
