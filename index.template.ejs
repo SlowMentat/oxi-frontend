@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1 .1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Archivo+Black" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+
+
+<html>
+	<head>
+		<!--TODO: REMOVE THIS IN PROD-->
+		<script src="http://localhost:8097"></script> 
+		<script>
+			var initialScreenHeight = 0;
+			var initialInnerHeight = 0;			
+			var isDevice = false;
+
+			// Works for 98% of cases 
+			// To handle remaining 2% requires sligh change to native code https://stackoverflow.com/questions/8068052/phonegap-detect-if-running-on-desktop-browser
+			function isPhoneGap(){
+				return (window.cordova || window.PhoneGap || window.phonegap)
+				&& /^file:\/{3}[^\/]/i.test(window.location.href)
+				&& /ios|iphone|ipod|ipad|android/i.test(navigator.userAgent);
+			}
+
+			function onDeviceReady(){
+				initialScreenHeight = window.screen.height;
+				initialInnerHeight = window.innerHeight;
+				isDevice = isPhoneGap();
+			}
+
+			document.addEventListener("deviceready", onDeviceReady, false);
+
+			setTimeout(
+				function () {
+       	 		const vpWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+       	 		const vpHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+       	 		let viewport = document.querySelector("meta[name=viewport]");
+       	 		viewport.setAttribute("content", "height=" + vpHeight + "px, width=" + vpWidth + "px, initial-scale=1.0");
+    			}, 
+    			300
+    		);
+/*
+			//setup document level event handler for responding to keyboard presence 
+    		const oxi_delegate = (selector) => (callBack) => (e) => e.target.matches(selector) && callBack(e);
+			const oxi_inputDelegate = oxi_delegate('input');
+			//use focusin/out so that event bubbles to document and is properly handled
+			document.addEventListener('focusin', oxi_inputDelegate((el) => {
+
+				var vpAttributes = document.querySelector("meta[name=viewport]").getAttribute("content").split(",").reduce((accum, tag) => {
+					keyVal = tag.trim().split('=');
+					return({
+						...accum,
+						[keyVal[0]]: keyVal[1]
+					});
+				}, {});
+
+				var currentVpHeight = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight);
+				console.log('vpAttributes = ', vpAttributes);
+				console.log('currentVpHeight = ', currentVpHeight);
+				var kbHeight = 'calc(' + vpAttributes.height + ' - ' + currentVpHeight + 'px)';
+				document.getElementById('root').style.cssText = '--keyboard-height: ' + kbHeight;
+			}));
+
+			document.addEventListener('focusout', oxi_inputDelegate((el) => {
+				console.log('focusout evenHandler invoked');
+				document.getElementById('root').style.cssText = "--keyboard-height: 0px"
+			}));*/
+
+		</script>	
+
+
+    	<!--
+        	Customize this policy to fit your own app's needs. For more guidance, see:
+            	https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        	Some notes:
+            	* gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            	* https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            	* Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+            	    * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+
+		<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src * data: content:;">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="msapplication-tap-highlight" content="no">
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+		<!--<link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">-->
+
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+		<!--for media queries to work-->
+		<!--<meta content="width=device-width, initial-scale=1" name="viewport" />-->
+		<title>Fitsee</title>
+	</head>
+	<body>
+		<script src="cordova.js"></script>
+		<div id="root" style="height:100%;"></div>
+		<div id="modalRoot" style="position: relative;"></div>
+	</body>
+</html>
