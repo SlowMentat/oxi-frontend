@@ -43,7 +43,7 @@ import { Route, Switch, Redirect, Link } from 'react-router-dom';
 import '@rmwc/fab/styles';
 import { Fab } from '@rmwc/fab';
 import '@rmwc/tabs/styles';
-import { Tab, TabBar } from '@rmwc/tabs';
+import { Tab, TabBar } from '../../Components/Presentations/FitseeUI/Tabs.js';//@rmwc/tabs';
 import { IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
 import { Tooltip } from '../../Components/Presentations/FitseeUI/Tooltip.js';
 import '@rmwc/tooltip/styles';
@@ -91,11 +91,15 @@ export function SiteNav(props){
 		showMenu,
 		hideMenu,
 		positionMenu,
+		handleAddOutfitClicked,
 	} = props;
 
 	const {
 		isMenu,
 		popupMenuType,
+		owner,
+		URI,
+		webAppView
 	} = props;
 
 	const [ isSettingsOpen, setIsSettingsOpen ] = useState(false);
@@ -122,6 +126,73 @@ export function SiteNav(props){
 		return position;
 	} 
 
+	var viewControls = null;
+
+	switch(true){
+		case props.webAppView === 'landing' :
+			viewControls = <div style={{float:'right', width:'0px'}}>
+    			<div className={NavStyles.landingCtrl_div}>
+    				<div className={NavStyles.landingBtnContainer_div}>
+    					<div 
+    						className={NavStyles.landingBtn_div}
+    						onClick={(e) => {props.history.push('/shop/browse')}}
+    					>
+    						Login
+    					</div>
+    				</div>
+    			</div>
+    		</div>
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.a.toLowerCase():
+			viewControls = <BrowseControlContainer isMobile={true} />
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.b.toLowerCase():
+			viewControls = <div 
+				style={{
+					display:'flex',
+					'justify-content': 'flex-end',
+					color: 'var(--color-02-shade-01)',
+				}}
+				className={Styles.profileViewControls}
+			>
+				{
+					owner && owner.username === URI[URI.length - 1] ?
+						<React.Fragment>
+							<IconButton
+								icon="search"
+								style={{color: 'var(--color-01-tint-02)'}}
+								onClick={e => console.log(e)}
+							/>
+							<IconButton
+								icon="edit"
+								style={{color: 'var(--color-02)'}}
+								onClick={e => console.log(e)}
+							/>
+							<IconButton
+								icon="add"
+								style={{color: 'var(--color-02)'}}
+								onClick={handleAddOutfitClicked}
+							/>
+						</React.Fragment> :
+						null
+				}
+			</div>
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
+			viewControls = null;
+			break;
+
+		case !isDevice:
+			viewControls = <Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...props} />
+			break;
+
+		default:
+			break;
+	}
+
     return(
     	<div className={props.isHeaderHidden ? Styles['headerBlock--hidden'] : Styles.headerBlock}>
     		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
@@ -136,30 +207,11 @@ export function SiteNav(props){
     								//style={logo_svg}
     							/>
     						</div>
+    						
     						<div className={NavStyles.navBanner_div}>
-    							{
-    								props.webAppView === 'landing' ?
-    									(
-    										<div style={{float:'right', width:'0px'}}>
-    											<div className={NavStyles.landingCtrl_div}>
-    												<div className={NavStyles.landingBtnContainer_div}>
-    													<div 
-    														className={NavStyles.landingBtn_div}
-    														onClick={(e) => {props.history.push('/shop/browse')}}
-    													>
-    														Login
-    													</div>
-    												</div>
-    											</div>
-    										</div>
-    									):(
-    										<Nav 
-    											blocks={Object.keys(OxiAppConstants.navRequestMap)} 
-    											{...props}
-    										/>
-    									)
-    							}
+    							{ viewControls }
     						</div>
+
     						<div className={NavStyles.managementContainer_div}>
     							<div 
     								style={{
@@ -298,7 +350,7 @@ class Nav extends React.Component{
 				{
 					webAppView !== 'landing' ?
 					(
-						<TabBar>
+						<TabBar style={{height: '100%'}}>
 							{
 								this.props.blocks.map((block) => {
 									console.log('block = ', block);
@@ -317,11 +369,13 @@ class Nav extends React.Component{
 										<Link
 											style={{
 												width:'33%',
+												height:'100%',
 											}} 
 											to={`${match.url}${selectionPath}`}>
 											<Tab
+												underline={!isDevice}
 												style={{
-													height: 'var(--page-header-height)',
+													...(isDevice ? ({height:'var(--mobile-page-header-height)'}) : ({height: 'var(--page-header-height)'})),
 													width:'100%',
 													'font-size':'12px',
 												}}
@@ -452,9 +506,9 @@ class OutfitNav extends React.Component{
 						<VisibleOutfitList 
 							view={this.props.webAppView} 
 							scrollContainerStyle={
-								this.props.webAppView === OxiAppConstants.navRequestMap.a ?
-									OutfitNavStyles.previewContainer : 
-									OutfitNavStyles.previewBrowseContainer
+								this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() ?
+									OutfitNavStyles.previewBrowseContainer : 
+									OutfitNavStyles.previewContainer
 							}
 							containerHeight={containerHeight !== 0 ? containerHeight : null}
 							containerWidth={containerWidth !== 0 ? containerWidth : null}
@@ -510,14 +564,25 @@ class OutfitNav extends React.Component{
     							>
     								{browseContent !== null ? browseContent(controls) : null}
     							</div>
-    							<div 
-    								className={Styles.browseControls}
-    								style={this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase() ? ({display:'none'}) : ({}) }
-    							>
-									<BrowseControlContainer 
-										isMobile={true}
-									/>
-    							</div>
+    							{
+    								isDevice && this.props.formType == OxiAppConstants.FormType.ADD_ITEM ?
+    									null :
+    									<div 
+    										className={Styles.browseControls}
+    										style={
+    											(!isDevice && this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase()) || 
+    											(isDevice && this.props.formType === OxiAppConstants.FormType.OUTFIT_PREVIEW) ? 
+    												({display:'none'}) : 
+    												({}) 
+    										}
+    									>
+    										{
+    											isDevice ? 
+    												<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...this.props} /> : 
+													<BrowseControlContainer isMobile={true}/>
+											}
+    									</div>
+    							}
     						</React.Fragment>
     					) 
     				)
@@ -796,7 +861,6 @@ export default class webAppView extends React.Component {
 	render() {
 		const {
 			navEventCallbacks,
-			match,
 			setPreviewFocus,
 			unsetPreviewFocus,
 			showMenu,
@@ -807,8 +871,10 @@ export default class webAppView extends React.Component {
 		var { 
 			location,
 			pathname,
+			match,
 			owner,
 			viewState,
+			formType,
 			isFocusedPreview,
 			isMenu,
 			popupMenuType,
@@ -818,6 +884,7 @@ export default class webAppView extends React.Component {
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
 		console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
 		let modalContent = null;
+		var URI = pathname ? pathname.split('/') : '';
 
 		const createModalFragment = (pathname, iniOutfitPreview) => (
 			<React.Fragment>
@@ -843,6 +910,9 @@ export default class webAppView extends React.Component {
 				positionMenu={positionMenu}
 				isMenu={isMenu}
 				popupMenuType={popupMenuType}
+				handleAddOutfitClicked={this._handleAddOutfitClicked}
+				owner={owner}
+				URI={URI}
 			/>
 		);
 
@@ -986,15 +1056,18 @@ export default class webAppView extends React.Component {
 										/>
 										<OutfitNav 
 											webAppView={this.props.webAppView}
-											browseSelection={this.props.browseSelection}											
+											browseSelection={this.props.browseSelection}
+											navEventCallbacks={this.props.navEventCallbacks}
 											toggleMetricPanel={this.toggleMetricPanel}
 											handleAddOutfitClicked={this._handleAddOutfitClicked}
 											pathname={pathname}
+											match={match}
 											owner={owner}
+											formType={formType}
+											ownerUsernamePath={ownerUsernamePath}
 											//setPreviewedOutfit={this.setPreviewedOutfit}
 											previewedOutfitId={this.state.previewedOutfitId}
-											/*routeToHostProfile={(usernameUri) => this._handleNavBtnSelected(`/profile${usernameUri}`)}*/ />
-										{/*(location.state && location.state.modal) ? <ModalContentSelection/> : null*/}
+										/>
 										<Admin/>
 									</div>
 								</div>
@@ -1077,12 +1150,16 @@ export default class webAppView extends React.Component {
 															imageWidth={163.11 || this.state.imageWidth}
 															imageHeight={244.66 || this.state.imageHeight}
 															webAppView={this.props.webAppView}
+															navEventCallbacks={this.props.navEventCallbacks}
 															browseSelection="outfits"
 															setPreviewFocus={setPreviewFocus} 
 															toggleMetricPanel={this.toggleMetricPanel}
 															handleAddOutfitClicked={this._handleAddOutfitClicked}
 															pathname={pathname}
+															match={match}
 															owner={owner}
+															formType={formType}
+															ownerUsernamePath={ownerUsernamePath}
 															//setPreviewedOutfit={this.setPreviewedOutfit}
 															previewedOutfitId={this.state.previewedOutfitId}
 														/>
@@ -1119,7 +1196,26 @@ export default class webAppView extends React.Component {
 									//postProfile={this.props.postProfile} 
 									//modifyProfile={this.props.modifyProfile}
 									//profileId={this.props.addedProfileId}
-									/>
+								/>
+								<OutfitNav 
+									webAppView={this.props.webAppView}
+									browseSelection={this.props.browseSelection}
+									navEventCallbacks={this.props.navEventCallbacks}
+									toggleMetricPanel={this.toggleMetricPanel}
+									handleAddOutfitClicked={this._handleAddOutfitClicked}
+									pathname={pathname}
+									match={match}
+									owner={owner}
+									formType={formType}
+									ownerUsernamePath={ownerUsernamePath}
+									//setPreviewedOutfit={this.setPreviewedOutfit}
+									previewedOutfitId={this.state.previewedOutfitId}
+								/>
+								{/*									
+    								isDevice ? 
+    									<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...this.props} /> : 
+										null
+								*/}
 							</div>
 						)} 
 					/>

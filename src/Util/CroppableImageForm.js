@@ -13,6 +13,25 @@ import {FileUploadIcon} from '../Components/SvgAssets/Icons/FileUploadIcon.js';
 import {SvgIcon} from '../Components/SvgAssets/SvgIcon.js';
 //import {Button} from '../Components/Presentations/Controls.js';
 import { IconButton, Button } from '../Components/Presentations/FitseeUI/Buttons/index.js'; 
+import { FormField } from '@rmwc/formfield'; 
+import '@rmwc/formfield/styles';
+
+//import { 
+//	Dialog, 
+//	DialogContent,
+//	DialogActions,
+//	DialogButton,
+//	DialogTitle 
+//} from '../Components/Presentations/FitseeUI/Dialogs/index.js';
+
+import { 
+	MenuSurfaceAnchor, 
+	Menu, 
+	MenuItem 
+} from '../Components/Presentations/FitseeUI/Menu.js';
+
+import { SimpleListItem } from '@rmwc/list';
+import '@rmwc/list/styles';
 
 import { arrayBufferToDataURL } from '../Util/Misc.js';
 
@@ -71,6 +90,7 @@ class CroppableImageForm extends React.Component{
 			submitHovering: false,
 			cropHovering:false,
 			discardHovering:false,
+			showSourceDialog:false,
 		}
 
 
@@ -776,8 +796,8 @@ class CroppableImageForm extends React.Component{
 					cropping: false,
 				}
 			});
-
-		}else{			
+		}
+		else{			
 			this.setState(prevState => ({
 				...prevState,
 				images:{
@@ -1249,30 +1269,67 @@ class CroppableImageForm extends React.Component{
 			//display:'inline-block',
 		}
 
+		// Async method invoked when adding photos on mobile device.
+		// Either sources photos from device files or camera depending on user selection.
+		const sourceMobilePhoto = (e, sourceType) => {
+			console.log('event detail index = ', e.detail.index);
+		
+			//navigator.camera.sourceType = sourceType;
+
+			if(sourceType != null && sourceType != undefined){			
+				const onCameraSuccess = (imgURL) => {
+					// resolveLocalFileSystemURL from cordova-plugin-file
+					window.resolveLocalFileSystemURL(imgURL, (entry) => {
+						const onFileSuccess = (file) => this._onSelectMultipleFiles(e, file);
+						const onFileFail = (error) => console.error(error);
+						entry.file(onFileSuccess, onFileFail);
+					});
+				
+					console.log("picture retreived successfully");
+				};
+				
+				const onCameraFail = () => {
+					console.log("pictrue retreival failed");
+				};
+				
+				navigator.camera.getPicture(onCameraSuccess, onCameraFail, {
+					quality: 100, 
+					destinationType: navigator.camera.DestinationType.FILE_URI,
+					sourceType: sourceType, 
+				});
+			}
+
+			this.setState(prevState => ({
+				...prevState, 
+				showSourceDialog: false
+			}))
+
+		}
+
 		contentState.selected = entitiesStateReducer.contents ?  entitiesStateReducer.contents.selected : undefined;
 		let submitButton = (this.state.submittable ? (<button id="submitButton" type="submit" onClick={this._handleSubmit} style={{display:'none'}}>Upload Image</button>) : null);
 		let content = null;
 		let validImageElement = (this.props.imageElement !== null && this.props.imageElement !== undefined);
 
 		if(contentState.selected && images[contentState.selected]){
-			if(images[contentState.selected].cropping){
+			if(this.state.images[contentState.selected].cropping){
 				content = (
 					<ReactCrop
 						className={ReactCropStyles}
-						rotation={images[contentState.selected].rotation}
+						rotation={this.state.images[contentState.selected].rotation}
 						//This is a percentage of actual image height wrp <img> tag height
 						maxHeight={this.maxHeight}
 						maxWidth={this.maxWidth}
 						minY={this.minYPercent}
 						style={{
 							height:'100%',
-							'max-height': `${images[contentState.selected].maxHeight}${images[contentState.selected].maxHeight === 'unset' ? '' : 'px'}`,//`${maxHeightVal}px`,
-							'margin-top': `${images[contentState.selected].minYPixel}px`,//`${this.minYPixel}px`//`calc(${this.maxHeight}px/2 - ${imageHeight}px/2)`
+							'max-height': `${this.state.images[contentState.selected].maxHeight}${this.state.images[contentState.selected].maxHeight === 'unset' ? '' : 'px'}`,//`${maxHeightVal}px`,
+							'margin-top': `${this.state.images[contentState.selected].minYPixel}px`,//`${this.minYPixel}px`//`calc(${this.maxHeight}px/2 - ${imageHeight}px/2)`
 							width: 'auto',
 						}}
 						cropImgRoot={this.cropImgRoot}
 						src={src}
-						crop={images[contentState.selected].crop}
+						crop={this.state.images[contentState.selected].crop}
 						onImageLoaded={(imageElement) => {this._onImageLoaded(imageElement)} }
 						onComplete={this._onCropComplete}
 						onChange={this._onCropChange}
@@ -1289,7 +1346,8 @@ class CroppableImageForm extends React.Component{
 						//style={this.props.imgStyle} 
 						className={FormStyles.imgEdit_img}
 						src={src}
-						onClick={this.props.onImageClick} 
+						// alkjdf
+						onClick={e => this.props.onImageClick(e)} 
 						onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
 						ref={this.props.setupImageRef}
 						loading="lazy" />	
@@ -1310,11 +1368,18 @@ class CroppableImageForm extends React.Component{
 
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
 					<input 
-						id="fileInput" 
-						ref={input => this.fileInput = input}
+						id="fileInput"
 						type="file" 
 						multiple name="imageFile" 
 						onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
+						style={{display:'none'}} 
+						ref={input => this.fileInput = input}
+					/>
+					<button 
+						id="submitButton" 
+						type="submit" 
+						ref={button => this.submitButton = button}
+						onClick={this._handleSubmit} 
 						style={{display:'none'}} 
 					/>
 				</form>
@@ -1332,37 +1397,85 @@ class CroppableImageForm extends React.Component{
 							class="material-icons-outlined"
 							style={customButtonStyles}
 						/>
-						<label 
-							for="fileInput" 
-							style={{
-								//'margin-right':'5%',
-								'width':'auto'
-							}}>
+						{
+							isDevice ? 
+							<React.Fragment>
+								<MenuSurfaceAnchor >
+									<Menu
+										style={{
+											bottom:'48px',
+											width:'auto',
+											'background-color':'var(--color-02-tint-01)',
+										}}
+										horizontal={true}
+										open={this.state.showSourceDialog}
+										renderToPortal
+										//onSelect={e => {console.log(e.detail.index); sourceMobilePhoto(e);}}
+										onClose={e => { 
+											this.setState(prevState => ({
+												...prevState, 
+												showSourceDialog: false
+											}))
+										}}
+									>
+										{/*<MenuItem fontSize="1.8rem">Camera</MenuItem>
+										<MenuItem fontSize="1.8rem">File</MenuItem>*/}
+										<SimpleListItem 
+											role="menuitem" 
+											tabindex="0" 
+											text="Camera"
+											graphic="add_a_photo" 
+											onClick={e => sourceMobilePhoto(e, Camera.PictureSourceType.CAMERA)}
+										/>
+										<SimpleListItem 
+											role="menuitem" 
+											tabindex="0" 
+											text="Storage"
+											graphic="folder_open" 
+											onClick={e => sourceMobilePhoto(e, Camera.PictureSourceType.PHOTOLIBRARY)}
+										/>
+									</Menu>
+								</MenuSurfaceAnchor>
+								<Button
+									theme="textPrimaryOnLight"
+									labelSize="1.2rem"
+									onClick={(e) => {
+										e.stopPropagation();
+										this.setState(prevState => ({
+											...prevState, 
+											showSourceDialog: true
+										}));
+									}}
+									icon="insert_photo"
+								/> 
+							</React.Fragment> :
 							<Button
 								theme="textPrimaryOnLight"								
 								label="file"
 								labelSize="1.2rem"
 								icon="folder_shared"
 								style={customButtonStyles}
+								onClick={this.fileInput ? (e) => this.fileInput.click(e) : null}
 							/>
-						</label>
+						}
 						<Button
 							theme="textPrimaryOnLight"							
 							label="crop"
 							labelSize="1.2rem"
 							onClick={this._handleAcceptCrop}
 							icon="crop"
-							style={customButtonStyles} />
-						<label for="submitButton" >
-							<Button
-								//icon="cloud_upload"
-								theme="textPrimaryOnDark"
-								raised
-								label="save"
-								labelSize="1.2rem"
-								icon="cloud_upload"
-								style={customButtonStyles} />
-						</label>
+							style={customButtonStyles} 
+						/>
+						<Button
+							//icon="cloud_upload"
+							theme="textPrimaryOnDark"
+							raised
+							label="save"
+							labelSize="1.2rem"
+							icon="cloud_upload"
+							style={customButtonStyles} 
+							onClick={this.submitButton ? (e) => this.submitButton.click(e) : null}
+						/>
 					</div>
 
 					<div 

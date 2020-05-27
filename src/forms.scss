@@ -144,9 +144,10 @@ input::placeholder {
 }
 
 :local(.image_img){
-
+    
     height: 100%;
     display: block;
+    animation: imgFadeIn 400ms;
 
     @include desktop_rules {
         /*padding-top: calc(5vh + 25px);*/
@@ -244,6 +245,7 @@ input::placeholder {
         height: var(--clc-mobile-height);
         /*width: 100%;*/
         width: 100vw;
+        background-color: #f9f9f9;
         /*margin: auto;*/
     }
 }
@@ -306,6 +308,8 @@ input::placeholder {
         width: 100%;
         position: absolute;
         top: 0px;
+        width: 100vw;
+        z-index: 100;
     }
 }
 
@@ -357,8 +361,8 @@ input::placeholder {
     }
 
     @include mobile_rules {
-        position: absolute;
-        bottom: 80px;
+        /*position: absolute;
+        bottom: 80px;*/
     }
 }
 
@@ -744,9 +748,9 @@ input::placeholder {
         bottom: 0px;
         width: 100vw;
         left: 0px;
-        height: 40px;
+        height: var(--mobile-footer-height);
         text-align: left;
-        padding-top: 7.5px
+        /*padding-top: 7.5px*/
     }
 }
 

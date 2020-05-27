@@ -10,17 +10,17 @@ import ProfileTitleContainer from '../../Components/Containers/ProfileTitleConta
 import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
 
 
-const container1_div = {
-	'height': '100%',
-    'padding-left': '200px',
-    'padding-right': '200px',	
-}
-
-const container2_div = {
-	'width': '900px',
-    'margin': 'auto',
-    'height': '100%',
-}
+//const container1_div = {
+//	'height': '100%',
+//    'padding-left': '200px',
+//    'padding-right': '200px',	
+//}
+//
+//const container2_div = {
+//	'width': '900px',
+//    'margin': 'auto',
+//    'height': '100%',
+//}
 
 export default class ProfileHeader extends React.Component{
 	constructor(props){
@@ -198,7 +198,7 @@ export default class ProfileHeader extends React.Component{
 								{ username }
 							</span>
 						</div>
-						<div className={OutfitStyles.statCommonVal_span}>
+						<div className={OutfitStyles.statCommonVal_span} style={{'margin-left':'4px'}}>
 							{
 								Object.keys(stats).map(key => (
 									key === 'lastUpdated' || key === 'id' ? 

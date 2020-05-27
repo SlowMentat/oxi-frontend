@@ -20,14 +20,17 @@ import FemaleSideVertMirrored from '../../Components/SvgAssets/FemaleSideVertMir
 import fetch from 'cross-fetch'
 import axios from 'axios';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+
 import { 
-	useSwipeable, 
-	Swipeable,
+	//useSwipeable, 
+	//Swipeable,
 	LEFT,
 	RIGHT,
 	UP,
 	DOWN,
 } from 'react-swipeable';
+
+import { Swipeable } from '../../Components/Presentations/FitseeUI/Swipeable.js';
 
 //CSS Styles
 import Styles from '../../root.scss';
@@ -114,7 +117,7 @@ class ProfileFieldWrapper extends React.Component{
 						setupInputRef: this.props.setupInputRef,
 						type:"text",
 					}}/>
-					<div className={ProfileMenuStyles.displayUnits_div} style={(isSelected ? ({color: '#70ccf4'}) : null)}>
+					<div className={ProfileMenuStyles.displayUnits_div} style={(isSelected ? ({color: 'var(--color-01'}) : null)}>
 						{(this.props.units === 'cm' ? 'cm' : 'in')}
 					</div>
 					<div className={ProfileMenuStyles.inputNumberLabel_div}>
@@ -141,13 +144,13 @@ const radioStyle = {
     'height': 'inherit',
     'border-style': 'solid',
     'border-width': '1px',
-    'border-color': 'var(--color9)',
+    'border-color': 'var(--color-01)',
 };
 
 const selectedRadioStyle = { 
 	...radioStyle,
 	...{
-    	'background-color': 'var(--color9)',
+    	'background-color': 'var(--color-01)',
     }
 };
 
@@ -560,7 +563,9 @@ class ToleranceSettings extends React.Component{
 
 		//this.props.tickPixelDelta = 298/(this.props.ticks.length - 1);	
 		this.filteredFieldNames = Object.keys(this.props.displayedProfileData);	
+		var indexByFieldNames = this.filteredFieldNames.reduce((accum, field, ind) => (field != 'height' ? ({...accum, [field]: ind-1}) : accum), {});
 		var calcWidth = (this.props.ticks.length  - 1) * this.props.tickPixelDelta;
+
 		if(this.props.width !== calcWidth){
 			this.props.updateWidth(calcWidth);
 			//this.width = calcWidth;
@@ -631,8 +636,9 @@ class ToleranceSettings extends React.Component{
 					style={{
 						position: 'absolute',
 						width: '100%',
-						bottom: '0px',
-				}}>
+						...(isDevice ? ({bottom: '36px'}) : ({bottom: '0px'})),
+					}}
+				>
 					<div style={{
 						position:'relative',
 						width:'100%',
@@ -646,7 +652,7 @@ class ToleranceSettings extends React.Component{
 											className={ProfileMenuStyles.measurements_div}
 											style={(
 												field === this.props.selectedField ? 
-													({'background-color':'#70ccf4'}) :
+													({'background-color':'var(--color-01-tint-01)'}) :
 													({})
 											)}>
 											<Ruler props={{
@@ -677,11 +683,12 @@ class ToleranceSettings extends React.Component{
 							<React.Fragment>
 								<div
 									className={ProfileMenuStyles.minMaxMarker_div} 
-									style={
-										this.state.minGrabbedSlider === this.props.selectedField ? 
+									style={{
+										height: `calc(${indexByFieldNames[this.props.selectedField]} * (var(--main-height) + 4px) + 15px)`,
+										...(this.state.minGrabbedSlider === this.props.selectedField ? 
 											({left: `${this.props.minTolerances[this.props.selectedField]*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) : 
-											({left: `${this.props.tickPixelDelta * (this.props.minTolerances[this.props.selectedField]) - this.slideWidth}px`, transition: 'left 150ms ease-in-out'})
-									}
+											({left: `${this.props.tickPixelDelta * (this.props.minTolerances[this.props.selectedField]) - this.slideWidth}px`, transition: 'left 150ms ease-in-out, height 150ms ease-in-out'}))
+									}}
 								>
 									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
 										<div className={ProfileMenuStyles.minMaxIndicator_div} >
@@ -691,11 +698,12 @@ class ToleranceSettings extends React.Component{
 								</div>
 								<div
 									className={ProfileMenuStyles.minMaxMarker_div} 
-									style={
-										this.state.maxGrabbedSlider === this.props.selectedField ? 
+									style={{
+										height: `calc(${indexByFieldNames[this.props.selectedField]} * (var(--main-height) + 4px) + 15px)`,
+										...(this.state.maxGrabbedSlider === this.props.selectedField ? 
 											({left: `${(this.props.maxTolerances[this.props.selectedField])*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) :
-											({left: `${this.props.tickPixelDelta * (this.props.maxTolerances[this.props.selectedField]) - this.slideWidth}px` , transition: 'left 150ms ease-in-out'})
-									}
+											({left: `${this.props.tickPixelDelta * (this.props.maxTolerances[this.props.selectedField]) - this.slideWidth}px` , transition: 'left 150ms ease-in-out, height 150ms ease-in-out'}))
+									}}
 								>
 									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
 										<div 
@@ -1047,6 +1055,7 @@ export default class ProfileMenu extends React.Component{
 		this.convertTickToTol = this.convertTickToTol.bind(this);
 		this.filterMetricFields = this.filterMetricFields.bind(this);
 		this.calcTolerances = this.calcTolerances.bind(this);
+		this.toggleMeasurement = this.toggleMeasurement.bind(this);
 
 		var { bodyData, iniMeasurements, minToleranceFields, maxToleranceFields, displayedProfileData, currentToleranceData } = this.getStateIniData();
 
@@ -2061,6 +2070,13 @@ export default class ProfileMenu extends React.Component{
 		};
 	}
 
+	toggleMeasurement(){
+		this.setState(prevState => ({
+			...prevState,
+			isMeasurement: !prevState.isMeasurement,
+		}));
+	}
+
 	render(){
 		//TODO:  push this to the select in LandingPageConnector.js
 		//This filters what properties to display on the Profile Creation page
@@ -2151,16 +2167,17 @@ export default class ProfileMenu extends React.Component{
 			this.rightCenterTick = this.ticks.length/2; 
 		}
 
-		console.log('filteredFieldNames');
-		console.log(this.filteredFieldNames);
+		//console.log('filteredFieldNames');
+		//console.log(this.filteredFieldNames);		
+		const bodyShape = this.state.profileData.userMetricsDto.bodyShape;
+		const cornerRad = '3px';
+		let bodyShapeContainer = maleContainer;
 
 		let fieldSet = this.filteredFieldNames.map(field => {
-			//console.log(this.state.profileData[field]);
 			var isSelected = this.state.selectedField === field;
 			var displayedValue = null;
 
 			if(isSelected){
-
 				switch(this.state.units){
 					case 'cm':
 						//displayedValue = this.state.profileData.userMetricsDto[field];
@@ -2173,8 +2190,8 @@ export default class ProfileMenu extends React.Component{
 						break;
 				}
 
-			}else{
-
+			}
+			else{
 				switch(this.state.units){
 					case 'cm':
 						displayedValue = this.state.displayedProfileData[field];
@@ -2194,13 +2211,6 @@ export default class ProfileMenu extends React.Component{
 					field={field} 
 					value={
 						displayedValue
-						//this.state.selectedField !== field ? 
-						//	this.state.displayedProfileData[field] : 
-						//	this.state.units === 'cm' ? 
-						//		this.state.profileData.userMetricsDto[field] :
-						//		this.state.selectedField === field ?
-						//			this.state.displayedProfileData[field] : 
-						//			roundTo(convertCmToIn(this.state.profileData.userMetricsDto[field]), .001, 2)
 					} 
 					callback={()=>{this._handleInputFieldChange(event, field)}} 
 					onSelect={() => this._handleFieldFocus(event)}
@@ -2210,17 +2220,294 @@ export default class ProfileMenu extends React.Component{
 				/>
 			);
 		});
-		const bodyShape = this.state.profileData.userMetricsDto.bodyShape;
-		const cornerRad = '3px';
-		let bodyShapeContainer = maleContainer;
 
-		//console.log('bodyShapeContainer = ', bodyShapeContainer);
-		//console.log('fieldSet');
-		//console.log(fieldSet);
+		const ProfileMenuContent = (
+			<React.Fragment>
+			<div 
+				className={ProfileMenuStyles.fieldListContainer_div} 
+				style={this.state.isMeasurement ? ({transform: 'translateX(0px)'}) : ({transform: 'translateX(-100vw)'})}
+			>
+				<div className={ProfileMenuStyles.fieldListContainer2_div}>
+					<div 
+						className={ProfileMenuStyles.fieldList_div}
+						style={{
+							//'--profile-ctrl-contianer-width': `calc(${this.state.gridWidth}px + 2*var(--profile-ctrl-container-padding) + var(--profile-ctrl-container-border-width))`,
+							'border-right':'none',
+							'border-top-right-radius': '0px',
+							'border-bottom-right-radius':'0px',
+						}}>
+						<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
+							<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
+								<div className={ProfileMenuStyles.fieldListTitle_div} >
+									{ this.state.fieldListTitle }
+								</div>
+							</div>
+						</div>
+			
+						{ 
+							this.state.fieldListTitle === this.menuPage1 ? (
+								<React.Fragment>
+
+									<SlideSwitch props={{
+										toggleSlidSwitch: this._toggleSlidSwitch,
+										units: this.state.units
+									}}/>
+
+									<div 
+										style={{
+											position:'absolute',
+											right: '7.5px',
+											height: '24px',
+											top: 'calc(94px/2 + 5.5px)',
+											display: 'none',
+										}}
+									>
+										<div
+											style={{
+												height: 'inherit',
+												'line-height': '24px',
+											}}
+										>
+											<div
+												style={{
+													display: 'inline-block',
+													'vertical-align': 'top',
+													'font-size': '13px',
+													color: '#838383',
+												}}
+											>
+												Tolerance
+											</div>
+												<i 
+													style={{color:'#bbbbbb'}}
+													class="material-icons"
+												>
+													arrow_forward
+												</i>
+										</div>
+									</div>
+
+									<div 
+										className={ProfileMenuStyles.apparelPreferences_div}
+										//style={{
+										//	'margin-bottom': '10px',
+										//	'margin-top': '45px',
+										//	'border-top': 'solid 1px #bbbbbb',
+										//	'padding-top': '20px',
+										//}} 
+									>
+											<div>
+												<div>
+													<div className={ProfileMenuStyles.sexHeadersContainer_div} >
+														<div className={ProfileMenuStyles.sexHeader_div}> Womens </div>
+														<div className={ProfileMenuStyles.sexHeader_div}> Mens </div>
+													</div>
+													<div className={ProfileMenuStyles.physiqueOptionsContainer_div} >
+														<div 
+															id="physiqueOptions" 
+															style={{height:'inherit',width:'100%'}}
+														>
+															<div 
+																id="womensPhysique" 
+																className={ProfileMenuStyles.physiqueBtnContainer_div}
+															>
+																<div 
+																	id='bodyShapeRadio' 
+																	style={{
+																		...(bodyShape === 'female' ? selectedRadioStyle : radioStyle),
+																		...{'border-top-left-radius': `${cornerRad}`}
+																	}} 
+																	onClick={() => this._handleRadioToggled('female')}
+																>
+																</div>
+															</div>
+															<div 
+																id="mensPhysique" 
+																className={ProfileMenuStyles.physiqueBtnContainer_div}
+																style={{'margin-left':'-1px'}}
+															>
+																<div 
+																	id='bodyShapeRadio' 
+																	style={{
+																		...(bodyShape === 'male' ? selectedRadioStyle : radioStyle),
+																		...{'border-top-right-radius': `${cornerRad}`}
+																	}} 
+																	onClick={() => this._handleRadioToggled('male')}
+																>
+																</div>										
+															</div>
+														</div>
+														<div 
+															id="bodyShapeTitle" 
+															className={ProfileMenuStyles.optionsHeader_div}
+														>
+															Body Shape
+														</div>								
+													</div>
+													<div 
+														className={ProfileMenuStyles.apparelOptionsContainer_div} 
+														style={{'margin-top':'-1px'}}
+													>
+														<div 
+															id="apperelInterestRadioList"
+															style={{height:'inherit',width:'100%'}}
+														>
+															<div 
+																id="womensApparel" 
+																className={ProfileMenuStyles.apparelBtnContainer_div}
+															>
+																<div 
+																	style={{
+																		...(this.state.profileData.userMetricsDto.womens ? selectedCheckBoxStyle : checkBoxStyle),
+																		...{'border-bottom-left-radius': `${cornerRad}`}
+																	}}
+																	onClick={() => this._handleBoxChecked('womens')} 
+																>
+																</div>
+															</div>
+															<div 
+																id="mensApparel" 
+																className={ProfileMenuStyles.apparelBtnContainer_div}
+																style={{'margin-left':'-1px'}}
+															>
+																<div 
+																	style={{
+																		...(this.state.profileData.userMetricsDto.mens ? selectedCheckBoxStyle : checkBoxStyle),
+																		...{'border-bottom-right-radius':`${cornerRad}`}
+																	}} 
+																	onClick={() => this._handleBoxChecked('mens')}
+																>
+																</div>
+															</div>
+														</div>
+														<div 
+															id="apparelInterestTitle" 
+															className={ProfileMenuStyles.optionsHeader_div}
+														>
+															Apperel Interest
+														</div>			
+													</div>								
+												</div>
+											</div>
+									</div>
+									{fieldSet}
+								</React.Fragment>
+							) : (
+								<ToleranceSettings 
+									units={this.state.units}
+									displayedProfileData={
+										//this.props.test ? 
+											this.state.displayedProfileData //: 
+										//	this.state.profileData.userMetricsDto
+										} 
+									saveTickState={this.saveTickState}
+									minTolerances={this.state.minTolerances}
+									maxTolerances={this.state.maxTolerances}
+									getToleranceValues={this.getToleranceValues}
+									scale={this.scale}
+									handlePresetClicked={this._handlePresetClicked}
+									setPresetTolerances={this.setPresetTolerances}
+									updateTolerances={this.updateTolerances}
+									ticks={this.ticks}
+									selectedPreset={this.state.selectedPreset}
+									updateWidth={this.updateWidth}
+									width={this.state.gridWidth}
+									
+									handleTouchStart={this._handleTouchStart}
+									handleTouchMove={this._handleTouchMove}
+									handleTouchCancel={this._handleTouchCancel}
+									handleTouchEnd={this._handleTouchEnd}
+
+									tickPixelDelta={
+										(window.innerWidth/window.innerHeight) <= 13/9 /*&& this.state.units == 'in'*/ ? 
+											((window.innerWidth - 2*30) / (this.ticks.length - 1)) :
+											this.state.units == 'in' ? 
+												33 : 
+												(360 - 2*30)/(this.ticks.length - 1)
+									}
+
+									selectToleranceField={this.selectToleranceField}
+									//toleranceControllerRef={this.toleranceControllerRef}
+								/>
+							)
+						}				
+					</div>
+					<div 
+						className={ProfileMenuStyles.toleranceFieldList_div}
+						style={{
+							//'--profile-ctrl-contianer-width': `calc(${this.state.gridWidth}px + 2*var(--profile-ctrl-container-padding) + var(--profile-ctrl-container-border-width))`,
+						}}
+					>
+						
+						<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
+							<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
+								<div className={ProfileMenuStyles.fieldListTitle_div} >
+									{ this.menuPage2 }
+								</div>
+							</div>
+						</div>
+			
+						<ToleranceSettings 
+							units={this.state.units}
+							displayedProfileData={
+								//this.props.test ? 
+									this.state.displayedProfileData //: 
+								//	this.state.profileData.userMetricsDto
+								} 
+							saveTickState={this.saveTickState}
+							minTolerances={this.state.minTolerances}
+							maxTolerances={this.state.maxTolerances}
+							getToleranceValues={this.getToleranceValues}
+							scale={this.scale}
+							handlePresetClicked={this._handlePresetClicked}
+							setPresetTolerances={this.setPresetTolerances}
+							updateTolerances={this.updateTolerances}
+							ticks={this.ticks}
+							selectedPreset={this.state.selectedPreset}
+							updateWidth={this.updateWidth}
+							width={this.state.gridWidth}
+							selectedField={this.state.selectedField}
+							handleOnSubmit={this._handleOnSubmit} 
+									
+							handleTouchStart={this._handleTouchStart}
+							handleTouchMove={this._handleTouchMove}
+							handleTouchCancel={this._handleTouchCancel}
+							handleTouchEnd={this._handleTouchEnd}
+
+							tickPixelDelta={
+								(window.innerWidth/window.innerHeight) <= 13/9 /*&& this.state.units == 'in'*/ ? 
+									((window.innerWidth - 2*30) / (this.ticks.length - 1)) :
+									this.state.units == 'in' ? 
+										33 : 
+										(360 - 2*30)/(this.ticks.length - 1)
+							}
+							selectToleranceField={this.selectToleranceField}
+							//toleranceControllerRef={this.toleranceControllerRef}
+						/>
+					</div>
+				</div>
+			</div>
+	
+			<div style={{							
+    			'display': 'inline-block',
+    			'width': '42.5%',
+    			'vertical-align':'top'
+			}}>
+				{/*<div  id='rightBodyContainer' style={bodyShapeContainer}>
+					<div style={bodySvgContianerStyles}>
+						{bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+					</div>
+					<div style={bodySvgContianerStyles}>
+						{bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
+					</div>
+				</div>*/}
+			</div>
+			</React.Fragment>
+		);
 
 		return(
 			<div 
-				className={ProfileMenuStyles.profileMenuContianer_div}
+				className={ProfileMenuStyles.profileMenuContainer_div}
 			>
 				<div 
 					className={ProfileMenuStyles.bodyDiagramContainer_div}
@@ -2251,343 +2538,19 @@ export default class ProfileMenu extends React.Component{
 				<Swipeable 
 					onSwiped={
 						(event) => {
-							var dist = Math.sqrt(Math.pow(event.absX, 2) + Math.pow(event.absY, 2));
-							var velocityX = event.velocity * Math.sqrt(Math.pow(dist, 2) - Math.pow(event.absY, 2)) / dist;
+							//var dist = Math.sqrt(Math.pow(event.absX, 2) + Math.pow(event.absY, 2));
+							//var velocityX = event.velocity * Math.sqrt(Math.pow(dist, 2) - Math.pow(event.absY, 2)) / dist;
 							if(
-								(event.dir == LEFT && this.state.isMeasurement) || (event.dir == RIGHT && !this.state.isMeasurement) &&
-								velocityX > 0.7
+								(event.dir == LEFT && this.state.isMeasurement) || (event.dir == RIGHT && !this.state.isMeasurement)
 							){
-								//this.velX = velocityX;
-								this.setState(prevState => ({
-									...prevState,
-									isMeasurement: !prevState.isMeasurement,
-									//toggle: !prevState.toggle,
-								}));
+								this.toggleMeasurement()
 							}
 						}
 					}
 					delta={30}
 					innerRef={this.setSwipeableStyles}
 				>
-					<div 
-						className={ProfileMenuStyles.fieldListContainer_div} 
-						style={this.state.isMeasurement ? ({transform: 'translateX(0px)'}) : ({transform: 'translateX(-100vw)'})}
-					>
-						<div className={ProfileMenuStyles.fieldListContainer2_div}>
-							<div 
-								className={ProfileMenuStyles.fieldList_div}
-								style={{
-									//'--profile-ctrl-contianer-width': `calc(${this.state.gridWidth}px + 2*var(--profile-ctrl-container-padding) + var(--profile-ctrl-container-border-width))`,
-									'border-right':'none',
-									'border-top-right-radius': '0px',
-									'border-bottom-right-radius':'0px',
-								}}>
-								<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
-									<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
-										<div className={ProfileMenuStyles.fieldListTitle_div} >
-											{ this.state.fieldListTitle }
-										</div>
-									</div>
-								</div>
-			
-								{ 
-									this.state.fieldListTitle === this.menuPage1 ? (
-										<React.Fragment>
-											{/*<ProfileFieldWrapper 
-												field='country' 
-												value={this.state.profileData['USA']} 
-												callback={()=>{this._handleInputFieldChange(event, 'country')}}
-												onSelect={() => this._handleFieldFocus(event)} 
-												selectedField={this.state.selectedField} />*/}
-											<SlideSwitch props={{
-												toggleSlidSwitch: this._toggleSlidSwitch,
-												units: this.state.units
-											}}/>
-
-											<div 
-												style={{
-													position:'absolute',
-													right: '7.5px',
-													height: '24px',
-													top: 'calc(94px/2 + 5.5px)',
-													display: 'none',
-												}}
-											>
-												<div
-													style={{
-														height: 'inherit',
-														'line-height': '24px',
-													}}
-												>
-													<div
-														style={{
-															display: 'inline-block',
-															'vertical-align': 'top',
-															'font-size': '13px',
-															color: '#838383',
-														}}
-													>
-														Tolerance
-													</div>
-														<i 
-															style={{color:'#bbbbbb'}}
-															class="material-icons"
-														>
-															arrow_forward
-														</i>
-												</div>
-											</div>
-
-											<div 
-												className={ProfileMenuStyles.apparelPreferences_div}
-												//style={{
-												//	'margin-bottom': '10px',
-												//	'margin-top': '45px',
-												//	'border-top': 'solid 1px #bbbbbb',
-												//	'padding-top': '20px',
-												//}} 
-											>
-													<div>
-														<div>
-															<div className={ProfileMenuStyles.sexHeadersContainer_div} >
-																<div className={ProfileMenuStyles.sexHeader_div}> Womens </div>
-																<div className={ProfileMenuStyles.sexHeader_div}> Mens </div>
-															</div>
-															<div className={ProfileMenuStyles.physiqueOptionsContainer_div} >
-																<div 
-																	id="physiqueOptions" 
-																	style={{height:'inherit',width:'100%'}}
-																>
-																	<div 
-																		id="womensPhysique" 
-																		className={ProfileMenuStyles.physiqueBtnContainer_div}
-																	>
-																		<div 
-																			id='bodyShapeRadio' 
-																			style={{
-																				...(bodyShape === 'female' ? selectedRadioStyle : radioStyle),
-																				...{'border-top-left-radius': `${cornerRad}`}
-																			}} 
-																			onClick={() => this._handleRadioToggled('female')}
-																		>
-																		</div>
-																	</div>
-																	<div 
-																		id="mensPhysique" 
-																		className={ProfileMenuStyles.physiqueBtnContainer_div}
-																		style={{'margin-left':'-1px'}}
-																	>
-																		<div 
-																			id='bodyShapeRadio' 
-																			style={{
-																				...(bodyShape === 'male' ? selectedRadioStyle : radioStyle),
-																				...{'border-top-right-radius': `${cornerRad}`}
-																			}} 
-																			onClick={() => this._handleRadioToggled('male')}
-																		>
-																		</div>										
-																	</div>
-																</div>
-																<div 
-																	id="bodyShapeTitle" 
-																	className={ProfileMenuStyles.optionsHeader_div}
-																>
-																	Body Shape
-																</div>								
-															</div>
-															<div 
-																className={ProfileMenuStyles.apparelOptionsContainer_div} 
-																style={{'margin-top':'-1px'}}
-															>
-																<div 
-																	id="apperelInterestRadioList"
-																	style={{height:'inherit',width:'100%'}}
-																>
-																	<div 
-																		id="womensApparel" 
-																		className={ProfileMenuStyles.apparelBtnContainer_div}
-																	>
-																		<div 
-																			style={{
-																				...(this.state.profileData.userMetricsDto.womens ? selectedCheckBoxStyle : checkBoxStyle),
-																				...{'border-bottom-left-radius': `${cornerRad}`}
-																			}}
-																			onClick={() => this._handleBoxChecked('womens')} 
-																		>
-																		</div>
-																	</div>
-																	<div 
-																		id="mensApparel" 
-																		className={ProfileMenuStyles.apparelBtnContainer_div}
-																		style={{'margin-left':'-1px'}}
-																	>
-																		<div 
-																			style={{
-																				...(this.state.profileData.userMetricsDto.mens ? selectedCheckBoxStyle : checkBoxStyle),
-																				...{'border-bottom-right-radius':`${cornerRad}`}
-																			}} 
-																			onClick={() => this._handleBoxChecked('mens')}
-																		>
-																		</div>
-																	</div>
-																</div>
-																<div 
-																	id="apparelInterestTitle" 
-																	className={ProfileMenuStyles.optionsHeader_div}
-																>
-																	Apperel Interest
-																</div>			
-															</div>								
-														</div>
-													</div>
-											</div>
-											{/*<ProfileFieldWrapper 
-												field='height' 
-												value={
-													this.state.selectedField !== 'height' ? 
-														this.state.displayedProfileData['height'] : 
-														this.state.units === 'cm' ? 
-															this.state.profileData.userMetricsDto['height'] :
-															this.state.profileData.userMetricsDto['height'] / 2.54
-												} 
-												callback={()=>{this._handleInputFieldChange(event, 'height')}} 
-												onSelect={() => this._handleFieldFocus(event)} 
-												selectedField={this.state.selectedField}
-												units={this.state.units} />*/}
-											{fieldSet}
-										</React.Fragment>
-									) : (
-										<ToleranceSettings 
-											units={this.state.units}
-											displayedProfileData={
-												//this.props.test ? 
-													this.state.displayedProfileData //: 
-												//	this.state.profileData.userMetricsDto
-												} 
-											saveTickState={this.saveTickState}
-											minTolerances={this.state.minTolerances}
-											maxTolerances={this.state.maxTolerances}
-											getToleranceValues={this.getToleranceValues}
-											scale={this.scale}
-											handlePresetClicked={this._handlePresetClicked}
-											setPresetTolerances={this.setPresetTolerances}
-											updateTolerances={this.updateTolerances}
-											ticks={this.ticks}
-											selectedPreset={this.state.selectedPreset}
-											updateWidth={this.updateWidth}
-											width={this.state.gridWidth}
-											
-											handleTouchStart={this._handleTouchStart}
-											handleTouchMove={this._handleTouchMove}
-											handleTouchCancel={this._handleTouchCancel}
-											handleTouchEnd={this._handleTouchEnd}
-
-											tickPixelDelta={
-												(window.innerWidth/window.innerHeight) <= 13/9 /*&& this.state.units == 'in'*/ ? 
-													((window.innerWidth - 2*30) / (this.ticks.length - 1)) :
-													this.state.units == 'in' ? 
-														33 : 
-														(360 - 2*30)/(this.ticks.length - 1)
-											}
-
-											selectToleranceField={this.selectToleranceField}
-											//toleranceControllerRef={this.toleranceControllerRef}
-										/>
-									)
-								}
-			
-								{/*<div className={ProfileMenuStyles.btnsContainer_div}>
-									<div className={ProfileMenuStyles.btns_div}>
-										{
-											this.state.fieldListTitle === this.menuPage2 ?
-												(
-													<div 
-														onClick={() => {this._goToMeasurments()}} 
-														className={ProfileMenuStyles.goBackBtnText_div}>
-														Back
-													</div>
-												) :
-												null
-										}
-										<div 
-											onClick={() => {this.state.fieldListTitle === this.menuPage1 ? this._goToTolerance() : this._handleOnSubmit()}} 
-											className={ProfileMenuStyles.submitBtnText_div} >
-											{this.state.fieldListTitle === this.menuPage1 ? ('Next') : ('Submit')}
-										</div>
-									</div>
-								</div>*/}					
-							</div>
-							<div 
-								className={ProfileMenuStyles.toleranceFieldList_div}
-								//ref={this.getToleranceControllerRef}
-								style={{
-									//'--profile-ctrl-contianer-width': `calc(${this.state.gridWidth}px + 2*var(--profile-ctrl-container-padding) + var(--profile-ctrl-container-border-width))`,
-								}}
-							>
-								
-								<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
-									<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
-										<div className={ProfileMenuStyles.fieldListTitle_div} >
-											{ this.menuPage2 }
-										</div>
-									</div>
-								</div>
-			
-								<ToleranceSettings 
-									units={this.state.units}
-									displayedProfileData={
-										//this.props.test ? 
-											this.state.displayedProfileData //: 
-										//	this.state.profileData.userMetricsDto
-										} 
-									saveTickState={this.saveTickState}
-									minTolerances={this.state.minTolerances}
-									maxTolerances={this.state.maxTolerances}
-									getToleranceValues={this.getToleranceValues}
-									scale={this.scale}
-									handlePresetClicked={this._handlePresetClicked}
-									setPresetTolerances={this.setPresetTolerances}
-									updateTolerances={this.updateTolerances}
-									ticks={this.ticks}
-									selectedPreset={this.state.selectedPreset}
-									updateWidth={this.updateWidth}
-									width={this.state.gridWidth}
-									selectedField={this.state.selectedField}
-									handleOnSubmit={this._handleOnSubmit} 
-											
-									handleTouchStart={this._handleTouchStart}
-									handleTouchMove={this._handleTouchMove}
-									handleTouchCancel={this._handleTouchCancel}
-									handleTouchEnd={this._handleTouchEnd}
-
-									tickPixelDelta={
-										(window.innerWidth/window.innerHeight) <= 13/9 /*&& this.state.units == 'in'*/ ? 
-											((window.innerWidth - 2*30) / (this.ticks.length - 1)) :
-											this.state.units == 'in' ? 
-												33 : 
-												(360 - 2*30)/(this.ticks.length - 1)
-									}
-									selectToleranceField={this.selectToleranceField}
-									//toleranceControllerRef={this.toleranceControllerRef}
-								/>
-							</div>
-						</div>
-					</div>
-	
-					<div style={{							
-    					'display': 'inline-block',
-    					'width': '42.5%',
-    					'vertical-align':'top'
-					}}>
-						{/*<div  id='rightBodyContainer' style={bodyShapeContainer}>
-							<div style={bodySvgContianerStyles}>
-								{bodyShape === 'male' ? <MaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleSideVertMirrored allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
-							</div>
-							<div style={bodySvgContianerStyles}>
-								{bodyShape === 'male' ? <MaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/> : <FemaleFront allOff={false} selectedField={this.state.selectedField} strokeWidth="0.26458px"/>}
-							</div>
-						</div>*/}
-					</div>
+					{ProfileMenuContent}
 				</Swipeable>
 			</div>
 		);

@@ -14,6 +14,8 @@ import ProfileTitleContainer from '../../Components/Containers/ProfileTitleConta
 
 //Presentation Component 
 import PagedList from './PagedList.js';
+import styled from 'styled-components';
+import { desktopRules, mobileRules } from '../../mixin.js';
 
 const container1_div = {
 	'height': '100%',
@@ -55,7 +57,8 @@ class PagedOutfitList extends React.Component{
 
 		return(
 			<PagedListContainer
-    			scrollContainerStyle={this.props.scrollContainerStyle}
+				className={this.props.className}
+    			//scrollContainerStyle={this.props.scrollContainerStyle}
     			currentPage={this.props.currentPage}
     			lastPage={this.props.lastPage}
     			isFetching={this.props.isFetching}
@@ -179,6 +182,10 @@ class PagedOutfitList extends React.Component{
 	}
 }
 
+const StyledPagedOutfitList = styled(PagedOutfitList)`
+
+`;
+
 
 class OutfitList extends React.Component{
 	constructor(props){
@@ -198,41 +205,18 @@ class OutfitList extends React.Component{
 				<TransitionGroup style={{'height':'100%'}}>
 					{(
 						this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() ?
-		    				(
-		    					<PagedOutfitList 
-		    						container1_div={container1_div} 
-		    						container2_div={container2_div} 
-		    						{...this.props} 
-		    					/>
-		    				) : (
-
-								<React.Fragment>
-								{
-			    					//<div className={Styles.mobileTitleContainer_div}>
-			    					//	<div 
-			    					//		className={Styles.userTitle_div}
-									//		//style={{
-    								//		//	'padding-bottom': '15px',
-    								//		//	'height': '165px',
-    								//		//	'margin-right':'-1px',
-    								//		//	'position':'relative',
-									//		//}}
-									//	>
-									//		<ProfileTitleContainer isMobile={true}/>
-									//		<div className={Styles.points_div}>
-									//			12649
-									//		</div>										
-									//	</div>
-									//</div>
-								}
-		    						<PagedOutfitList 
-		    							container1_div={{'height':'100%'}} 
-		    							container2_div={{'height':'100%'}} 
-		    							{...this.props} 
-		    						/>
-								</React.Fragment>
-
-		    				)
+		    				<StyledPagedOutfitList
+		    					className={this.props.scrollContainerStyle} 
+		    					//container1_div={container1_div} 
+		    					//container2_div={container2_div} 
+		    					{...this.props} 
+		    				/> :
+		    				<StyledPagedOutfitList 
+		    					className={this.props.scrollContainerStyle} 
+		    					//container1_div={{'height':'100%'}} 
+		    					//container2_div={{'height':'100%'}} 
+		    					{...this.props} 
+		    				/>
 		    		)}
 		    	</TransitionGroup>
 		    	{null

@@ -13,8 +13,10 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import BrowseControlStyles from '../../browseControl.scss';
 //import {Button} from './Controls.js';
 import '@rmwc/button/styles';
-import { Button } from '@rmwc/button';
+//import { Button } from '@rmwc/button';
+import { Button, IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
 import styled from 'styled-components';
+import { desktopRules, mobileRules } from '../../mixin.js';
 
 
 const makeBrowseSelection = (props) => {
@@ -92,13 +94,20 @@ const BrowseSelectionButton = styled(({labelSize = '12px', iconSize = '24px', ..
 ))`
 	display: block;
 	width: 100%;
-	border-top-right-radius: 0px;
-	border-bottom-right-radius: 0px;
 	${
 		props => `
 			& .mdc-button__icon {
 				font-size: ${props.iconSize};
 				margin-right: 16px; 
+				
+				${desktopRules(`
+					'border-top-right-radius': '0px';
+					'border-bottom-right-radius': '0px';
+				`)}
+			
+				${mobileRules(`
+					height: '100%';
+				`)}
 			}
 			& .mdc-button__label {
 				font-size: ${props.labelSize};
@@ -174,38 +183,72 @@ class BrowseControl extends React.Component{
 		return(
 			<React.Fragment>	
 				<div className={BrowseControlStyles.buttonContainer_div}>
-					<BrowseSelectionButton 
-						label="Outfits"
-						icon="style"
-						//theme="primary"
-						style={{
-							//...buttonStyle,
-							'border-bottom-left-radius': '0px',
-						}}
-						onClick={() => {
-							this.props.selectBrowserType('outfits');
-							//this.props.getOutfits('all')
-						}}
-						unelevated={isOutfitBrowse}
-						labelSize="12px"
-						iconSize="24px"
-					/>
-					<BrowseSelectionButton 
-						label="Apparel"
-						icon="local_offer"
-						//theme="primary"
-						style={{
-							//...buttonStyle,
-							'border-top-left-radius': '0px',
-						}}
-						onClick={() => {
-							this.props.selectBrowserType('apparel');
-							this.props.getItems('all');
-						}}
-						unelevated={!isOutfitBrowse}
-						labelSize="12px"
-						iconSize="24px"
-					/>
+					{
+						isDevice ?
+							<React.Fragment>
+
+								<IconButton
+									icon="search"
+									style={{color:'var(--color-01-tint-02)'}}
+									onClick={e => console.log(e)}
+								/>
+								<IconButton
+									label="Outfits"
+									icon="face"
+									ripple={false}
+									onClick={() => {
+										this.props.selectBrowserType('outfits');
+										//this.props.getOutfits('all')
+									}}
+									style={!isOutfitBrowse ? ({color:'var(--color-02-shade-01)'}) : ({color:'var(--color-02)'})}
+								/>
+								<IconButton
+									label="Apparel"
+									icon="local_offer"
+									ripple={false}
+									onClick={() => {
+										this.props.selectBrowserType('apparel');
+										this.props.getItems('all');
+									}}
+									style={isOutfitBrowse ? ({color:'var(--color-02-shade-01)'}) : ({color:'var(--color-02)'})}
+								/>
+							</React.Fragment>
+							:
+							<React.Fragment>
+								<BrowseSelectionButton 
+									label="Outfits"
+									icon="face"
+									//theme="primary"
+									style={{
+										//...buttonStyle,
+										'border-bottom-left-radius': '0px',
+									}}
+									onClick={() => {
+										this.props.selectBrowserType('outfits');
+										//this.props.getOutfits('all')
+									}}
+									unelevated={isOutfitBrowse}
+									labelSize="12px"
+									iconSize="24px"
+								/>
+								<BrowseSelectionButton 
+									label="Apparel"
+									icon="local_offer"
+									//theme="primary"
+									style={{
+										//...buttonStyle,
+										'border-top-left-radius': '0px',
+									}}
+									onClick={() => {
+										this.props.selectBrowserType('apparel');
+										this.props.getItems('all');
+									}}
+									unelevated={!isOutfitBrowse}
+									labelSize="12px"
+									iconSize="24px"
+								/>
+							</React.Fragment>
+					}
 
 					{/*
 					<Button

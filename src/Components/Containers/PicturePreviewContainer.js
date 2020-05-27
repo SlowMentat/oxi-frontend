@@ -43,6 +43,8 @@ import {
 	updateOutfitCoverpicuri,
 	modifyEntityProperties,
 	addContents,
+	previewContent,
+	selectEntity,
 } from '../../Components/Actions/indexActions.js';
 import {
 	outfit, 
@@ -105,6 +107,10 @@ const mapStateToProps = (state, props) => {
 //TODO:  consolidate all the http request functions below :(
 const mapDispatchToProps = (dispatch) => ({
 	//fileReferences => { 'full filenmae' : FileObject }
+	selectContentView : (contentId) => {
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
+		dispatch(previewContent(contentId)); 
+	},
 	addContentFromImages: (fileReferences, viewState, addedContents) => {
 		var contentEntities = [];
 		var contentEntityAdded = false;

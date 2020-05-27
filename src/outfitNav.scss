@@ -38,15 +38,18 @@
 	overflow-y: scroll;  
 	overflow-x: hidden; 
 	height: 100%;
-	background-color: var(--main-background-color);
+	/*ackground-color: var(--main-background-color);*/
 	/*margin-top: 25px;*/
 	composes: stdOutfitNavBlock;
 	/*grid-area: preview;*/
+	background-color: var(--main-background-color);
 
-	/*@include mobile_rules {		
-		padding-top: 50px;
-		padding-bottom: 150px;
-	}*/
+	@include desktop_rules {
+	}
+	@include mobile_rules {		
+		/*background-color: white;*/
+		padding-top: 144px;
+	}
 }
 
 :local(.previewContainerMobile){
@@ -68,6 +71,7 @@
 	@include mobile_rules {
 		background-color: var(--main-background-color);
 		border-radius: 0px;
+		padding-top: 48px;
 	}
 }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import FormDeck from './Forms.js';
@@ -38,6 +38,8 @@ function Modal(props){
 								props.formType
 							),					
 							clearInvalidations: () => props.clearInvalidations(props.entitiesStateReducer),
+							//scrollTop: scrollTop,
+							//setScrollTop: setScrollTop,
 						}
 					}
 				/>

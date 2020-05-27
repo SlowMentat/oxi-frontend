@@ -213,6 +213,7 @@ class PagedList extends React.Component{
 		const {
 			loaderContainerStyles,
 			scrollContainerStyle,
+			className,
 			id,
 			list,
 			pages,
@@ -237,13 +238,15 @@ class PagedList extends React.Component{
 				<div 
 					id={id} 
 					//className={webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? scrollContainerStyle : OutfitNavStyles.previewContainerMobile} 
-					className={ scrollContainerStyle } 
+					className={ className || scrollContainerStyle } 
 					style={ (webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
 						({
 							/*'background-color':'white'*/
 						}) : 
 						({
-							'padding-top': '50px',
+							//...(isDevice ? 
+							//	({'padding-top':'var(--mobile-page-header-height)'}) : 
+							//	({'padding-top': '50px'})),
 							//'padding-bottom': '150px',
 						}))
 					}

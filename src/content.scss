@@ -4,18 +4,14 @@
 	composes:stdBlock from './root.scss';
     position: relative;
 	display:inline-block;
-	/*border-radius: 2px;*/
-	/*width:50%;*/
 	font-size: 80%;
-	/*background-color: #ececec;*/
 	vertical-align: top;
     text-align: center;
-
     margin: auto;
-    /*border-style: solid;
-    border-width: 2px;
-    border-radius: 5px;
-    border-color: #212121;*/
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     @include desktop_rules {  
         width: 200px;
@@ -32,18 +28,43 @@
 }
 
 :local(.stdCotnentBulletContainer_div){
-    display: inline-block;
-    vertical-align: top;
+    /*display: inline-block;
+    vertical-align: top;*/
     height: 100%;
-    text-align: center;
+    /*text-align: center;*/
+
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     @include desktop_rules {
         width: 20px;
     }
 
     @include mobile_rules {
-        width: 7%;
+        /*width: 7%;*/
+        width: 100%;
     }
+}
+
+:local(.cropIndicator_div){
+    display: flex;
+    top: 0px;
+    --crop-ind-diameter: 2rem;
+    border-radius: calc(.5*var(--crop-ind-diameter));
+    width: var(--crop-ind-diameter);
+    border: dashed 2px var( --color-05-tint-01);
+    justify-content: center;
+    align-items: center;
+    height: var(--crop-ind-diameter);
+    /*animation: 1s linear infinite run;*/
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+    }    
 }
 
 :local(.stdContentBullet_div){
@@ -53,7 +74,7 @@
     border-radius: calc(var(--dot-height)/2);
     height: var(--dot-height);
     width: var(--dot-height);
-    background-color: var(--color4);
+    background-color: var(--color-01);
 
     @include desktop_rules { 
         margin-top: calc((var(--clc-height) - var(--dot-height))/2);
@@ -62,14 +83,14 @@
 
     @include mobile_rules {
         /*margin-top: calc(15px - 5px);*/
-        margin-top: 5px;
+        /*margin-top: 5px;*/
         vertical-align: top;
     }
 }
 
 :local(.contentBullet_div--selected){
     composes:stdContentBullet_div;
-    background-color: var(--color6);
+    background-color: var(--color-01-tint-02);
     /*height:15px;
     width:15px;
     margin-top: calc(34px - 7.5px);*/

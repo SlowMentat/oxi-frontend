@@ -7,6 +7,7 @@ import {
 	putItems,
 	putRemoveItems, 
 	postItems } from '../../Components/Actions/indexActions.js';
+
 import {
 	outfit, 
 	outfitsSchema,
@@ -17,6 +18,7 @@ import {
 	denormalizeOutfit, 
 	buildItemContentsObject
 } from '../../Util/Schema.js';
+
 import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
 import ContentStyles from '../../content.scss';
@@ -25,7 +27,20 @@ import CroppableImageForm from '../../Util/CroppableImageForm.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import ItemLocationMap from './ItemLocationMap.js';
 import ItemLocationMapContainer from '../Containers/ItemLocationMapContainer.js';
-import LoaderWrapper from '../../Util/LoaderWrapper.js';
+//import LoaderWrapper from '../../Util/LoaderWrapper.js';
+
+import { 
+	Swipeable,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN,
+} from '../../Components/Presentations/FitseeUI/Swipeable.js';
+
+import { CircularProgress } from  '@rmwc/circular-progress';
+import  '@rmwc/circular-progress/styles';
+
+import { Image } from '../../Components/Presentations/Image.js';
 
 const imgStyle = {
 	height: '100%',
@@ -160,20 +175,22 @@ class ShowContentView extends React.Component{
 				//	'height':'100%'
 				//}}
 			>
-				<LoaderWrapper
-					loaded={this.state.loaded}
-					style={{
-						width: '100px',
-   	 					//height: '125px',
-   	 					position: 'absolute',
-   	 					margin: 'auto',
-   	 					//border: 'solid 1px #FF9800',
-   	 					top: 'calc(50% - 20px)',
-   	 					left: 'calc(50% - 50px)',
-   	 					'z-index': '10',
-   	 					display: (this.state.loaded ? 'none' : 'block'),
-					}}
-				/>
+				{
+				//<LoaderWrapper
+				//	loaded={this.state.loaded}
+				//	style={{
+				//		width: '100px',
+   	 			//		//height: '125px',
+   	 			//		position: 'absolute',
+   	 			//		margin: 'auto',
+   	 			//		//border: 'solid 1px #FF9800',
+   	 			//		top: 'calc(50% - 20px)',
+   	 			//		left: 'calc(50% - 50px)',
+   	 			//		'z-index': '10',
+   	 			//		display: (this.state.loaded ? 'none' : 'block'),
+				//	}}
+				///>
+				}
 				<div className={FormStyles.imageUploadPreview} >
 					{contentView}
 				</div>			
@@ -186,8 +203,9 @@ class ImagePreview extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			base64Image:null,
-			contentId:null,
+			base64Image: null,
+			contentId: null,
+			imgLoaded: false,
 		};
 		this._handleImgLoad = this._handleImgLoad.bind(this);
 		this._handleImgMouseOver = this._handleImgMouseOver.bind(this);
@@ -240,11 +258,18 @@ class ImagePreview extends React.Component{
 		});
 	}
 
+	setSwipeableStyles(div){
+		div ? div.style.height = '100%' : null;
+	}
+
 	render(){
 
 		const {
 			onImgLoading,
 			onImgLoaded,
+			selectContentView,
+			swipeCallback,
+			setupImageRef,
 		} = this.props;
 
 		const {
@@ -253,6 +278,7 @@ class ImagePreview extends React.Component{
 			contents,
 			selectedContentId,
 			src,
+			contentIdsToInd,
 		} = this.props;
 
 
@@ -282,39 +308,83 @@ class ImagePreview extends React.Component{
 		//onImgLoading();
 		return (
 			<div style={imgFormStyle}>
-				<div  
-					className={FormStyles.previewImageContainer_div}
-					//style={{
-					//	'position':'relative',
-					//	'width':'auto',
-					//	'padding-top':'calc(5vh + 25px)', 
-					//	'max-height':'100%', 
-					//	'height':'100%'
-					//}}
+				<Swipeable 
+					onSwiped={
+						(e) => swipeCallback(e)
+					}
+					delta={30}
+					innerRef={(div) => { div ? div.style.height = '100%' : null; }} 
 				>
-					<img 
-						src={src}
-						loading="lazy"
-						//style={imgStyle}
-						className={FormStyles.image_img}
-						ref={this.props.setupImageRef}
-						onLoad={(event) => {
-							onImgLoaded();
-							this._handleImgLoad(event);
-						}}
-					/>
-					<ItemLocationMapContainer 
-						visibleItemsMap={this.props.visibleItemsMap} 
-						viewState={this.props.viewContext} 
-						populateItemsMap={this.props.populateItemsMap}
-						itemMapDimension={this.props.itemMapDimension}
-						itemIdHovered={this.props.itemIdHovered}
-						changeItemHovered={this.props.changeItemHovered}
-
-						selectedContentId = { selectedContentId }
-						contents = { contents }/>
-					
-				</div>
+					<div  
+						className={FormStyles.previewImageContainer_div}
+						style={{'background-color': '#f0f0f0'}}
+						//style={{
+						//	'position':'relative',
+						//	'width':'auto',
+						//	'padding-top':'calc(5vh + 25px)', 
+						//	'max-height':'100%', 
+						//	'height':'100%'
+						//}}
+					>
+						{/*<div
+							style={this.state.imgLoaded ? 
+								({
+									display:'none', 
+								}) : 
+								({
+									height:'100%',
+									'background-color': '#f0f0f0',
+									display:'flex',
+									'justify-content':'center',
+									'align-items':'center',
+									...(isDevice ? ({width: '100vw'}) : ({width:'calc(var(--img-preview-modal-height)*3/4)'})),
+								})
+							}
+						>
+							<CircularProgress size="xlarge" />
+						</div>
+						<img 
+							src={src}
+							loading="lazy"
+							//style={imgStyle}
+							className={FormStyles.image_img}
+							ref={this.props.setupImageRef}
+							style={{
+								...(this.state.imgLoaded ? ({}) : ({display:'none'}) )
+							}}
+							onLoad={(event) => {
+								onImgLoaded();
+								this._handleImgLoad(event);
+								this.setState(prevState => ({...prevState, imgLoaded: true,}));
+							}}
+						/>*/}
+						<Image
+							//handleImageLoad={e => this._handleImgLoad(e)}
+							//onImgLoaded={onImgLoaded}
+							setupImageRef={this.props.setupImageRef}
+							src={src}
+							imgLoaded={this.state.imgLoaded}
+							className={FormStyles.image_img}
+							onLoad={e => {
+								onImgLoaded();
+								this._handleImgLoad(e);
+								this.setState(prevState => ({...prevState, imgLoaded: true,}));								
+							}}
+							showProgress
+						/>
+						<ItemLocationMapContainer 
+							visibleItemsMap={this.props.visibleItemsMap} 
+							viewState={this.props.viewContext} 
+							populateItemsMap={this.props.populateItemsMap}
+							itemMapDimension={this.props.itemMapDimension}
+							itemIdHovered={this.props.itemIdHovered}
+							changeItemHovered={this.props.changeItemHovered}
+	
+							selectedContentId = { selectedContentId }
+							contents = { contents }/>
+						
+					</div>
+				</Swipeable>
 			</div>
 		)
 	}
@@ -1054,6 +1124,7 @@ class ImageEdit extends React.Component{
 		const {
 			getPreviewPic,
 			updateImageState,
+			swipeCallback,
 		} = this.props;
 
 		//variables
@@ -1110,59 +1181,67 @@ class ImageEdit extends React.Component{
 		}
 
 		return (
-			<CroppableImageForm 
-				itemLocationMap={
-					(itemMapDimension) => (
-						<ItemLocationMapContainer 
-							visibleItemsMap={this.props.visibleItemsMap} 
-							viewState={this.props.viewContext} 
-							populateItemsMap={this.props.populateItemsMap}
-							itemMapDimension={this.props.itemMapDimension}	
-							onImageClick={this._handleImgClick}
-							simulateImageClick={this.props.simulateImageClick}
-
-							itemIdHovered={this.props.itemIdHovered}
-							changeItemHovered={this.props.changeItemHovered}
-
-							selectedContentId = {selectedContentId}
-							addedContents = {addedContents}
-							contents = {contents}/>				
-					)
+			<Swipeable 
+				onSwiped={
+					(e) => swipeCallback(e)
 				}
-				addContentFromImages={this.props.addContentFromImages}
-				//src={this.state.base64Image === null ? null : this.state.base64Image.split(',')[1] ? this.state.base64Image : null}
-				src={src}
-				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
-
-				/*clientInvalidatedContents={props.invalidatedContents}
-				clientInvalidatedOutfits={props.invalidatedOutfits}
-				clientInvalidatedItems={props.invalidatedItems}*/
-
-				imgStyle={imgStyle}
-				imgFormStyle={imgFormStyle}
-				imgFormControlStyle={FormStyles.imgFormControlStyle}
-				_handleSubmit={this._handleSubmit}
-				onImageClick={this._handleImgClick}
-				discardChanges={this._handleChangesDiscarded}
-				entitiesStateReducer={this.props.entitiesStateReducer}
-				viewState={this.props.viewContext} 
-
-				setupImageRef={this.props.setupImageRef}
-				//setupContentViewRef={this.props.setupContentViewRef}
-
-				itemMapDimension={this.props.itemMapDimension}
-				addedContents={this.props.addedContents}
-				addedContentIds={this.props.addedContentIds}
-				updateImageDimension={this.props.updateImageDimension}
-				imageElement={this.props.imageElement}
-
-				images 				={ images }
-				pictures			={ pictures }
-				contents			={ contents }
-				selectedContentId	={ selectedContentId }
-				contentState		={ contentState }
-				updateImageState	={ updateImageState }
-			/>
+				delta={30}
+				innerRef={(div) => { div ? div.style.height = '100%' : null; }}
+			>
+				<CroppableImageForm 
+					itemLocationMap={
+						(itemMapDimension) => (
+							<ItemLocationMapContainer 
+								visibleItemsMap={this.props.visibleItemsMap} 
+								viewState={this.props.viewContext} 
+								populateItemsMap={this.props.populateItemsMap}
+								itemMapDimension={this.props.itemMapDimension}	
+								onImageClick={this._handleImgClick}
+								simulateImageClick={this.props.simulateImageClick}
+	
+								itemIdHovered={this.props.itemIdHovered}
+								changeItemHovered={this.props.changeItemHovered}
+	
+								selectedContentId = {selectedContentId}
+								addedContents = {addedContents}
+								contents = {contents}/>				
+						)
+					}
+					addContentFromImages={this.props.addContentFromImages}
+					//src={this.state.base64Image === null ? null : this.state.base64Image.split(',')[1] ? this.state.base64Image : null}
+					src={src}
+					clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
+	
+					/*clientInvalidatedContents={props.invalidatedContents}
+					clientInvalidatedOutfits={props.invalidatedOutfits}
+					clientInvalidatedItems={props.invalidatedItems}*/
+	
+					imgStyle={imgStyle}
+					imgFormStyle={imgFormStyle}
+					imgFormControlStyle={FormStyles.imgFormControlStyle}
+					_handleSubmit={this._handleSubmit}
+					onImageClick={this._handleImgClick}
+					discardChanges={this._handleChangesDiscarded}
+					entitiesStateReducer={this.props.entitiesStateReducer}
+					viewState={this.props.viewContext} 
+	
+					setupImageRef={this.props.setupImageRef}
+					//setupContentViewRef={this.props.setupContentViewRef}
+	
+					itemMapDimension={this.props.itemMapDimension}
+					addedContents={this.props.addedContents}
+					addedContentIds={this.props.addedContentIds}
+					updateImageDimension={this.props.updateImageDimension}
+					imageElement={this.props.imageElement}
+	
+					images 				={ images }
+					pictures			={ pictures }
+					contents			={ contents }
+					selectedContentId	={ selectedContentId }
+					contentState		={ contentState }
+					updateImageState	={ updateImageState }
+				/>
+			</Swipeable>
 		)
 	}
 }
@@ -1186,6 +1265,7 @@ class PicturePreview extends React.Component{
 		this.simulateImageClickFactory = this.simulateImageClickFactory.bind(this);
 		this.updateImageState = this.updateImageState.bind(this);
 		this.removeDiscardedImages = this.removeDiscardedImages.bind(this);
+		this.getUsedEntities = this.getUsedEntities.bind(this);
 	}
 
 	setupImageRef(img){
@@ -1299,7 +1379,7 @@ class PicturePreview extends React.Component{
 			usedContents,
 			usedOutfits,
 
-		} = (viewState === OxiAppConstants.viewState.PREVIEW) ? 
+		} = this.getUsedEntities();/*(viewState === OxiAppConstants.viewState.PREVIEW) ? 
 			({ 
 				usedContents: contents, 
 				usedOutfits: outfits,
@@ -1307,7 +1387,7 @@ class PicturePreview extends React.Component{
 			({ 
 				usedContents: addedContents, 
 				usedOutfits: addedOutfits,
-			});
+			});*/
 
 		const imageDataTemplate = {
 			cropping:false,
@@ -1334,7 +1414,7 @@ class PicturePreview extends React.Component{
 			}
 		}
 
-		//fetch all images assosiated with the outfit selected
+		//fetch all images associated with the outfit selected
 		//update state with base64 data from images
 		async function getAllImages(images, onComplete){
 			try {		
@@ -1391,6 +1471,35 @@ class PicturePreview extends React.Component{
 		event.preventDefault();
 	}
 
+	getUsedEntities(){	
+		const {
+			addedOutfits,
+			addedContents,
+			outfits,
+			contents,
+			viewState
+
+		} = this.props;
+
+		const { 
+			usedContents,
+			usedOutfits,
+		} = (viewState === OxiAppConstants.viewState.PREVIEW) ? 
+			({ 
+				usedContents: contents, 
+				usedOutfits: outfits,
+			}) : 
+			({ 
+				usedContents: addedContents, 
+				usedOutfits: addedOutfits,
+			});
+
+		return({
+			usedContents,
+			usedOutfits,
+		})
+	}
+
 	//Reference redux state to identify existing content Ids to 
 	//use in rebuilding the images object in this component state.
 	//This will discard any previosly added images to components images object
@@ -1425,12 +1534,38 @@ class PicturePreview extends React.Component{
 
 	render(){
 		const {
-			viewState,
+			selectContentView,
 		} = this.props;
 
+		const {
+			viewState,
+			outfits,
+			outfitIdSelected,
+			contentSelected,
+		} = this.props;
+
+		var {
+			usedOutfits,
+			usedContents,
+		} = this.getUsedEntities();
+
 		var viewContext = null;
-		console.log("contentSelected = " + this.props.contentSelected +", viewState = " + this.props.viewState)
+		var contentIdsToInd = {};
 		
+		// build data object that tracks contiguous content ids associated the selected outfit
+		if(usedOutfits.byIds[outfitIdSelected]){
+			contentIdsToInd = usedOutfits.byIds[outfitIdSelected].contents.reduce((accum, val, ind, arr) => ({
+				...accum, 
+				[val] : {
+					ind, 
+					prev: arr[ind - 1],
+					next: arr[ind + 1],
+				}
+			}), contentIdsToInd);
+		}
+		
+		console.log("contentSelected = " + this.props.contentSelected +", viewState = " + this.props.viewState);
+
 		//Set the view state 
 		switch(this.props.viewState){
 			case OxiAppConstants.viewState.ADD:
@@ -1465,16 +1600,39 @@ class PicturePreview extends React.Component{
 							simulateImageClick: this.simulateImageClick,
 							images: this.state.images,
 							itemMapDimension: {width: this.props.imageWidth, height: this.props.imageHeight},
+							contentIdsToInd: contentIdsToInd,
+							swipeCallback: (event) => {
+	
+								var prevId = contentIdsToInd[contentSelected] ? contentIdsToInd[contentSelected].prev : null;
+								var nextId = contentIdsToInd[contentSelected] ? contentIdsToInd[contentSelected].next : null;
+	
+								switch(true){
+									case event.dir === LEFT:
+										nextId ? selectContentView(nextId) : null;
+										break;
+	
+									case event.dir === RIGHT:
+										prevId ? selectContentView(prevId) : null;
+										break;
+	
+									default:
+										break;
+								}
+							},
 							...this.props
 						}
 					}
 				/>
 					<div 
 						style={{
-							width: (this.image === undefined || this.image === null) ? '0px' : 'calc(400px + 100%)',//`${this.image.clientWidth}px`,
-							display: (this.image === undefined || this.image === null) ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
-							'margin-right': '-400px',
-							'background-color': '#a9a9a9',
+							...(isDevice ? 
+								({}) :
+								({
+									width: (this.image === undefined || this.image === null) ? '0px' : 'calc(400px + 100%)',//`${this.image.clientWidth}px`,
+									display: (this.image === undefined || this.image === null) ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
+									'margin-right': '-400px',
+									'background-color': '#a9a9a9',
+								})),
 						}}
 						className={FormStyles.contentListContainer_div}
 					>

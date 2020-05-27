@@ -1114,7 +1114,8 @@ class Labels extends React.Component{
 			naLabels,
 			projectedValues,
 			labelToPositionMap,
-			labelHovered
+			labelHovered,
+			setSelectedLabel
 		} = this.props;
 
 		console.log('labelToPositionMap = ', labelToPositionMap)
@@ -1132,7 +1133,10 @@ class Labels extends React.Component{
 										<div 
 											className={label === labelHovered ? MetricStyles['labelFormatting_div--hovered'] : MetricStyles['labelFormatting_div']}
 											style={ isApplicable ? ({}) : ({color:'var(--color2)'}) }
-											onMouseEnter={ isApplicable ? () => _handleOnHover(label) : null}>
+											onMouseEnter={ isApplicable ? () => _handleOnHover(label) : null}
+											onTouchStart={e => setSelectedLabel(label)}
+											onClick={e => setSelectedLabel(label)}
+										>
 											{label}
 										</div>
 							);
@@ -1313,6 +1317,7 @@ class MetricList extends React.Component{
 			ownerUpperBodyMetrics,
 			hostUpperBodyMetrics,
 			hostLowerBodyMetrics,
+			setSelectedLabel
 		} = this.props;
 		/*
 		console.log('ownerMetrics');
@@ -1359,13 +1364,25 @@ class MetricList extends React.Component{
 			<React.Fragment>	
 				<div className={MetricStyles.metricGraphContainer_div}>
 					<div id='upperBodySection' style={upperBodySection_div}>
-						<div style={{height:'100%'}}>
+						<div style={{
+								height:'100%',
+    							'display':' flex',
+    							'justify-content':' center',
+    							'align-items':' center',
+    							//'border-top':' solid .1rem var(--color-01-tint-02)',
+    							//'border-bottom':' solid .1rem var(--color-01-tint-02)',#90a7a978
+    							'border-top':' solid .1rem #90a7a978',
+    							'border-bottom':' solid .1rem #90a7a978',
+							}}
+						>
 							<Labels 
 								labelToPositionMap={{...this.state.labels.upperBody, ...this.state.labels.lowerBody}} 
 								_handleOnHover={(label, event) => this._handleOnHover(label, event)}
 								labelHovered={this.state.labelHovered}
 								naLabels={this.state.naLabels}
-								projectedValues={projectedValues} />
+								projectedValues={projectedValues} 
+								setSelectedLabel={setSelectedLabel}
+							/>
 
 								<React.Fragment>
 									<MetricGraph 

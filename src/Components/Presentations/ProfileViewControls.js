@@ -155,7 +155,12 @@ export default class ProfileViewControls extends React.Component{
 									showComments(event, !isCommentsShown);
 								}}
 								icon={isCommentsShown ? "arrow_back" : "mode_comment"}								
-								style={{...customButtonStyles, right: 'calc(85vw + 10px)', position: 'absolute'}}								
+								style={{
+									...customButtonStyles, 
+									right: 'calc(85vw + 10px)', 
+									position: 'absolute',
+									display:'none',
+								}}								
 							/>
 					}
 				</div>				
