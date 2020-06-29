@@ -8,7 +8,7 @@ import {
 	createContent, 
 	fetchImage, 
 	selectEntity, 
-	selectAndPropogate,
+	selectAndPropagate,
 	selectAddedEntity, 
 	addOutfit,
 	addContent,

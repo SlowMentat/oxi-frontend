@@ -43,7 +43,6 @@ export const Image = (props) => {
 		</div>
 		<img 
 			src={src}
-			loading="lazy"
 			//className={FormStyles.image_img}
 			className={className}
 			ref={setupImageRef ? setupImageRef : null}

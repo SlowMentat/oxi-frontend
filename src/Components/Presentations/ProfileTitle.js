@@ -26,12 +26,14 @@ export const PpIcon = (props) => {
 		customStyle,
 		customDefaultStyle,
 		onClick,
+		imageName,
 	} = props;
 
 	return(
-		base64Image ?
+		imageName ?
 			(<img 
-				src={base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (base64Image) }
+				//src={base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (base64Image) }
+				src={OxiAppConstants.getImageURL(imageName, 1)}
 				className={Styles.ppIcon_img}
 				style={{
 					'width': 'calc(100%)',
@@ -115,6 +117,7 @@ class ProfileTitle extends React.Component{
 			location,
 			//ownerpicuri,
 			base64Image,
+			imageName,
 		} = this.props;
 
 		const customStyle = {
@@ -133,7 +136,8 @@ class ProfileTitle extends React.Component{
 		var URI = pathArray[pathArray.length - 1];
 
 		var props = {
-			base64Image,
+			//base64Image,
+			imageName,
 			isMobile,
 			customStyle,
 			customDefaultStyle,

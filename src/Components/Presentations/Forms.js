@@ -73,13 +73,14 @@ function FormDeck(props){
 	const {
 		iniOutfitPreview,
 		closeModal,
-		deselectAndPropogate
+		deselectAndPropogate,
 	} = props;
 	
 	const {
 		formType,
 		content,
 		overlayModal,
+		entitiesStateReducer,
 	} = props;
 
 	console.log('props.formType = ', formType);
@@ -166,6 +167,28 @@ function FormDeck(props){
 					match={props.match}
 					history={props.history}
 					isOverlay={false}
+					message="You are leaving edit mode.  Any changes made will be lost!"
+				/>
+			)
+			break;
+
+		case formType === OxiAppConstants.FormType.DELETE_OUTFITS:
+			form = (
+				<DiscardForm
+					requestedNav={props.requestedNav}
+					cancelAction={props.cancelAction}
+					submitAction={
+						() => props.confirmDeleteOutfits(entitiesStateReducer.outfits.multipleSelected)
+					}
+					outfits={props.outfits}
+					contents={props.contents}
+					items={props.items}
+					clearUpdates={props.clearUpdates}
+					clearInvalidations={props.clearInvalidations}
+					match={props.match}
+					history={props.history}
+					isOverlay={false}
+					message="You are about to delete the selected outfits."				
 				/>
 			)
 			break;
@@ -1270,7 +1293,7 @@ export class DiscardForm extends React.Component{
 						<div id="prompt">
 							<div style={{'text-align':'center','width':'75%','margin':'auto','margin-bottom':'60px'}}>
 								<div style={{'text-align':'left'}}>
-									<p style={{color: '#353535'}}> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
+									<p style={{color: '#353535'}}> { this.props.message } </p>
 								</div>
 							</div>
 							<div style={{

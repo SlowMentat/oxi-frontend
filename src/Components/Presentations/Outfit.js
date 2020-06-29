@@ -17,6 +17,7 @@ import  '@rmwc/ripple/styles';
 import { Ripple } from '@rmwc/ripple';
 import  '@rmwc/elevation/styles';
 import { Elevation } from '@rmwc/elevation';
+import { Checkbox } from '../../Components/Presentations/FitseeUI/Checkbox.js';
 
 import { Image } from '../../Components/Presentations/Image.js';
 
@@ -37,6 +38,7 @@ export class Outfit extends React.Component{
 			coverpic,
 			hovering,
 		} = props;
+
 		this.state = {
 			coverpic: coverpic || null,
 			base64Image: null,
@@ -66,7 +68,7 @@ export class Outfit extends React.Component{
 		var profilePicData = null;
 		var coverpicData = null
 
-		const updateProfilePicData = (event, data) => {profilePicData = data;}
+		/*const updateProfilePicData = (event, data) => {profilePicData = data;}
 		const updateCoverpicData = (event, data) => {coverpicData = data;}
 
 		//if coverpic filename exists, call get request for content coverpic data
@@ -74,7 +76,7 @@ export class Outfit extends React.Component{
 		if(profilePicUri !== null  && profilePicUri !== undefined) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
 		if(coverpicuri !== null  && coverpicuri !== undefined) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
 
-		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);
+		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);*/
 	}
 
 	async componentDidUpdate(prevProps){
@@ -89,7 +91,7 @@ export class Outfit extends React.Component{
 			profilePicUri,
 		} = this.props;
 
-		var profilePicData = null;
+		/*var profilePicData = null;
 		var coverpicData = null
 
 		const updateProfilePicData = (data) => {profilePicData = data;}
@@ -98,7 +100,7 @@ export class Outfit extends React.Component{
 		if(profilePicUri !== null && profilePicUri !== prevProps.profilePicUri) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
 		if(coverpicuri !== prevProps.coverpicuri) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
 
-		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);
+		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);*/
 	}
 
 	_handleTileClicked(event){
@@ -114,7 +116,7 @@ export class Outfit extends React.Component{
 			//Navigated to Profile
 			case OxiAppConstants.navRequestMap.b.toLowerCase():
 				if(!this.props.isSelected && this.props.viewState === OxiAppConstants.viewState.PREVIEW){			
-					//call selectAndPropogate
+					//call selectAndPropagate
 					this.props.onClickContextProfile(this.props.id, this.props.contentIds[0]);
 				}
 				this.props.setPreviewFocus();
@@ -178,12 +180,15 @@ export class Outfit extends React.Component{
 			previewOutfitFromBrowse,
 			setPreviewFocus,
 			showOutfitPreviewFromBrowse,
+			selectOutfit,
+			deselectOutfit,
 		} = this.props;
 
 		var {
 			contents,
 			contentIds,
 			webAppView,
+			webAppViewContext,
 			owner,
 			outfit,
 			containerHeight,
@@ -197,6 +202,9 @@ export class Outfit extends React.Component{
 			isSelected,
 			webAppView,
 			history,
+			edittingProfilePage,
+			profilePicUri,
+
 		} = this.props;
 
 		const ppIconStyles = {
@@ -211,6 +219,7 @@ export class Outfit extends React.Component{
 		let outfitHeight = containerHeight;///3;
 		let outfitWidth = outfitHeight * OxiAppConstants.aspectRatio;
 		let isBrowse = webAppView === OxiAppConstants.navRequestMap.a.toLowerCase();
+		var isEditingProfile = webAppViewContext === OxiAppConstants.webAppViewContext.b;
 
 		var fill = "#FFF6";
 		var stroke = "#000";
@@ -259,7 +268,8 @@ export class Outfit extends React.Component{
 									style={{'padding':'0px'}} >
 									<div className={OutfitStyles.outfitHeader_div}>										
 										<PpIcon 
-											base64Image={this.state.base64ImageProfile} 
+											//base64Image={this.state.base64ImageProfile} 
+											imageName={profilePicUri}
 											isMobile={false} 
 											customStyle={ppIconStyles}
 											customDefaultStyle={{
@@ -360,9 +370,15 @@ export class Outfit extends React.Component{
 							)
 					}
 					<Ripple
+						disabled={isEditingProfile}
 					>
 						<div
-							style={{'text-align': 'left', height:'100%', 'background-color': '#f0f0f0'}}
+							style={{
+								'text-align': 'left', 
+								height:'100%', 
+								'background-color': '#f0f0f0',
+								'position':'relative',
+							}}
 							onMouseOver={this._handleOnMouseOver}
 							onMouseOut={this._handleOnMouseOut}
 						>
@@ -380,18 +396,38 @@ export class Outfit extends React.Component{
 							>
 							</div>
 							<img 
-								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
+								//src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
+								src={outfit ? OxiAppConstants.getImageURL(outfit.coverpicuri, 2) : `${OxiAppConstants.ContentDirectories.IMAGES}/no_image.svg`}
 								className={OutfitStyles.outfitImage_img}
 								style={{
 									'object-fit':'cover',
 									...(this.state.imgLoaded ? ({}) : ({display:'none'}) )
 								}}
 								onLoad={e => this.setState(prevState => ({...prevState, imgLoaded: true,}))}
-								onClick={(event) => {
-									previewOutfitFromBrowse(id);
+								onClick={(event) => {									
+									!isEditingProfile ? 
+										previewOutfitFromBrowse(id) :
+										isSelected ?
+											deselectOutfit(id) :
+											selectOutfit(id);
+
 									event.stopPropagation();
 								}}
 							/>
+							{
+								isEditingProfile ? 
+									<Checkbox
+										style={{
+											position:'absolute', 
+											top:'0px', 
+											left:'0px',
+											'background-color':'#ffffff75',
+										}}
+										checked={isSelected}
+										//onChange={e => selectOutfit(e)}
+									/> : 
+									null
+							}
 							{/*<Image
 								//setupImageRef={this.props.setupImageRef}
 								src={src}

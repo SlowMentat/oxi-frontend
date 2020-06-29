@@ -409,10 +409,12 @@ export function fetchImage(filename, callback, picture, cancel=()=>{} ){
 *  @param 	{Array} 		imageFile					Base64 encoded image data.
 *  @param 	{function}		generateOnSuccessHandler	callback invoked when promise resolved.  The result will be passed to this function
 *  @param 	{string}		filename 					filename associated with imageFile data.
+*  @param 	{boolean}		isProfile					boolean indicating if image is profile pic.
+*  @param 	{string}		crop 						crop data associated with file
 *
 *  @returns {object}		Promise resolving to an object where key is the filename and value is the response body (key:{string}, value:{object})		
 */
-export async function postImage(imageFile, generateOnSuccessHandler, filename, isProfile=false){
+/*export async function postImage(imageFile, generateOnSuccessHandler, filename, isProfile=false, crop){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
 	console.log("in postImage action");
@@ -420,7 +422,40 @@ export async function postImage(imageFile, generateOnSuccessHandler, filename, i
 	return axios.post(
 		OxiAppConstants.serviceURL + (isProfile ? '/updateProfilePhoto' : '/uploadPhoto'), 
 		imageFormData,
+		//{
+		//	headers:{
+		//		'Content-Disposition': 'form-data; name=\"imageFile\"',
+		//		'Content-Transfer-Encoding': 'base64',
+		//	}
+		//}
+	)
+	.then(response => {
+
+		if(response.status === OxiAppConstants.HttpStatus.CREATED){
+			generateOnSuccessHandler && generateOnSuccessHandler()(response.data);
+			return {[filename]: response.data};
+		}
+
+		else{
+			throw response.status;
+		}
+	})
+	.catch(msg => console.error(msg));
+}*/
+
+export async function postImage(imageFile, generateOnSuccessHandler, filename, isProfile=false, crop){
+	let imageFormData = new FormData(); 
+	imageFormData.append('imageFile', imageFile);
+	imageFormData.append('crop', crop);
+	console.log("in postImage action");
+
+	return axios.post(
+		OxiAppConstants.serviceURL + (isProfile ? '/updateProfilePhoto' : '/uploadPhoto'), 
+		imageFormData,
 		{
+			//headers: {
+			//	...imageFormData.getHeaders(),
+			//}
 			headers:{
 				'Content-Disposition': 'form-data; name=\"imageFile\"',
 				'Content-Transfer-Encoding': 'base64',
@@ -441,7 +476,7 @@ export async function postImage(imageFile, generateOnSuccessHandler, filename, i
 	.catch(msg => console.error(msg));
 }
 
-export function putImage(imageFile, contentId, onSuccess, filename){
+export function putImage(imageFile, contentId, onSuccess, filename, crop){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
 	console.log("#putImage:  contentId = ", contentId, ", filename = ", filename);
@@ -470,8 +505,9 @@ export function putImage(imageFile, contentId, onSuccess, filename){
 *  Asynchronously posts or puts one or more images to server.
 *  @param {Object} [imageFiles={}] - Object property keys representing filename and corresponding values representing image data.
 *  @callback {generateOnSuccessHandler} generateOnSuccessHandler - callback invoked when promise resolved.  The result will be passed to this function*
+*  @param [{Object}]	crops 	each imageFiles' crop data.  crops must be in the same order as imageFiles.
 */
-export async function uploadImages(imageFiles={}, generateOnSuccessHandler){
+export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crops){
 	var pictures = {};
 	
 	try{
@@ -479,6 +515,7 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler){
 		var ind = 0;
 
 		for(var filename of Object.keys(imageFiles)){
+			let crop = JSON.stringify(crops[ind]);
 			ind++;
 
 			let {
@@ -488,24 +525,38 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler){
 
 			postRequests = [
 				...postRequests, 
-				(typeof contentId === 'number' ? postImage(fileData, null, filename) : putImage(fileData, contentId, null, filename))
+				(typeof contentId === 'number' ? 
+					postImage(fileData, null, filename, false, crop ) : 
+					putImage(fileData, contentId, null, filename, crop )),
 			];
 		}
 
 		await Promise.all(postRequests)
 		.then(results => {
+			// results is of the form [{ [picture name]: {} }]
 			console.log("#uploadImages:  pictures = ", results);
 			
-			var picturesByFilename = results.reduce((accum, result) => ({
-				...accum,
-				...result
-				//...(result.id ? ({[result.id]: result}) : {}),
-			}), pictures);
+			var picturesByFilename = results.reduce((accum, result, ind) => {
+				const filename = Object.keys(result)[0];
 
-			generateOnSuccessHandler()(picturesByFilename)
+				var scrubbedResult = {
+					...result,
+					[filename]:{
+						...result[filename],
+						crop: JSON.stringify(crops[ind]),
+					}
+				}
+
+				return ({
+					...accum,
+					...scrubbedResult,
+					//...(result.id ? ({[result.id]: result}) : {}),
+				})
+			}, pictures);
+
+			generateOnSuccessHandler()(picturesByFilename);
 		});	
 	}
-
 	catch(e){
 		console.error(e);
 	}
@@ -523,7 +574,10 @@ export function postOutfit(outfitJson, onSuccess){
 					let picture = picturesByFilename[content.coverpicuri];
 					return {
 						...content,
-						picture: {...picture, contentId: undefined},
+						picture: {
+							...picture, 
+							contentId: undefined,
+						},
 						coverpicuri: picture.thumbnailuri,
 					};
 				}),
@@ -535,6 +589,25 @@ export function postOutfit(outfitJson, onSuccess){
 				onSuccess([response], picturesByFilename);
 			}
 			return response.status;
+		})
+	}
+}
+
+export function deleteOutfits(outfitIds, onSuccess){
+	return () => {
+		axios.delete(
+			OxiAppConstants.serviceURL + '/outfits',
+			{
+				data:{
+					outfitIds,
+				}
+			}
+		)
+		.then(response => {
+			if(response.status === OxiAppConstants.HttpStatus.OK){
+				onSuccess();
+			}
+			return response.status;			
 		})
 	}
 }

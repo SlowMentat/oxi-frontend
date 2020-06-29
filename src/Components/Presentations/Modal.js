@@ -12,11 +12,14 @@ import { Dialog, DialogContent } from '../../Components/Presentations/FitseeUI/D
 function Modal(props){
 	//[ dialogStyle, setDialogStyle ] = React.useState({});
 
+	// set prevSelectedOutfitId to prevSelected otherwise set to selected
+	var prevSelectedOutfitId = props.entitiesStateReducer.outfits.prevSelected;
+
 	return (
 		
 		<Dialog
 			open={props.formType !== null}
-			preventOutsideDismiss={props.viewState === OxiAppConstants.viewState.EDIT ? true : false}
+			preventOutsideDismiss={props.viewState === OxiAppConstants.viewState.EDIT || props.viewState === OxiAppConstants.viewState.ADD ? true : false}
 			//preventOutsideDismiss={ true }
 			onClose={props.closeModal}
 			//style={ dialogStyle }
@@ -32,11 +35,12 @@ function Modal(props){
 								location, 
 								props.addedEntitiesReducer, 
 								(props.viewState === OxiAppConstants.viewState.ADD ? 
-									props.addedEntitiesReducer.outfits.byIds[props.entitiesStateReducer.outfits.prevSelected] :
-									props.outfitByIds[props.entitiesStateReducer.outfits.prevSelected]),
+									props.addedEntitiesReducer.outfits.byIds[prevSelectedOutfitId] :
+									props.outfitByIds[prevSelectedOutfitId]),
+								props.entitiesStateReducer.outfits.selected,
 								isOverlay,
 								props.formType
-							),					
+							),		
 							clearInvalidations: () => props.clearInvalidations(props.entitiesStateReducer),
 							//scrollTop: scrollTop,
 							//setScrollTop: setScrollTop,

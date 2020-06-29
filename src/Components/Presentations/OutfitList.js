@@ -55,6 +55,15 @@ class PagedOutfitList extends React.Component{
 		const isProfileView = this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase();
 		const usernameSelected = this.props.outfits[this.props.selectedId] ? this.props.outfits[this.props.selectedId].username : undefined;
 
+		const getIsSelected = (testId) => {
+			for(var id of this.props.entitiesStateReducer.outfits.multipleSelected){
+				console.log('multipleSelected = ', this.props.entitiesStateReducer.outfits.multipleSelected);
+				console.log('testId = ', testId, '\nid = ', id);
+				if(testId === id) return true;
+			}
+			return false;
+		}
+
 		return(
 			<PagedListContainer
 				className={this.props.className}
@@ -120,13 +129,15 @@ class PagedOutfitList extends React.Component{
 											getHostMeasurements={this.props.getHostMeasurements}
 											navToHostProfile={this.props.navToHostProfile}
 											//routeToHostProfile={this.props.routeToHostProfile(`/${this.props.outfits[outfitId].username}`)}
-											isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											//isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											isSelected={ getIsSelected(outfitId) }  
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.outfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
 											username={this.props.outfits[outfitId].username}
 											contentIds={this.props.outfits[outfitId]["contents"]}
 											webAppView={this.props.webAppView}
+											webAppViewContext={this.props.webAppViewContext}
 											editOutfit={() => this.props.editOutfit(
 												this.props.outfits[outfitId], 
 												this.props.entitiesStateReducer, 
@@ -147,6 +158,8 @@ class PagedOutfitList extends React.Component{
 											getOutfitPreviewForm={this.props.getOutfitPreviewForm}
 											showOutfitPreviewFromBrowse={this.props.showOutfitPreviewFromBrowse}
 											previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
+											selectOutfit={this.props.selectOutfit}
+											deselectOutfit={this.props.deselectOutfit}
 											previewedOutfitId={this.props.previewedOutfitId}
 											history={this.props.history}
 										/> :
@@ -158,18 +171,22 @@ class PagedOutfitList extends React.Component{
 											{...this.props.addedOutfits[outfitId]} 
 											id={outfitId}
 											onClickContextProfile={null} 
-											isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											//isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											isSelected={ getIsSelected(outfitId) }
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.addedOutfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
 											contentIds={this.props.addedOutfits[outfitId]["contents"]}
 											webAppView={null}
+											webAppViewContext={this.props.webAppViewContext}
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
 											owner={this.props.owner}
 											getOutfitPreviewForm={this.props.getOutfitPreviewForm}
 											//containerWidth={this.props.containerWidth}
 											//toggleMetricPanel={this.props.toggleMetricPanel}
+											selectOutfit={this.props.selectOutfit}
+											deselectOutfit={this.props.deselectOutfit}
 										/>
 									) : null}
 								</div>

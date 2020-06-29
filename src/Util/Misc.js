@@ -94,3 +94,34 @@ export function usePrevious(value) {
   return ref.current;
 }
 
+export function mapImageUri(uri){
+  var mappedUri = '';
+  var prefix = uri.slice(0, 3);
+  switch(prefix){
+    case "ogl":
+      mappedUri = `/images/original/${uri}`;
+      break;
+
+    case "sml":
+      mappedUri = `/images/small/${uri}`;
+      break;
+
+    case "med":
+      mappedUri = `/images/medium/${uri}`;
+      break;
+
+    case "lrg":
+      mappedUri = `/images/large/${uri}`;
+      break;
+
+    case "tnl":
+      mappedUri = `/images/thumbnail/${uri}`;
+      break;
+      
+    default:
+      break;
+  }
+
+  return mappedUri;
+}
+

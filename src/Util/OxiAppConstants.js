@@ -116,7 +116,40 @@ export const OxiAppConstants = Object.freeze({
 	modalRoot : document.getElementById('modalRoot'),
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
-	webAppBaseURL : 'https://www.oxisalechannel.com',
+	webAppBaseURL : 'https://www.oxisalechannel.com',	
+	getImageURL: (filename, size) => {
+		let url = 'https://www.oxisalechannel.com/images';
+
+		if(filename){
+			switch(size){
+				case 0:
+					return(`${url}/thumbnail/${filename}.jpg`);
+					break;
+	
+				case 1:
+					return(`${url}/small/${filename}.jpg`);
+					break;
+	
+				case 2:
+					return(`${url}/medium/${filename}.jpg`);
+					break;
+	
+				case 3:
+					return(`${url}/large/${filename}.jpg`);
+					break;
+	
+				case 4:
+					return(`${url}/original/${filename}.jpg`);
+					break;
+	
+				default:
+					break;
+			}
+		}
+		else{
+
+		}
+	},
 	endPoints: {
 		a: '/consumer',
 		b: '/account',
@@ -130,6 +163,9 @@ export const OxiAppConstants = Object.freeze({
 		c : "Fitting",
 		//search : "Search",
 		//logout : "Logout"
+	},
+	webAppViewContext:{
+		b : "Editting Profile",
 	},
 	browseSelection:{
 		a: 'outfits',
@@ -245,6 +281,7 @@ export const OxiAppConstants = Object.freeze({
 		UPDATE_ITEM: 'UpdateItem',
 		LOGIN: 'Login',
 		DISCARD_EDITS:'DiscardEdits',
+		DELETE_OUTFITS: 'DeleteOutfits',
 		PROFILE_PIC: 'ProfilePic',
 		OUTFIT_PREVIEW: 'OutfitPreview',
 	},
@@ -263,7 +300,8 @@ export const OxiAppConstants = Object.freeze({
 	//	}
 	//},
 	Intent:{
-		DISCARD_EDITS: 'discardEdits'
+		DISCARD_EDITS: 'discardEdits',
+		DELETE_OUTFITS: 'deleteOutfits',
 	},/*
 	NavigationException:{
 		USER_CANCELED: "User Canceled",

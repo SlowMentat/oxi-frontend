@@ -5,7 +5,7 @@ import {
 	disableAddOutfit,
 	addContent,
 	deselectAndPropogate,
-	selectAndPropogate,
+	selectAndPropagate,
 	clientInvalidateEntities
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -33,8 +33,8 @@ const mapDispatchToProps = (dispatch) => ({
 
 		dispatch(addOutfit(Object.assign({}, OxiAppConstants.EntityTemplates.OUTFIT, {contents: outfitIds})));
 		dispatch(addContent(Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {})));
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], 1, entitiesStateReducer));
-		//dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], null));
+		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], 1, entitiesStateReducer));
+		//dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], null));
 
 		dispatch(disableAddOutfit(true));
 		dispatch(editContentView(OxiAppConstants.viewState.ADD));

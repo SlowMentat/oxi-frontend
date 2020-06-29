@@ -81,6 +81,8 @@ export class MetricPanel extends React.Component{
 			profileStats,
 			base64HostImage,
 			base64OwnerImage,
+			ownerpicuri,
+			hostpicuri,
 		} = this.props;
 
 		const ppIconStyles = {
@@ -163,7 +165,10 @@ export class MetricPanel extends React.Component{
 										'position':'relative',
 									}}
 								>
-									<ProfileTitleContainer base64Image={this.props.base64OwnerImage}/>
+									<ProfileTitleContainer 
+										//base64Image={this.props.base64OwnerImage}
+										imageName={ownerpicuri}
+									/>
 									{
 										webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? 
 											(
@@ -250,7 +255,13 @@ export class MetricPanel extends React.Component{
 									>
 										<div className={MetricStyles.metricMatchIcons_div}>
 											<div className={MetricStyles.hostIconContainer_div}>
-												<PpIcon base64Image={base64HostImage} isMobile={false} customStyle={ppIconStyles} customDefaultStyle={ppIconDefaultStyle}/>
+												<PpIcon 
+													//base64Image={base64HostImage} 
+													imageName={hostpicuri}
+													isMobile={false} 
+													customStyle={ppIconStyles} 
+													customDefaultStyle={ppIconDefaultStyle}
+												/>
 												{/*
 													base64HostImage ?
 														(<img 
@@ -276,7 +287,13 @@ export class MetricPanel extends React.Component{
 													<div className={MetricStyles.ownerIndicator}>
 													</div>
 												</div>
-												<PpIcon base64Image={base64OwnerImage} isMobile={false} customStyle={ppIconStyles} customDefaultStyle={ppIconDefaultStyle}/>
+												<PpIcon 
+													//base64Image={base64OwnerImage} 
+													imageName={ownerpicuri}
+													isMobile={false} 
+													customStyle={ppIconStyles} 
+													customDefaultStyle={ppIconDefaultStyle}
+												/>
 												{/*
 													base64OwnerImage ?
 														(<img 

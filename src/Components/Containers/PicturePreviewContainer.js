@@ -14,7 +14,7 @@ import {
 	createContent,
 	createItem,
 	editContentView,
-	selectAndPropogate,
+	selectAndPropagate,
 //	removeAddedEntityAndPropogate,
 	clearAllAddedEntitiesState,
 	createPictures,
@@ -201,10 +201,13 @@ const mapDispatchToProps = (dispatch) => ({
 			}
 		}
 	},
-	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount) => {
+	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount, crops) => {
 		if(imageFiles !== null){
 			//postImage(imageData, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)));			
-			uploadImages(imageFiles, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)) );			
+			uploadImages(
+				imageFiles, 
+				() => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)), 
+				crops);			
 		}
 	},
 	putModifiedOutfit : (outfitJson) => {
@@ -280,7 +283,7 @@ const mapDispatchToProps = (dispatch) => ({
 					default:
 						return false;
 				}
-				dispatch(selectAndPropogate(
+				dispatch(selectAndPropagate(
 					OxiAppConstants.EntityTypes.OUTFIT, 
 					(/*response.data.id || */entitiesStateReducer.outfits.selected),
 					(addedContentIds.length > 0 ? addedContentIds[0] :  null)));
@@ -397,7 +400,7 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 					default:
 						return false;
 				}
-				dispatch(selectAndPropogate(
+				dispatch(selectAndPropagate(
 					OxiAppConstants.EntityTypes.OUTFIT, 
 					(/*response.data.id || */entitiesStateReducer.outfits.selected),
 					(createdContentIds.length > 0 ? createdContentIds[0] :  null)));

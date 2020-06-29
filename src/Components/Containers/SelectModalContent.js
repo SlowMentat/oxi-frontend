@@ -19,7 +19,7 @@ import {
 	clearClientInvalidation,
 	clearSelectMultipleEntity,
 	fetchSuggestion,
-	selectAndPropogate,
+	selectAndPropagate,
 	getSizeChartByItemId,
 	createSizeGroups,
 	clientInvalidateEntities,
@@ -30,6 +30,8 @@ import {
 	setFormOverlayVisibility,
 	deselectAndPropogate,
 	verifyIntent,
+	setWebAppViewContext,
+	deleteOutfits,
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -124,8 +126,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 		},
 		//entity:  		is the enttiy object to discard
 		//location:  	indicates this method was invoced from a navigation action to location
-		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit, isOverlay, formType) => {
+		confirmDiscardSubmitAction: (location, addedEntities, prevSelectedOutfit, selectedOutfitId, isOverlay, formType) => {
 			console.log("confirmDiscardSubmitAction dispatched");
+			
+			var prevSelectedOutfitId = prevSelectedOutfit ? prevSelectedOutfit.id : null;
+			var prevSelectedContentId = prevSelectedOutfit ? prevSelectedOutfit.contents[0] : null;
 			
 			isOverlay ?
 				dispatch(setFormOverlayVisibility(null)) :
@@ -137,19 +142,36 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			dispatch(clearAllAddedEntitiesState(addedEntities));
 			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM));
 			//dispatch action to transition into preview mode
-			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, prevSelectedOutfit.id, prevSelectedOutfit.contents[0]));
+			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, prevSelectedOutfitId, prevSelectedContentId));
 			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
+
 			//check if the form was created due to a navigation action.  If so, follow up with navigation.
 			if(location !== null){
 				dispatch(navigateTo(location));
 			}
+
 			if(formType === OxiAppConstants.FormType.ADD_ITEM){
 				dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW));
 			}
+
+			// Edge case for when there's only one newly added outfit (having id of type number).  
+			// Encountered when an outfit is created then it is subsequently discarded befor posting to server.
+			if(typeof selectedOutfitId === 'number'){
+				// close modal
+				dispatch(setFormVisibility(null));
+			}
+
 			//Enable the button that adds outfits
 			dispatch(disableAddOutfit(false));
 			dispatch(disableAddContentButton(false));
 			//dispatch action to select previously selected Outfit id (before adding discarded outfit)
+		},
+		confirmDeleteOutfits: (outfitIds) => {
+			dispatch(deleteOutfits(outfitIds, (response) => null));
+			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.OUTFIT));
+			dispatch(setFormVisibility(null));
+			// exit the Profile view from the edit context	
+			dispatch(setWebAppViewContext(null));
 		},
 		modifyContentItems: (contentId, itemAllIds) => {
 			dispatch(modifyContent({

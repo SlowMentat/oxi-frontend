@@ -679,6 +679,8 @@ $isDebug: false;
     vertical-align: top;
     border: solid var(--outline-width) var(--color-01);
     border-radius: calc(var(--icon-width)/2);
+    overflow: hidden;
+    max-width: 48px;
 }
 
 :local(.ownerIconContainer_div){

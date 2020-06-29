@@ -104,7 +104,7 @@
 
     @include mobile_rules {
         display: flex;
-        margin-top: 10px;
+        margin-top: unset;
         height: 144px;
         position: absolute;
         top: 0px;

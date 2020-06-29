@@ -312,6 +312,7 @@ a{
 	left: 0;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 
     @include desktop_rules {
 		align-items: center;
@@ -697,6 +698,11 @@ a{
 		top: calc(var(--outfit-header-height) - 28px);
 		z-index: 7;
 		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 85px);
+		display: flex;
+    	justify-content: center;
+    	align-items: center;
+    	background-color: #f9f9f9;
+    	height: 56px;
 	}
 
     @include mobile_rules {

@@ -178,7 +178,7 @@ input::placeholder {
 :local(.itemLocationMapContainer_div){
     position: absolute;
     /*height: 100%;*/
-    max-height: calc(100vh - 200px - 5vh - 25px - 2vh - 6px);
+    /*max-height: calc(100vh - 200px - 5vh - 25px - 2vh - 6px);*/
     width: 100%;
     text-align: center;
     top: 0px;
@@ -189,10 +189,11 @@ input::placeholder {
         height: 100%;
 /*mark*/
         margin-top: 0px;
-        max-height: unset;
+        /*max-height: unset;*/
+        max-height: 100%;
         max-width: unset;
         height: var(--img-preview-modal-height);
-
+        height: 100%;
     }
 
     @include mobile_rules {
@@ -704,7 +705,8 @@ input::placeholder {
 
 :local(.imgEditContainer_div){
     position: relative;
-    width: auto;
+    /*width: auto;*/
+    width: 100%;
     height: 100%;
     text-align: center;
     max-height: 100%;
@@ -771,7 +773,7 @@ input::placeholder {
     @include mobile_rules {
         margin: auto;
         max-width: 100vw;
-        object-fit: cover;
+        object-fit: contain;
 
     }
 }

@@ -8,7 +8,7 @@ import {
 	createContent, 
 	fetchImage, 
 	selectEntity, 
-	selectAndPropogate,
+	selectAndPropagate,
 	selectAddedEntity, 
 	addOutfit,
 	addContent,
@@ -24,7 +24,9 @@ import {
 	navigateTo,
 	postLike,
 	postUnlike,
-	fetchEntities
+	fetchEntities,
+	selectMultipleEntity,
+	deselectMultipleEntity,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -47,10 +49,12 @@ const mapStateToProps = (state, props) => {
 		//addedContentIds	: state.addedEntitiesReducer.contents.allIds,
 		controlDisabled: state.entitiesReducer.outfits.controlDisabled,
 		selectedId: state.entitiesStateReducer.outfits.selected,
+		multipleSelected: state.entitiesStateReducer.outfits.multipleSelected,
 		//selectedAddedId: state.entitiesStateReducer.outfits.selected,
 		//view: props.view,
 		viewState: state.contentViewState.viewState,
 		webAppView: state.appView.webAppView,
+		webAppViewContext: state.appView.webAppViewContext,
 		contents : state.entitiesReducer.contents.byIds,
 		selectedContentId : state.entitiesStateReducer.contents.selected,
 		items : state.entitiesReducer.items.byIds,
@@ -80,12 +84,19 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => ({
 	onClickContextProfile : (outfitId, targetChildId) => {
 		console.log("view Outfit div clicked");
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));	
+		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));	
 		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 	},
 	onClickContextBrowse : (outfitId, targetChildId) => {
 		console.log("outfit tile selected");
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+	},
+	selectOutfit: (outfitId) => {
+		console.log('selectOutfit called: outfitId = ', outfitId);
+		dispatch(selectMultipleEntity(OxiAppConstants.EntityTypes.OUTFIT, outfitId));
+	},
+	deselectOutfit: (outfitId) => {
+		dispatch(deselectMultipleEntity(OxiAppConstants.EntityTypes.OUTFIT, outfitId));
 	},
 	getHostMeasurements : (outfitId) => {
 		//fetch for the outfit's user's profile metrics (findProfileByOutfitId)
@@ -102,7 +113,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 
 		//if(entitiesStateReducer.outfits.selected !== outfit.id || entitiesStateReducer.outfits.prevSelected === false){
 			//set the selected content to the first in the array.  Outfit should always have at least one content child entity.
-			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfit.id, outfit.contents[0], null));
+			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfit.id, outfit.contents[0], null));
 		//}
 
 		//inserts this outfit id into the allEdittingIds array, specifying what entities have been modified.
@@ -164,13 +175,13 @@ const mapDispatchToProps = (dispatch, props) => ({
 			var contentArrays = Object.keys(contents);
 			const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
 
-			dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
+			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
 			dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 			//props.setPreviewedOutfit(outfitId);
 		});
 	},
 	showOutfitPreviewFromBrowse : (outfitId) => {	
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
+		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
 		//dispatch(fetchEntities())
 		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 	},

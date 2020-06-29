@@ -9,7 +9,7 @@ import {
 	fetchImage,
 
 	fetchEntities,
-	selectAndPropogate,	
+	selectAndPropagate,	
 } from '../../Components/Actions/indexActions.js';
 import ItemAsSeenOnList from '../../Components/Presentations/ItemAsSeenOnList.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -64,7 +64,7 @@ const mapDispatchToProps = dispatch => ({
 				// TODO:  assign all outfits' coverpicuri to their corresponding picture uuid
 				var contentArrays = Object.keys(contents);
 				const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
-				dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
+				dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
 				dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 			}
 

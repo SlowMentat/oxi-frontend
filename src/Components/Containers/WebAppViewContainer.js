@@ -16,11 +16,13 @@ import {
 	disableAddOutfit,
 	addContent,
 	deselectAndPropogate,
-	selectAndPropogate,
+	selectAndPropagate,
 	clientInvalidateEntities,
 	fetchImage,
 	placeMenu,
 	showMenu,
+	setWebAppViewContext,
+	verifyIntent,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import WebAppView from '../../Components/Presentations/WebAppView.js';
@@ -31,6 +33,7 @@ import { withRouter } from 'react-router-dom';
 const mapStateToProps = (state, props ) => {
 	return {
 		webAppView: state.appView.webAppView,
+		webAppViewContext: state.appView.webAppViewContext,
 		browseSelection: state.browseState.browseSelection,
 		viewState: state.contentViewState.viewState,
 		isFocusedPreview: state.contentViewState.isFocusedPreview,
@@ -83,6 +86,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 			})
 		}
 	},
+	setAppViewContext: (val) => dispatch(setWebAppViewContext(val)),
 	setPreviewFocus: () => dispatch(setPreviewFocus()),
 	unsetPreviewFocus: () => dispatch(unsetPreviewFocus()),
 	addOutfit : (contentId, profileId, entitiesStateReducer) => {
@@ -96,7 +100,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 		dispatch(addOutfit(Object.assign({}, OxiAppConstants.EntityTemplates.OUTFIT, {contents: outfitIds})));
 		dispatch(addContent(Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, {})));
 
-		dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], 1, entitiesStateReducer));
+		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], 1, entitiesStateReducer));
 
 		dispatch(disableAddOutfit(true));
 		dispatch(editContentView(OxiAppConstants.viewState.ADD));
@@ -110,6 +114,7 @@ const mapDispatchToProps = (dispatch, props) => ({
 	positionMenu: (positionx, positiony) => dispatch(placeMenu(OxiAppConstants.MenuTypes.FILTER, positionx, positiony)),
 	showMenu: (menuType) => dispatch(showMenu(menuType, true)),
 	hideMenu: (menuType) => dispatch(showMenu(menuType, false)),
+	confirmOutfitDelete: () => dispatch(verifyIntent(OxiAppConstants.Intent.DELETE_OUTFITS)),
 })
 
 const AppView = connect(mapStateToProps, mapDispatchToProps)(WebAppView);
