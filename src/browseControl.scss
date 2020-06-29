@@ -105,7 +105,11 @@
 	@include mobile_rules {
 		margin: unset;
 		text-align: center;
-		padding-top: ($mobileFooterHeight - 34px) / 2;
+		/*padding-top: ($mobileFooterHeight - 34px) / 2;*/
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		height: 100%;
 	}
 }
 

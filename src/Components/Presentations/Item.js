@@ -13,6 +13,8 @@ import { Button } from '../../Components/Presentations/Controls.js';
 import { camelize } from '../../Util/Misc.js';
 import Rating from '../../Components/Presentations/Rating.js';
 import { Tooltip } from '@rmwc/tooltip';
+import  '@rmwc/ripple/styles';
+import { Ripple } from '@rmwc/ripple';
 import '@rmwc/tooltip/tooltip.css';
 
 //import { 
@@ -180,6 +182,7 @@ export class ItemLite extends React.Component{
 
   				<div 
   					className={ItemLiteStyles.itemLite_div}
+  					onClick={e => e.stopPropagation()}
   					onMouseOver={(event) => onSizeHover(event)} >
 
   					<Card style={{height:'100%'}}>
@@ -277,23 +280,25 @@ export class ItemLite extends React.Component{
 								<Tooltip 
 									showArrow
 									content="coming soon"
+									style={infoComponent ? ({'background-color': 'var(--color-02'}) : ({})}
 								>
 									<CardActionIcon 
-										icon={
-											<div
-												style={{
-													width:'24px',
-													height:'24px',
-													'border-radius':'50%',
-												}}
-											>
-												<SvgIcon 
-													className={Styles.btn_svg} 
-													name="ShopIcon" 
-													strokeWidth="2"
-												/>
-											</div>
-										} 
+										icon="shopping_cart"
+										//icon={
+										//	<div
+										//		style={{
+										//			width:'24px',
+										//			height:'24px',
+										//			'border-radius':'50%',
+										//		}}
+										//	>
+										//		<SvgIcon 
+										//			className={Styles.btn_svg} 
+										//			name="ShopIcon" 
+										//			strokeWidth="2"
+										//		/>
+										//	</div>
+										//} 
 									/>
 								</Tooltip>
 							</CardActionIcons>
@@ -490,20 +495,22 @@ export class ItemInfo extends React.Component {
 										{
 											availableSizes.length > 0 ? 
 												availableSizes.map(size => (
-													<div 
-														className={ItemStyles.sizeVariant_div}
-														style={size === this.state.selectedSize ? ({'background-color':'var(--color-mobile-icon-bg)',color:'white'}) : ({})}
-														onTouchStart={(event) => {
-															event.stopPropagation();
-															toggleMetricPanel(event, true); 
-															this._handleSizeSelected(sizeGroups, size, compareMetrics);
-														}}
-														onClick={(event) => {
-															event.stopPropagation();
-															this._handleSizeSelected(sizeGroups, size, compareMetrics);
-														}}> 
-														{size} 
-													</div>)
+													<Ripple>
+														<div 
+															className={ItemStyles.sizeVariant_div}
+															style={size === this.state.selectedSize ? ({'background-color':'var(--color-01-tint-02)',color:'white'}) : ({})}
+															onTouchStart={(event) => {
+																event.stopPropagation();
+																toggleMetricPanel(event, true); 
+																this._handleSizeSelected(sizeGroups, size, compareMetrics);
+															}}
+															onClick={(event) => {
+																event.stopPropagation();
+																this._handleSizeSelected(sizeGroups, size, compareMetrics);
+															}}> 
+																{size}
+														</div>
+													</Ripple> )
 												) :
 												"No sizes available"
 										}
@@ -688,15 +695,32 @@ export class ItemBrowse extends React.Component{
 				<Card 
 					style={{
 						width:'100%',
-						'margin-bottom':'50px',
+						...(isDevice ? 
+								({
+									'margin-bottom': '48px',
+									//'border-bottom': 'solid 2px #e7e7e7',
+									'box-shadow': 'unset',
+									'border-radius': '0px',
+								}) : 
+								({
+									'margin-bottom': '50px',
+								})),
 					}}
 				>
 					<CardPrimaryAction>
 						<CardMedia
 							sixteenByNine
 							style={{
-								width:'50%',
-								'margin-left':'50%',
+								...(isDevice ? 
+									({
+										width:'100%',
+										//'max-height': '120px',
+									}) : 
+									({
+										width:'50%',
+										'margin-left':'50%',
+
+									})),
 								'border-radius':'0px',
 								backgroundImage: `url(${
   									featuredImage !== undefined ? 
@@ -712,6 +736,12 @@ export class ItemBrowse extends React.Component{
 								position:'absolute',
 								width:'calc(50% - 1rem)',
 								padding: '0 1rem 1rem 1rem',
+								width:'auto',
+								'background-color': '#ffffffb5',
+    							'border-bottom-right-radius': '3px',
+    							'border': 'solid .1rem var(--color-01)',
+    							'border-top': 'unset',
+    							'border-left': 'unset',
 							}}
 						>
 							<Typography
@@ -751,6 +781,11 @@ export class ItemBrowse extends React.Component{
 						</CardActionIcons>
 					</CardActions>
 					<CollapsibleList
+						style={{
+							'font-size':'18px',
+							'color': 'gray',
+							'border-bottom':'solid .1rem var(--color-02)'
+						}}
 						handle={
 							<SimpleListItem
 								text="Who's Wearing"

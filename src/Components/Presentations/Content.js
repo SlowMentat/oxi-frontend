@@ -40,7 +40,6 @@ export class Content extends React.Component{
 	//2:  as plain old bullet point
 	render(){
 
-
 		//Option 1 
 
 		/*let contentBlockStyle = null;
@@ -73,11 +72,16 @@ export class Content extends React.Component{
 			}
 		}
 
-		return(		
-			<div className={ContentStyles.stdCotnentBulletContainer_div}>
-				<div className={contentBulletStyle} onClick={this._handleOnClick}>
+		return(
+			<div
+				style={ this.props.cropping ? null : ({'border-width': '0px'}) } 
+				className={ContentStyles.cropIndicator_div}
+			>
+				<div className={ContentStyles.stdCotnentBulletContainer_div}>
+					<div className={contentBulletStyle} onClick={this._handleOnClick}>
+					</div>
 				</div>
-			</div>		
+			</div>
 		);
 	}
 }

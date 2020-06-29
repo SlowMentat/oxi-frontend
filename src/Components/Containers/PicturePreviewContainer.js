@@ -14,7 +14,7 @@ import {
 	createContent,
 	createItem,
 	editContentView,
-	selectAndPropogate,
+	selectAndPropagate,
 //	removeAddedEntityAndPropogate,
 	clearAllAddedEntitiesState,
 	createPictures,
@@ -43,6 +43,8 @@ import {
 	updateOutfitCoverpicuri,
 	modifyEntityProperties,
 	addContents,
+	previewContent,
+	selectEntity,
 } from '../../Components/Actions/indexActions.js';
 import {
 	outfit, 
@@ -105,6 +107,10 @@ const mapStateToProps = (state, props) => {
 //TODO:  consolidate all the http request functions below :(
 const mapDispatchToProps = (dispatch) => ({
 	//fileReferences => { 'full filenmae' : FileObject }
+	selectContentView : (contentId) => {
+		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
+		dispatch(previewContent(contentId)); 
+	},
 	addContentFromImages: (fileReferences, viewState, addedContents) => {
 		var contentEntities = [];
 		var contentEntityAdded = false;
@@ -195,10 +201,13 @@ const mapDispatchToProps = (dispatch) => ({
 			}
 		}
 	},
-	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount) => {
+	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount, crops) => {
 		if(imageFiles !== null){
 			//postImage(imageData, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)));			
-			uploadImages(imageFiles, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)) );			
+			uploadImages(
+				imageFiles, 
+				() => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)), 
+				crops);			
 		}
 	},
 	putModifiedOutfit : (outfitJson) => {
@@ -274,7 +283,7 @@ const mapDispatchToProps = (dispatch) => ({
 					default:
 						return false;
 				}
-				dispatch(selectAndPropogate(
+				dispatch(selectAndPropagate(
 					OxiAppConstants.EntityTypes.OUTFIT, 
 					(/*response.data.id || */entitiesStateReducer.outfits.selected),
 					(addedContentIds.length > 0 ? addedContentIds[0] :  null)));
@@ -391,7 +400,7 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 					default:
 						return false;
 				}
-				dispatch(selectAndPropogate(
+				dispatch(selectAndPropagate(
 					OxiAppConstants.EntityTypes.OUTFIT, 
 					(/*response.data.id || */entitiesStateReducer.outfits.selected),
 					(createdContentIds.length > 0 ? createdContentIds[0] :  null)));

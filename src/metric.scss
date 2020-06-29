@@ -21,21 +21,23 @@ $isDebug: false;
 }
 
 :local(.axisLabelUpperBody){
-	padding-top: 15px;
+	/*padding-top: 15px;
     margin-top: -15px;
     display: inline-block;
-    margin-left: 10px;
-    padding-right: 10px;
-    width: 13vh;
+    margin-left: 10px;*/
+    padding-left: 10px;
+    /*width: 13vh;*/
 
     @include desktop_rules { 
-        width: 13vh;
+        /*width: 13vh;*/
+        width: 20vh;
     }
 
     @include mobile_rules {
-        border-right: 1px solid rgb(212, 212, 212);
-        width: 17vh;
-        margin-right: 10px;
+        width: 40%;
+        /*border-right: 1px solid rgb(212, 212, 212);*/
+        /*width: 17vh;*/
+        /*margin-right: 10px;*/
     }
 }
 
@@ -84,7 +86,7 @@ $isDebug: false;
     border: solid 1px var(--color-01);
     height: var(--dot-height);
     background-color: #ffffff;
-    transition: transform 400ms linear;
+    transition: transform 400ms linear 300ms;
 }
 
 :local(.ownerDotIndicator_div){
@@ -109,15 +111,18 @@ $isDebug: false;
 :local(.metricGraphBarsContainer_div){
     overflow: hidden;
     position: relative;
-	display: inline-block;
-    vertical-align: top;	
+	/*display: inline-block;
+    vertical-align: top;	*/
 
     @include desktop_rules {
-        width: var(--x-axis-range);
+        /*width: var(--x-axis-range);*/
+        width:100%;
     }
 
     @include mobile_rules {
-        width: calc(#{$mobileMetricPanelWidth} - 13vh - 60px);
+        /*width: calc(#{$mobileMetricPanelWidth} - 13vh - 60px);*/
+        /*width: calc(100% - 13vh - 60px);*/
+        width: 60%;
     } 
 }
 
@@ -295,7 +300,7 @@ $isDebug: false;
         /*background-color 100ms linear,
         border-color 100ms linear, 
         color 200ms ease-in-out, */
-        width 200ms linear;	
+        width 200ms linear 300ms;	
 
     @include desktop_rules {
         height: calc(1.5vh/2 + var(--gbc-line-width)/2);
@@ -337,7 +342,7 @@ $isDebug: false;
     @include desktop_rules {
         height: calc(1.5vh + 2 * #{$metricLabelPadding});
         line-height: calc(1.5vh + 2 * #{$metricLabelPadding});
-        font-size: 1.5vh;
+        font-size: 1.3vh;
     }
 
     @include mobile_rules {
@@ -554,20 +559,113 @@ $isDebug: false;
     text-align: center;
     --icon-width: 48px;
     --outline-width: 3px;
-    --metric-match-height: 150px;
+    --metric-match-height: 190px;
     height: var(--metric-match-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-direction: column;
+}
+
+:local(.metricMatchHeader_div){
+    width:  100%;
+}
+
+:local(.metricMatchTitle_div){
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 10px;
+
+    @include desktop_rules {
+        height: 36px;
+    }
+
+    @include mobile_rules {
+        height: 48px;
+    }
+    
+}
+
+:local(.metricMatchTitle_span){
+    font-size: 1.8rem;
+    color: var(--color-01);
+    /*font-weight: bold;*/
+}
+
+:local(.metricMatchType_div){
+    /*position: absolute;*/
+    top: 0px;
+    left: 0px;
+    padding-left: 10px;
+    height: 24px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    background-color: var(--color-01-tint-02);
+    justify-content: space-between;
+}
+
+:local(.metricMatchType_span){
+    font-size: 1.8rem;
+    margin-left: 1rem;
+    /*color: var(--color-01);*/
+    color:  white;
+}
+
+@keyframes grow{
+    from { 
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes squish{
+    0% { 
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.25);
+    }
+    100%{
+        transform: scale(1.25);
+    }
+}
+
+
+:local(.metricMatchIndicator_div){
+    /*position: absolute;*/
+    height: 36px;
+    width: 36px;
+    border: solid 1px var(--color-01-tint-02);
+    border-radius: 18px;
+    right: 18px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: squish 300ms;
+    /*transition: transform 200ms ease-in-out;
+    transform: scale(01);*/
+    /*box-shadow: 1px 1px 3px 0px #0000004a;*/
 }
 
 :local(.metricMatchIcons_div){
     width: 100%;
     /*height: 72px;*/
-    display: inline-block;
+    /*display: inline-block;*/
     max-width: 192px;
     transition: width 200ms linear;
     /*width: 48px;*/
     min-width: 48px;
-    margin-top: calc((var(--metric-match-height) - var(--icon-width))/2);
+    /*margin-top: calc((var(--metric-match-height) - var(--icon-width))/2);*/
     position: relative;
+
+    height: 48px;
 }
 
 :local(.hostIconContainer_div){
@@ -581,6 +679,8 @@ $isDebug: false;
     vertical-align: top;
     border: solid var(--outline-width) var(--color-01);
     border-radius: calc(var(--icon-width)/2);
+    overflow: hidden;
+    max-width: 48px;
 }
 
 :local(.ownerIconContainer_div){

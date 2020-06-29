@@ -10,17 +10,17 @@ import ProfileTitleContainer from '../../Components/Containers/ProfileTitleConta
 import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
 
 
-const container1_div = {
-	'height': '100%',
-    'padding-left': '200px',
-    'padding-right': '200px',	
-}
-
-const container2_div = {
-	'width': '900px',
-    'margin': 'auto',
-    'height': '100%',
-}
+//const container1_div = {
+//	'height': '100%',
+//    'padding-left': '200px',
+//    'padding-right': '200px',	
+//}
+//
+//const container2_div = {
+//	'width': '900px',
+//    'margin': 'auto',
+//    'height': '100%',
+//}
 
 export default class ProfileHeader extends React.Component{
 	constructor(props){
@@ -55,16 +55,16 @@ export default class ProfileHeader extends React.Component{
 			picture,
 		} = profile ? this.getProfileData(profile.owner, profile.host, username) : null;
 
-		var prevCoverpicuri = picture ? picture.smalluri : null;		
+		/*var prevCoverpicuri = picture ? picture.smalluri : null;		
 		const checkDifference = (curVar, prevVar) => (curVar !== prevVar);
-		await this.getCoverpicFromUri((curVar) => checkDifference(curVar, prevCoverpicuri));
+		await this.getCoverpicFromUri((curVar) => checkDifference(curVar, prevCoverpicuri));*/
 	}
 
 	_handleImageReceived(event, coverpicData){
-		this.setState(prevState => ({
+		/*this.setState(prevState => ({
 			...prevState,
 			base64Image: coverpicData ? ('data:image/jpeg;base64,' + coverpicData) : prevState.base64Image,
-		}));
+		}));*/
 	}
 
 	async getCoverpicFromUri(shouldGetCoverpic){
@@ -184,7 +184,8 @@ export default class ProfileHeader extends React.Component{
 				<div className={OutfitStyles.profileStatsContainer_div}>
 					<div className={OutfitStyles.profileIcon_div}>
 						<PpIcon 
-							base64Image={base64Image} 
+							//base64Image={base64Image} 
+							imageName={picture.smalluri}
 							//isMobile={isMobile} 
 							customStyle={ppIconStyle}
 							customDefaultStyle={ppIconDefaultStyle}
@@ -198,7 +199,7 @@ export default class ProfileHeader extends React.Component{
 								{ username }
 							</span>
 						</div>
-						<div className={OutfitStyles.statCommonVal_span}>
+						<div className={OutfitStyles.statCommonVal_span} style={{'margin-left':'4px'}}>
 							{
 								Object.keys(stats).map(key => (
 									key === 'lastUpdated' || key === 'id' ? 

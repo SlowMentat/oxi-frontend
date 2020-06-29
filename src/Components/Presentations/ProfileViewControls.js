@@ -58,6 +58,7 @@ export default class ProfileViewControls extends React.Component{
 
 		var {
 			outfits,
+			addedOutfits,
 			outfitIds,
 			selectedOutfitId,
 			entitiesStateReducer,
@@ -71,11 +72,19 @@ export default class ProfileViewControls extends React.Component{
 			username,
 		} = this.props;
 
-		var previewedUsername = (viewState === OxiAppConstants.viewState.ADD || viewState === OxiAppConstants.viewState.EDIT) ? 
+		var outfitSelected = outfits[entitiesStateReducer.outfits.selected];
+		var addedOutfitSelected = addedOutfits[entitiesStateReducer.outfits.selected];
+
+		/*var previewedUsername = (viewState === OxiAppConstants.viewState.ADD || viewState === OxiAppConstants.viewState.EDIT) || !outfitSelected ? 
 			(username) :
-			outfits[entitiesStateReducer.outfits.selected].username ?
-				outfits[entitiesStateReducer.outfits.selected].username : 
-				addedOutfits[entitiesStateReducer.outfits.selected].username;
+			outfitSelected.username ?
+				outfitSelected.username : 
+				addedOutfitSelected.username;*/
+
+		var previewedUsername = username;
+
+		if(outfitSelected && viewState === OxiAppConstants.viewState.PREVIEW) previewedUsername = outfitSelected.username;
+		if(addedOutfitSelected) previewedUsername = addedOutfitSelected.username;
 
 		var isEditting = viewState != OxiAppConstants.viewState.PREVIEW.toLowerCase();
 		
@@ -155,7 +164,12 @@ export default class ProfileViewControls extends React.Component{
 									showComments(event, !isCommentsShown);
 								}}
 								icon={isCommentsShown ? "arrow_back" : "mode_comment"}								
-								style={{...customButtonStyles, right: 'calc(85vw + 10px)', position: 'absolute'}}								
+								style={{
+									...customButtonStyles, 
+									right: 'calc(85vw + 10px)', 
+									position: 'absolute',
+									display:'none',
+								}}								
 							/>
 					}
 				</div>				

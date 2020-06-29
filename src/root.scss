@@ -3,7 +3,8 @@
 /*@use "@material/ripple";*/
 
 $pageHeaderHeight: 60px;
-$mobileFooterHeight: 40px;
+$mobilPageHeaderHeight: 48px;
+$mobileFooterHeight: 48px;
 $mobileMetricPanelWidth: 320px;
 $desktopMetricPanelWidth: 300px;
 $loaderContainerWidth: 100px;
@@ -23,6 +24,15 @@ $loaderContainerWidth: 100px;
 	@media screen and (max-aspect-ratio: 13/9){
 		@content;
 	}
+}
+
+@keyframes imgFadeIn{
+    from { 
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 input[type=number]::-webkit-inner-spin-button, 
@@ -109,6 +119,7 @@ body{
 	--img-aspect-ratio: calc(3/4);
 	--mobile-metric-panel-width: calc(1*#{$mobileMetricPanelWidth});
 	--page-header-height: calc(1*#{$pageHeaderHeight});
+	--mobile-page-header-height: calc(1*#{$mobilPageHeaderHeight});
 	--mobile-footer-height: calc(1*#{$mobileFooterHeight});
 	--desktop-footer-height: 0px;
 
@@ -232,49 +243,46 @@ a{
 }
 
 :local(.logoContainer_div){
-	/*width: 100%;*/
     transition: width 175ms linear;
-    margin-top: 8px;
-    /* display: inline-table; */
-    position: absolute;
     top: 0px;
-    /*background-color: #3b3739;*/
-    /*background-color: #263238;*/
 
 	@include desktop_rules {
+    	position: absolute;
 		left:0px;
-		/*width:307px;*/
+    	margin-top: 8px;
     	border-bottom-right-radius: 5px;
     	border-top-right-radius: 5px;
     	height: calc(.78*var(--page-header-height));
     }
 
     @include mobile_rules {
-    	right:0px;
-    	height: 78%;
-    	width:80px;
-        border-bottom-left-radius: 5px;
-    	border-top-left-radius: 5px;
+    	display: flex;
+    	flex-direction: column;
+    	justify-content: center;
+    	height: 100%;
+    	width: 56px;
     }
 }
 
-:local(.logo_svg){	
-	position:  absolute;
-    top: 50%;
-    margin-top: calc(-1*var(--logo-height)/2);
+:local(.logo_svg){	;
     height: var(--logo-height);
-    width: calc(var(--logo-height) + 20px);
     z-ingex: -1;
 
     @include desktop_rules {
+		position: absolute;
     	left: 0px;
+    	top: 50%;
+    	margin-top: calc(-1*var(--logo-height)/2);
+    	width: calc(var(--logo-height) + 20px);
 		--logo-height: 37px;
 
     }
 
     @include mobile_rules {
-    	left: 0px;
-		--logo-height: 45px;
+    	/*left: 0px;
+		--logo-height: 45px;*/
+		--logo-height: 70%;
+		width: auto;
     }
 }
 
@@ -304,6 +312,7 @@ a{
 	left: 0;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 
     @include desktop_rules {
 		align-items: center;
@@ -426,12 +435,13 @@ a{
 	/*grid-area: nav;*/
 	top: 0;
 	width: 100%;
-	height: $pageHeaderHeight;
 	font-size: 100%;
 
     @include desktop_rules {
+		height: $pageHeaderHeight;
     	border-bottom: solid 1px var(--color-02);
     	background-color: var(--color-mobile-icon-bg);
+
     }
 
     @include mobile_rules {
@@ -440,9 +450,13 @@ a{
     	box-shadow: var(--mat-height-8);
     	transition: transform var(--item-transition-period) linear;
    	 	will-change: transform;
-    	background-color: #eeeeee;
-    	height: 80px;
+    	/*background-color: #eeeeee;*/
+    	background-color: white;
+    	display: flex;
+    	justify-content: flex-start;
+    	height: var(--mobile-page-header-height);
     	/*border-bottom: solid 1px #c1c1c1;*/
+    	z-index: 6;
     }
 }
 
@@ -466,8 +480,8 @@ a{
     }
 
     @include mobile_rules {
-		margin-top: 80px;
-    	height: calc(100vh - 80px);
+		margin-top: var(----mobile-page-header-height);
+    	height: calc(100vh - var(--mobile-page-header-height));
     	/*border-bottom: solid 1px #c1c1c1;*/
     }
 }
@@ -684,9 +698,15 @@ a{
 		top: calc(var(--outfit-header-height) - 28px);
 		z-index: 7;
 		left: calc(50% - 700px/2 - 150px + 23px + 700px - 120px + 85px);
+		display: flex;
+    	justify-content: center;
+    	align-items: center;
+    	background-color: #f9f9f9;
+    	height: 56px;
 	}
 
     @include mobile_rules {
+    	display:  none;
     	background-color: var(--main-background-color);
     	/*z-index: 11;*/
     	z-index: 7;
@@ -728,6 +748,10 @@ a{
 
     @include mobile_rules {
     	transform: 'translateY(var(--translaty-y))';
+    	padding: 0px;
+    	height: var(--mobile-footer-height);
+    	background-color: white;
+    	align-items: center;
     }
 }
 
@@ -839,7 +863,8 @@ a{
     	--x-axis-range: calc(#{$mobileMetricPanelWidth} - 13vh - 30px);
 		/*left: -300px;*/
 		left: calc(-1 * #{$mobileMetricPanelWidth});
-		width: $mobileMetricPanelWidth;
+		/*width: $mobileMetricPanelWidth;*/
+		width: 100%;
 		/*z-index: 10;
 		height: calc(100vh - 80px);*/
 
@@ -897,7 +922,7 @@ a{
 	}
 
 	@include mobile_rules {    
-		display: block;
+		display: none;
    		/*position: fixed;
    		left: 0px;
    		top: 80px;*/
@@ -999,6 +1024,7 @@ a{
 }
 
 :local(.metricHeader){
+	display: none;
 	@include desktop_rules {
 		display: none;
 	}
@@ -1029,10 +1055,10 @@ a{
 		/*height: calc(100% - #{$pageHeaderHeight} - 40px);*/
 		height: 100%;
 		width: 100%;
-		height: calc(100% - 40px);
+		height: calc(100% - var(--mobile-footer-height));
 		/*margin-top: -30px;*/
 		margin-top: 0px;
-		background-color: black;
+		background-color: #f9f9f9;
 		border-radius: 0px;
 	}
 }
@@ -1055,25 +1081,26 @@ a{
 
 :local(.outfitBlock){
 	composes: stdBlock;
-	height: calc(100vh - #{$pageHeaderHeight} + var(--desktop-footer-height));
 	position: relative;
 
     --outfit-header-height: 170px;
 
 	@include desktop_rules {
+		height: calc(100vh - #{$pageHeaderHeight} + var(--desktop-footer-height));
 		margin-left: 307px;
 		/*height: calc(100vh - var(--desktop-footer-height));*/
-		height: inherit;
-		height:calc(100vh - var(--page-header-height) + var(--desktop-footer-height));
+		/*height: inherit;*/
 		/*padding-top: var(--page-header-height);*/
 		padding-top: 0px;
 	}
 
 	@include mobile_rules {
+		height:calc(100vh - var(--mobile-page-header-height) - var(--mobile-footer-height));
 		margin-left: 0px;
+		margin-top: var(--mobile-page-header-height);
 		padding: 0px;
     	width: 100vw;
-    	padding-bottom: $mobileFooterHeight;
+    	/*padding-bottom: $mobileFooterHeight;*/
     	overflow-y: scroll;
     	overflow-x: hidden; 
 	}
@@ -1091,9 +1118,10 @@ a{
    		left: 0px;
    		width: 100vw;
    		border: unset;
-   		border-top: solid 1px gray;
-   		height: 40px;
-   		background-color: #f9f9f9;
+   		/*border-top: solid 1px gray;*/
+   		box-shadow: var(--mat-height-8);
+   		height: var(--mobile-footer-height);
+   		background-color: white;
    		z-index: 11;
 	}
 }

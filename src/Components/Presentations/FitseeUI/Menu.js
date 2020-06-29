@@ -21,19 +21,23 @@ export const MenuSurfaceAnchor = styled(({...otherProps}) => (
 	}
 `;
 
-export const Menu = styled(({...otherProps}) => (
+export const Menu = styled(({horizontal, ...otherProps}) => (
 	<RmwcMenu
 		{...otherProps}
 	/>
 ))`
 	${
 		props => (`
+			& .mdc-menu-surface--open{
+				display: ${props.horizontal ? 'flex' : 'block'};
+			}
 		`)
 	}
 `;
 
 Menu.propTypes = {
   otherProps: PropTypes.object,
+  horizontal: PropTypes.bool,
 };
 
 export const MenuItem = styled(({fontSize = '1.2rem', ...otherProps}) => (

@@ -325,7 +325,8 @@
         margin: unset;
         display: block;
         //bottom: calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775));
-        bottom: calc(-100vh + var(--cc-mobile-height) + var(--clc-mobile-height) + var(--item-height));
+        /*bottom: calc(-100vh + var(--cc-mobile-height) + var(--clc-mobile-height) + var(--item-height));*/
+        top: 50vh;
         background-color: white;
     }
 }
@@ -347,7 +348,8 @@
     @include mobile_rules {
         /*transform: translateY(var(--item-height) - calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775)) - 80px);*/
        /* transform: translateY(calc(100vw / 3.2360679775 - 100vh - 0px + 20px + calc(100vw / 3.2360679775)));*/
-        transform: translateY(calc(-100vh + 2*var(--item-height) + var(--cc-mobile-height) + var(--clc-mobile-height)));
+        /*transform: translateY(calc(-100vh + 2*var(--item-height) + var(--cc-mobile-height) + var(--clc-mobile-height)));*/
+        transform: translateY(-50vh);
         /*transform: translateY(-80px);*/
         /*bottom: unset;*/
     }
@@ -503,9 +505,11 @@
 
     @include mobile_rules {
         /*height: calc(100vh - (100vw / 3.2360079775) - 120px);*/
-        height: calc(100vh - (100vw / 3.2360079775));
+        /*height: calc(100vh - (100vw / 3.2360079775));*/
+        height: auto;
+        max-height: calc((((100vh - 166.7px) - 20px) + 8px) - 0px);
         overflow-y: scroll;
-        background-color: #f9f9f9;
+        /*background-color: #f9f9f9;*/
         padding-bottom: calc(100vw / 3.2360079775);
         //transition: transform var(--item-info-transition-period) linear;
     }
@@ -571,16 +575,17 @@
 
 :local(.variantOptionsContainer_div){
     width: var(--expanded-item-content-width);
-    --variant-size-option-height: 27px;
     margin: auto;
     padding-top: 25px;
     margin-bottom: 15px;
 
     @include desktop_rules {
+        --variant-size-option-height: 27px;
         height: 175px;
     }
 
     @include mobile_rules {
+        --variant-size-option-height: 48px;
         /*min-height: 175px;*/
     }
 }

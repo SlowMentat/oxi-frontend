@@ -12,13 +12,17 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import  '@rmwc/ripple/styles';
 import { Ripple } from '@rmwc/ripple';
 
+import styled from 'styled-components';
+import { Image } from '../../Components/Presentations/Image.js';
+
 
 class ItemAsSeenOn extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
 			coverpicuri: null,
-			base64Image: null
+			base64Image: null,
+			imgLoaded: false,
 		};
 
 		this._handleImageReceived = this._handleImageReceived.bind(this);
@@ -58,10 +62,25 @@ class ItemAsSeenOn extends React.Component{
 					className={AsSeenOnStyles.itemAsSeenOn_div} 
 				>
 					<Ripple>
-						<div className={AsSeenOnStyles.imageContainer_div}>
-							<img 
-								className={AsSeenOnStyles.imageApparel_img/*.image_img*/} 
+						<div 
+							className={AsSeenOnStyles.imageContainer_div}
+							style={{'background-color': '#f0f0f0'}}
+						>
+							{/*<img 
+								className={AsSeenOnStyles.imageApparel_img} 
 								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
+								onClick={(event) => {
+									this.props.previewOutfitFromBrowse(this.props.outfitId ? this.props.outfitId.toLowerCase() : this.props.outfitId);
+									event.stopPropagation();
+								}}
+							/>*/}
+							<Image
+								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
+								className={AsSeenOnStyles.imageApparel_img}
+								imgLoaded={this.state.imgLoaded}
+								onLoad={e => {
+									this.setState(prevState => ({...prevState, imgLoaded: true,}));								
+								}}
 								onClick={(event) => {
 									this.props.previewOutfitFromBrowse(this.props.outfitId ? this.props.outfitId.toLowerCase() : this.props.outfitId);
 									event.stopPropagation();
@@ -94,6 +113,51 @@ class ItemAsSeenOn extends React.Component{
 	}
 }
 
+const AsSeenOnPagedList = ({className, ...props}) => (	
+   	<PagedList
+   		id="itemAsSeenOnList"
+   		className={className}
+   		scrollContainerStyle={AsSeenOnStyles.contentContainer_div}
+   		currentPage={props.currentPage}
+   		lastPage={props.lastPage}
+   		isFetching={props.isFetching}
+   		prevPageURL={props.prevPageURL}
+   		nextPageURL={props.nextPageURL}
+   		setScrollPageHeight={props.setScrollPageHeight}
+   		scrollPageHeight={props.scrollPageHeight}
+   		setCurrentEntityPage={props.setCurrentEntityPage}
+   		pages={props.pages}
+   		setNextPageURL={props.setNextPageURL}
+		setPrevPageURL={props.setPrevPageURL}
+   		list={props.contentIds.map((contentId => {
+			return(
+				<ItemAsSeenOn 
+					previewOutfitFromBrowse={props.previewOutfitFromBrowse}
+					contentId={contentId}
+					outfitId={ props.contents[contentId].outfitId }
+					contentWithOutfit = {props.contents[contentId]}
+   					prevPageURL={props.prevPageURL}
+   					nextPageURL={props.nextPageURL}
+   					coverpicuri={
+   						(props.pictures[ props.contents[contentId].picture ] !== undefined) ? 
+   							props.pictures[ props.contents[contentId].picture ].smalluri :
+   								props.contents[contentId].coverpicuri !== undefined ?
+   									props.contents[contentId].coverpicuri :
+   									null
+   						}
+   					getCoverPic={props.getCoverPic}
+				/>
+			);
+		}))} 
+   	/>
+);
+
+const StyledAsSeenOnPagedList = styled(AsSeenOnPagedList)`
+	margin-top: 7px;
+	padding-top: 0px;
+	margin-bottom: 10px;
+`;
+
 class ItemAsSeenOnList extends React.Component{
 	constructor(props){
 		super(props);
@@ -109,7 +173,15 @@ class ItemAsSeenOnList extends React.Component{
 				in={true}
 				unmountOnExit 
 			>
-    			<PagedList
+				<StyledAsSeenOnPagedList
+					{
+						...{
+								className: AsSeenOnStyles.contentContainer_div,
+								...this.props,
+						}
+					}
+				/>
+    			{/*<PagedList
     				id="itemAsSeenOnList"
     				scrollContainerStyle={AsSeenOnStyles.contentContainer_div}
     				currentPage={this.props.currentPage}
@@ -143,7 +215,7 @@ class ItemAsSeenOnList extends React.Component{
 							/>
 						);
 					}))} 
-    			/>
+    			/>*/}
     		</CSSTransition>
 		);
 	}

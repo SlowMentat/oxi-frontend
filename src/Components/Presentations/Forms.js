@@ -68,17 +68,19 @@ const testComments = [
 
 function FormDeck(props){
 	const [isCommentsShown, setIsCommentsShown] = useState(false);
+	const [keyboardShown, setKeyboardShown] = useState(false);
 
 	const {
 		iniOutfitPreview,
 		closeModal,
-		deselectAndPropogate
+		deselectAndPropogate,
 	} = props;
 	
 	const {
 		formType,
 		content,
 		overlayModal,
+		entitiesStateReducer,
 	} = props;
 
 	console.log('props.formType = ', formType);
@@ -165,6 +167,28 @@ function FormDeck(props){
 					match={props.match}
 					history={props.history}
 					isOverlay={false}
+					message="You are leaving edit mode.  Any changes made will be lost!"
+				/>
+			)
+			break;
+
+		case formType === OxiAppConstants.FormType.DELETE_OUTFITS:
+			form = (
+				<DiscardForm
+					requestedNav={props.requestedNav}
+					cancelAction={props.cancelAction}
+					submitAction={
+						() => props.confirmDeleteOutfits(entitiesStateReducer.outfits.multipleSelected)
+					}
+					outfits={props.outfits}
+					contents={props.contents}
+					items={props.items}
+					clearUpdates={props.clearUpdates}
+					clearInvalidations={props.clearInvalidations}
+					match={props.match}
+					history={props.history}
+					isOverlay={false}
+					message="You are about to delete the selected outfits."				
 				/>
 			)
 			break;
@@ -217,7 +241,15 @@ function FormDeck(props){
 				>
 					<div 
 						className={FormStyles.outfitPreview_div}
-						style={ isCommentsShown ? ({transform: 'translateX(-85vw)'}) : ({}) }
+						style={{ 
+							...(keyboardShown && initialInnerHeight > 0 ? 
+								({
+									height: `100%`,
+									'overflow-y':'scroll',
+								}) : 
+								({})),
+							...(isCommentsShown ? ({transform: 'translateX(-85vw)'}) : ({})),
+						}}
 					>
 						{ isDevice ? null : <Comments comments={testComments}/> }
 						{ 
@@ -234,7 +266,7 @@ function FormDeck(props){
 								null 
 						}
 						{
-							isDevice ? 
+							/*isDevice*/false ? 
 								<Comments comments={testComments}/> :
 								<ItemForm
 									{
@@ -242,6 +274,7 @@ function FormDeck(props){
 											...props,
 											compoundAIStyles: compoundAIStyles,
 											submitContext: "Add",
+											setKeyboardShown: val => setKeyboardShown(val),										
 										}
 									}	 
 								/>
@@ -346,6 +379,8 @@ class DropDownField extends React.Component{
 	}
 
 	_handleOnInputFocus(event){
+		//set global
+		this.props.setKeyboardShown(true);
 		this.setState(prevState => ({
 				isDown: !prevState.isDown
 			})
@@ -356,6 +391,7 @@ class DropDownField extends React.Component{
 	}
 
 	_handleOnInputBlur(event){
+		this.props.setKeyboardShown(false);
 		this.setState(prevState => ({
 				isDown: !prevState.isDown
 			})
@@ -384,7 +420,7 @@ class DropDownField extends React.Component{
 				/>
 				<div
 					className={this.state.isDown ? FormStyles.dropDownContainer : FormStyles['dropDownContainer--hidden']}
-					style={(this.state.isDown && initialInnerHeight > 0) ? ({height: `calc(${initialScreenHeight}px/2 - 80px)`}) : ({})}
+					style={(this.state.isDown && initialInnerHeight > 0) ? ({height: `calc(${initialInnerHeight}px/2 - 80px)`}) : ({})}
 					//style={borderColor}
 				>
 					<div style={{'margin-left':'10px','margin-right':'10px','margin-top':'10px'}}>
@@ -1066,7 +1102,9 @@ export class ItemForm extends React.Component{
 								hydrateTasks={this.hydrateType1Tasks}
 								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
 								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
-								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type1SearchSelection', valueObj) } />
+								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type1SearchSelection', valueObj) } 
+								setKeyboardShown={this.props.setKeyboardShown}
+							/>
 						</CSSTransition>
 						<CSSTransition
 						    timeout={200}
@@ -1082,7 +1120,9 @@ export class ItemForm extends React.Component{
 								hydrateTasks={this.hydrateType2Tasks}
 								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
 								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
-								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', valueObj) }  />
+								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', valueObj) }
+								setKeyboardShown={this.props.setKeyboardShown}
+							/>
 						</CSSTransition>
 						<div className={FormStyles.addItemCtrlContainer_div}>
 
@@ -1157,7 +1197,8 @@ class ExistingItems extends React.Component{
 								dropdownSelected={(event, value) => this.props.handleDropdownSelected(event, {[key]: value})}
 								dropdownOptionSelected = {(event, value) => this.props.handleDropdownOptionSelected(event, {[key]: value})}
 								hydrateTask={this.props.hydrateTasks[key]}
-								style={{height:'50px'}}							
+								style={{height:'50px'}}
+								setKeyboardShown={this.props.setKeyboardShown}				
 							/>
 						))
 					}
@@ -1213,7 +1254,8 @@ class CustomItems extends React.Component{
 								}}								
 								dropdownOptionSelected = {(event, value) => this.props.handleDropdownOptionSelected(event, {[key]: value})}
 								hydrateTask={this.props.hydrateTasks[key]}
-								style={{height:'50px'}}							
+								style={{height:'50px'}}
+								setKeyboardShown={this.props.setKeyboardShown}					
 							/>
 						))
 					}
@@ -1233,8 +1275,17 @@ export class DiscardForm extends React.Component{
 		console.log('denormOutfit = ', denormOutfit)
 
 		return(
-			<div className={Styles.modal} styles={this.props.customStyles}>
-				<Elevation z={10}>
+			<div className={Styles.modal} style={this.props.customStyles}>
+				<Elevation 
+					z={10}
+					style={{
+						width: 'auto',
+    					display: 'flex',
+    					'align-items': 'center',
+    					'justify-content': 'center',
+    					height: 'auto',
+					}}
+				>
 					<div 
 						id="form_container_add_item" 
 						className={FormStyles.discardFormViewContainer_div}
@@ -1242,7 +1293,7 @@ export class DiscardForm extends React.Component{
 						<div id="prompt">
 							<div style={{'text-align':'center','width':'75%','margin':'auto','margin-bottom':'60px'}}>
 								<div style={{'text-align':'left'}}>
-									<p style={{color: '#353535'}}> You are leaving edit mode.  Any changes made will be lost! Do you want to continue</p>
+									<p style={{color: '#353535'}}> { this.props.message } </p>
 								</div>
 							</div>
 							<div style={{

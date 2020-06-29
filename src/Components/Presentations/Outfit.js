@@ -17,6 +17,9 @@ import  '@rmwc/ripple/styles';
 import { Ripple } from '@rmwc/ripple';
 import  '@rmwc/elevation/styles';
 import { Elevation } from '@rmwc/elevation';
+import { Checkbox } from '../../Components/Presentations/FitseeUI/Checkbox.js';
+
+import { Image } from '../../Components/Presentations/Image.js';
 
 var showOutfitTileControls = {
 	position: 'relative',
@@ -35,11 +38,13 @@ export class Outfit extends React.Component{
 			coverpic,
 			hovering,
 		} = props;
+
 		this.state = {
 			coverpic: coverpic || null,
 			base64Image: null,
 			base64ImageProfile: null,
-			hovering: hovering || false
+			hovering: hovering || false,
+			imgLoaded: false,
 		};
 
 		this._handleTileClicked = this._handleTileClicked.bind(this);
@@ -63,7 +68,7 @@ export class Outfit extends React.Component{
 		var profilePicData = null;
 		var coverpicData = null
 
-		const updateProfilePicData = (event, data) => {profilePicData = data;}
+		/*const updateProfilePicData = (event, data) => {profilePicData = data;}
 		const updateCoverpicData = (event, data) => {coverpicData = data;}
 
 		//if coverpic filename exists, call get request for content coverpic data
@@ -71,7 +76,7 @@ export class Outfit extends React.Component{
 		if(profilePicUri !== null  && profilePicUri !== undefined) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
 		if(coverpicuri !== null  && coverpicuri !== undefined) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
 
-		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);
+		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);*/
 	}
 
 	async componentDidUpdate(prevProps){
@@ -86,7 +91,7 @@ export class Outfit extends React.Component{
 			profilePicUri,
 		} = this.props;
 
-		var profilePicData = null;
+		/*var profilePicData = null;
 		var coverpicData = null
 
 		const updateProfilePicData = (data) => {profilePicData = data;}
@@ -95,7 +100,7 @@ export class Outfit extends React.Component{
 		if(profilePicUri !== null && profilePicUri !== prevProps.profilePicUri) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
 		if(coverpicuri !== prevProps.coverpicuri) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
 
-		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);
+		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);*/
 	}
 
 	_handleTileClicked(event){
@@ -111,7 +116,7 @@ export class Outfit extends React.Component{
 			//Navigated to Profile
 			case OxiAppConstants.navRequestMap.b.toLowerCase():
 				if(!this.props.isSelected && this.props.viewState === OxiAppConstants.viewState.PREVIEW){			
-					//call selectAndPropogate
+					//call selectAndPropagate
 					this.props.onClickContextProfile(this.props.id, this.props.contentIds[0]);
 				}
 				this.props.setPreviewFocus();
@@ -175,12 +180,15 @@ export class Outfit extends React.Component{
 			previewOutfitFromBrowse,
 			setPreviewFocus,
 			showOutfitPreviewFromBrowse,
+			selectOutfit,
+			deselectOutfit,
 		} = this.props;
 
 		var {
 			contents,
 			contentIds,
 			webAppView,
+			webAppViewContext,
 			owner,
 			outfit,
 			containerHeight,
@@ -194,30 +202,24 @@ export class Outfit extends React.Component{
 			isSelected,
 			webAppView,
 			history,
+			edittingProfilePage,
+			profilePicUri,
+
 		} = this.props;
 
 		const ppIconStyles = {
-        	'position':' absolute',
         	'width':' 58px',
         	'height':' 58px',
         	'border-radius':' 29px',
-        	'top':' -28px',
-        	'left':' calc(-28px + var(--outfit-btn-container-width))',
         	'background-color':'#263238',
-        	...(isDevice ? 
-        		({
-        			left: '0px',
-        			top: '-64px',
-        		}) : 
-        		({
-
-        		}))
+        	...(isDevice ? ({margin: '5px'}) : ({})),
 		}
 
 		let contextualStyles = null;
 		let outfitHeight = containerHeight;///3;
 		let outfitWidth = outfitHeight * OxiAppConstants.aspectRatio;
 		let isBrowse = webAppView === OxiAppConstants.navRequestMap.a.toLowerCase();
+		var isEditingProfile = webAppViewContext === OxiAppConstants.webAppViewContext.b;
 
 		var fill = "#FFF6";
 		var stroke = "#000";
@@ -250,7 +252,7 @@ export class Outfit extends React.Component{
 				null;
 
 		return(
-			<Elevation z={1} wrap style={{'z-index':'6'}}>
+			<Elevation z={isDevice ? 0 : 1} wrap style={{'z-index':'1'}}>
 				<div 
 					//className={isSelected ? OutfitStyles['Outfit__div--selected'] : OutfitStyles.stdOutfitBlock} 
 					className={isBrowse ? OutfitStyles.stdOutfitBlock : OutfitStyles.stdOutfitBlockProfile_div} 
@@ -264,71 +266,75 @@ export class Outfit extends React.Component{
 								<div 
 									className={isSelected ? OutfitStyles['outfitUsernameContainer_div--selected'] : OutfitStyles.outfitUsernameContainer_div} 
 									style={{'padding':'0px'}} >
-									<div className={OutfitStyles.outfitUsername_div}>
-										{ username !== undefined && username !== null ? username.toUpperCase() : "Username" }
+									<div className={OutfitStyles.outfitHeader_div}>										
+										<PpIcon 
+											//base64Image={this.state.base64ImageProfile} 
+											imageName={profilePicUri}
+											isMobile={false} 
+											customStyle={ppIconStyles}
+											customDefaultStyle={{
+												...ppIconStyles,
+												'border':'solid 5px var(--color-desktop-01)',
+											}}
+											onClick={(e) => {
+												history.push(`/shop/profile/${username}`);
+												navToHostProfile(username, owner);
+											}}
+										/>
+										<div className={OutfitStyles.outfitUsername_div}>
+											{ username !== undefined && username !== null ? username.toUpperCase() : "Username" }
+										</div>
 									</div>
-									
-									<PpIcon 
-										base64Image={this.state.base64ImageProfile} 
-										isMobile={false} 
-										customStyle={ppIconStyles}
-										customDefaultStyle={{
-											...ppIconStyles,
-											'border':'solid 5px var(--color-desktop-01)',
-										}}
-										onClick={(e) => {
-											history.push(`/shop/profile/${username}`);
-											navToHostProfile(username, owner);
-										}}
-									/>
 									
 									{/*<div className={OutfitStyles.ppIconStyles}>
 																		
 									</div>*/}
-									<IconButton 
-										ripple={true}
-										style={{
-											'margin-top':'36px',
-											'border':'unset',
-											outline:'none',
-											'line-height': '18px',
-			
-										}}
-										onClick={(e) => {
-											console.log('onchange event e = ', e);
-											//e.stopPropagation();
-											this._handleTileClicked();
-											getHostMeasurements(id);
-											toggleMetricPanel(e, true);
-										}}
-										icon={
-											<div
-												style={{
-													width:'24px',
-													height:'24px',
-													'border-radius':'50%',
-												}}
-											>
-												<SvgIcon 
-													className={OutfitStyles.measureBtn_svg} 
-													name="MeasureIcon" 
-													//fill={fill}
-													//stroke={stroke} 
-													strokeWidth="2"
-												/>
-											</div>
-										}
-									/>
-									<LikeButton
-										//style={{color:'var(--color-01)', 'line-height':'18px',}}
-										onClick={(event) => {
-											isLiked ?
-												unlike(id, outfit) :
-												like(id, outfit)
-										}}	
-										icon={isLiked ? "favorite" : "favorite_border"}	
-										//onIcon={isLiked ? "favorite_border" : "favorite"}	
-									/>
+									<div className={OutfitStyles.outfitControls_div}>
+										<IconButton 
+											ripple={true}
+											style={{
+												...(isDevice ? ({}) : ({'margin-top':'36px'})),
+												'border':'unset',
+												outline:'none',
+												'line-height': '18px',
+				
+											}}
+											onClick={(e) => {
+												console.log('onchange event e = ', e);
+												//e.stopPropagation();
+												this._handleTileClicked();
+												getHostMeasurements(id);
+												toggleMetricPanel(e, true);
+											}}
+											icon={
+												<div
+													style={{
+														width:'24px',
+														height:'24px',
+														'border-radius':'50%',
+													}}
+												>
+													<SvgIcon 
+														className={OutfitStyles.measureBtn_svg} 
+														name="MeasureIcon" 
+														//fill={fill}
+														//stroke={stroke} 
+														strokeWidth="2"
+													/>
+												</div>
+											}
+										/>
+										<LikeButton
+											//style={{color:'var(--color-01)', 'line-height':'18px',}}
+											onClick={(event) => {
+												isLiked ?
+													unlike(id, outfit) :
+													like(id, outfit)
+											}}	
+											icon={isLiked ? "favorite" : "favorite_border"}	
+											//onIcon={isLiked ? "favorite_border" : "favorite"}	
+										/>
+									</div>
 									{/*<div 
 										className={ OutfitStyles.likesBtn_div }
 										onClick={(event) => {
@@ -364,24 +370,82 @@ export class Outfit extends React.Component{
 							)
 					}
 					<Ripple
+						disabled={isEditingProfile}
 					>
 						<div
-							style={{'text-align': 'left', height:'100%'}}
+							style={{
+								'text-align': 'left', 
+								height:'100%', 
+								'background-color': '#f0f0f0',
+								'position':'relative',
+							}}
 							onMouseOver={this._handleOnMouseOver}
 							onMouseOut={this._handleOnMouseOut}
+						>
+							<div 
+								style={this.state.imgLoaded ? 
+									({
+										display:'none', 
+									}) : 
+									({
+										height:'100%', 
+										width:'100%',
+										'background-color': '#f0f0f0',
+									})
+								}
 							>
+							</div>
 							<img 
-								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
+								//src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
+								src={outfit ? OxiAppConstants.getImageURL(outfit.coverpicuri, 2) : `${OxiAppConstants.ContentDirectories.IMAGES}/no_image.svg`}
 								className={OutfitStyles.outfitImage_img}
 								style={{
-									'object-fit':'cover'
+									'object-fit':'cover',
+									...(this.state.imgLoaded ? ({}) : ({display:'none'}) )
 								}}
-								onClick={(event) => {
-									previewOutfitFromBrowse(id);
+								onLoad={e => this.setState(prevState => ({...prevState, imgLoaded: true,}))}
+								onClick={(event) => {									
+									!isEditingProfile ? 
+										previewOutfitFromBrowse(id) :
+										isSelected ?
+											deselectOutfit(id) :
+											selectOutfit(id);
+
 									event.stopPropagation();
 								}}
 							/>
-							<CSSTransition 
+							{
+								isEditingProfile ? 
+									<Checkbox
+										style={{
+											position:'absolute', 
+											top:'0px', 
+											left:'0px',
+											'background-color':'#ffffff75',
+										}}
+										checked={isSelected}
+										//onChange={e => selectOutfit(e)}
+									/> : 
+									null
+							}
+							{/*<Image
+								//setupImageRef={this.props.setupImageRef}
+								src={src}
+								className={OutfitStyles.outfitImage_img}
+								imgLoaded={this.state.imgLoaded}
+								onLoad={e => this.setState(prevState => ({...prevState, imgLoaded: true,})) }
+								imgStyle={{
+									'object-fit':'cover',
+								}}
+								defaultStyle={{
+
+								}}	
+								onClick={(event) => {
+									previewOutfitFromBrowse(id);
+									event.stopPropagation();
+								}}							
+							/>*/}
+							{/*<CSSTransition 
 								key={id}
 							    tiemout={200}
 							    classNames="outfitMenuContainer"
@@ -423,7 +487,7 @@ export class Outfit extends React.Component{
 											)
 									}
 								</div>
-							</CSSTransition>
+							</CSSTransition>*/}
 						</div>
 					</Ripple>		
 				</div>

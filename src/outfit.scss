@@ -38,8 +38,8 @@
 
     @include mobile_rules {
         --outfit-tile-width: 100vw;
-        margin-top: 80px;  
-        margin-bottom: 20px;  
+        margin-top: 48px;  
+        margin-bottom: 88px;  
         /*margin-left: calc(50px + (300px - 200px)/2);*/
         margin-left: calc((0px + 100vw - var(--outfit-tile-width))/2);
         height: var(--outfit-tile-width);
@@ -75,12 +75,17 @@
     }
 
     @include mobile_rules {
-        padding-top: var(--ombc-frame);
+        /*margin-top:  72px;*/
+        padding-top: calc(var(--ombc-frame) + 10px);
+        /*padding-top: calc(1.5*var(--mobile-page-header-height));
+        padding-bottom: calc(2*var(--mobile-footer-height));*/
         /*padding-left: 50px;*/
     }
 }
 
 :local(.outfitMenuHeader_div){
+    z-index: 7;
+    background-color: #f9f9f9;
 
     @include desktop_rules {
         /*height: 100px;*/
@@ -88,32 +93,46 @@
         top: 0px;
         width: 700px;
         left: calc(50% - 700px/2 - 150px + 23px);
-        background-color: #f9f9f9;
-        border-bottom: solid 1px #c9c9c9;
         /*z-index: 10;*/
-        z-index: 7;
         margin: auto;
         position: -webkit-sticky;
         position: sticky;
         padding-top: 24px;
         --icon-width: 96px;
+        border-bottom: solid 1px #c9c9c9;
     }
 
     @include mobile_rules {
-        display: none;
-        width: 0px;
-        height: 0px;
+        display: flex;
+        margin-top: unset;
+        height: 144px;
+        position: absolute;
+        top: 0px;
+        width: 100vw;
+        flex-direction: column;
+        justify-content: center;
+        border-bottom: solid .1rem var(--color-02)
     }
 }
 
 :local(.profileStatsContainer_div){
+    @include desktop_rules {
+    }
 
+    @include mobile_rules {
+        display: flex;
+        justify-content: center;
+    }
 }
 
 :local(.profileIcon_div){
     width: var(--icon-width);
     height: var(--icon-width);
     display: inline-block;
+
+    @include mobile_rules {
+        --icon-width: 72px;
+    }
 }
 
 :local(.profileStats_div){
@@ -489,28 +508,29 @@
 :local(.outfitUsernameContainer_div){
     /*border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;*/
-	position: absolute;
     /*border-style: solid;
     border-width: 1px;
     border-color: #b8b8b8;
     border-right-style: none;*/
     padding: 10px 14px 10px 14px;
-    /*height: calc(200px + 200px/2);*/
-    height: inherit;
-    /*margin-left: -50px;*/
     color: #c1c1c1;
     z-index: 10;
 
     transition: background-color 150ms, color 150ms, border-color 150ms;
 
     @include desktop_rules {
+        position: absolute;
+        height: inherit;
         width: var(--outfit-btn-container-width);
         left: calc(-1*var(--outfit-btn-container-width));
     }
 
     @include mobile_rules {
-        background-color: #fcfcfc78;
-        width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: auto;
+        width: 100vw;
     }
 }
 
@@ -523,11 +543,45 @@
     transition: background-color 150ms, color 150ms,  border-color 150ms;*/
 }
 
+:local(.outfitHeader_div){
+    display: flex;
+    justify-content: flex-start;
+    height: auto;
+
+    @include desktop_rules {
+        left: 0px;
+        top: -58px;
+        position: absolute;
+        margin-left: 21px;
+        margin-top: 21px;
+        width: auto;
+    }
+
+    @include mobile_rules {
+        width: 50%;
+        align-items: center;
+    }
+}
+
+:local(.outfitControls_div){    
+    @include desktop_rules {
+
+    }
+
+    @include mobile_rules {
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+}
+
 :local(.outfitImage_img){
     width: 100%;
     //'max-height':'inherit',
     height: 100%;
     position: absolute;
+    animation: imgFadeIn 400ms;
 
     @include desktop_rules {
         border-radius: 3px;
@@ -536,7 +590,9 @@
     }
 
     @include mobile_rules {
-        object-fit: cover;
+        object-fit: cover;    
+        border-top-right-radius: 0px;
+        border-top-left-radius: 0px;
     }
 }
 
@@ -610,24 +666,18 @@
 }
 
 :local(.outfitUsername_div){
-    height: 50px;
-	/*height: 100%;
-    width: 100%;*/
-    line-height: 50px;
     font-size: 1.5rem;
     font-family: 'Archivo Black', sans-serif;
-    /*writing-mode: vertical-lr;
-    text-orientation: upright;*/
-    /*position: relative;*/
-    position: absolute;
     color: black;
-    top: -50px;
+    margin-left: 5px;
 
     @include desktop_rules {
-        left: calc(24px + var(--outfit-btn-container-width));
+        height: calc(58px - 21px - 12px);
+        line-height: calc(58px - 21px - 12px);
     }
 
     @include mobile_rules {
-        left: 55px;
+        height: 58px;
+        line-height: 58px;
     }
 }

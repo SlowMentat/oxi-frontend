@@ -14,6 +14,8 @@ import ProfileTitleContainer from '../../Components/Containers/ProfileTitleConta
 
 //Presentation Component 
 import PagedList from './PagedList.js';
+import styled from 'styled-components';
+import { desktopRules, mobileRules } from '../../mixin.js';
 
 const container1_div = {
 	'height': '100%',
@@ -53,9 +55,19 @@ class PagedOutfitList extends React.Component{
 		const isProfileView = this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase();
 		const usernameSelected = this.props.outfits[this.props.selectedId] ? this.props.outfits[this.props.selectedId].username : undefined;
 
+		const getIsSelected = (testId) => {
+			for(var id of this.props.entitiesStateReducer.outfits.multipleSelected){
+				console.log('multipleSelected = ', this.props.entitiesStateReducer.outfits.multipleSelected);
+				console.log('testId = ', testId, '\nid = ', id);
+				if(testId === id) return true;
+			}
+			return false;
+		}
+
 		return(
 			<PagedListContainer
-    			scrollContainerStyle={this.props.scrollContainerStyle}
+				className={this.props.className}
+    			//scrollContainerStyle={this.props.scrollContainerStyle}
     			currentPage={this.props.currentPage}
     			lastPage={this.props.lastPage}
     			isFetching={this.props.isFetching}
@@ -117,13 +129,15 @@ class PagedOutfitList extends React.Component{
 											getHostMeasurements={this.props.getHostMeasurements}
 											navToHostProfile={this.props.navToHostProfile}
 											//routeToHostProfile={this.props.routeToHostProfile(`/${this.props.outfits[outfitId].username}`)}
-											isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											//isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											isSelected={ getIsSelected(outfitId) }  
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.outfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
 											username={this.props.outfits[outfitId].username}
 											contentIds={this.props.outfits[outfitId]["contents"]}
 											webAppView={this.props.webAppView}
+											webAppViewContext={this.props.webAppViewContext}
 											editOutfit={() => this.props.editOutfit(
 												this.props.outfits[outfitId], 
 												this.props.entitiesStateReducer, 
@@ -144,6 +158,8 @@ class PagedOutfitList extends React.Component{
 											getOutfitPreviewForm={this.props.getOutfitPreviewForm}
 											showOutfitPreviewFromBrowse={this.props.showOutfitPreviewFromBrowse}
 											previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
+											selectOutfit={this.props.selectOutfit}
+											deselectOutfit={this.props.deselectOutfit}
 											previewedOutfitId={this.props.previewedOutfitId}
 											history={this.props.history}
 										/> :
@@ -155,18 +171,22 @@ class PagedOutfitList extends React.Component{
 											{...this.props.addedOutfits[outfitId]} 
 											id={outfitId}
 											onClickContextProfile={null} 
-											isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											//isSelected={this.props.entitiesStateReducer.outfits.selected === outfitId}  
+											isSelected={ getIsSelected(outfitId) }
 											createContent={this.props.createContent} 
 											coverpicuri={this.props.addedOutfits[outfitId].coverpicuri} 
 											getCoverPic={this.props.getCoverPic}
 											contentIds={this.props.addedOutfits[outfitId]["contents"]}
 											webAppView={null}
+											webAppViewContext={this.props.webAppViewContext}
 											viewState={this.props.viewState}
 											containerHeight={this.props.containerHeight}
 											owner={this.props.owner}
 											getOutfitPreviewForm={this.props.getOutfitPreviewForm}
 											//containerWidth={this.props.containerWidth}
 											//toggleMetricPanel={this.props.toggleMetricPanel}
+											selectOutfit={this.props.selectOutfit}
+											deselectOutfit={this.props.deselectOutfit}
 										/>
 									) : null}
 								</div>
@@ -178,6 +198,10 @@ class PagedOutfitList extends React.Component{
 		)		
 	}
 }
+
+const StyledPagedOutfitList = styled(PagedOutfitList)`
+
+`;
 
 
 class OutfitList extends React.Component{
@@ -198,41 +222,18 @@ class OutfitList extends React.Component{
 				<TransitionGroup style={{'height':'100%'}}>
 					{(
 						this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() ?
-		    				(
-		    					<PagedOutfitList 
-		    						container1_div={container1_div} 
-		    						container2_div={container2_div} 
-		    						{...this.props} 
-		    					/>
-		    				) : (
-
-								<React.Fragment>
-								{
-			    					//<div className={Styles.mobileTitleContainer_div}>
-			    					//	<div 
-			    					//		className={Styles.userTitle_div}
-									//		//style={{
-    								//		//	'padding-bottom': '15px',
-    								//		//	'height': '165px',
-    								//		//	'margin-right':'-1px',
-    								//		//	'position':'relative',
-									//		//}}
-									//	>
-									//		<ProfileTitleContainer isMobile={true}/>
-									//		<div className={Styles.points_div}>
-									//			12649
-									//		</div>										
-									//	</div>
-									//</div>
-								}
-		    						<PagedOutfitList 
-		    							container1_div={{'height':'100%'}} 
-		    							container2_div={{'height':'100%'}} 
-		    							{...this.props} 
-		    						/>
-								</React.Fragment>
-
-		    				)
+		    				<StyledPagedOutfitList
+		    					className={this.props.scrollContainerStyle} 
+		    					//container1_div={container1_div} 
+		    					//container2_div={container2_div} 
+		    					{...this.props} 
+		    				/> :
+		    				<StyledPagedOutfitList 
+		    					className={this.props.scrollContainerStyle} 
+		    					//container1_div={{'height':'100%'}} 
+		    					//container2_div={{'height':'100%'}} 
+		    					{...this.props} 
+		    				/>
 		    		)}
 		    	</TransitionGroup>
 		    	{null

@@ -42,6 +42,7 @@ export const setXcsrfToken 		= scaffolding.makeActionCreator(types.SET_XCSRF_TOK
 
 export const selectPage 		= scaffolding.makeActionCreator(types.SELECT_PAGE, null, 'page');
 export const setWebAppView		= scaffolding.makeActionCreator(types.SELECT_WEB_APP_VIEW, null, 'webAppView');
+export const setWebAppViewContext = scaffolding.makeActionCreator(types.SELECT_WEB_APP_VIEW_CONTEXT, null, 'webAppViewContext');
 
 export const disableAddOutfit 	= scaffolding.makeActionCreator(types.DISABLE_BUTTON, null, 'disabled');
 export const disableAddContentButton = scaffolding.makeActionCreator(types.DISABLE_CONTENT_BUTTON, null, 'disabled');
@@ -664,49 +665,50 @@ export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=
 }
 
 export const patchEntity = (entityType, payload) => {
-		return function(dispatch){
-			dispatch(genericActions.requestEntities(entityType));
-			let URI = '';
-			let requestParams = '';
-			let customReqParams = '';
-			let pageBufferSize = 2;
-			let reqResponse = null;
+	return function(dispatch){
+		dispatch(genericActions.requestEntities(entityType));
+		let URI = '';
+		let requestParams = '';
+		let customReqParams = '';
+		let pageBufferSize = 2;
+		let reqResponse = null;
 	
-			switch(entityType){
-				case OxiAppConstants.EntityTypes.OUTFIT:
-					URI = '/outfit' + `/${payload.id}`;
-					return axios.patch(`${(OxiAppConstants.serviceURL)}${URI}`, payload)
-					.then((response) => {
-						if(response.status === OxiAppConstants.HttpStatus.OK){
-							dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
-						}else{
-							//handleUnauthorizedRequest(response);
-						}
-					})
-					.catch(error => {
-						console.log(error);
-						if (error.response) {
-							// The request was made and the server responded with a status code
-							// that falls out of the range of 2xx
-							console.log(error.response.data);
-							console.log(error.response.status);
-							console.log(error.response.headers);
-							//Check if error is due to forbidden response staatus
-							dispatch(networkActions.handleUnauthorizedRequest(error.response));
-						} else if (error.request) {
-							// The request was made but no response was received
-							// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-							// http.ClientRequest in node.js
-							console.log(error.request);
-						} else {
-							// Something happened in setting up the request that triggered an Error
-							console.log('Error', error.message);
-						}
-						console.log(error.config);
-					});
-					break;				
-				default:
-					break;
+		switch(entityType){
+			case OxiAppConstants.EntityTypes.OUTFIT:
+				URI = '/outfit' + `/${payload.id}`;
+				return axios.patch(`${(OxiAppConstants.serviceURL)}${URI}`, payload)
+				.then((response) => {
+					if(response.status === OxiAppConstants.HttpStatus.OK){
+						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
+					}else{
+						//handleUnauthorizedRequest(response);
+					}
+				})
+				.catch(error => {
+					console.log(error);
+					if (error.response) {
+						// The request was made and the server responded with a status code
+						// that falls out of the range of 2xx
+						console.log(error.response.data);
+						console.log(error.response.status);
+						console.log(error.response.headers);
+						//Check if error is due to forbidden response staatus
+						dispatch(networkActions.handleUnauthorizedRequest(error.response));
+					} else if (error.request) {
+						// The request was made but no response was received
+						// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+						// http.ClientRequest in node.js
+						console.log(error.request);
+					} else {
+						// Something happened in setting up the request that triggered an Error
+						console.log('Error', error.message);
+					}
+					console.log(error.config);
+				});
+				break;	
+
+			default:
+				break;
 		}
 	}
 }
@@ -775,7 +777,7 @@ export function verifyIntent(intentTo){
 	return function(dispatch, getState){
 		switch(intentTo){
 			case OxiAppConstants.Intent.DISCARD_EDITS:
-				
+							
 				if(getState().toggleModal.isModalVisible){
 					// Modal is currrently open so just overlay over existing modal
 					dispatch(setFormOverlayVisibility(OxiAppConstants.FormType.DISCARD_EDITS))
@@ -785,6 +787,12 @@ export function verifyIntent(intentTo){
 				}
 
 				break;
+
+			case OxiAppConstants.Intent.DELETE_OUTFITS:
+				// Not expecting to require overlayed modal during outfit delete confirmation
+				dispatch(setFormVisibility(OxiAppConstants.FormType.DELETE_OUTFITS, null, null));
+				break;
+
 			default:
 				break;
 		}
@@ -798,9 +806,9 @@ export function verifyIntent(intentTo){
 * @param    {String}    valid id of the entity selected.
 * @param    {STring}    valid id of the child entity to be selected next.
 */
-export function selectAndPropogate(entityType, entityId, targetChildId, entitiesStateReducer){
+export function selectAndPropagate(entityType, entityId, targetChildId, entitiesStateReducer){
 	return function(dispatch){
-		console.log("selectAndPropogate entityType = ", entityType);
+		console.log("selectAndPropagate entityType = ", entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
 				entitiesStateReducer ? 
@@ -810,7 +818,7 @@ export function selectAndPropogate(entityType, entityId, targetChildId, entities
 				dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, entityId));
 				//dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (entityId || false)));
 				console.log("targetChildId = ", targetChildId);
-				dispatch(selectAndPropogate(OxiAppConstants.EntityTypes.CONTENT, targetChildId, null, entitiesStateReducer));
+				dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.CONTENT, targetChildId, null, entitiesStateReducer));
 				break;
 			case OxiAppConstants.EntityTypes.CONTENT:
 				entitiesStateReducer ? 
@@ -829,7 +837,7 @@ export function selectAndPropogate(entityType, entityId, targetChildId, entities
 //@param {String} valid entityType from OxiAppConstants.EntityTypes to deselect
 export function deselectAndPropogate(entityType){
 	return function(dispatch){
-		console.log("selectAndPropogate entityType = ");
+		console.log("selectAndPropagate entityType = ");
 		console.log(entityType);
 		switch(entityType){
 			case OxiAppConstants.EntityTypes.OUTFIT:
@@ -900,42 +908,102 @@ export function clearAllAddedEntitiesState(addedEntities){
 	}
 }
 
+function removeAndPropagate(entityType, entity, removalFunctions){
+	switch(entityType){
+		case OxiAppConstants.EntityTypes.OUTFIT:
+			//Remove any child entities
+			dispatch(genericActions.selectEntity(entityType, false));
+
+			if(entity.contents){
+				for(let content of entity.contents){
+					//console.log('removeAddedEntityAndPropogate(): content = ', content)
+					if(entity.contents.length > 0) dispatch(removeAndPropagate(OxiAppConstants.EntityTypes.CONTENT, content, removalFunctions));
+				}
+			}
+
+			dispatch(removalFunctions[OxiAppConstants.EntityTypes.OUTFIT](entity.id));
+			break;
+
+		case OxiAppConstants.EntityTypes.CONTENT:
+			//Remove any child entities
+			dispatch(genericActions.selectEntity(entityType, false));
+
+			if(entity.items){
+				for(let item of entity.items){
+					//console.log('removeAddedEntityAndPropogate(): item = ', item)
+					if(entity.items.length > 0) dispatch(removeAndPropagate(OxiAppConstants.EntityTypes.ITEM, item, removalFunctions));
+				}
+			}
+
+			dispatch(removalFunctions[OxiAppConstants.EntityTypes.CONTENT](entity.id));
+			break;
+
+		case OxiAppConstants.EntityTypes.ITEM:
+			dispatch(removalFunctions[OxiAppConstants.EntityTypes.ITEM](entity.id));
+			break;
+
+		default:
+			break;
+	}
+
+	return;
+}
+
 export function removeAddedEntityAndPropogate(entityType, entity){
 	return function(dispatch){
-		//console.log("selectAndPropogate entityType = ", entityType);
-		switch(entityType){
-			case OxiAppConstants.EntityTypes.OUTFIT:
-				//Remove any child entities
-				dispatch(genericActions.selectEntity(entityType, false));
-				if(entity.contents){
-					for(let content of entity.contents){
-						//console.log('removeAddedEntityAndPropogate(): content = ', content)
-						if(entity.contents.length > 0) dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.CONTENT, content));
-					}
-				}
-				//console.log('removeAddedEntityAndPropogate():  Removing Outfit with id ', entity.id)
-				dispatch(enityActions.removeAddedOutfit(entity.id));
-				break;
-			case OxiAppConstants.EntityTypes.CONTENT:
-				//Remove any child entities
-				dispatch(genericActions.selectEntity(entityType, false))
-				if(entity.items){
-					for(let item of entity.items){
-						//console.log('removeAddedEntityAndPropogate(): item = ', item)
-						if(entity.items.length > 0) dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.ITEM, item));
-					}
-				}
-				//console.log('removeAddedEntityAndPropogate():  Removing Content with id ', entity.id)
-				//Remove content
-				dispatch(entityActions.removeAddedContent(entity.id));
-				break;
-			case OxiAppConstants.EntityTypes.ITEM:
-				//console.log('removeAddedEntityAndPropogate():  Removing Item with id ', entity.id)
-				//Remove item
-				dispatch(entityActions.removeAddedItem(entity.id));
-			default:
-				break
-		}
+		removeAndPropagate(entityType, entity, {
+			[OxiAppConstants.EntityTypes.OUTFIT]: (entityId) => dispatch(enityActions.removeAddedOutfit(entityId)),
+			[OxiAppConstants.EntityTypes.CONTENT]: (entityId) => dispatch(enityActions.removeAddedContent(entityId)),
+			[OxiAppConstants.EntityTypes.ITEM]: (entityId) => dispatch(enityActions.removeAddedItem(entityId)),
+
+		});
+//
+		//console.log("selectAndPropagate entityType = ", entityType);
+		//switch(entityType){
+		//	case OxiAppConstants.EntityTypes.OUTFIT:
+		//		//Remove any child entities
+		//		dispatch(genericActions.selectEntity(entityType, false));
+		//		if(entity.contents){
+		//			for(let content of entity.contents){
+		//				//console.log('removeAddedEntityAndPropogate(): content = ', content)
+		//				if(entity.contents.length > 0) dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.CONTENT, content));
+		//			}
+		//		}
+		//		//console.log('removeAddedEntityAndPropogate():  Removing Outfit with id ', entity.id)
+		//		dispatch(enityActions.removeAddedOutfit(entity.id));
+		//		break;
+		//	case OxiAppConstants.EntityTypes.CONTENT:
+		//		//Remove any child entities
+		//		dispatch(genericActions.selectEntity(entityType, false))
+		//		if(entity.items){
+		//			for(let item of entity.items){
+		//				//console.log('removeAddedEntityAndPropogate(): item = ', item)
+		//				if(entity.items.length > 0) dispatch(removeAddedEntityAndPropogate(OxiAppConstants.EntityTypes.ITEM, item));
+		//			}
+		//		}
+		//		//console.log('removeAddedEntityAndPropogate():  Removing Content with id ', entity.id)
+		//		//Remove content
+		//		dispatch(entityActions.removeAddedContent(entity.id));
+		//		break;
+		//	case OxiAppConstants.EntityTypes.ITEM:
+		//		//console.log('removeAddedEntityAndPropogate():  Removing Item with id ', entity.id)
+		//		//Remove item
+		//		dispatch(entityActions.removeAddedItem(entity.id));
+		//	default:
+		//		break
+		//}
+//
 		return;
 	}
 }
+
+//export function removeEntityAndPropagate(entityType, entity){
+//	return function(dispatch){
+//		removeAndPropagate(entityType, entity, {
+//			[OxiAppConstants.EntityTypes.OUTFIT]: (entityId) => dispatch(enityActions.replaceOutfit(entityId)),
+//			[OxiAppConstants.EntityTypes.CONTENT]: (entityId) => dispatch(enityActions.replaceContent(entityId)),
+//			[OxiAppConstants.EntityTypes.ITEM]: (entityId) => dispatch(enityActions.replaceItem(entityId)),
+//
+//		});
+//	}
+//}

@@ -23,7 +23,7 @@ import MenusContainer from '../../Components/Containers/MenusContainer.js';
 
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import {Button} from '../../Components/Presentations/Controls.js';
+//import {Button} from '../../Components/Presentations/Controls.js';
 
 //Presentation Component 
 //Constants
@@ -43,8 +43,8 @@ import { Route, Switch, Redirect, Link } from 'react-router-dom';
 import '@rmwc/fab/styles';
 import { Fab } from '@rmwc/fab';
 import '@rmwc/tabs/styles';
-import { Tab, TabBar } from '@rmwc/tabs';
-import { IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
+import { Tab, TabBar } from '../../Components/Presentations/FitseeUI/Tabs.js';//@rmwc/tabs';
+import { IconButton, Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
 import { Tooltip } from '../../Components/Presentations/FitseeUI/Tooltip.js';
 import '@rmwc/tooltip/styles';
 import { MenuSurfaceAnchor, Menu, MenuItem } from '../../Components/Presentations/FitseeUI/Menu.js';
@@ -86,16 +86,94 @@ const customMngmtCotnianerStyles = {
 	//'vertical-align': 'top',
 }
 
+const ProfileControls = props => {
+	const {
+		setAppViewContext,
+		confirmOutfitDelete,
+		handleAddOutfitClicked,
+		webAppViewContext,
+		selectedOutfitIds,
+	} = props;
+
+	return(
+		<React.Fragment>
+			{
+				// if user is editting their profile page
+				webAppViewContext === OxiAppConstants.webAppViewContext.b ? 
+					<React.Fragment>
+						<IconButton
+							icon="arrow_back"
+							style={{color: 'var(--color-02)'}}
+							onClick={e => setAppViewContext(null)}
+						/>
+						<Button 
+							label="DELETE"
+							onClick={(e) => {
+								console.log('outfit ids deleted = ', selectedOutfitIds);
+								confirmOutfitDelete();
+								e.stopPropagation();
+								//setAppViewContext(null);
+							}}
+						/>
+					</React.Fragment>: 
+					<React.Fragment>
+						<IconButton
+							icon="search"
+							style={{color: 'var(--color-01-tint-02)'}}
+							onClick={e => console.log(e)}
+						/>
+						<IconButton
+							icon="edit"
+							style={{color: 'var(--color-02)'}}
+							onClick={e => setAppViewContext(OxiAppConstants.webAppViewContext.b)}
+						/>
+						{
+							isDevice ? 
+								<IconButton
+									icon="add"
+									style={{color: 'var(--color-02)'}}
+									onClick={(e) => {
+										console.log('addOutfit clicked');
+										handleAddOutfitClicked(e);
+									}}
+								/> : 
+								<Fab
+									icon="add"
+									style={{
+										'background-color':'var(--color-05-tint-01)',
+										'color':'white',
+									}}
+									ripple={true}
+									onClick={(e) => {
+										console.log('addOutfit clicked');
+										handleAddOutfitClicked(e);
+									}}
+								/>
+						}
+					</React.Fragment>
+			}
+		</React.Fragment>
+	);
+}
+
 export function SiteNav(props){
 	const {
 		showMenu,
 		hideMenu,
 		positionMenu,
+		handleAddOutfitClicked,
+		setAppViewContext,
+		confirmOutfitDelete,
 	} = props;
 
 	const {
 		isMenu,
 		popupMenuType,
+		owner,
+		URI,
+		webAppView,
+		webAppViewContext,
+		selectedOutfitIds,
 	} = props;
 
 	const [ isSettingsOpen, setIsSettingsOpen ] = useState(false);
@@ -122,6 +200,59 @@ export function SiteNav(props){
 		return position;
 	} 
 
+	var viewControls = null;
+
+	switch(true){
+		case props.webAppView === 'landing' :
+			viewControls = <div style={{float:'right', width:'0px'}}>
+    			<div className={NavStyles.landingCtrl_div}>
+    				<div className={NavStyles.landingBtnContainer_div}>
+    					<div 
+    						className={NavStyles.landingBtn_div}
+    						onClick={(e) => {props.history.push('/shop/browse')}}
+    					>
+    						Login
+    					</div>
+    				</div>
+    			</div>
+    		</div>
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.a.toLowerCase():
+			viewControls = <BrowseControlContainer isMobile={true} />
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.b.toLowerCase():
+			viewControls = <div 
+				style={{
+					display:'flex',
+					'justify-content': 'flex-end',
+					'align-items' : 'center',
+					color: 'var(--color-02-shade-01)',
+				}}
+				className={Styles.profileViewControls}
+			>
+				{
+					// if user is on their own profile page
+					owner && owner.username === URI[URI.length - 1] ?
+						<ProfileControls {...props}/> :
+						null
+				}
+			</div>
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
+			viewControls = null;
+			break;
+
+		case !isDevice:
+			viewControls = <Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...props} />
+			break;
+
+		default:
+			break;
+	}
+
     return(
     	<div className={props.isHeaderHidden ? Styles['headerBlock--hidden'] : Styles.headerBlock}>
     		{/*<img src="Graphics/banner_title.svg" style={bannerTitleImg}/>*/}
@@ -136,30 +267,11 @@ export function SiteNav(props){
     								//style={logo_svg}
     							/>
     						</div>
+    						
     						<div className={NavStyles.navBanner_div}>
-    							{
-    								props.webAppView === 'landing' ?
-    									(
-    										<div style={{float:'right', width:'0px'}}>
-    											<div className={NavStyles.landingCtrl_div}>
-    												<div className={NavStyles.landingBtnContainer_div}>
-    													<div 
-    														className={NavStyles.landingBtn_div}
-    														onClick={(e) => {props.history.push('/shop/browse')}}
-    													>
-    														Login
-    													</div>
-    												</div>
-    											</div>
-    										</div>
-    									):(
-    										<Nav 
-    											blocks={Object.keys(OxiAppConstants.navRequestMap)} 
-    											{...props}
-    										/>
-    									)
-    							}
+    							{ viewControls }
     						</div>
+
     						<div className={NavStyles.managementContainer_div}>
     							<div 
     								style={{
@@ -298,7 +410,7 @@ class Nav extends React.Component{
 				{
 					webAppView !== 'landing' ?
 					(
-						<TabBar>
+						<TabBar style={{height: '100%'}}>
 							{
 								this.props.blocks.map((block) => {
 									console.log('block = ', block);
@@ -317,11 +429,13 @@ class Nav extends React.Component{
 										<Link
 											style={{
 												width:'33%',
+												height:'100%',
 											}} 
 											to={`${match.url}${selectionPath}`}>
 											<Tab
+												underline={!isDevice}
 												style={{
-													height: 'var(--page-header-height)',
+													...(isDevice ? ({height:'var(--mobile-page-header-height)'}) : ({height: 'var(--page-header-height)'})),
 													width:'100%',
 													'font-size':'12px',
 												}}
@@ -407,6 +521,9 @@ class OutfitNav extends React.Component{
 			imageHeight,
 			imageWidth,
 			previewedOutfitId,
+			setAppViewContext,
+			handleAddOutfitClicked,
+			webAppViewContext,
 		} = this.props;
 
 		var URI = pathname ? pathname.split('/') : '';
@@ -422,17 +539,10 @@ class OutfitNav extends React.Component{
 			>
 				{
 					owner && owner.username === URI[URI.length - 1] ?
-						(<Fab
-							icon="add"
-							style={{
-								'background-color':'var(--color-05-tint-01)',
-								'color':'white',
-							}}
-							ripple={true}
-							onClick={this.props.handleAddOutfitClicked}
-						/>) :
+						<ProfileControls {...this.props}/> :
 						null
 				}
+
 			</div> 
 		);
 
@@ -452,9 +562,9 @@ class OutfitNav extends React.Component{
 						<VisibleOutfitList 
 							view={this.props.webAppView} 
 							scrollContainerStyle={
-								this.props.webAppView === OxiAppConstants.navRequestMap.a ?
-									OutfitNavStyles.previewContainer : 
-									OutfitNavStyles.previewBrowseContainer
+								this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase() ?
+									OutfitNavStyles.previewBrowseContainer : 
+									OutfitNavStyles.previewContainer
 							}
 							containerHeight={containerHeight !== 0 ? containerHeight : null}
 							containerWidth={containerWidth !== 0 ? containerWidth : null}
@@ -510,14 +620,25 @@ class OutfitNav extends React.Component{
     							>
     								{browseContent !== null ? browseContent(controls) : null}
     							</div>
-    							<div 
-    								className={Styles.browseControls}
-    								style={this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase() ? ({display:'none'}) : ({}) }
-    							>
-									<BrowseControlContainer 
-										isMobile={true}
-									/>
-    							</div>
+    							{
+    								isDevice && this.props.formType == OxiAppConstants.FormType.ADD_ITEM ?
+    									null :
+    									<div 
+    										className={Styles.browseControls}
+    										style={
+    											(!isDevice && this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase()) || 
+    											(isDevice && this.props.formType === OxiAppConstants.FormType.OUTFIT_PREVIEW) ? 
+    												({display:'none'}) : 
+    												({}) 
+    										}
+    									>
+    										{
+    											isDevice ? 
+    												<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...this.props} /> : 
+													<BrowseControlContainer isMobile={true}/>
+											}
+    									</div>
+    							}
     						</React.Fragment>
     					) 
     				)
@@ -589,19 +710,19 @@ export default class webAppView extends React.Component {
 	}
 
 	async componentDidMount(){
-		var { ownerpicuri, hostpicuri } = this.props;
+		/*var { ownerpicuri, hostpicuri } = this.props;
 
 		//if coverpic filename exists, call get request for content coverpic data
 		console.log("ownerpicuri = ", ownerpicuri)
 		if(hostpicuri) await this.props.getCoverPic(hostpicuri, this._handleHostImageReceived, 'small');
-		if(ownerpicuri) await this.props.getCoverPic(ownerpicuri, this._handleOwnerImageReceived, 'small');
+		if(ownerpicuri) await this.props.getCoverPic(ownerpicuri, this._handleOwnerImageReceived, 'small');*/
 
 	}
 
 	async componentDidUpdate(prevProps){
-		var { ownerpicuri, hostpicuri } = this.props;
+		/*var { ownerpicuri, hostpicuri } = this.props;
 		if(hostpicuri !== prevProps.hostpicuri) await this.props.getCoverPic(hostpicuri, this._handleHostImageReceived, 'small');
-		if(ownerpicuri !== prevProps.ownerpicuri) await this.props.getCoverPic(ownerpicuri, this._handleOwnerImageReceived, 'small');
+		if(ownerpicuri !== prevProps.ownerpicuri) await this.props.getCoverPic(ownerpicuri, this._handleOwnerImageReceived, 'small');*/
 		
 	}
 
@@ -796,28 +917,36 @@ export default class webAppView extends React.Component {
 	render() {
 		const {
 			navEventCallbacks,
-			match,
 			setPreviewFocus,
 			unsetPreviewFocus,
 			showMenu,
 			hideMenu,
 			positionMenu,
+			setAppViewContext,
+			confirmOutfitDelete,
 		} = this.props;
 
 		var { 
 			location,
 			pathname,
+			match,
 			owner,
 			viewState,
+			formType,
 			isFocusedPreview,
 			isMenu,
 			popupMenuType,
 			webAppView,
+			webAppViewContext,
+			entitiesStateReducer,
+			ownerpicuri,
+			hostpicuri,
 		} =  this.props;
 
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
 		console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
 		let modalContent = null;
+		var URI = pathname ? pathname.split('/') : '';
 
 		const createModalFragment = (pathname, iniOutfitPreview) => (
 			<React.Fragment>
@@ -843,11 +972,17 @@ export default class webAppView extends React.Component {
 				positionMenu={positionMenu}
 				isMenu={isMenu}
 				popupMenuType={popupMenuType}
+				handleAddOutfitClicked={this._handleAddOutfitClicked}
+				owner={owner}
+				URI={URI}
+				webAppViewContext={webAppViewContext}
+				setAppViewContext={setAppViewContext}
+				selectedOutfitIds={entitiesStateReducer.outfits.multipleSelected}
+				confirmOutfitDelete={confirmOutfitDelete}
 			/>
 		);
 
 		const getOutfitPreviewModal = (props) => {
-
 			const {
 				showComments,
 			} = props;
@@ -856,6 +991,8 @@ export default class webAppView extends React.Component {
 				compoundStyles,
 				overrideOnExit,
 				isCommentsShown,
+				ownerpicuri,
+				hostpicuri,
 			} = props;
 
 			return(
@@ -931,6 +1068,9 @@ export default class webAppView extends React.Component {
 			case this.props.formType === OxiAppConstants.FormType.DISCARD_EDITS:
 				modalContent = createModalFragment(`${this.props.match.url}/discard-edits`);
 				break;
+			case this.props.formType === OxiAppConstants.FormType.DELETE_OUTFITS:
+				modalContent = createModalFragment(`${this.props.match.url}/delete-outfits`);
+				break;
 			case this.props.formType === OxiAppConstants.FormType.PROFILE_PIC:
 				modalContent = createModalFragment(`${this.props.match.url}/edit-profile-pic`);
 				break;
@@ -971,7 +1111,16 @@ export default class webAppView extends React.Component {
 							//Fetch all necesary data from the api server for the /browse page
 							<div>
 								{ /*this.props.navEventCallbacks.a(true)*/ }
-								{getSiteNav()}
+								{ /*getSiteNav()*/ }
+								<SiteNav {
+									...{
+										...this.props, 
+										handleAddOutfitClicked: this._handleAddOutfitClicked,
+										ownerUsernamePath: ownerUsernamePath,
+										URI:URI,
+
+									}
+								}/>
 								<div className={Styles.contentBlock}>
 									<div className={Styles.containerBrowse}>
 										{/*<div className={Styles.metricsContainer_div}>
@@ -981,20 +1130,28 @@ export default class webAppView extends React.Component {
 											isOpen={this.state.isMetricPanelOpen}
 											toggleMetricPanel={this.toggleMetricPanel}
 											isFocusedPreview={isFocusedPreview}
-											base64OwnerImage={this.state.base64OwnerImage}
-											base64HostImage={this.state.base64HostImage}											
+											//base64OwnerImage={this.state.base64OwnerImage}
+											//base64HostImage={this.state.base64HostImage}
+											ownerpicuri={ownerpicuri}
+											hostpicuri={hostpicuri}
 										/>
 										<OutfitNav 
 											webAppView={this.props.webAppView}
-											browseSelection={this.props.browseSelection}											
+											browseSelection={this.props.browseSelection}
+											navEventCallbacks={this.props.navEventCallbacks}
 											toggleMetricPanel={this.toggleMetricPanel}
 											handleAddOutfitClicked={this._handleAddOutfitClicked}
 											pathname={pathname}
+											match={match}
 											owner={owner}
+											formType={formType}
+											ownerUsernamePath={ownerUsernamePath}
 											//setPreviewedOutfit={this.setPreviewedOutfit}
 											previewedOutfitId={this.state.previewedOutfitId}
-											/*routeToHostProfile={(usernameUri) => this._handleNavBtnSelected(`/profile${usernameUri}`)}*/ />
-										{/*(location.state && location.state.modal) ? <ModalContentSelection/> : null*/}
+											setAppViewContext={setAppViewContext}
+											webAppViewContext={webAppViewContext}
+											confirmOutfitDelete={confirmOutfitDelete}
+										/>
 										<Admin/>
 									</div>
 								</div>
@@ -1007,7 +1164,15 @@ export default class webAppView extends React.Component {
 						render={(props) => (
 							<div>
 								{/*this.props.webAppView !== 'profile' ? this.props.navEventCallbacks.b(this.props.match.params.username) : null*/}
-								{getSiteNav()}
+								{ /*getSiteNav()*/ }								
+								<SiteNav {
+									...{
+										...this.props, 
+										handleAddOutfitClicked: this._handleAddOutfitClicked,
+										ownerUsernamePath: ownerUsernamePath,
+										URI:URI,
+									}
+								}/>
 								<div className={Styles.contentBlock}>
 									<div 
 										className={Styles.containerProfile} 
@@ -1022,8 +1187,10 @@ export default class webAppView extends React.Component {
 											isOpen={this.state.isMetricPanelOpen}
 											toggleMetricPanel={this.toggleMetricPanel}
 											isFocusedPreview={isFocusedPreview}
-											base64OwnerImage={this.state.base64OwnerImage}
-											base64HostImage={this.state.base64HostImage}
+											//base64OwnerImage={this.state.base64OwnerImage}
+											//base64HostImage={this.state.base64HostImage}
+											ownerpicuri={ownerpicuri}
+											hostpicuri={hostpicuri}
 										/>
 
 										{
@@ -1077,14 +1244,21 @@ export default class webAppView extends React.Component {
 															imageWidth={163.11 || this.state.imageWidth}
 															imageHeight={244.66 || this.state.imageHeight}
 															webAppView={this.props.webAppView}
+															navEventCallbacks={this.props.navEventCallbacks}
 															browseSelection="outfits"
 															setPreviewFocus={setPreviewFocus} 
 															toggleMetricPanel={this.toggleMetricPanel}
 															handleAddOutfitClicked={this._handleAddOutfitClicked}
 															pathname={pathname}
+															match={match}
 															owner={owner}
+															formType={formType}
+															ownerUsernamePath={ownerUsernamePath}
 															//setPreviewedOutfit={this.setPreviewedOutfit}
 															previewedOutfitId={this.state.previewedOutfitId}
+															setAppViewContext={setAppViewContext}
+															webAppViewContext={webAppViewContext}
+															confirmOutfitDelete={confirmOutfitDelete}
 														/>
 
 														
@@ -1110,7 +1284,15 @@ export default class webAppView extends React.Component {
 						render={(props) => (
 							<div>							
 								{ /*this.props.navEventCallbacks.c() */}
-								{getSiteNav()}
+								{ /*getSiteNav()*/ }
+								<SiteNav {
+									...{
+										...this.props, 
+										handleAddOutfitClicked: this._handleAddOutfitClicked,
+										ownerUsernamePath: ownerUsernamePath,
+										URI:URI,
+									}
+								}/>
 								{/*this.props.webAppView !== 'measurements' ? this.props.navEventCallbacks.c(this.props.match.params.username) : null*/}
 								<ProfileMenuContainer
 									//profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
@@ -1119,7 +1301,29 @@ export default class webAppView extends React.Component {
 									//postProfile={this.props.postProfile} 
 									//modifyProfile={this.props.modifyProfile}
 									//profileId={this.props.addedProfileId}
-									/>
+								/>
+								<OutfitNav 
+									webAppView={this.props.webAppView}
+									browseSelection={this.props.browseSelection}
+									navEventCallbacks={this.props.navEventCallbacks}
+									toggleMetricPanel={this.toggleMetricPanel}
+									handleAddOutfitClicked={this._handleAddOutfitClicked}
+									pathname={pathname}
+									match={match}
+									owner={owner}
+									formType={formType}
+									ownerUsernamePath={ownerUsernamePath}
+									//setPreviewedOutfit={this.setPreviewedOutfit}
+									previewedOutfitId={this.state.previewedOutfitId}
+									setAppViewContext={setAppViewContext}									
+									webAppViewContext={webAppViewContext}
+									confirmOutfitDelete={confirmOutfitDelete}
+								/>
+								{/*									
+    								isDevice ? 
+    									<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...this.props} /> : 
+										null
+								*/}
 							</div>
 						)} 
 					/>

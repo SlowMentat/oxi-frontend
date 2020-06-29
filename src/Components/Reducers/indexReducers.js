@@ -114,10 +114,12 @@ const browseState = (state = {'browseSelection' : 'outfits'}, action) => {
 	}
 }
 
-const appView = (state = {"webAppView": "landing"}, action) => {
+const appView = (state = {"webAppView": "landing", "webAppViewContext": null}, action) => {
 	switch(action.type){
 		case types.SELECT_WEB_APP_VIEW:
 			return Object.assign({}, state, action.payload);
+		case types.SELECT_WEB_APP_VIEW_CONTEXT:
+			return({...state, ...action.payload});
 		default:
 			return state;
 	}
@@ -346,7 +348,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 			return Object.assign({}, state, {allEditingIds: []});
 
 		case `REPLACE_${action.typeSpecifier}`:
-			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action)})
+			return Object.assign({}, state, {byIds : byId(byIdsRef, action), allIds : allIds(allIdsRef, action)});
 
 		case `REMOVE_ALL_${action.typeSpecifier}`:
 			return Object.assign({}, state, {byIds:{}, allIds:[], count: 0});

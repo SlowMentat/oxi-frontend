@@ -106,9 +106,9 @@ export class OutfitTileBrowseCtrls extends React.Component{
 						<SvgIcon 
 							className={OutfitStyles.measureBtn_svg} 
 							name="MeasureIcon" 
-							fill={fill}
-							stroke={stroke} 
-							strokeWidth={null} />
+							//fill={fill}
+							//stroke={stroke} 
+							strokeWidth={2} />
 					</div>
 				</div>
 				<div className={OutfitStyles.previewMeasureBtnContainer_div}>
