@@ -27,6 +27,7 @@
 				initialScreenHeight = window.screen.height;
 				initialInnerHeight = window.innerHeight;
 				isDevice = isPhoneGap();
+				navigator.splashscreen.hide();
 			}
 
 			document.addEventListener("deviceready", onDeviceReady, false);
