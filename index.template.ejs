@@ -9,8 +9,8 @@
 <html>
 	<head>
 		<!--TODO: REMOVE THIS IN PROD-->
-		<script src="http://localhost:8097"></script> 
-		<script>
+		<!--<script src="http://localhost:8097" nonce="4b53dcae43cb244933da5e87d08de89c"></script> -->
+		<script nonce="4b53dcae43cb244933da5e87d08de89c">
 			var initialScreenHeight = 0;
 			var initialInnerHeight = 0;			
 			var isDevice = false;
@@ -82,7 +82,18 @@
         -->
 
 		<!--<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src * data: content:;">-->
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *">
+		<!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *">-->
+				<!--script-src 'nonce-4b53dcae43cb244933da5e87d08de89c';-->
+		<meta 
+			http-equiv="Content-Security-Policy" 
+			content="
+				default-src 'self'; 
+				style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
+				font-src 'self' https://fonts.gstatic.com; 
+				media-src 'self'; 
+				img-src 'self' data: content:;
+			"
+		>
 		<meta name="format-detection" content="telephone=no">
 		<meta name="msapplication-tap-highlight" content="no">
 		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
@@ -94,7 +105,7 @@
 		<title>Fitsee</title>
 	</head>
 	<body>
-		<script src="cordova.js"></script>
+		<script src="cordova.js" nonce="4b53dcae43cb244933da5e87d08de89c"></script>
 		<div id="root" style="height:100%;"></div>
 		<div id="modalRoot" style="position: relative;"></div>
 	</body>
