@@ -15,11 +15,11 @@ export const TextField = styled(({...otherProps}) => (
 ))`
 	${props => (`
 			#textfield-${props.label}-label {
-				font-size: 1.4rem;
-				height: 1.4rem;
+				font-size: 1.6rem;
+				height: 1.6rem;
 			}
 			.mdc-text-field__input {
-				font-size: 1.4rem;
+				font-size: 1.6rem;
 			}
 		`)
 	}

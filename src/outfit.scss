@@ -105,7 +105,8 @@
     @include mobile_rules {
         display: flex;
         margin-top: unset;
-        height: 144px;
+        /*height: 144px;*/
+        height:17vh;
         position: absolute;
         top: 0px;
         width: 100vw;

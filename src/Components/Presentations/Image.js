@@ -52,6 +52,7 @@ export const Image = (props) => {
 			}}
 			onLoad={(e) => onLoad(e)}
 			onClick={onClick}
+			crossorigin="Anonymous"
 		/>
 		</React.Fragment>
 	);

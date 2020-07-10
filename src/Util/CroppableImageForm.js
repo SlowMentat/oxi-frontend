@@ -451,6 +451,7 @@ class CroppableImageForm extends React.Component{
 								console.log('exifData = ', exifData);
 								var rotation = 0;
 								var image = new Image();
+								image.crossOrigin = "Anonymous";
 								var imgData = arrayBufferToDataURL(readers[ti].result, 'image/jpeg');
 
 								var isPortrait = exifData.subIFDData.exifImageHeight > exifData.subIFDData.exifImageWidth ? 
@@ -654,6 +655,7 @@ class CroppableImageForm extends React.Component{
 	getCroppedImg(data, percentCrop, fileName, imageWidth, imageHeight, rotation=0, maxHeight, minYPercent,) {
 		return new Promise((resolve, reject) => {
 			var image = new Image();
+			image.crossOrigin = "Anonymous";
 	
 			image.onload = () => {
 				var cropXCoord = percentCrop.x/100 * image.width;
@@ -1463,7 +1465,9 @@ class CroppableImageForm extends React.Component{
 							onClick={e => this.props.onImageClick(e)} 
 							onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
 							ref={this.props.setupImageRef}
-							loading="lazy" />	
+							loading="lazy" 
+							crossOrigin="Anonymous"
+						/>	
 					);
 				}
 			}	
