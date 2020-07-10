@@ -1394,6 +1394,7 @@ class PicturePreview extends React.Component{
 		} = this.props;
 
 		this.image = img;
+		//this.image ? this.image.crossOrigin = "Anonymous" : null;
 		this.simulateImageClick = this.simulateImageClickFactory(img).bind(this);
 		//this.props.imageResized(image.width, image.height);
 		this.setState(prevState => ({

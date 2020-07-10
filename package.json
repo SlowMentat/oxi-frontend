@@ -1,24 +1,24 @@
 {
   "name": "oxi",
   "version": "1.0.0",
-  "babel":{
-	"presets": [
-	   "@babel/react",
-	   "@babel/env",
-	   [
-		 "@babel/env",
-		 {
-		   "targets": {
-			 "browsers": [
-			   "last 2 versions",
-			   "safari >= 7"
-			 ]
-		   }
-		 },
-		 "safari-gte-7"
-	   ]
-	 ]
- },
+  "babel": {
+    "presets": [
+      "@babel/react",
+      "@babel/env",
+      [
+        "@babel/env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions",
+              "safari >= 7"
+            ]
+          }
+        },
+        "safari-gte-7"
+      ]
+    ]
+  },
   "description": "poc",
   "main": "site.js",
   "//": [
@@ -99,7 +99,7 @@
     "babel-preset-env": "^1.7.0",
     "css-loader": "^3.0.0",
     "eslint": "^5.16.0",
-    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-react": "^7.20.3",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^23.6.0",
     "react-swipeable": "^5.4.0",

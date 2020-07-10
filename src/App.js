@@ -27,6 +27,7 @@ import {
 // Re-export with a default theme
 import { StylesProvider } from '@material-ui/core/styles';
 
+
 //import {MDCRipple} from '@material/ripple';
 //const buttonRipple = new MDCRipple(document.querySelector('.mdc-button'));
 
@@ -77,7 +78,10 @@ import {
 import { devToolsEnhancer } from 'redux-devtools-extension';
 import { composeWithDevTools } from 'redux-devtools-extension';
 //import devTools from 'remote-redux-devtools';
+
 import { createBrowserHistory } from 'history';
+import createHashHistory from 'history/createHashHistory';
+
 import { routerMiddleware } from 'connected-react-router';
 import { ConnectedRouter } from 'connected-react-router'
 
@@ -87,7 +91,8 @@ import { Portal } from '@rmwc/base';
 import {OxiAppConstants} from './Util/OxiAppConstants.js';
 
 
-export const history = createBrowserHistory();
+//export const history = createBrowserHistory();
+export const history = createHashHistory();
 
 const loggerMiddleware = createLogger();
 

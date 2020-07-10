@@ -801,7 +801,8 @@ input::placeholder {
     @include mobile_rules {
         border-radius: 0px;
         text-align: left;
-        height: 100vh;
+        /*height: 100vh;*/
+        height: 100%;
         width: 185vw;
         left: 0px;
         /* left: 0px; */

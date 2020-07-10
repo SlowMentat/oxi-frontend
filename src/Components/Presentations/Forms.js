@@ -1183,6 +1183,7 @@ class ExistingItems extends React.Component{
 					{
 						Object.keys(this.props.fieldsObj).map((key, ind) => (
 							<DropDownField 
+								key={ind}
 								context={0}
 								fieldType={key} 
 								onInputChange={(event) => {
@@ -1234,6 +1235,7 @@ class CustomItems extends React.Component{
 					{
 						Object.keys(this.props.fieldsObj).map((key, ind) => (
 							<DropDownField 
+								key={ind}
 								context={1}
 								fieldType={key} 
 								filteredApparelTypes={this.state.filteredApparelTypes === null ? (this.props.allApparelTypes) : (this.state.filteredApparelTypes)}
@@ -1602,12 +1604,13 @@ export class CreateAccountForm extends React.Component{
 							(<form action="" method="POST">
 								<div className={CreateAccountStyles.formContent_div}>
 									{
-										Object.keys(this.state.fieldValues).map(field => {
+										Object.keys(this.state.fieldValues).map((field, ind) => {
 											const fieldValidReducer = (accumulator, currentValue) => (accumulator && this.state.fieldCompleteness[field][currentValue]);
 											return(
 												<React.Fragment>
 													<CreateAccountField 
 														props={{
+															key:ind,
 															name:field, 
 															placeholder:this.state.fieldPlaceHolders[field], 
 															onChange: (e) => this._handleInputFieldChange(field, e.target.value),
