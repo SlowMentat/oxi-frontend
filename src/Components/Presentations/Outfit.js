@@ -405,11 +405,11 @@ export class Outfit extends React.Component{
 								}}
 								onLoad={e => this.setState(prevState => ({...prevState, imgLoaded: true,}))}
 								onClick={(event) => {									
-									!isEditingProfile ? 
-										previewOutfitFromBrowse(id) :
-										isSelected ?
-											deselectOutfit(id) :
-											selectOutfit(id);
+									if(!isEditingProfile){ 
+										previewOutfitFromBrowse(id)
+									}else{
+										isSelected ? deselectOutfit(id) : selectOutfit(id);
+									}
 
 									event.stopPropagation();
 								}}

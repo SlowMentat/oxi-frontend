@@ -842,7 +842,7 @@ class ImageEdit extends React.Component{
 							this.props.addedEntities, 
 							this.props.entitiesStateReducer, 
 							this.props.itemContent.count,
-							crops,
+							crops
 						);
 						break;
 					default:
@@ -870,7 +870,8 @@ class ImageEdit extends React.Component{
 						outfitJson.id, 
 						this.props.addedEntities, 
 						this.props.entitiesStateReducer,
-						this.props.itemContent.count
+						this.props.itemContent.count,
+						crops
 					)
 
 					/*let currentContent = outfitJson.contents.filter(content => content.id === invalidatedContentId)[0];

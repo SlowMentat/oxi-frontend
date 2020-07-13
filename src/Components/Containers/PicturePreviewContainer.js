@@ -217,8 +217,11 @@ const mapDispatchToProps = (dispatch) => ({
 
 
 	// modified or added contents
-	uploadContents : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) =>{
-		if(imageFiles !== null) uploadImages(imageFiles, () => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)));
+	uploadContents : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount, crops) =>{
+		if(imageFiles !== null) uploadImages(
+			imageFiles, 
+			() => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)),
+			crops);
 	},
 
 	postAddedContent : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {

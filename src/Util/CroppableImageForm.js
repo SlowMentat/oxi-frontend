@@ -541,6 +541,10 @@ class CroppableImageForm extends React.Component{
 										src: imgData,
 										cropping: true,
 										rotation: rotation,
+										crop:{
+											...this3.imageDataTemplate.crop,
+											rotation: rotation,
+										},
 										//crop: (image.width / image.height <= this3.imageDataTemplate.crop.aspect ? 
 										//	({
 										//		...this3.imageDataTemplate.crop,
@@ -1075,6 +1079,7 @@ class CroppableImageForm extends React.Component{
 	 	updateImageState({
 	 		[id] : {
 	 			crop:{
+	 				...images[id].crop,
 	 				...percentCrop,
 	 			}
 	 		}

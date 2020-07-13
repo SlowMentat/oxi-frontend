@@ -92,7 +92,7 @@ import {OxiAppConstants} from './Util/OxiAppConstants.js';
 
 
 //export const history = createBrowserHistory();
-export const history = createHashHistory();
+export const history = isDevice ? createHashHistory() : createBrowserHistory();
 
 const loggerMiddleware = createLogger();
 

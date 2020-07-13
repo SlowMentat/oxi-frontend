@@ -216,8 +216,10 @@
 
 :local(.outfitMenuBlockProfile){
     composes: outfitMenuBlock;
-    --lr-margin: 24px;
-    --tb-margin: 20px;
+    /*--lr-margin: 24px;
+    --tb-margin: 20px;*/
+    --lr-margin: 12px;
+    --tb-margin: 12px;
 
     @include desktop_rules {
         /*margin-left: -128.5px;*/
