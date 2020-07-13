@@ -1016,6 +1016,7 @@ class CroppableImageForm extends React.Component{
 				crop: isCropReused(images[id].crop) ? 
 					images[id].crop :
 					{
+						rotation: images[id].crop.rotation,
 						x: 0,
 						y: minYPercent,
 						aspect: OxiAppConstants.aspectRatio,

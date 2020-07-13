@@ -54,7 +54,7 @@ Thumbs.db
 # Project Specific #
 ####################
 *.sublime-workspace
-
+.tern-project
 index.template.ejs
 package-lock.json
 sftp-config.json
