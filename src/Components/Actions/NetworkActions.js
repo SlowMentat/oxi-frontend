@@ -23,6 +23,7 @@ import * as genericActions from './GenericActions.js';
 import * as scaffolding from './Scaffolding.js';
 import { setFormVisibility , navigateTo} from './indexActions.js';
 import { RequestFailedException } from '../../Util/CustomExceptions.js';
+import { isDataUrl } from '../../Util/Misc.js';
 
 
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
@@ -119,7 +120,7 @@ export const receivedSizeGroupsByItemId = scaffolding.makeActionCreator(types.RE
 *  @param {Object} contentJson:  the [contents] json body to be modified
 *  @param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
 */
-function graftPictureJson(contentsJson, picturesJson){
+function mergePictureJson(contentsJson, picturesJson){
 
 	if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
 
@@ -443,6 +444,30 @@ export function fetchImage(filename, callback, picture, cancel=()=>{} ){
 	.catch(msg => console.error(msg));
 }*/
 
+export async function putCrop(imageFiles, filename, crop){
+	const oglFilename = imageFiles[filename].fileData.match(/\/(ogl[a-zA-Z0-9]+).[a-z]+$/)[1];
+	const { contentId } = imageFiles[filename];
+
+	return axios.put(
+		OxiAppConstants.serviceURL + '/crop',
+		{
+			crop,
+			originaluri: oglFilename,
+			contentId,
+		},
+		{}
+	).then(response => {
+		if(response.status === OxiAppConstants.HttpStatus.OK){
+			//generateOnSuccessHandler && generateOnSuccessHandler()(response.data);
+			return {[filename]: response.data};
+		}
+		else{
+			throw response.status;
+		}
+
+	}).catch(err => console.error(err));
+}
+
 export async function postImage(imageFile, generateOnSuccessHandler, filename, isProfile=false, crop){
 	let imageFormData = new FormData(); 
 	imageFormData.append('imageFile', imageFile);
@@ -463,12 +488,10 @@ export async function postImage(imageFile, generateOnSuccessHandler, filename, i
 		}
 	)
 	.then(response => {
-
 		if(response.status === OxiAppConstants.HttpStatus.CREATED){
 			generateOnSuccessHandler && generateOnSuccessHandler()(response.data);
 			return {[filename]: response.data};
 		}
-
 		else{
 			throw response.status;
 		}
@@ -476,10 +499,10 @@ export async function postImage(imageFile, generateOnSuccessHandler, filename, i
 	.catch(msg => console.error(msg));
 }
 
-export function putImage(imageFile, contentId, onSuccess, filename, crop){
+export function putImage(imageFile, contentId, onSuccess, fileId, crop){
 	let imageFormData = new FormData();
 	imageFormData.append('imageFile', imageFile);
-	console.log("#putImage:  contentId = ", contentId, ", filename = ", filename);
+	console.log("#putImage:  contentId = ", contentId, ", fileId = ", fileId);
 
 	return axios.post(
 		OxiAppConstants.serviceURL + '/updatePhoto/' + contentId, 
@@ -495,7 +518,8 @@ export function putImage(imageFile, contentId, onSuccess, filename, crop){
 		if(response.status === OxiAppConstants.HttpStatus.OK){
 			onSuccess()(response.data[0]);
 			//putEntities(json, response.data, entityType, onSuccess);
-		}else{
+		}
+		else{
 			return response.status;
 		}
 	});
@@ -511,7 +535,7 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 	var pictures = {};
 	
 	try{
-		var postRequests = [];
+		var batchRequest = [];
 		var ind = 0;
 
 		for(var filename of Object.keys(imageFiles)){
@@ -520,18 +544,28 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 
 			let {
 				contentId,
-				fileData,
-			} = imageFiles[filename] 
+				fileData,	// fileData can either be base64 data url string, or a resource url
+			} = imageFiles[filename];
 
-			postRequests = [
-				...postRequests, 
-				(typeof contentId === 'number' ? 
-					postImage(fileData, null, filename, false, crop ) : 
-					putImage(fileData, contentId, null, filename, crop )),
-			];
+			// New image has been added
+			//if(isDataUrl(imageFiles[filename].fileData)){
+			if(!!imageFiles[filename].fileData.match(/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i)){
+				batchRequest = [...batchRequest, postImage(fileData, null, filename, false, crop )];
+			}
+			// Crop of exisitng image has changed. 
+			else{
+				batchRequest = [...batchRequest, putCrop(imageFiles, filename, crop)];
+			}
+
+			//batchRequest = [
+			//	...batchRequest, 
+			//	(typeof filename === 'number' ? 
+			//		postImage(fileData, null, filename, false, crop ) : 
+			//		putImage(fileData, filename, null, filename, crop )),
+			//];
 		}
 
-		await Promise.all(postRequests)
+		await Promise.all(batchRequest)
 		.then(results => {
 			// results is of the form [{ [picture name]: {} }]
 			console.log("#uploadImages:  pictures = ", results);
@@ -616,7 +650,7 @@ export function deleteOutfits(outfitIds, onSuccess){
 *
 */
 export function uploadContents(contents, outfitId, onSuccess){
-	return async (picturesByFilename) => {
+	return async (picturesByFilename/*picturesByContentId*/) => {
 		
 		try{
 			var pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
@@ -635,12 +669,25 @@ export function uploadContents(contents, outfitId, onSuccess){
 			]), []);
 	
 			// Helper function for grafting pictrue json to parent content.
-			const graftPictureJson = (contents) => contents.map(content => {
+			const mergePictureJson = (contents) => contents.map(content => {
+				// Note: If uploadContents is being called from updateCrop, then the coverpicuri used here as key will be the old coverpicuri (before crop was updated)
 				let picture = picturesByFilename[content.coverpicuri];
+				//let picture = picturesByContentId[content.id];
 				
 				return {
 					...content,
-					picture: {...picture, contentId: undefined},
+					// An updated picture entity is persisted during updateCrop. That being the case, only update content coverpicuri.
+					...(picture.thumbnailuri === content.coverpicuri ? 
+						{
+							picture: {
+								...picture, 
+								contentId: undefined 
+							}
+						} : 
+						{
+							picture: null
+						}
+					),
 					coverpicuri: picture.thumbnailuri,
 				};
 			});
@@ -651,7 +698,7 @@ export function uploadContents(contents, outfitId, onSuccess){
 					...requestBatch,
 					axios.post(
 						OxiAppConstants.serviceURL + '/contents' + pathVariable, 
-						graftPictureJson(addedContents), 
+						mergePictureJson(addedContents), 
 						{}
 					)
 				]
@@ -663,7 +710,7 @@ export function uploadContents(contents, outfitId, onSuccess){
 					...requestBatch,
 					axios.put(
 						OxiAppConstants.serviceURL + '/contents' + pathVariable, 
-						graftPictureJson(modifiedContents), 
+						mergePictureJson(modifiedContents), 
 						{}
 					),
 				]
@@ -674,15 +721,14 @@ export function uploadContents(contents, outfitId, onSuccess){
 	
 				//let responses = responses.reduce((accum, response) => {
 				for(var response of responses){	
-					if(response.status !== OxiAppConstants.HttpStatus.CREATED){
-	/*
-						return [
-							...accum, 
-							response,
-						];
-					}
+					if(response.status >= 400){
 	
-					else{*/
+					//	return [
+					//		...accum, 
+					//		response,
+					//	];
+					//}	
+					//else{
 						failedRequests = [...failedRequests, {status: response.status, request: response.request}];
 					}				
 				}
@@ -690,7 +736,6 @@ export function uploadContents(contents, outfitId, onSuccess){
 				if(failedRequests.length === 0){
 					onSuccess(responses, picturesByFilename);			
 				}
-
 				else{
 					throw new RequestFailedException(failedRequests);
 				}
@@ -710,7 +755,7 @@ export function postContent(contentJson, outfitId, onSuccess){
 			OxiAppConstants.serviceURL + '/contents' + pathVariable, 
 			[ 
 				{
-					...((graftPictureJson([contentJson], [pictureJson]))[0])
+					...((mergePictureJson([contentJson], [pictureJson]))[0])
 				}
 			], 
 			{})
@@ -731,7 +776,7 @@ export function putContent(contentJson, outfitId, onSuccess){
 
 			axios.put(
 				OxiAppConstants.serviceURL + '/content' + pathVariable, 
-				Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]), 
+				Object.assign({}, mergePictureJson([contentJson], [pictureJson])[0]), 
 				{})
 			.then(response => {
 				if(response.status === OxiAppConstants.HttpStatus.OK){
@@ -763,7 +808,7 @@ export function putContent(contentJson, outfitId, onSuccess){
 		let pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
 		axios.post(
 			OxiAppConstants.serviceURL + '/contents' + pathVariable, 
-			[ Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]) ], 
+			[ Object.assign({}, mergePictureJson([contentJson], [pictureJson])[0]) ], 
 			{})
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
@@ -782,7 +827,7 @@ export function putContent(contentJson, outfitId, onSuccess){
 
 			axios.put(
 				OxiAppConstants.serviceURL + '/content' + pathVariable, 
-				Object.assign({}, graftPictureJson([contentJson], [pictureJson])[0]), 
+				Object.assign({}, mergePictureJson([contentJson], [pictureJson])[0]), 
 				{})
 			.then(response => {
 				if(response.status === OxiAppConstants.HttpStatus.OK){
@@ -935,17 +980,17 @@ export function putEntities(outfitJson, picturesJson, enityType, onSuccess){
 				finalJson.coverpicuri = picturesJson[0].smalluri;
 			}
 			//add the picture outfitJson object returned from the server
-			finalJson = Object.assign({}, finalJson, {contents: graftPictureJson(finalJson.contents, picturesJson)});
+			finalJson = Object.assign({}, finalJson, {contents: mergePictureJson(finalJson.contents, picturesJson)});
 			break;
 		case OxiAppConstants.EntityTypes.CONTENT:
 			if(outfitJson.contents.length > 1){
 				requestTarget = '/contents/' + outfitJson.id;
 				//add the picture outfitJson object returned from the server
-				finalJson = Object.assign({}, graftPictureJson(outfitJson[contents], picturesJson));
+				finalJson = Object.assign({}, mergePictureJson(outfitJson[contents], picturesJson));
 			}else{
 				requestTarget = '/content/' + outfitJson.id;
 				//add the picture outfitJson object returned from the server
-				//finalJson = Object.assign({}, graftPictureJson(outfitJson['contents'][0], picturesJson));
+				//finalJson = Object.assign({}, mergePictureJson(outfitJson['contents'][0], picturesJson));
 			}
 			break;
 		case OxiAppConstants.EntityTypes.ITEM:

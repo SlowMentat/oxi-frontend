@@ -295,57 +295,8 @@ class ImagePreview extends React.Component{
 		} = this.props;
 
 		var indLength = Object.keys(contentIdsToInd).length;
-
-		//if(this.state.contentId != this.props.contentSelected){
-		//	//get image data from content entity coverpicuri property
-		//	//console.log("component did mount with contentSelected = " + this.props.contentSelected);
-		//	//console.log("this.props.pictures = ", this.props.pictures);
-		//	let contentIds = Object.keys(this.props.contents);
-		//	if(this.props.contentSelected !== null && this.props.contentSelected !== undefined && this.props.contentSelected !== false && this.props.pictures !== undefined){
-		//		//console.log("calling getPreviewPic");
-		//		//console.log("this.props.contents = ", this.props.contents);
-		//		if(Object.keys(this.props.pictures).length > 0 && contentIds.length > 0){
-		//			//console.log('contentSelected = ', this.props.contentSelected);
-		//			//check if selected contentId is valid
-		//			//TODO: 	race condition this module renders when contentSelect or entitiesReducer.contents changes.  
-		//			//			Either content.selected id is invalid, or I'm assuming the content entity will not yet exist in entitiesReducer.contents state. Fix this shit!
-		//			if(this.props.contents[this.props.contentSelected] !== undefined){
-		//				this.props.getPreviewPic(this.props.pictures[this.props.contents[this.props.contentSelected].picture].largeuri, this._handleImageReceived);
-		//			}else{
-		//				console.log("invalid contentId in entitiesStateReducer.content.selected state");
-		//			}
-		//		}
-		//	}
-		//	this.state.contentId = this.props.contentSelected;
-		//}
-		//onImgLoading();
+		
 		return (
-			//<div style={imgFormStyle}>
-			//	<Swipeable 
-			//		onSwiped={
-			//			(e) => swipeCallback(e)
-			//		}
-			//		delta={30}
-			//		innerRef={(div) => {
-			//			if(div){
-			//				div.style.height = '100%';
-			//				isDevice ? null : div.style.maxWidth = 'calc(75vh - 20px)';
-			//			}
-			//		}} 
-			//	>
-			//		<div 
-			//			style={{
-			//				height: '100%',
-			//				display: 'flex',
-			//				'justify-content': 'flex-start',
-			//				'align-items': 'center',
-			//				//'max-width': `${isDevice ? `calc(75vh - 20px)` : `unset`}`,
-			//				width: (isDevice ? `calc(100vw * ${indLength.length})` : `calc((75vh - 20px) * ${indLength.length})`),
-			//				transition: 'transform 300ms ease-in-out',
-			//				transform: `translateX(${(-100 / indLength.length) * contentIdsToInd[selectedContentId].ind}%)`,
-			//				'will-change':'transform',
-			//			}}
-			//		>
 			<PictureCarousel 
 				index={contentIdsToInd[selectedContentId] ? contentIdsToInd[selectedContentId].ind : 0} 
 				size={indLength}
@@ -362,7 +313,7 @@ class ImagePreview extends React.Component{
 							<div 
 								key={id} 
 								className={FormStyles.previewImageContainer_div}
-								style={{'background-color': '#f0f0f0'}}
+								//style={{'background-color': '#f0f0f0'}}
 								//style={{
 								//	'position':'relative',
 								//	'width':'auto',
@@ -828,7 +779,8 @@ class ImageEdit extends React.Component{
 						this.props.putModifiedOutfit(
 							files, 
 							this.props.entitiesStateReducer.contents.selected, 
-							outfitJson, this.props.addedEntities, 
+							outfitJson, 
+							this.props.addedEntities, 
 							this.props.entitiesStateReducer, 
 							this.props.itemContent.count
 						);
@@ -874,34 +826,9 @@ class ImageEdit extends React.Component{
 						crops
 					)
 
-					/*let currentContent = outfitJson.contents.filter(content => content.id === invalidatedContentId)[0];
-
-					switch(typeof invalidatedContentId){//this.props.entitiesStateReducer.contents.selected){
-						case 'string':
-							console.log('addedEntities before call to putModifiedContent = ', this.props.addedEntities);
-							this.props.putModifiedContent(
-								files[currentContent.coverpicuri],
-								Object.assign({}, currentContent, {id: null}),//contents[0]), 
-								outfitJson.id, 
-								this.props.addedEntities, 
-								this.props.entitiesStateReducer,
-								this.props.itemContent.count );
-							break;
-						case 'number':
-							this.props.postAddedContent(
-								files[currentContent.coverpicuri],
-								Object.assign({}, currentContent, {id: null}),//,contents[0], 
-								contents,
-								this.props.entitiesStateReducer.outfits.selected, 
-								this.props.addedEntities, 
-								this.props.entitiesStateReducer, 
-								this.props.itemContent.count);
-							break;
-						default:
-							break;
-					}*/
-				//}
 				break;
+
+
 
 			//Only item enitties have been modified or added
 			case (this.props.entitiesStateReducer.items.clientInvalidated.length > 0 || this.props.entitiesStateReducer.items.clientDeleted.length > 0):
@@ -1177,8 +1104,9 @@ class ImageEdit extends React.Component{
 		console.log("image clicked!!");
 		//store clicked location
 		//call item form
-		let xCoordPercent = ((event.pageX === 0 ? event.clientX : event.pageX) - ((event.target.getBoundingClientRect === undefined) ? event.target.x : event.target.getBoundingClientRect().left)) / event.target.width;
-		let yCoordPercent = ((event.pageY === 0 ? event.clientY : event.pageY) - ((event.target.getBoundingClientRect === undefined) ? event.target.y : event.target.getBoundingClientRect().top)) / event.target.height;
+		const boundingRect =  event.target.getBoundingClientRect();
+		let xCoordPercent = ((event.pageX === 0 ? event.clientX : event.pageX) - ((event.target.getBoundingClientRect === undefined) ? event.target.x : boundingRect.left)) / event.target.width;
+		let yCoordPercent = ((event.pageY === 0 ? event.clientY : event.pageY) - ((event.target.getBoundingClientRect === undefined) ? event.target.y : boundingRect.top)) / event.target.height;
 		this.props.getItemForm(xCoordPercent, yCoordPercent);
 		//event.stopPropagation();
 		//store.dispatch(setFormVisibility("AddItem"));
@@ -1369,6 +1297,7 @@ class PicturePreview extends React.Component{
 				savedMaxHeight: 0,
 			}
 		};
+		this.simulateImageClickHandlers = {};
 
 		this.state = {
 			imageWidth: 0,
@@ -1389,32 +1318,34 @@ class PicturePreview extends React.Component{
 		this.isCropReused = this.isCropReused.bind(this);
 	}
 
-	setupImageRef(img){
+	setupImageRef(img, id){
 		const {
 			contentState
 		} = this.props;
 
-		this.image = img;
-		//this.image ? this.image.crossOrigin = "Anonymous" : null;
-		this.simulateImageClick = this.simulateImageClickFactory(img).bind(this);
-		//this.props.imageResized(image.width, image.height);
-		this.setState(prevState => ({
-			...prevState,
-			imageRef: img,
-			images:{
-				...prevState.images,
-				[contentState.selected] : {
-					...this.imageDataTemplate,
-					...prevState.images[contentState.selected],					
-					imageRef: img,
-					crop:{
-						...this.imageDataTemplate.crop,
-						...(prevState.images[contentState.selected] ? prevState.images[contentState.selected].crop : ({}) ),
+		if(img && id && !this.simulateImageClickHandlers[id]){
+			this.image = img;
+			//this.image ? this.image.crossOrigin = "Anonymous" : null;
+			this.simulateImageClickHandlers[id] = this.simulateImageClickFactory(img).bind(this);
+			//this.props.imageResized(image.width, image.height);
+			this.setState(prevState => ({
+				...prevState,
+				imageRef: img,
+				images:{
+					...prevState.images,
+					[id] : {
+						...this.imageDataTemplate,
+						...prevState.images[id],					
+						imageRef: img,
+						crop:{
+							...this.imageDataTemplate.crop,
+							...(prevState.images[id] ? prevState.images[id].crop : ({}) ),
+						}
 					}
-				}
-			}	
-		}))
-		//this.forceUpdate();
+				}	
+			}))
+			//this.forceUpdate();
+		}
 	}
 
 	// returns true if crop is resused, or false if crop is new
@@ -1775,7 +1706,7 @@ class PicturePreview extends React.Component{
 							imageElement: this.image,
 							setupImageRef: this.setupImageRef,
 							updateImageDimension: this.updateImageDimension,
-							simulateImageClick: this.simulateImageClick,
+							simulateImageClick: this.simulateImageClickHandlers[contentSelected],
 							images: this.state.images,
 							itemMapDimension: {width: this.props.imageWidth, height: this.props.imageHeight},
 							contentIdsToInd: contentIdsToInd,
@@ -1802,16 +1733,25 @@ class PicturePreview extends React.Component{
 						}
 					}
 				/>
-					<div style={{width: 'calc(100% - 400px)'}}>
+					<div style={{
+						//width: 'calc(100% - 400px)'
+						width: '100%',
+						display: 'flex',
+    					'align-items': 'center',
+    					'justify-content': 'center',
+					}}>
 						<div 
 							style={{
 								...(isDevice ? 
 									({}) :
 									({
-										width: (this.image === undefined || this.image === null) ? '0px' : 'calc(400px + 100%)',//`${this.image.clientWidth}px`,
-										display: (this.image === undefined || this.image === null) ? 'none' : this.image.clientWidth > 0 ? 'block' : 'none',
-										'margin-right': '-400px',
+										//width: (this.image === undefined || this.image === null) ? '0px' : 'calc(400px + 100%)',//`${this.image.clientWidth}px`,
+										width:'auto',
+										//display: (this.image === undefined || this.image === null) ? 'none' : 'block', //this.image.clientWidth > 0 ? 'block' : 'none',
+										//'margin-right': '-400px',
 										'background-color': '#a9a9a9',
+										display: 'flex',
+										'justify-content': 'center',
 									})),
 							}}
 							className={FormStyles.contentListContainer_div}

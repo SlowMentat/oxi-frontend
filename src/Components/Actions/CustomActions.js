@@ -488,8 +488,8 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				return axios.get(encodeURI(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`))
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
-						let normalizedJson = response.data._embedded.items._embedded.itemDtoes.reduce((accumulator, currentObject) => {
-							return(Object.assign(accumulator, {
+						let normalizedJson = response.data._embedded.items._embedded.itemDtoes.reduce((accum, currentObject) => {
+							return(Object.assign(accum, {
 								[currentObject.id]: {
 									'id': currentObject.id, 
 									'type': currentObject.type,

@@ -157,7 +157,9 @@ export default class ItemLocationMap extends React.Component{
 				<div 
 					//style={Object.assign({}, svgContainerStyle, this.props.itemMapDimension)}
 					className={FormStyles.itemMapSvgContainer_div}
-					style={Object.assign({}, {}, this.props.itemMapDimension)}
+					style={{
+						...(isDevice ? {} : this.props.itemMapDimension)
+					}}
 				>
 					<svg 
 						onClick={(event) => {

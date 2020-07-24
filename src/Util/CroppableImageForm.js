@@ -617,7 +617,9 @@ class CroppableImageForm extends React.Component{
 			
 			//invalidate newly added content entity/ies		
 			if(prevProps.addedContents.allIds.length < addedContents.allIds.length){
-				this.props.clientInvalidateEntity(addedContents.allIds.filter(id => typeof id === 'number'), OxiAppConstants.EntityTypes.CONTENT)();
+				const addedContentIds = addedContents.allIds.filter(id => typeof id === 'number');
+				this.props.clientInvalidateEntity(addedContentIds, OxiAppConstants.EntityTypes.CONTENT)();
+				this.props.clientInvalidateEntity(addedContentIds, OxiAppConstants.EntityTypes.PICTURE)();
 			}
 		}
 		//Single modification (multiple modification not allowed)
@@ -753,7 +755,24 @@ class CroppableImageForm extends React.Component{
 		//variables
 		const {
 			images,
+			entitiesStateReducer,
+			addedContents,
 		} = this.props;
+
+		//const filterOutInvalidEntities = (sample: any[], test: any[]) => {			
+		//	var validContentIds = addedContents.allIds.filter(id => {
+		//		var keepId = true;
+//
+		//		for(let invContentId of entitiesStateReducer.content.clientInvalidated){
+		//			if(invContentId === id){
+		//				keepId = false;
+		//				break;
+		//			};
+		//		}
+//
+		//		return keepId;
+		//	});
+		//}
 
 		let isCropping = false;
 
@@ -770,16 +789,39 @@ class CroppableImageForm extends React.Component{
 			let files = {};
 			let crops = [];
 			
-			for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
-				if(typeof this.props.addedContents.byIds[invalidatedContentId].picture === 'number' || this.props.addedContents.byIds[invalidatedContentId].picture.length === 0){
+			//// Build a list of content ids that represent content entities that are invalidated, or that reference invalidated picture entities
+			//var targetContentIds = [...clientInvalidateEntity]
+//
+			//// Filter out content ids referencing invalid content entites.
+			//var validContentIds = filterOutInvalidEntities(addedContents.allIds, entitiesStateReducer.content.clientInvalidated);
+			//// Filter out content ids referencing content entites that contain a picture propery referencing an invalidated picture entity.
+			//var validContentIdsWithValidPicture = filterOutInvalidEntities(validContentIds, entitiesStateReducer.pictures.clientInvalidated);
+			//// Filter valid content entities with valid picture from editting contents
+			//var targetContentIds = addedContents.allIds.filter(id => {
+//
+			//})
 
-					//Note for newly added content, the coverpicuri contains the file name.  
-					//Coverpicuri is used from each content entity to reference the corresponding file in files object when sending image data to the server
+			//var targetContentIds = addedContents.allIds.filter(id => {
+			//	for(let picId of entitiesStateReducer.pictures.clientInvalidated){
+			//		if(addedContents.byIds[id].picture === picId){
+			//			return true	;
+			//		}
+			//	}
+//
+			//	return false;
+			//});
+
+			for(let id of this.props.entitiesStateReducer.contents.clientInvalidated){
+			//for(let id of targetContentIds){
+				//if(typeof this.props.addedContents.byIds[id].picture === 'number' || this.props.addedContents.byIds[id].picture.length === 0){
+
+					// Note for newly added content, the coverpicuri contains the file name.  
+					// From each content entity, coverpicuri is used to reference the corresponding file in files object to send the orrect image data to the server
 					files = {
 						...files,
-						[this.props.addedContents.byIds[invalidatedContentId].coverpicuri]: {
-							fileData: images[invalidatedContentId].src,
-							contentId: invalidatedContentId, 
+						[ this.props.addedContents.byIds[id].coverpicuri]: {
+							fileData: images[id].src,
+							contentId: id, 
 						}
 					};
 
@@ -787,16 +829,16 @@ class CroppableImageForm extends React.Component{
 						...crops,
 						// Set savedMaxHeight to 0, so that it is not persisted server side and reused on another device, which causes problems on devices with different screen dimensions.
 						{ 
-							...images[invalidatedContentId].crop, 
+							...images[id].crop, 
 							savedMaxHeight: 0 
 						},
 					];
 					//  (this.props.entitiesStateReducer.pictures.clientInvalidated.length > 0) ? //TODO:  should be ... > 0
 					//  this.props._handleSubmit(this.state.images[this.selectedContentId].src) :
 					//	this.props._handleSubmit(null);
-				}else{
-
-				}
+				//}else{
+//
+				//}
 			}
 			new Promise((resolve, reject) => resolve(this.props._handleSubmit(files, crops)))
 			.then(response => this.forceUpdate());
@@ -822,6 +864,7 @@ class CroppableImageForm extends React.Component{
 			addedContents,
 			images,
 			entitiesStateReducer,
+			pictures,
 		} = this.props;
 
 		var croppedImages = {};
@@ -881,8 +924,44 @@ class CroppableImageForm extends React.Component{
 		console.trace("calling updateImageState. images = ", croppedImages)
 		updateImageState(croppedImages);
 
-		var invalidatedPictureIds = ids.map(id => addedContents.byIds[id].picture);
-		clientInvalidateEntity(invalidatedPictureIds, OxiAppConstants.EntityTypes.PICTURE)();
+
+		// The crop switch acts on all images. This means that certain images may be cropped with unaltered crop data.  
+		// To avoid resending the same image data for files with unaltered crops, the crop x, y, width, and height 
+		// properties are delta chaecked before invalidating picture id.
+		var invalidatedPictureIds = ids.reduce((accum, id, ind, ids) => {
+			var pictureId = addedContents.byIds[id].picture;
+			var result = accum;
+
+			// Check if picture exists then compare picture.crop against imgages.crop
+			if(pictures.byIds[pictureId]){
+				// If crop postions and size are the same do not invalidate
+				const existingCrop = pictures.byIds[pictureId].crop;
+				const updatedCrop = images[id].crop;
+				const hasChanged = 
+					existingCrop.x != updatedCrop.x || 
+					existingCrop.y != updatedCrop.y || 
+					existingCrop.width != updatedCrop.width || 
+					existingCrop.height != updatedCrop.height; 
+
+				if(hasChanged) result = [...accum, pictureId]; 
+			}
+
+			return result;
+		}, []);
+
+		// Collect the content ids referencing with invalid picture property		
+		var invalidContentIds = addedContents.allIds.filter(id => {
+			for(let picId of invalidatedPictureIds){
+				if(addedContents.byIds[id].picture === picId){
+					return true	;
+				}
+			}
+
+			return false;
+		});
+
+		if(invalidatedPictureIds.length > 0) clientInvalidateEntity(invalidatedPictureIds, OxiAppConstants.EntityTypes.PICTURE)();
+		if(invalidContentIds.length > 0) clientInvalidateEntity(invalidContentIds, OxiAppConstants.EntityTypes.CONTENT)();
 	}
 
 	/*
@@ -1451,10 +1530,10 @@ class CroppableImageForm extends React.Component{
 							cropImgRoot={this.cropImgRoot}
 							src={images[id].src}
 							crop={this.props.images[id].crop}
-							onImageLoaded={(imageElement) => this._onCropImageLoaded(imageElement, id)}
+							onImageLoaded={(img) => this._onCropImageLoaded(img, id)}
 							onComplete={this._onCropComplete}
 							onChange={(pixelCrop, percentCrop) => this._onCropChange(pixelCrop, percentCrop, id)}
-							setupImageRef={this.props.setupImageRef}
+							setupImageRef={(img) => this.props.setupImageRef(img, id)}
 							flag={this.state.flag}
 							ruleOfThirds={true}
 						/>	
@@ -1469,8 +1548,8 @@ class CroppableImageForm extends React.Component{
 							src={images[id].croppedSrc}
 							// alkjdf
 							onClick={e => this.props.onImageClick(e)} 
-							onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
-							ref={this.props.setupImageRef}
+							onLoad={(img) => this._handleImageLoad(this.props.images[id].imageRef, id)} 
+							ref={(img) => this.props.setupImageRef(img, id)}
 							loading="lazy" 
 							crossOrigin="Anonymous"
 						/>	
@@ -1605,7 +1684,13 @@ class CroppableImageForm extends React.Component{
 												crop:{
 													...(images[id].crop.width == 0 ? pictures.byIds[addedContents.byIds[id].picture].crop : ({}) ),
 												},
-												src: OxiAppConstants.getImageURL(pictures.byIds[addedContents.byIds[id].picture].originaluri, 4),
+												// Added (but unpersisted) image will have integer id.  
+												// The src will already have been set in the state's image object
+												...(
+													pictures.byIds[addedContents.byIds[id].picture] ? 
+														{src: OxiAppConstants.getImageURL(pictures.byIds[addedContents.byIds[id].picture].originaluri, 4)} : 
+														{}
+												),
 											}
 										}
 									}		
@@ -1645,26 +1730,46 @@ class CroppableImageForm extends React.Component{
 							Object.keys(this.props.images).map(id => (
 								<div 
 									id="imgAndItemMapdiv" /*ref={this.props.setupContentViewRef}*/
-									ref={this.setupCropImgRoot} 
+									//ref={this.setupCropImgRoot} 
 									className={FormStyles.imgEditContainer_div}
 									style={{
 										display:'flex',
 										'align-items':'center',
+										...(images[id].cropping ? 
+												{
+													//margin: 'auto',
+													//'max-width': images[id].imageRef ? images[id].imageRef.naturalWidth : 'unset',
+												} : 
+												{
+
+												})
 									}}
 								>
-									{ getContent(id) }				
-									{
-										images[contentState.selected] === undefined ?
-											null/*(images.PromiseStatus === 'pending' ? 
-												null : 
-												images.PromiseValue[contentState.selected].cropping ?
-													null :
+									<div
+										id="cropContainer"
+										ref={this.setupCropImgRoot}
+										style={{
+											height: '100%',
+											width: 'auto',
+											margin: 'auto',
+											display:'flex',
+											'align-items':'center',
+										}}
+									>
+										{ getContent(id) }				
+										{
+											images[contentState.selected] === undefined ?
+												null/*(images.PromiseStatus === 'pending' ? 
+													null : 
+													images.PromiseValue[contentState.selected].cropping ?
+														null :
+														(this.props.itemLocationMap(this.props.itemMapDimension) || null)
+												)*/ :
+												images[contentState.selected].cropping ? 
+													null : 
 													(this.props.itemLocationMap(this.props.itemMapDimension) || null)
-											)*/ :
-											images[contentState.selected].cropping ? 
-												null : 
-												(this.props.itemLocationMap(this.props.itemMapDimension) || null)
-									}
+										}
+									</div>
 								</div>
 							))
 						}

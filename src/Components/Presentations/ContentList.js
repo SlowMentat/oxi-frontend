@@ -255,7 +255,12 @@ class ContentList extends React.Component {
 
 		return (			
 		    <React.Fragment>
-		    	<MenuSurfaceAnchor>
+		    	<MenuSurfaceAnchor
+		    		style={{
+		    			display:'flex',
+		    			'justify-content': 'center',
+		    		}}
+		    	>
 		    		<MenuSurface
 		    			onMouseLeave={e => this.setState({picPreviewActive: false})}
 		    			onMouseEnter={e => this.setState({picPreviewActive: true})}
@@ -266,7 +271,8 @@ class ContentList extends React.Component {
 		    				'--ip-width': 'calc((100vh - 7px - 20px)*3/4)',
 		    				'--ic-height': '100px',
 		    				'--ic-width': 'calc(6*(2/3)*var(--ic-height))',
-		    				'margin-left':'calc((var(--ip-width) - var(--ic-width))/2)',
+		    				//'margin-left':'calc((var(--ip-width) - var(--ic-width))/2)',
+		    				'margin-left': (isDevice ? '' : '-200px'),
 		    				bottom:'20px',
 		    			}}
 		    		>
