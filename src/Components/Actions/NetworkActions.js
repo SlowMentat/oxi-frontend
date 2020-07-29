@@ -115,7 +115,7 @@ export const receivedAllApparelTypes = scaffolding.makeActionCreator(types.RECEI
 export const receivedSizeGroupsByItemId = scaffolding.makeActionCreator(types.RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
 
 /*
-*  Modifies content.picture json with the json data returned from Posting image data to server, and updates each content's coverpicuri if picture object has been updated.
+*  Modifies content.picture json with the json data returned from Posting image data to server, and updates each content's coverPictureId if picture object has been updated.
 *  
 *  @param {Object} contentJson:  the [contents] json body to be modified
 *  @param {Object} picturesJson:  The [picture] object return by the server.  This objet should contain the id and parent id 
@@ -128,10 +128,10 @@ function mergePictureJson(contentsJson, picturesJson){
 		if(picturesJson[0].contentId === null){
 			picturesJson[0].contentId = undefined;
 
-			//set picture and coverpicuri properties
+			//set picture and coverPictureId properties
 			contentsJson[0] = {
 				...contentsJson[0],
-				coverpicuri: picturesJson[0].thumbnailuri,
+				coverPictureId: picturesJson[0].id,
 				picture: picturesJson[0],
 			};
 		}
@@ -145,10 +145,10 @@ function mergePictureJson(contentsJson, picturesJson){
 					if(contentsJson[ckey].id === picturesJson[pkey].contentId){
 						//remove content property from the picture json object returned by the server
 						picturesJson[pkey].contentId = undefined;
-						//set picture and coverpicuri properties
+						//set picture and coverPictureId properties
 						contentsJson[ckey] = {
 							...contentsJson[ckey],
-							coverpicuri: picturesJson[pkey].thumbnailuri,
+							coverPictureId: picturesJson[pkey].id,
 							picture: picturesJson[pkey]
 						};
 					}
@@ -444,9 +444,9 @@ export function fetchImage(filename, callback, picture, cancel=()=>{} ){
 	.catch(msg => console.error(msg));
 }*/
 
-export async function putCrop(imageFiles, filename, crop){
-	const oglFilename = imageFiles[filename].fileData.match(/\/(ogl[a-zA-Z0-9]+).[a-z]+$/)[1];
-	const { contentId } = imageFiles[filename];
+export async function putCrop(imageFiles, contentId, crop){
+	const oglFilename = imageFiles[contentId].fileData.match(/\/(ogl[a-zA-Z0-9]+).[a-z]+$/)[1];
+	//const { contentId } = imageFiles[contentId];
 
 	return axios.put(
 		OxiAppConstants.serviceURL + '/crop',
@@ -459,7 +459,7 @@ export async function putCrop(imageFiles, filename, crop){
 	).then(response => {
 		if(response.status === OxiAppConstants.HttpStatus.OK){
 			//generateOnSuccessHandler && generateOnSuccessHandler()(response.data);
-			return {[filename]: response.data};
+			return {[contentId]: response.data};
 		}
 		else{
 			throw response.status;
@@ -538,23 +538,23 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 		var batchRequest = [];
 		var ind = 0;
 
-		for(var filename of Object.keys(imageFiles)){
+		for(var contentId of Object.keys(imageFiles)){
 			let crop = JSON.stringify(crops[ind]);
 			ind++;
 
 			let {
 				contentId,
 				fileData,	// fileData can either be base64 data url string, or a resource url
-			} = imageFiles[filename];
+			} = imageFiles[contentId];
 
 			// New image has been added
 			//if(isDataUrl(imageFiles[filename].fileData)){
-			if(!!imageFiles[filename].fileData.match(/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i)){
-				batchRequest = [...batchRequest, postImage(fileData, null, filename, false, crop )];
+			if(!!fileData.match(/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i)){
+				batchRequest = [...batchRequest, postImage(fileData, null, contentId, false, crop )];
 			}
 			// Crop of exisitng image has changed. 
 			else{
-				batchRequest = [...batchRequest, putCrop(imageFiles, filename, crop)];
+				batchRequest = [...batchRequest, putCrop(imageFiles, contentId, crop)];
 			}
 
 			//batchRequest = [
@@ -570,13 +570,13 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 			// results is of the form [{ [picture name]: {} }]
 			console.log("#uploadImages:  pictures = ", results);
 			
-			var picturesByFilename = results.reduce((accum, result, ind) => {
-				const filename = Object.keys(result)[0];
+			var picturesByContentId = results.reduce((accum, result, ind) => {
+				const contentId = Object.keys(result)[0];
 
 				var scrubbedResult = {
 					...result,
-					[filename]:{
-						...result[filename],
+					[contentId]:{
+						...result[contentId],
 						crop: JSON.stringify(crops[ind]),
 					}
 				}
@@ -588,7 +588,7 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 				})
 			}, pictures);
 
-			generateOnSuccessHandler()(picturesByFilename);
+			generateOnSuccessHandler()(picturesByContentId);
 		});	
 	}
 	catch(e){
@@ -598,21 +598,22 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 
 
 export function postOutfit(outfitJson, onSuccess){
-	return (picturesByFilename) => {
+	return (picturesByContentId) => {
 		axios.post(
 			OxiAppConstants.serviceURL + '/outfit',
 			{
 				...outfitJson, 
-				coverpicuri: picturesByFilename[Object.keys(picturesByFilename)[0]].mediumuri, 
+				coverPictureId: picturesByContentId[Object.keys(picturesByContentId)[0]].id,				 
 				contents: outfitJson.contents.map(content => {
-					let picture = picturesByFilename[content.coverpicuri];
+					let picture = picturesByContentId[content.id];
+
 					return {
 						...content,
 						picture: {
 							...picture, 
 							contentId: undefined,
 						},
-						coverpicuri: picture.thumbnailuri,
+						//coverPictureId: picture.id,
 					};
 				}),
 			},
@@ -620,7 +621,7 @@ export function postOutfit(outfitJson, onSuccess){
 		)
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				onSuccess([response], picturesByFilename);
+				onSuccess([response], picturesByContentId);
 			}
 			return response.status;
 		})
@@ -650,7 +651,7 @@ export function deleteOutfits(outfitIds, onSuccess){
 *
 */
 export function uploadContents(contents, outfitId, onSuccess){
-	return async (picturesByFilename/*picturesByContentId*/) => {
+	return async (/*picturesByFilename*/picturesByContentId) => {
 		
 		try{
 			var pathVariable = outfitId !== '' ? ('/' + outfitId) : '';
@@ -668,27 +669,28 @@ export function uploadContents(contents, outfitId, onSuccess){
 				...(content.id != null ? [content] : [])
 			]), []);
 	
-			// Helper function for grafting pictrue json to parent content.
-			const mergePictureJson = (contents) => contents.map(content => {
+			// Helper function for grafting picture json to parent content.
+			const mergePictureJson = (contents) => contents.map(content => { 
 				// Note: If uploadContents is being called from updateCrop, then the coverpicuri used here as key will be the old coverpicuri (before crop was updated)
-				let picture = picturesByFilename[content.coverpicuri];
-				//let picture = picturesByContentId[content.id];
+				//let picture = picturesByFilename[content.coverpicuri];
+				let picture = picturesByContentId[content.id];
 				
 				return {
 					...content,
-					// An updated picture entity is persisted during updateCrop. That being the case, only update content coverpicuri.
-					...(picture.thumbnailuri === content.coverpicuri ? 
-						{
-							picture: {
-								...picture, 
-								contentId: undefined 
-							}
-						} : 
-						{
-							picture: null
-						}
-					),
-					coverpicuri: picture.thumbnailuri,
+					picture,
+					// An updated picture entity is persisted during updateCrop. If that's the case, only update content coverpicuri.
+					//...(picture.thumbnailuri === content.coverpicuri ? 
+					//	{
+					//		picture: {
+					//			...picture, 
+					//			contentId: undefined 
+					//		}
+					//	} : 
+					//	{
+					//		picture: null
+					//	}
+					//),
+					//coverpicuri: picture.id,
 				};
 			});
 	
@@ -734,7 +736,7 @@ export function uploadContents(contents, outfitId, onSuccess){
 				}
 		
 				if(failedRequests.length === 0){
-					onSuccess(responses, picturesByFilename);			
+					onSuccess(responses, picturesByContentId);			
 				}
 				else{
 					throw new RequestFailedException(failedRequests);
@@ -977,7 +979,7 @@ export function putEntities(outfitJson, picturesJson, enityType, onSuccess){
 			//store assign outfit.coverpicuri to imageFileName. 
 			//TODO:  this needs to be reimplemented eventially using Picture resource entities
 			if(picturesJson !== undefined && picturesJson !== null && Object.keys(picturesJson).length > 0){
-				finalJson.coverpicuri = picturesJson[0].smalluri;
+				finalJson.coverPictureId = picturesJson[0].id;
 			}
 			//add the picture outfitJson object returned from the server
 			finalJson = Object.assign({}, finalJson, {contents: mergePictureJson(finalJson.contents, picturesJson)});

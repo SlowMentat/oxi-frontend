@@ -9,8 +9,8 @@ export class Content extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			thumbnail: null,
-			base64Image:null
+			coverpicuri: null,
+			base64Image: null,
 		};
 
 		this._handleOnClick = this._handleOnClick.bind(this);
@@ -18,15 +18,26 @@ export class Content extends React.Component{
 	}
 
 	componentDidMount(){
+		const {
+			coverpicuri,
+			getCoverPic,
+		} = this.props;
+
 		//if thumbnail filename exists, call get request for content coverpic data
-		console.log("thumbnail = ", this.props.thumbnail)
-		if(this.props.thumbnail !== null && this.props.thumbnail !== undefined && this.props.thumbnail !== 'blob') this.props.getCoverPic(this.props.thumbnail, this._handleImageReceived);
+		console.log("coverpicuri = ", coverpicuri)
+		if(coverpicuri && coverpicuri !== 'blob') getCoverPic(coverpicuri, this._handleImageReceived);
 	}
 
 	_handleOnClick(event){
-		console.log("control click event in Content div");
-		console.log(this.props.id);
-		this.props.selectContentView(this.props.id);
+		const {
+			selectContentView
+		} = this.props;
+
+		const {
+			id,
+		} = this.props;
+
+		selectContentView(id);
 	}
 
 	_handleImageReceived(event, data){
@@ -39,6 +50,13 @@ export class Content extends React.Component{
 	//1:  as thumbnail images
 	//2:  as plain old bullet point
 	render(){
+
+		const {
+			selectedId,
+			id,
+			isOutfitCoverpic,
+			cropping,
+		} = this.props;
 
 		//Option 1 
 
@@ -58,14 +76,15 @@ export class Content extends React.Component{
 		//option 2
 
 		let contentBulletStyle = null;
-		if(this.props.selectedId === this.props.id){
-			if(this.props.isOutfitCoverpic){
+
+		if(selectedId === id){
+			if(isOutfitCoverpic){
 				contentBulletStyle = ContentStyles['contentBulletCover_div--selected'];
 			}else{
 				contentBulletStyle = ContentStyles['contentBullet_div--selected'];
 			}
 		}else{
-			if(this.props.isOutfitCoverpic){
+			if(isOutfitCoverpic){
 				contentBulletStyle = ContentStyles.stdContentBulletCover_div;
 			}else{
 				contentBulletStyle = ContentStyles.stdContentBullet_div;
@@ -74,7 +93,7 @@ export class Content extends React.Component{
 
 		return(
 			<div
-				style={ this.props.cropping ? null : ({'border-width': '0px'}) } 
+				style={ cropping ? null : ({'border-width': '0px'}) } 
 				className={ContentStyles.cropIndicator_div}
 			>
 				<div className={ContentStyles.stdCotnentBulletContainer_div}>

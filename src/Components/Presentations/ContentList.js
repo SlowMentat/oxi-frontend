@@ -74,11 +74,11 @@ class ContentList extends React.Component {
 				if(addedItemId !== null){
 					let duplicate = false;
 
-					//Fence posting:  checking for duplicate entries.  
-					//On entry into edit contentext view the selected outfit and all child entities are copied to the addedEntitiesReducer.
-					//This means the selected contents will have its child items array populated.  Adding a new content in this context will 
-					//duplicate the elements in previously selected content's items array before the select leaf of the entitesStateReducer.contents tree
-					//can switch to the newly created content entity.  Feels ugly but it works and items per content are limited.
+					// Checking for duplicate entries.  
+					// On entry into edit contentext view the selected outfit and all child entities are copied to the addedEntitiesReducer.
+					// This means the selected contents will have its child items array populated.  Adding a new content in this context will 
+					// duplicate the elements in previously selected content's items array before the select leaf of the entitesStateReducer.contents tree
+					// can switch to the newly created content entity.  Feels ugly but it works and items per content are limited.
 					for(let itemId of this.props.addedContents[this.props.selectedId].items){
 						if(itemId === addedItemId){
 							duplicate = true;
@@ -192,22 +192,41 @@ class ContentList extends React.Component {
 			coverpicuri,
 		} = selectedOutfit ? selectedOutfit : ({});
 
-		const {
-			smalluri,
-			thumbnailuri,
-		} = !(contents[contentId] && pictures) ? 
-				({}) :
-				pictures[contents[contentId].picture] ?  
-					pictures[contents[contentId].picture] : 
-					({});
-		
-		const addedThumbnailuri = !(addedContents[contentId] && pictures) ? 
-			(null) :
-			pictures[addedContents[contentId].picture] ? 
-				pictures[addedContents[contentId].picture].thumbnailuri : 
-				null;
+		// will either contain contents or editing contents if they exist
+		const allContents = {
+			...contents,
+			...addedContents,
+		}
 
-		const addedCoverpicuri = addedContents[contentId] ? addedContents[contentId].coverpicuri : ({});
+		//const {
+		//	thumbnailuri,
+		//	smalluri,
+		//	mediumuri,
+		//	largeuri,
+		//} = !(allContents[contentId] && pictures) ? 
+		//		({}) :
+		//		pictures[allContents[contentId].picture] ?  
+		//			pictures[allContents[contentId].picture] : 
+		//			({});
+		
+		var uriByContentId = Object.keys(allContents).reduce((accum, id) => {
+
+			const content = allContents[id];
+			var result = pictures && content ? pictures[content.picture] : null;
+
+			return({
+				...accum,
+				[id]: result,
+			});
+		}, {});
+
+		//const addedThumbnailuri = !(addedContents[contentId] && pictures) ? 
+		//	(null) :
+		//	pictures[addedContents[contentId].picture] ? 
+		//		pictures[addedContents[contentId].picture].thumbnailuri : 
+		//		null;
+
+		//const addedCoverpicuri = addedContents[contentId] ? addedContents[contentId].coverpicuri : ({});
 		let addContentButton = null;
 
 		if(addedContentIds != undefined){
@@ -304,7 +323,8 @@ class ContentList extends React.Component {
 		    										height: 'calc(100% - 10px)',
 		    										cursor: 'pointer',
 		    									}}
-		    									src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[id].coverpicuri : contents[id].coverpicuri}.jpg`}
+		    									src={OxiAppConstants.getImageURL(uriByContentId[id].smalluri, 1)}
+		    									//src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[id].coverpicuri : contents[id].coverpicuri}.jpg`}
 		    									onClick={e => selectContentView(id)}
 		    								/>
 		    							</div>
@@ -323,39 +343,40 @@ class ContentList extends React.Component {
 		    				enabled={!controlDisabled} 
 		    				handleClick={onControlClick} />*/}
 		    			{
-		    				contentIds.map((contentId) => 
+		    				contentIds.map((id) => 
 		    					<Content 
-					    			key = {contentId}
-					    			{...contents[contentId]} 
-		    						id={contentId}
+					    			key = {id}
+					    			{...contents[id]} 
+		    						id={id}
 					    			selectContentView={selectContentView} 
 					    			isControl={false} 
 					    			selectedId={selectedId}
-					    			thumbnail={thumbnailuri} 
+					    			thumbnail={uriByContentId[id].thumbnailuri} 
 					    			getCoverPic={getCoverPic}
 					    			isOutfitCoverpic={
-					    				!(selectedOutfit && smalluri) ? 
-					    					(smalluri === selectedOutfit.coverpicuri) :
+					    				!(selectedOutfit && uriByContentId[id].smalluri) ? 
+					    					(uriByContentId[id].smalluri === selectedOutfit.coverpicuri) :
 					    					false 
 					    			}
 		    					/>)
 		    			}
 		    			{
-		    				addedContentIds.map((contentId) => 
+		    				addedContentIds.map((id) => 
 		    					<Content 
-					    			key = {contentId}
-					    			{...addedContents[contentId]} 
-		    						id={contentId}
+					    			key = {id}
+					    			{...addedContents[id]} 
+		    						id={id}
 					    			//onClick={onClickAddedContent}		    		
 					    			selectContentView={selectContentView} 
 					    			isControl={false} 
-					    			thumbnail={//TODO: this may not be necessary
-					    				!addedContents[contentId] ? 
-					    					undefined : 
-					    					addedCoverpicuri ? 
-					    						addedThumbnailuri : 
-					    						'blob'//addedContents[contentId].coverpicuri
-					    			} 
+					    			//coverpicuri={//TODO: this may not be necessary
+					    			//	!addedContents[id] ? 
+					    			//		undefined : 
+					    			//		addedCoverpicuri ? 
+					    			//			addedThumbnailuri : 
+					    			//			'blob'//addedContents[id].coverpicuri
+					    			//} 
+					    			coverpicuri={uriByContentId[id].smalluri || 'blob'}
 					    			getCoverPic={getCoverPic}
 					    			selectedId={selectedId}
 					    			addedItemIds={addedItemIds}

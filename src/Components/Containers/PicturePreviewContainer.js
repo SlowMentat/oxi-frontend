@@ -117,19 +117,19 @@ const mapDispatchToProps = (dispatch) => ({
 
 		Object.keys(fileReferences).map((name, ind, names) => {
 
-			if(viewState === OxiAppConstants.viewState.ADD && addedContents.byIds[addedContents.allIds[0]].coverpicuri.length === 0 && ind === 0){
+			if(viewState === OxiAppConstants.viewState.ADD && addedContents.byIds[addedContents.allIds[0]].picture.length === 0 && ind === 0){
 				dispatch(modifyContent( {
 					...addedContents.byIds[addedContents.allIds[0]], 
 					...{
-							coverpicuri: name, 
-							picture: addedContents.allIds[0] 
+							//coverpicuri: name, 
+							picture: name
 						},
 				}));
 				//dispath(clientInvalidateEntity(OxiAppConstants.EntityTypes.CONTENT, addedContents.allIds[0]))
 			}
 
 			else{
-				contentEntities = [...contentEntities, {...OxiAppConstants.EntityTemplates.CONTENT, coverpicuri: name}];
+				contentEntities = [...contentEntities, {...OxiAppConstants.EntityTemplates.CONTENT, picture: name}];
 				contentEntityAdded = true;
 			}
 		})
@@ -218,10 +218,12 @@ const mapDispatchToProps = (dispatch) => ({
 
 	// modified or added contents
 	uploadContents : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount, crops) =>{
-		if(imageFiles !== null) uploadImages(
-			imageFiles, 
-			() => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)),
-			crops);
+		if(imageFiles !== null){
+			uploadImages(
+				imageFiles, 
+				() => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)),
+				crops);
+		}
 	},
 
 	postAddedContent : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {

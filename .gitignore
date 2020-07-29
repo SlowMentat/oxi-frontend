@@ -55,7 +55,7 @@ Thumbs.db
 ####################
 *.sublime-workspace
 .tern-project
-index.template.ejs
+#index.template.ejs
 .babelrc-backup2
 package-lock.json
 sftp-config.json

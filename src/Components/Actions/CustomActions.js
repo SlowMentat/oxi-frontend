@@ -285,6 +285,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 					}
 				})
 				break;
+
 			case OxiAppConstants.EntityTypes.BRAND:
 				return axios.get(OxiAppConstants.serviceURL + `/brands?page=${0}&size=${50}`)
 				.then(response => {
@@ -309,6 +310,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 					}
 				})
 				break;
+
 			case OxiAppConstants.EntityTypes.RETAILER:
 				return axios.get(OxiAppConstants.serviceURL + `/retailers?page=${0}&size=${50}`)
 				.then(response => {
@@ -329,7 +331,8 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						throw 'Unexpected response status received when fetching retailers:  ' + response.status;
 					}
 				})
-				break;				
+				break;
+
 			case OxiAppConstants.EntityTypes.PROFILE:
 				URI = linkURL ? '' : '/profile';
 				return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}${username}`)
@@ -361,6 +364,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 
 				});
 				break;
+
 			case OxiAppConstants.EntityTypes.OUTFIT:
 				requestParams = 'filter=' + filter;
 				URI = linkURL ? '' : '/outfits';
@@ -428,6 +432,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 					console.log(error.config);
 				});
 				break;
+
 			case OxiAppConstants.EntityTypes.CONTENT:
 				requestParams = 'filter=' + filter;
 				URI = linkURL ? '' : '/contents';
@@ -571,6 +576,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				});
 				//console.log('response in thunk = ',getPromise);
 				break;
+				
 			default:
 				break;
 		}

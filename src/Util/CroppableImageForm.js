@@ -52,7 +52,7 @@ const PictureEditCarousel = styled( props => (
 class CroppableImageForm extends React.Component{
 	constructor(props){
 		super(props);
-		this.fileRefs=[];
+		//this.fileRefs=[];
 
   		this.frStateNames = {
   			[FileReader.EMPTY]   : 'EMPTY',
@@ -161,7 +161,7 @@ class CroppableImageForm extends React.Component{
 		if(
 			addedContents.allIds.length !== 0
 			&& ( prevProps.addedContents.allIds.length !== addedContents.allIds.length 
-				|| prevProps.addedContents.byIds[addedContents.allIds[0]].coverpicuri !== addedContents.byIds[addedContents.allIds[0]].coverpicuri )){
+				|| prevProps.addedContents.byIds[addedContents.allIds[0]].picture !== addedContents.byIds[addedContents.allIds[0]].picture )){
 
 			//console.log('CroppableImageForm#componentDidUpdate:  Changing state');		
 
@@ -537,7 +537,7 @@ class CroppableImageForm extends React.Component{
 								return({
 									[`${contentId}`]:{
 										...this3.imageDataTemplate,
-										srcFileRef: this3.props.addedContents.byIds[contentId].coverpicuri,
+										srcFileRef: this3.props.addedContents.byIds[contentId].picture,
 										src: imgData,
 										cropping: true,
 										rotation: rotation,
@@ -575,7 +575,9 @@ class CroppableImageForm extends React.Component{
 								reject(new DOMException("Problem parsing input file."));
 							})(taskInd)
 
-							readers[taskInd].readAsArrayBuffer(this1.fileRefs[addedContents.byIds[`${id}`].coverpicuri]);
+							// Test for
+
+							readers[taskInd].readAsArrayBuffer(this1.fileRefs[addedContents.byIds[`${id}`].picture]);
 						});
 
 					}else{
@@ -625,9 +627,9 @@ class CroppableImageForm extends React.Component{
 		//Single modification (multiple modification not allowed)
 		else{
 
-			//check coverpicuri of each addedContent entity to see if any filenames have changed, which would indicate file has changed
+			//check picture of each addedContent entity to see if any filenames have changed, which would indicate file has changed
 			for(let id of addedContents.allIds){
-				if(addedContents.byIds[id].coverpicuri !== prevProps.addedContents.byIds[id].coverpicuri){
+				if(addedContents.byIds[id].picture !== prevProps.addedContents.byIds[id].picture){
 
 				}
 			}
@@ -819,7 +821,8 @@ class CroppableImageForm extends React.Component{
 					// From each content entity, coverpicuri is used to reference the corresponding file in files object to send the orrect image data to the server
 					files = {
 						...files,
-						[ this.props.addedContents.byIds[id].coverpicuri]: {
+						//[ this.props.addedContents.byIds[id].coverpicuri]: {
+						[id]:{
 							fileData: images[id].src,
 							contentId: id, 
 						}
@@ -1015,7 +1018,7 @@ class CroppableImageForm extends React.Component{
 		};
 
 		if(Object.keys(newFileRefs).length > 0){
-			this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents);
+			this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents, this.props.pictures);
 		}
 
 		if(this.props.entitiesStateReducer.outfits.clientInvalidated.length === 0){
