@@ -11,6 +11,7 @@ import { ThemeProvider } from '@rmwc/theme';
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
+//import { batchedSubscribe } from 'redux-batched-subscribe';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { createLogger } from 'redux-logger';
@@ -108,6 +109,7 @@ const composeEnhancers = composeWithDevTools({
 //log initial store state
 //subscribe logging callback to store state change
 const store = createStore(
+//const stor = createStoreWithBatching(
 	createRootReducer(history), //root reducer with router state
 	//_OxiApp,
 	{

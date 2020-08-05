@@ -3,6 +3,7 @@ import ContentStyles from '../../content.scss';
 import outfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 import Content from './Content.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import { getImageURL } from '../../Util/Misc.js'
 import {AddContentButton, DeleteContentButton} from './ContentListControls.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { MenuSurfaceAnchor, MenuSurface} from '@rmwc/menu';
@@ -323,7 +324,7 @@ class ContentList extends React.Component {
 		    										height: 'calc(100% - 10px)',
 		    										cursor: 'pointer',
 		    									}}
-		    									src={OxiAppConstants.getImageURL(uriByContentId[id].smalluri, 1)}
+		    									src={uriByContentId[id] ? getImageURL(uriByContentId[id].smalluri) : ""}
 		    									//src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[id].coverpicuri : contents[id].coverpicuri}.jpg`}
 		    									onClick={e => selectContentView(id)}
 		    								/>
@@ -376,7 +377,7 @@ class ContentList extends React.Component {
 					    			//			addedThumbnailuri : 
 					    			//			'blob'//addedContents[id].coverpicuri
 					    			//} 
-					    			coverpicuri={uriByContentId[id].smalluri || 'blob'}
+					    			coverpicuri={(uriByContentId[id] && uriByContentId[id].smalluri) || 'blob'}
 					    			getCoverPic={getCoverPic}
 					    			selectedId={selectedId}
 					    			addedItemIds={addedItemIds}

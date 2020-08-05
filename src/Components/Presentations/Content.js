@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ContentStyles from '../../content.scss';
-import {hextToBase64} from '../../Util/Misc.js'
-import {OxiAppConstants} from '../../Util/OxiAppConstants.js'
+import {hextToBase64} from '../../Util/Misc.js';
+import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 
 export class Content extends React.Component{

@@ -4,6 +4,7 @@ import OutfitStyles from '../../outfit.scss';
 import {OutfitEditDelete, OutfitTileBrowseCtrls} from './OutfitTileCtrls.js';
 import {OutfitSocialStatistics} from './OutfitSocialStatistics.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import { getImageURL } from '../../Util/Misc.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import { PpIcon } from '../../Components/Presentations/ProfileTitle.js';
@@ -186,6 +187,8 @@ export class Outfit extends React.Component{
 
 		var {
 			contents,
+			pictures,
+			coverpicuri,
 			contentIds,
 			webAppView,
 			webAppViewContext,
@@ -397,7 +400,13 @@ export class Outfit extends React.Component{
 							</div>
 							<img 
 								//src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)}
-								src={outfit ? OxiAppConstants.getImageURL(outfit.coverpicuri, 2) : `${OxiAppConstants.ContentDirectories.IMAGES}/no_image.svg`}
+								src={
+									(outfit && pictures[outfit.coverPictureId]) ? 
+										getImageURL(pictures[outfit.coverPictureId].mediumuri) : 
+										coverpicuri ?
+											getImageURL(coverpicuri) :
+											`${OxiAppConstants.ContentDirectories.IMAGES}/no_image.svg`
+								}
 								className={OutfitStyles.outfitImage_img}
 								style={{
 									'object-fit':'cover',

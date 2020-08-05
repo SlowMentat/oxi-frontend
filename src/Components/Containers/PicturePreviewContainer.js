@@ -46,6 +46,7 @@ import {
 	previewContent,
 	selectEntity,
 } from '../../Components/Actions/indexActions.js';
+import * as entityActions from '../../Components/Actions/EntityActions/Index.js'; 
 import {
 	outfit, 
 	outfitsSchema,
@@ -115,26 +116,34 @@ const mapDispatchToProps = (dispatch) => ({
 		var contentEntities = [];
 		var contentEntityAdded = false;
 
-		Object.keys(fileReferences).map((name, ind, names) => {
+		Object.keys(fileReferences).map((id, ind, ids) => {
+			const results = {
+				// Temporarily store the filename in coverpicuri so that newly opened images can be displayed while editing before submitting to the server
+				coverpicuri: fileReferences[id].name,
+				picture: id,
+			}
 
 			if(viewState === OxiAppConstants.viewState.ADD && addedContents.byIds[addedContents.allIds[0]].picture.length === 0 && ind === 0){
 				dispatch(modifyContent( {
 					...addedContents.byIds[addedContents.allIds[0]], 
-					...{
-							//coverpicuri: name, 
-							picture: name
-						},
+					...results,
 				}));
 				//dispath(clientInvalidateEntity(OxiAppConstants.EntityTypes.CONTENT, addedContents.allIds[0]))
 			}
-
 			else{
-				contentEntities = [...contentEntities, {...OxiAppConstants.EntityTemplates.CONTENT, picture: name}];
+				contentEntities = [
+					...contentEntities, 
+					{
+						...OxiAppConstants.EntityTemplates.CONTENT, 
+						...results,
+					}
+				];
+
 				contentEntityAdded = true;
 			}
 		})
 
-		//Add all content entities to the addedEntitiesReducer
+		// Add all content entities to the addedEntitiesReducer
 		contentEntityAdded ? dispatch(addContents(contentEntities)) : null;
 	},
 	getItemForm: (posx, posy) => {
@@ -201,12 +210,12 @@ const mapDispatchToProps = (dispatch) => ({
 			}
 		}
 	},
-	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount, crops) => {
+	postAddedOutfit : (imageFiles = null, outfitJson, addedEntities, entitiesStateReducer, itemContentCount, crops, initializeImages) => {
 		if(imageFiles !== null){
 			//postImage(imageData, () => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)));			
 			uploadImages(
 				imageFiles, 
-				() => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount)), 
+				() => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount, initializeImages)), 
 				crops);			
 		}
 	},
@@ -217,23 +226,23 @@ const mapDispatchToProps = (dispatch) => ({
 
 
 	// modified or added contents
-	uploadContents : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount, crops) =>{
+	uploadContents : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount, crops, initializeImages) =>{
 		if(imageFiles !== null){
 			uploadImages(
 				imageFiles, 
-				() => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)),
+				() => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount, initializeImages)),
 				crops);
 		}
 	},
 
-	postAddedContent : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {
-		if(imageData !== null) postImage(imageData, () => postContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount)));
+	postAddedContent : (imageFiles = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount, initializeImages) => {
+		if(imageData !== null) postImage(imageData, () => postContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount, initializeImages)));
 	},
 
-	putModifiedContent : (imageData = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount) => {
+	putModifiedContent : (imageData = null, contentJson, outfitId, addedEntities, entitiesStateReducer, itemContentCount, initializeImages) => {
 		if(imageData !== null){
 			console.log('image data is not null');
-			putImage(imageData, contentJson.id, () => putContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, null, itemContentCount)));	
+			putImage(imageData, contentJson.id, () => putContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, null, itemContentCount, initializeImages)));	
 		}else{
 			console.log('image data is null');
 			putContent(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, null, itemContentCount))(imageData);
@@ -349,8 +358,10 @@ const mapDispatchToProps = (dispatch) => ({
 	}
 })
 
-function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, schema, overwriteItemContents=null, itemContentCount){
-	return (responses) => {
+function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, schema, overwriteItemContents=null, itemContentCount, initializeImages){
+	return (responses, picturesById) => {
+		picturesById ? dispatch(entityActions.replacePictures(picturesById)) : null;
+
 		for(var response of responses){
 			let responseData = response.data.length === 0 ? [response.data] : response.data
 			//normalize response data and create a new outfit node in entitiesReducer tree
@@ -463,6 +474,8 @@ function createResponseHandler(dispatch, addedEntities, entitiesStateReducer, sc
 			//Enable the button that adds outfits
 			dispatch(disableAddOutfit(false));
 		}
+
+		initializeImages ? initializeImages() : null;
 	}
 }
 

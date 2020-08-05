@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { OxiAppConstants } from './OxiAppConstants.js';
 
 export function hextToBase64(data){
 	let convertedData = String.fromCharCode.apply(null, data.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" "));
@@ -125,8 +126,51 @@ export function mapImageUri(uri){
   return mappedUri;
 }
 
+export function getImageURL(filename, size){
+  let url = 'https://www.oxisalechannel.com/images';
+  const prefix = filename.match(/^[A-Za-z0-9]{3}/)[0];
+  
+  const {
+    thumbnail,
+    small,
+    medium,
+    large,
+    original,
+  } = OxiAppConstants.prefixes;
+  
+  if(filename){
+    switch(prefix){
+      case thumbnail:
+        return(`${url}/thumbnail/${filename}.jpg`);
+        break;
+
+      case small:
+        return(`${url}/small/${filename}.jpg`);
+        break;
+
+      case medium:
+        return(`${url}/medium/${filename}.jpg`);
+        break;
+
+      case large:
+        return(`${url}/large/${filename}.jpg`);
+        break;
+
+      case original:
+        return(`${url}/original/${filename}.jpg`);
+        break;
+
+      default:
+        break;
+    }
+  }
+  else{
+
+  }
+}
+
 export function isDataURL(s) {
-  var regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+  const regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
   return !!s.match(regex);
 }
 

@@ -152,6 +152,7 @@ class PagedOutfitList extends React.Component{
 											unlike={this.props.unlike}
 											like={this.props.like}
 											outfit={this.props.outfits[outfitId]}
+											pictures={this.props.pictures}
 											//likeCountIdsSize={this.props.likeCountIdsSize}
 											toggleMetricPanel={this.props.toggleMetricPanel}
 											owner={this.props.owner}
@@ -187,6 +188,7 @@ class PagedOutfitList extends React.Component{
 											//toggleMetricPanel={this.props.toggleMetricPanel}
 											selectOutfit={this.props.selectOutfit}
 											deselectOutfit={this.props.deselectOutfit}
+											pictures={this.props.pictures}
 										/>
 									) : null}
 								</div>

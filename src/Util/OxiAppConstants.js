@@ -117,38 +117,45 @@ export const OxiAppConstants = Object.freeze({
 	serviceURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0/consumer',
 	apiBaseURL : 'https://www.oxisalechannel.com/gs-convert-jar-to-war-0.1.0',
 	webAppBaseURL : 'https://www.oxisalechannel.com',	
-	getImageURL: (filename, size) => {
-		let url = 'https://www.oxisalechannel.com/images';
-
-		if(filename){
-			switch(size){
-				case 0:
-					return(`${url}/thumbnail/${filename}.jpg`);
-					break;
-	
-				case 1:
-					return(`${url}/small/${filename}.jpg`);
-					break;
-	
-				case 2:
-					return(`${url}/medium/${filename}.jpg`);
-					break;
-	
-				case 3:
-					return(`${url}/large/${filename}.jpg`);
-					break;
-	
-				case 4:
-					return(`${url}/original/${filename}.jpg`);
-					break;
-	
-				default:
-					break;
-			}
-		}
-		else{
-
-		}
+	//getImageURL: (filename, size) => {
+	//	let url = 'https://www.oxisalechannel.com/images';
+//
+	//	if(filename){
+	//		switch(size){
+	//			case 0:
+	//				return(`${url}/thumbnail/${filename}.jpg`);
+	//				break;
+	//
+	//			case 1:
+	//				return(`${url}/small/${filename}.jpg`);
+	//				break;
+	//
+	//			case 2:
+	//				return(`${url}/medium/${filename}.jpg`);
+	//				break;
+	//
+	//			case 3:
+	//				return(`${url}/large/${filename}.jpg`);
+	//				break;
+	//
+	//			case 4:
+	//				return(`${url}/original/${filename}.jpg`);
+	//				break;
+	//
+	//			default:
+	//				break;
+	//		}
+	//	}
+	//	else{
+//
+	//	}
+	//},
+	prefixes: {
+		thumbnail: 'tbl',
+		small: 'sml',
+		medium: 'med',
+		large: 'lrg',
+		original: 'ogl',
 	},
 	endPoints: {
 		a: '/consumer',

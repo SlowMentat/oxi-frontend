@@ -593,22 +593,32 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 	}
 	catch(e){
 		console.error(e);
+		throw e;
 	}
 }
 
 
 export function postOutfit(outfitJson, onSuccess){
 	return (picturesByContentId) => {
+		const {
+			id,
+			mediumuri,
+		} = picturesByContentId[Object.keys(picturesByContentId)[0]];
+
 		axios.post(
 			OxiAppConstants.serviceURL + '/outfit',
 			{
 				...outfitJson, 
-				coverPictureId: picturesByContentId[Object.keys(picturesByContentId)[0]].id,				 
+				coverPictureId: id,
+				// Coverpicuri needs to be set because outfit entities retreived from the browse tab will not have their content porperity (and consequently its picture property) set.
+				// Its more efficient to explicitly set coverpicuri in this case rather than making additional requests for picture to determin the cover picture filename.
+				coverpicuri: mediumuri,		 
 				contents: outfitJson.contents.map(content => {
 					let picture = picturesByContentId[content.id];
 
 					return {
 						...content,
+						id: null,
 						picture: {
 							...picture, 
 							contentId: undefined,
@@ -621,7 +631,9 @@ export function postOutfit(outfitJson, onSuccess){
 		)
 		.then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.CREATED){
-				onSuccess([response], picturesByContentId);
+				// Construct picture entities keyed by their ids
+				var picturesById = Object.values(picturesByContentId).reduce((accum, picture) => ({...accum, [picture.id]:picture}), {});
+				onSuccess([response], picturesById);
 			}
 			return response.status;
 		})
@@ -660,13 +672,13 @@ export function uploadContents(contents, outfitId, onSuccess){
 			// Build list of added contents.
 			var addedContents = contents.reduce((accum, content) => ([
 				...accum,
-				...(content.id == null ? [content] : [])
+				...(typeof content.id == 'number' ? [content] : [])
 			]), []);
 	
 			// Build list of modified contents.
 			var modifiedContents = contents.reduce((accum, content) => ([
 				...accum,
-				...(content.id != null ? [content] : [])
+				...(typeof content.id != 'number' ? [content] : [])
 			]), []);
 	
 			// Helper function for grafting picture json to parent content.
@@ -678,6 +690,8 @@ export function uploadContents(contents, outfitId, onSuccess){
 				return {
 					...content,
 					picture,
+					// nullify id's belonging to newly created contents.  
+					...(typeof content.id === 'number' ? {id: null} : null),
 					// An updated picture entity is persisted during updateCrop. If that's the case, only update content coverpicuri.
 					//...(picture.thumbnailuri === content.coverpicuri ? 
 					//	{
@@ -743,9 +757,9 @@ export function uploadContents(contents, outfitId, onSuccess){
 				}
 			});
 		}
-
 		catch(e){
 			console.error(e);
+			throw e;
 		}
 	}
 }

@@ -3,6 +3,7 @@ import MetricStyles from '../../metric.scss';
 import Metric from './Metric.js';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import { getImageURL } from '../../Util/Misc.js';
 import Styles from '../../root.scss';
 
 const metricTitleContainer_div = {
@@ -33,7 +34,7 @@ export const PpIcon = (props) => {
 		imageName ?
 			(<img 
 				//src={base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (base64Image) }
-				src={OxiAppConstants.getImageURL(imageName, 1)}
+				src={getImageURL(imageName)}
 				className={Styles.ppIcon_img}
 				style={{
 					'width': 'calc(100%)',
@@ -67,6 +68,10 @@ export const PpIcon = (props) => {
 							...customDefaultStyle, 
 						}) 
 				}
+				onClick={(e) => {
+					e.stopPropagation();
+					onClick ? onClick(e) : null;
+				}}
 			> 
 				account_circle 
 			</i>)

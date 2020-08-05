@@ -35,7 +35,7 @@ import {
 import { SimpleListItem } from '@rmwc/list';
 import '@rmwc/list/styles';
 
-import { arrayBufferToDataURL } from '../Util/Misc.js';
+import { arrayBufferToDataURL, getImageURL } from '../Util/Misc.js';
 import { Carousel } from '../Components/Presentations/Carousel.js';
 import styled from 'styled-components';
 
@@ -118,6 +118,7 @@ class CroppableImageForm extends React.Component{
 		this.minYPercent = null;
 		this.fileRefs=[];
 		this.fileInput = null;
+		this._isMounted = false;
 
 		this._handleSubmit = this._handleSubmit.bind(this);
 		this._onSelectFile = this._onSelectFile.bind(this);
@@ -186,8 +187,8 @@ class CroppableImageForm extends React.Component{
 					for(let prevId of prevProps.addedContents.allIds){
 						if(id === prevId){
 							// When a user adds an outfit, a content entity with id=1 is already provisioned in addedEntitiesReducer. 
-							// As such, when loadAllImages is invoked, this content entiy id will be filterd and the image data will not be loaded.
-							// To prevent this, do not filter if user is in "add" viewstate and if prop.images only contains 1 object (default) and src is an empyt string.
+							// When loadAllImages is invoked, this content entiy id will be filterd and the image data will not be loaded.
+							// To prevent this, do not filter if user is in "add" viewstate AND if prop.images only contains 1 object (default) AND src is an empyt string.
 							if(viewState === OxiAppConstants.viewState.ADD && Object.keys(images).length < 2 && !images[imagesKeys[0]].src/*addedContents.allIds.length === 1*/){
 								return true;
 							}
@@ -575,12 +576,14 @@ class CroppableImageForm extends React.Component{
 								reject(new DOMException("Problem parsing input file."));
 							})(taskInd)
 
-							// Test for
-
-							readers[taskInd].readAsArrayBuffer(this1.fileRefs[addedContents.byIds[`${id}`].picture]);
+							// Note that coverpicuri is being used here as a temporary place holder for newly added image filenames.
+							// This is needed because filename is used instead of picture id to reference file data elsewhere.
+							var tempCoverpic = addedContents.byIds[`${id}`].coverpicuri;
+							readers[taskInd].readAsArrayBuffer(this1.fileRefs[tempCoverpic]);
 						});
 
-					}else{
+					}
+					else{
 
 					}
 
@@ -600,34 +603,30 @@ class CroppableImageForm extends React.Component{
 			};
 			
 			loadAllImages(this).then(result => {
+				
+				new Promise((resolve, reject) => {
+					console.log('_isMounted = ', this._isMounted);
+					
+					while(!this._isMounted){
+						setTimeout(()=>null, 200);
+					}
 
-				//console.log('*about to update state');
-				//console.log('		this.state.images =', this.state.images);
-				//let images = Object.assign(result, this.state.images);
-				//console.log(images);
-				console.trace("calling updateImageState. images = ", result)
-				updateImageState(result);
-				//this.setState(prevState => ({
-				//	...prevState,
-				//	images
-				//	//images: {
-				//	//	...prevState.images,
-				//	//	...result
-				//	//}
-				//}));
-			});//
+					console.trace("calling updateImageState. images = ", result)
+					updateImageState(result);
+					resolve();
+				})
+			});
 			
-			//invalidate newly added content entity/ies		
+			// Invalidate newly added content entity/ies		
 			if(prevProps.addedContents.allIds.length < addedContents.allIds.length){
 				const addedContentIds = addedContents.allIds.filter(id => typeof id === 'number');
 				this.props.clientInvalidateEntity(addedContentIds, OxiAppConstants.EntityTypes.CONTENT)();
 				this.props.clientInvalidateEntity(addedContentIds, OxiAppConstants.EntityTypes.PICTURE)();
 			}
 		}
-		//Single modification (multiple modification not allowed)
+		// Single modification (multiple modification not allowed)
 		else{
-
-			//check picture of each addedContent entity to see if any filenames have changed, which would indicate file has changed
+			// Check picture of each addedContent entity to see if any filenames have changed, which would indicate file has changed
 			for(let id of addedContents.allIds){
 				if(addedContents.byIds[id].picture !== prevProps.addedContents.byIds[id].picture){
 
@@ -640,6 +639,7 @@ class CroppableImageForm extends React.Component{
 		window.addEventListener('resize', this.reloadImageRef);
 		//force click of fileInput button when user clicks add outfit button.
 		this.props.viewState === OxiAppConstants.viewState.ADD ? this.fileInput.click() : null;
+		this._isMounted = true;
 	}
 
 	//componentDidUnmount(){
@@ -647,7 +647,8 @@ class CroppableImageForm extends React.Component{
 	//}
 
 	componentWillUnmount(){
-		window.removeEventListener('resize', this.reloadImageRef);		
+		window.removeEventListener('resize', this.reloadImageRef);	
+		this._isMounted = false;	
 	}
 
 	/**
@@ -787,7 +788,8 @@ class CroppableImageForm extends React.Component{
 
 		if(isCropping){
 			console.log('please finish cropping before submiting image')
-		}else{
+		}
+		else{
 			let files = {};
 			let crops = [];
 			
@@ -952,7 +954,7 @@ class CroppableImageForm extends React.Component{
 			return result;
 		}, []);
 
-		// Collect the content ids referencing with invalid picture property		
+		// Collect the content ids with invalid picture property		
 		var invalidContentIds = addedContents.allIds.filter(id => {
 			for(let picId of invalidatedPictureIds){
 				if(addedContents.byIds[id].picture === picId){
@@ -1691,7 +1693,7 @@ class CroppableImageForm extends React.Component{
 												// The src will already have been set in the state's image object
 												...(
 													pictures.byIds[addedContents.byIds[id].picture] ? 
-														{src: OxiAppConstants.getImageURL(pictures.byIds[addedContents.byIds[id].picture].originaluri, 4)} : 
+														{src: getImageURL(pictures.byIds[addedContents.byIds[id].picture].originaluri)} : 
 														{}
 												),
 											}

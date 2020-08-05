@@ -21,6 +21,7 @@ import {
 
 import {
 	mapImageUri,
+	getImageURL,
 } from '../../Util/Misc.js'
 
 import FormStyles from '../../forms.scss';
@@ -227,6 +228,7 @@ class ImagePreview extends React.Component{
 	}
 
 	componentDidMount(){
+		//this.props.initializeImages();
 	}
 
 	//componentDidUnmount(){
@@ -295,7 +297,7 @@ class ImagePreview extends React.Component{
 		} = this.props;
 
 		var indLength = Object.keys(contentIdsToInd).length;
-		
+
 		return (
 			<PictureCarousel 
 				index={contentIdsToInd[selectedContentId] ? contentIdsToInd[selectedContentId].ind : 0} 
@@ -327,7 +329,7 @@ class ImagePreview extends React.Component{
 									//onImgLoaded={onImgLoaded}
 									setupImageRef={this.props.setupImageRef}
 									imgStyle={{'background-color':'#f9f9f9', 'object-fit':'contain'}}
-									src={images[id].src}
+									src={images[id] ? images[id].src : null}
 									imgLoaded={this.state.imgLoaded}
 									className={FormStyles.image_img}
 									onLoad={e => {
@@ -355,212 +357,6 @@ class ImagePreview extends React.Component{
 			//		</div>
 			//	</Swipeable>
 			//</div>
-		)
-	}
-}
-
-// DEPRICATED
-class ImageAdd extends React.Component{
-	constructor(props) {
-		super(props);
-		this.state = {
-			file: '',
-			imagePreviewUrl: ''
-		};
-		//this._handleImgChange = this._handleImgChange.bind(this);
-		this._handleSubmit = this._handleSubmit.bind(this);
-		this._handleImgMouseOver = this._handleImgMouseOver.bind(this);
-		this._handleImgClick = this._handleImgClick.bind(this);
-		this._handleChangesDiscarded = this._handleChangesDiscarded.bind(this);
-	}
-
-	//TODO: this event handler gathers entity data for new Outfits only. this does not handle
-	//modified entities yet...
-	_handleSubmit(fileData, crops) {
-		const {
-			postAddedOutfit,
-		} = props;
-
-		const {
-			addedEntities,
-			entitiesStateReducer,
-			itemContent,
-			images,
-		} = props;
-		//build normalized json payload
-		var json = {
-			contents:[
-				{
-					items:[{}],
-				}
-			]
-		};
-
-		//check if added outfit exists
-		if(addedEntities.outfits.byIds){
-			json = Object.assign({}, json, addedEntities.outfits.byIds['1']);
-			
-			//remove id property for server due to this being a newly created entity.  The servier will repopulate the id propterty with a UUID.
-			if(json.id !== undefined) json.id = undefined;
-
-			//check if content exist
-			//if(addedEntities.outfits.byIds['1'].contents.length > 0){
-			for(let contentId of addedEntities.outfits.byIds['1'].contents){
-				//let contentId = addedEntities.outfits.byIds['1'].contents[0];	//Do not modify contentId
-				//There should only be one content per post
-				//json = Object.assign({}, json, {contents: [Object.assign({}, addedEntities.contents.byIds[contentId])]});
-				json = {
-					...json,
-					contents: [...addedEntities.contents.byIds[contentId]],
-				}	
-
-				//delete client assigned content id.  The servier will repopulate the id propterty with a UUID. 
-				if(json.contents[0].id !== undefined) json.contents[0].id = undefined;
-
-				let itemIds = addedEntities.items.allIds;
-
-				if(itemIds.length > 0){  //Do not modify itemIds
-
-					//There can be multiple items per post
-					for(let itemId of itemIds){
-						console.log('item itemId = ', itemId);
-						console.log('item to be scrubbed = ', addedEntities.items.byIds[itemId]);
-
-						let scrubbedItem = {
-							...addedEntities.items.byIds[itemId], 
-							id: undefined, 
-							//retailer: retailers.byIds[addedEntities.items.byIds[itemId].retailer].id,
-							//retailer: addedEntities.items.byIds[itemId].retailer.name,
-							//brand: brands.byIds[addedEntities.items.byIds[itemId].brand].id
-							//apparelType: addedEntities.items.byIds[itemId].apparelType.id,
-							product: JSON.stringify(addedEntities.items.byIds[itemId].product),
-						};	
-
-						//json.contents[0].items = [...json.contents[0].items, scrubbedItem];
-						if(json.contents[0].items !== undefined && Object.keys(json.contents[0].items[0]).length > 0 && json.contents[0].items[0].constructor === Object){
-							json.contents[0].items = [...json.contents[0].items, scrubbedItem];
-						}
-
-						else{
-							json.contents[0].items = [scrubbedItem];
-						}
-
-					}
-
-					console.log(json)
-					/*console.log(Object.values(addedEntities.items.byIds));
-					json.contents.items = Object.values(addedEntities.items.byIds);*/
-				}
-
-				else{
-					console.log('itemIds is empty array');
-				}
-			}
-
-			//const crops = images.map(id => images[id].crop);
-			console.log('addedEntities = ', addedEntities);
-			postAddedOutfit(fileData, json, addedEntities, entitiesStateReducer, itemContent.count, crops);
-		}
-
-		console.log('normalized json payload for added outfit: ', json);
-	}
-
-	_handleImgMouseOver(event) {
-
-	}
-
-	/*_handleImgClick(event) {
-		console.log("image clicked!!");
-		//store clicked location
-		//call item form
-		let xCoordPercent = (event.pageX - event.target.getBoundingClientRect().left) / event.target.width;
-		let yCoordPercent = (event.pageY - event.target.getBoundingClientRect().top) / event.target.height;
-		this.props.getItemForm(xCoordPercent, yCoordPercent);
-		event.stopPropagation();
-		//store.dispatch(setFormVisibility("AddItem"));
-		//event.preventDefault();//maybe event.stopPropagation
-	}*/
-
-	_handleImgClick(event) {
-		console.log("image clicked!!");
-		let xCoordPercent = ((event.pageX === 0 ? event.clientX : event.pageX) - ((event.target.getBoundingClientRect === undefined) ? event.target.x : event.target.getBoundingClientRect().left)) / event.target.width;
-		let yCoordPercent = ((event.pageY === 0 ? event.clientY : event.pageY) - ((event.target.getBoundingClientRect === undefined) ? event.target.y : event.target.getBoundingClientRect().top)) / event.target.height;
-		this.props.getItemForm(xCoordPercent, yCoordPercent);
-		event.stopPropagation();
-	}
-
-	_handleOpenFile(event){
-		this.props.confirmDiscard
-	}
-
-	_handleChangesDiscarded(event){
-		//dispatch verificatio modal
-		this.props.confirmDiscard();
-		event.stopPropagation();
-	}
-
-	render() {
-		let {imagePreviewUrl} = this.state;
-		let $imagePreview = null;
-		let defaultImage = "Graphics/photo_upload_icon.svg";
-
-		if (imagePreviewUrl) {
-			$imagePreview = (<CroppableImageForm />);
-		}else{
-			console.log("no img URI detected")
-			$imagePreview = null;		
-		}
-
-		return (
-
-			<CroppableImageForm 	
-				itemLocationMap={
-					(itemMapDimension) => (
-						<ItemLocationMapContainer 
-							visibleItemsMap={this.props.visibleItemsMap} 
-							viewState={this.props.viewContext} 
-							populateItemsMap={this.props.populateItemsMap}
-							itemMapDimension={itemMapDimension}	
-							onImageClick={this._handleImgClick}
-							simulateImageClick={this.props.simulateImageClick}
-
-							itemIdHovered={this.props.itemIdHovered}
-							changeItemHovered={this.props.changeItemHovered}
-
-							contentSelected = {this.props.contentSelected}
-							addedContents = {this.props.addedContents}
-							contents = {this.props.contents}  />				
-					)
-				}
-
-				addContentFromImages={this.props.addContentFromImages}
-				imgStyle={imgStyle}
-				clientInvalidateEntity={(entityIds, entityType) => this.props.clientInvalidateEntity(this.props.entitiesStateReducer, entityIds, entityType)}
-				imgFormStyle={imgFormStyle}
-				imgFormControlStyle={FormStyles.imgFormControlStyle}
-				
-				_handleSubmit={this._handleSubmit}
-				onImageClick={this._handleImgClick}
-				discardChanges={this._handleChangesDiscarded}
-				entitiesStateReducer={this.props.entitiesStateReducer}
-				setupImageRef={this.props.setupImageRef}
-				src={this.props.src}
-				viewState={this.props.viewContext} 
-				//setupContentViewRef={this.props.setupContentViewRef}
-				itemMapDimensions={this.props.itemMapDimensions}
-				itemMapDimension={this.props.itemMapDimension}
-				addedContents={this.props.addedContents}
-				addedContentIds={this.props.addedContentIds}
-				updateImageDimension={this.props.updateImageDimension}
-				imageElement={this.props.imageElement}
-
-				images 				={ this.props.images }
-				pictures			={ this.props.pictures }
-				selectedContentId	={ this.props.selectedContentId }
-				contentState		={ this.props.contentState }
-				updateImageState	={ this.props.updateImageState }
-				contentIdsToInd		={ this.props.contentIdsToInd}
-			/>
 		)
 	}
 }
@@ -637,7 +433,9 @@ class ImageEdit extends React.Component{
 					
 					let contentJson = {
 						...this.props.addedEntities.contents.byIds[invalidatedContentId],
-						...(typeof invalidatedContentId === 'number' ? ({id: null}) : ({})),
+						coverpicuri: null,
+						picture: null,
+						//...(typeof invalidatedContentId === 'number' ? ({id: null}) : ({})),
 					};
 
 					//remove ids from child items array of json object (this will be filled by item json object)
@@ -682,30 +480,6 @@ class ImageEdit extends React.Component{
 				}
 
 				break;
-
-			//case OxiAppConstants.EntityTypes.PICTURE:
-			//	const {
-			//		images
-			//	} = this.props
-//
-			//	//  targetIds is a single value in this case.
-			//	const crop = iamges ? images[targetIds] : ({});
-//
-			//	json = { 
-			//		...json, 
-			//		contents: {
-			//			...json.contents,
-			//			[parentId]:{
-			//				...json.contents[parentId],
-			//				picture:{
-			//					...json.contents[parentId].picture,
-			//					crop,
-			//				}
-			//			}
-			//		}
-			//	}
-//
-			//	break;
 
 			case OxiAppConstants.EntityTypes.ITEM:
 
@@ -768,54 +542,57 @@ class ImageEdit extends React.Component{
 		console.log('addedEntities before call to pruneAddedentities = ', this.props.addedEntities);
 		outfitJson = this.pruneAddedEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitJson);
 		//TODO: second parameter to handle multiple file uploads as well as edits/adds to multiple content and item entities.
-		switch(true){
-
-			//Either new outfit has been added or outfits non-entity properties have been modified
-			case this.props.entitiesStateReducer.outfits.clientInvalidated.length > 0:
-
-				switch(typeof this.props.entitiesStateReducer.outfits.selected){
-					//outfit exists on the server
-					case 'string':
-						this.props.putModifiedOutfit(
-							files, 
-							this.props.entitiesStateReducer.contents.selected, 
-							outfitJson, 
-							this.props.addedEntities, 
-							this.props.entitiesStateReducer, 
-							this.props.itemContent.count
-						);
-						break;
-					//outfit does not exist on the server
-					case 'number':
-						//this.props.postAddedOutfit(files, outfitJson.contents[0], outfitJson.id, this.props.addedEntities, this.props.entitiesStateReducer);
-						this.props.postAddedOutfit(
-							files, 
-							outfitJson, 
-							this.props.addedEntities, 
-							this.props.entitiesStateReducer, 
-							this.props.itemContent.count,
-							crops
-						);
-						break;
-					default:
-						break;
-				}
-				break;
-
-			//Either new content has been added or contents non-entity properties have been modified
-			case this.props.entitiesStateReducer.contents.clientInvalidated.length > 0:
-
-				//for(let invalidatedContentId of this.props.entitiesStateReducer.contents.clientInvalidated){
-					
+		try{
+			switch(true){
+	
+				//Either new outfit has been added or outfits non-entity properties have been modified
+				case this.props.entitiesStateReducer.outfits.clientInvalidated.length > 0:
+	
+					switch(typeof this.props.entitiesStateReducer.outfits.selected){
+						//outfit exists on the server
+						case 'string':
+							this.props.putModifiedOutfit(
+								files, 
+								this.props.entitiesStateReducer.contents.selected, 
+								outfitJson, 
+								this.props.addedEntities, 
+								this.props.entitiesStateReducer, 
+								this.props.itemContent.count,
+								() => this.props.initializeImages()
+							);
+							break;
+	
+						//outfit does not exist on the server
+						case 'number':
+							//this.props.postAddedOutfit(files, outfitJson.contents[0], outfitJson.id, this.props.addedEntities, this.props.entitiesStateReducer);
+							this.props.postAddedOutfit(
+								files, 
+								outfitJson, 
+								this.props.addedEntities, 
+								this.props.entitiesStateReducer, 
+								this.props.itemContent.count,
+								crops,
+								() => this.props.initializeImages()
+							);
+							break;
+	
+						default:
+							break;
+					}
+	
+					break;
+	
+				//Either new content has been added or contents non-entity properties have been modified
+				case this.props.entitiesStateReducer.contents.clientInvalidated.length > 0:
 					// extract contents (with id=null if new content) from outfitJson
 					var contents = outfitJson.contents.reduce((accum, content) => ([
 						...accum,
 						{ 
 							...content, 
-							id: (typeof content.id === 'number' ? null : content.id) 
+							//id: (typeof content.id === 'number' ? null : content.id) 
 						}
 					]), []); 
-
+	
 					this.props.uploadContents(
 						files,
 						contents,
@@ -823,256 +600,254 @@ class ImageEdit extends React.Component{
 						this.props.addedEntities, 
 						this.props.entitiesStateReducer,
 						this.props.itemContent.count,
-						crops
+						crops,
+						() => this.props.initializeImages()
 					)
-
-				break;
-
-
-
-			//Only item enitties have been modified or added
-			case (this.props.entitiesStateReducer.items.clientInvalidated.length > 0 || this.props.entitiesStateReducer.items.clientDeleted.length > 0):
-				let payloadJsonPost = {}; 		//payload for new items
-				let payloadJsonPut = {};		//payoad for existing items
-				let payloadJsonPutRemove = {};	//payload for deleted items
-				let postPayloadEmpty = true;
-				let putPayloadEmpty = true;
-				let putRemovePayloadEmpty = true;
-
-				if(this.props.entitiesStateReducer.items.clientInvalidated.length > 0){
-					for(let itemId of this.props.entitiesStateReducer.items.clientInvalidated){
-						switch(typeof itemId){
-
-							case 'string':
-								//get the parent id
-								for(let itemContentId of this.props.addedEntities.itemContent.allIds){
-									//add to putPayload
-									if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
-										let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
-										let payloadJsonValue = payloadJsonPut[contentId] ? payloadJsonPut[contentId] : [];
-										payloadJsonPut = Object.assign({}, payloadJsonPut, {
-											[contentId]: [
-												...payloadJsonValue, 
-												//remove product property from non-custom items in contentJson
-												this.props.addedEntities.items.byIds[itemId].platform === null ? 
-													Object.assign( {}, this.props.addedEntities.items.byIds[itemId], {'product': undefined, 'sizeChartDto':undefined} ):
-													this.props.addedEntities.items.byIds[itemId]
-											]
-										});
-										putPayloadEmpty = false;
+	
+					break;
+	
+				//Only item enitties have been modified or added
+				case (this.props.entitiesStateReducer.items.clientInvalidated.length > 0 || this.props.entitiesStateReducer.items.clientDeleted.length > 0):
+					let payloadJsonPost = {}; 		//payload for new items
+					let payloadJsonPut = {};		//payoad for existing items
+					let payloadJsonPutRemove = {};	//payload for deleted items
+					let postPayloadEmpty = true;
+					let putPayloadEmpty = true;
+					let putRemovePayloadEmpty = true;
+	
+					if(this.props.entitiesStateReducer.items.clientInvalidated.length > 0){
+						for(let itemId of this.props.entitiesStateReducer.items.clientInvalidated){
+							switch(typeof itemId){
+	
+								case 'string':
+									//get the parent id
+									for(let itemContentId of this.props.addedEntities.itemContent.allIds){
+										//add to putPayload
+										if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
+											let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
+											let payloadJsonValue = payloadJsonPut[contentId] ? payloadJsonPut[contentId] : [];
+											payloadJsonPut = Object.assign({}, payloadJsonPut, {
+												[contentId]: [
+													...payloadJsonValue, 
+													//remove product property from non-custom items in contentJson
+													this.props.addedEntities.items.byIds[itemId].platform === null ? 
+														Object.assign( {}, this.props.addedEntities.items.byIds[itemId], {'product': undefined, 'sizeChartDto':undefined} ):
+														this.props.addedEntities.items.byIds[itemId]
+												]
+											});
+											putPayloadEmpty = false;
+										}
 									}
-								}
-								break;
-
-							case 'number':
-								//get the parent id
-								for(let itemContentId of this.props.addedEntities.itemContent.allIds){
-									//add to payload
-									if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
-										let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
-										let payloadJsonValue = payloadJsonPost[contentId] ? payloadJsonPost[contentId] : [];
-										payloadJsonPost =Object.assign({}, payloadJsonPost, {
-											[contentId]: [
-												...payloadJsonValue, 
-												{
-													...this.props.addedEntities.items.byIds[itemId], 
-													product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product),
-													id: null
-												}
-											]
-										});
-										postPayloadEmpty = false;
+									break;
+	
+								case 'number':
+									//get the parent id
+									for(let itemContentId of this.props.addedEntities.itemContent.allIds){
+										//add to payload
+										if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
+											let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
+											let payloadJsonValue = payloadJsonPost[contentId] ? payloadJsonPost[contentId] : [];
+											payloadJsonPost =Object.assign({}, payloadJsonPost, {
+												[contentId]: [
+													...payloadJsonValue, 
+													{
+														...this.props.addedEntities.items.byIds[itemId], 
+														product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product),
+														id: null
+													}
+												]
+											});
+											postPayloadEmpty = false;
+										}
 									}
-								}
-								break;
-							default:
-								break;
-						}
-					}
-				}
-
-				if(this.props.entitiesStateReducer.items.clientDeleted.length > 0){
-					for(let deletedItemId of this.props.entitiesStateReducer.items.clientDeleted){
-						//Note:  the for loop is perfomed on entitiesReducer.itemContent because addedEntitiesReducer will have had removed the entity wrt the deleted item.
-						for(let itemContentId of this.props.itemContent.allIds){
-							//get the parent Id
-							if(this.props.itemContent.byIds[itemContentId].itemId === deletedItemId){
-								let contentId = this.props.itemContent.byIds[itemContentId].contentId;
-								let payloadJsonValue = payloadJsonPutRemove[contentId] ? payloadJsonPutRemove[contentId] : [];
-								payloadJsonPutRemove = Object.assign({}, payloadJsonPutRemove, {
-									[contentId]: [
-										...payloadJsonValue, 
-										deletedItemId
-									]
-								});
-								putRemovePayloadEmpty = false;
+									break;
+								default:
+									break;
 							}
 						}
 					}
-				}
-				// DEBUG LOGGING
-				//console.log('entitiesStateReducer = ', this.props.entitiesStateReducer);
-				//console.log();
-				//console.log('putRemovePayloadeEmpty = ',putRemovePayloadEmpty);
-				//console.log('putPayloadEmpty = ', putPayloadEmpty);
-				//console.log('postPayloadEmpty = ', postPayloadEmpty);
-				//console.log()
-				//console.log('payloadJsonPutRemove = ', payloadJsonPutRemove);
-				//console.log('payloadJsonPut = ', payloadJsonPut);
-				//console.log('payloadJsonPost = ', payloadJsonPost);
-
-				let requestPromise = null;
-				switch(true){
-					case (!putPayloadEmpty && !postPayloadEmpty && !putRemovePayloadEmpty):
-						requestPromise = new Promise((resolve, reject) => {
-							let status = putItems(payloadJsonPut, this.props.entitiesStateReducer.outfits.selected, ()=>{})();
-							console.log('checking status from put request: status = ', status);
-							//status === OxiAppConstants.HttpStatus.OK ? resolve(status) : reject(status);
-							resolve(status);
-						}).then(value => {
-							let status = postItems(
-								payloadJsonPost, 
-								this.props.entitiesStateReducer.outfits.selected, 
-								this.props.createResponseHandler(
-									this.props.addedEntities, 
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-							console.log('checking status from post request: status = ', status);
-							//resolve(status);
-							//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
-						}, reason => {
-							console.log('rejected: ', reason);
-							//throw reason;
-						}).then(value => {
-							putRemoveItems(
-								payloadJsonPutRemove,
-								this.props.entitiesStateReducer.outfits.selected,
-								this.props.createResponseHandler(
-									this.props.addedEntities,
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-						}, reason => {
-							console.log('rejected: ', reason);
-						})/*.catch(error => {
-							console.log("error thrown from requestPromise:  " + error);
-							//reject(error);
-						})*/;
-						break;
-						
-					case (!putPayloadEmpty && !postPayloadEmpty):
-						requestPromise = new Promise((resolve, reject) => {
-							let status = putItems(payloadJsonPut, this.props.entitiesStateReducer.outfits.selected, ()=>{})();
-							console.log('checking status from put request: status = ', status);
-							//status === OxiAppConstants.HttpStatus.OK ? resolve(status) : reject(status);
-							resolve(status);
-						}).then(value => {
-							let status = postItems(
-								payloadJsonPost, 
-								this.props.entitiesStateReducer.outfits.selected, 
-								this.props.createResponseHandler(
-									this.props.addedEntities, 
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-							console.log('checking status from post request: status = ', status);
-							//resolve(status);
-							//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
-						}, reason => {
-							console.log('rejected: ', reason);
-							//throw reason;
-						})/*.catch(error => {
-							console.log("error thrown from requestPromise:  " + error);
-							//reject(error);
-						})*/;
-						//batchRequestEntities(requestPromise);
-						break;
-
-					case (!postPayloadEmpty && !putRemovePayloadEmpty):
-						requestPromise = new Promise((resolve, reject) => {
-							let status = postItems(
-								payloadJsonPost, 
-								this.props.entitiesStateReducer.outfits.selected, 
-								this.props.createResponseHandler(
-									this.props.addedEntities, 
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-							console.log('checking status from post request: status = ', status);
-							resolve(status);
-							//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
-						}).then(value => {
-							putRemoveItems(
-								payloadJsonPutRemove,
-								this.props.entitiesStateReducer.outfits.selected,
-								this.props.createResponseHandler(
-									this.props.addedEntities,
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-						}, reason => {
-							console.log('rejected: ', reason);
-						})/*.catch(error => {
-							console.log("error thrown from requestPromise:  " + error);
-							//reject(error);
-						})*/;
-						break;
-
-					default:
-						if(!putPayloadEmpty){
-							//this.props.putModifiedItems(payloadJsonPut, this.props.addedEntities, this.props.entitiesStateReducer);
-							putItems(
-								payloadJsonPut, 
-								this.props.entitiesStateReducer.outfits.selected, 
-								this.props.createResponseHandler(
-									this.props.addedEntities, 
-									this.props.entitiesStateReducer,
-									outfit,
-									null,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+	
+					if(this.props.entitiesStateReducer.items.clientDeleted.length > 0){
+						for(let deletedItemId of this.props.entitiesStateReducer.items.clientDeleted){
+							//Note:  the for loop is perfomed on entitiesReducer.itemContent because addedEntitiesReducer will have had removed the entity wrt the deleted item.
+							for(let itemContentId of this.props.itemContent.allIds){
+								//get the parent Id
+								if(this.props.itemContent.byIds[itemContentId].itemId === deletedItemId){
+									let contentId = this.props.itemContent.byIds[itemContentId].contentId;
+									let payloadJsonValue = payloadJsonPutRemove[contentId] ? payloadJsonPutRemove[contentId] : [];
+									payloadJsonPutRemove = Object.assign({}, payloadJsonPutRemove, {
+										[contentId]: [
+											...payloadJsonValue, 
+											deletedItemId
+										]
+									});
+									putRemovePayloadEmpty = false;
+								}
+							}
 						}
-						if(!postPayloadEmpty){
-							//this.props.postAddedItems(payloadJsonPost, this.props.addedEntities, this.props.entitiesStateReducer);						
-							postItems(
-								payloadJsonPost, 
-								this.props.entitiesStateReducer.outfits.selected, 
-								this.props.createResponseHandler(
-									this.props.addedEntities, 
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-						}
-						if(!putRemovePayloadEmpty){
-							putRemoveItems(
-								payloadJsonPutRemove,
-								this.props.entitiesStateReducer.outfits.selected,
-								this.props.createResponseHandler(
-									this.props.addedEntities,
-									this.props.entitiesStateReducer,
-									outfit,
-									false,
-									this.props.itemContent.count,
-									() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
-						}
-						break;
-				}				
-				break;
-			default:
-				break;
+					}
+	
+					let requestPromise = null;
+	
+					switch(true){
+						case (!putPayloadEmpty && !postPayloadEmpty && !putRemovePayloadEmpty):
+							requestPromise = new Promise((resolve, reject) => {
+								let status = putItems(payloadJsonPut, this.props.entitiesStateReducer.outfits.selected, ()=>{})();
+								console.log('checking status from put request: status = ', status);
+								//status === OxiAppConstants.HttpStatus.OK ? resolve(status) : reject(status);
+								resolve(status);
+							}).then(value => {
+								let status = postItems(
+									payloadJsonPost, 
+									this.props.entitiesStateReducer.outfits.selected, 
+									this.props.createResponseHandler(
+										this.props.addedEntities, 
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+								console.log('checking status from post request: status = ', status);
+								//resolve(status);
+								//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
+							}, reason => {
+								console.log('rejected: ', reason);
+								//throw reason;
+							}).then(value => {
+								putRemoveItems(
+									payloadJsonPutRemove,
+									this.props.entitiesStateReducer.outfits.selected,
+									this.props.createResponseHandler(
+										this.props.addedEntities,
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+							}, reason => {
+								console.log('rejected: ', reason);
+							})/*.catch(error => {
+								console.log("error thrown from requestPromise:  " + error);
+								//reject(error);
+							})*/;
+							break;
+							
+						case (!putPayloadEmpty && !postPayloadEmpty):
+							requestPromise = new Promise((resolve, reject) => {
+								let status = putItems(payloadJsonPut, this.props.entitiesStateReducer.outfits.selected, ()=>{})();
+								console.log('checking status from put request: status = ', status);
+								//status === OxiAppConstants.HttpStatus.OK ? resolve(status) : reject(status);
+								resolve(status);
+							}).then(value => {
+								let status = postItems(
+									payloadJsonPost, 
+									this.props.entitiesStateReducer.outfits.selected, 
+									this.props.createResponseHandler(
+										this.props.addedEntities, 
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+								console.log('checking status from post request: status = ', status);
+								//resolve(status);
+								//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
+							}, reason => {
+								console.log('rejected: ', reason);
+								//throw reason;
+							})/*.catch(error => {
+								console.log("error thrown from requestPromise:  " + error);
+								//reject(error);
+							})*/;
+							//batchRequestEntities(requestPromise);
+							break;
+	
+						case (!postPayloadEmpty && !putRemovePayloadEmpty):
+							requestPromise = new Promise((resolve, reject) => {
+								let status = postItems(
+									payloadJsonPost, 
+									this.props.entitiesStateReducer.outfits.selected, 
+									this.props.createResponseHandler(
+										this.props.addedEntities, 
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+								console.log('checking status from post request: status = ', status);
+								resolve(status);
+								//status === OxiAppConstants.HttpStatus.CREATED ? resolve(status) : reject(status);
+							}).then(value => {
+								putRemoveItems(
+									payloadJsonPutRemove,
+									this.props.entitiesStateReducer.outfits.selected,
+									this.props.createResponseHandler(
+										this.props.addedEntities,
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+							}, reason => {
+								console.log('rejected: ', reason);
+							})/*.catch(error => {
+								console.log("error thrown from requestPromise:  " + error);
+								//reject(error);
+							})*/;
+							break;
+	
+						default:
+							if(!putPayloadEmpty){
+								//this.props.putModifiedItems(payloadJsonPut, this.props.addedEntities, this.props.entitiesStateReducer);
+								putItems(
+									payloadJsonPut, 
+									this.props.entitiesStateReducer.outfits.selected, 
+									this.props.createResponseHandler(
+										this.props.addedEntities, 
+										this.props.entitiesStateReducer,
+										outfit,
+										null,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+							}
+							if(!postPayloadEmpty){
+								//this.props.postAddedItems(payloadJsonPost, this.props.addedEntities, this.props.entitiesStateReducer);						
+								postItems(
+									payloadJsonPost, 
+									this.props.entitiesStateReducer.outfits.selected, 
+									this.props.createResponseHandler(
+										this.props.addedEntities, 
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+							}
+							if(!putRemovePayloadEmpty){
+								putRemoveItems(
+									payloadJsonPutRemove,
+									this.props.entitiesStateReducer.outfits.selected,
+									this.props.createResponseHandler(
+										this.props.addedEntities,
+										this.props.entitiesStateReducer,
+										outfit,
+										false,
+										this.props.itemContent.count,
+										() => this.props.exitEditMode(this.props.entitiesStateReducer)))();
+							}
+							break;
+					}				
+					break;
+	
+				default:
+					break;
+			}
+
+			// Submit requests are successfull so clear images in component state. 
+			//this.props.clearImageState();
+			//this.props.initializeImages();
+		}catch(e){
+
 		}
 	}
 
@@ -1082,7 +857,8 @@ class ImageEdit extends React.Component{
 				pictureId: picture.id,
 				base64Image: data
 			})
-		}else{
+		}
+		else{
 			this.setState({
 				pictureId: picture.id,
 				base64Image: 'data:image/jpeg;base64,' + data
@@ -1154,7 +930,7 @@ class ImageEdit extends React.Component{
 		var indLength = Object.keys(contentIdsToInd).length;
 
 		if(contentSelected !== false){
-			//check if picture object is not empty
+			// Check if picture object is not empty
 			if(Object.keys(pictures).length > 0){
 				//let contentPicture = pictures[contents[contentSelected].picture];
 				let contentPictureId = null;
@@ -1163,10 +939,10 @@ class ImageEdit extends React.Component{
 					contentPictureId = addedContents[contentSelected].picture;
 				}
 
-				//determine if the selected content's picture property is different, and thus not loaded in the contentView
+				// Determine if the selected content's picture property is different, and thus not loaded in the contentView
 				if(contentPictureId !== pictureId && contentPictureId !== undefined && contentPictureId !== null){
 
-					//check if the picture id is not from a newly added content entity.  If so the content view needs to be nullified
+					// Check if the picture id from a newly added content entity.  If not, the content view needs to be nullified
 					if(contentPictureId !== '' && typeof contentPictureId !== 'number'){
 						var cancel;
 
@@ -1175,7 +951,7 @@ class ImageEdit extends React.Component{
 							{requestURI: pictures[contentPictureId].largeuri, method: cancel}
 						];
 
-						//TODO:  refactor fetchImage to just take picture obejct.  OutfitList container calls fetchImage
+						// TODO:  refactor fetchImage to just take picture obejct.  OutfitList container calls fetchImage
 						getPreviewPic(
 							pictures[contentPictureId].largeuri, 
 							this._handleImageReceived, 
@@ -1183,8 +959,7 @@ class ImageEdit extends React.Component{
 					}
 
 					else{
-						//contentPictureId is of type number, which means the picture data is from a local image file
-						//force update of pictureId
+						// ContentPictureId is of type number, which means the picture data is from a local image file force update of pictureId
 						this.setState({
 							pictureId: contentPictureId,
 							base64Image: null
@@ -1316,6 +1091,8 @@ class PicturePreview extends React.Component{
 		this.removeDiscardedImages = this.removeDiscardedImages.bind(this);
 		this.getUsedEntities = this.getUsedEntities.bind(this);
 		this.isCropReused = this.isCropReused.bind(this);
+		this.clearImageState = this.clearImageState.bind(this);
+		this.initializeImages = this.initializeImages.bind(this);
 	}
 
 	setupImageRef(img, id){
@@ -1360,6 +1137,13 @@ class PicturePreview extends React.Component{
 				crop.height != 'unset'
 			)
 		);
+	}
+
+	clearImageState(){
+		this.setState(prevState => ({
+			...prevState,
+			images:{}
+		}))
 	}
 
 	updateImageState(images){
@@ -1474,9 +1258,7 @@ class PicturePreview extends React.Component{
 		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);
 	}
 
-	componentDidMount(){
-		window.addEventListener('resize', this._handleResize);
-		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);
+	initializeImages(){
 
 		//methods
 		const {
@@ -1503,18 +1285,10 @@ class PicturePreview extends React.Component{
 			usedContents,
 			usedOutfits,
 
-		} = this.getUsedEntities();/*(viewState === OxiAppConstants.viewState.PREVIEW) ? 
-			({ 
-				usedContents: contents, 
-				usedOutfits: outfits,
-			}) : 
-			({ 
-				usedContents: addedContents, 
-				usedOutfits: addedOutfits,
-			});*/
+		} = this.getUsedEntities();
 
-		//fetch all images associated with the outfit selected
-		//update state with base64 data from images
+		// Fetch all images associated with the outfit selected
+		// Update state with base64 data from images
 		const getAllImages = (this2) => async (images, onComplete) => {
 			try {		
 				const callBack = (event, data, picture) => ({
@@ -1528,7 +1302,7 @@ class PicturePreview extends React.Component{
 
 					if(pictureId.length > 0){
 						//var largePicURI =  pictures.byIds[pictureId].largeuri;		
-						var largePicURL = OxiAppConstants.getImageURL(pictures.byIds[pictureId].largeuri, 3);
+						var largePicURL = getImageURL(pictures.byIds[pictureId].largeuri);
 						//var result = await getPreviewPic(largePicURI, callBack, pictures.byIds[pictureId]);	//base54 data
 						
 						var result = {
@@ -1562,6 +1336,13 @@ class PicturePreview extends React.Component{
 				}
 			}));
 		});
+	}
+
+	componentDidMount(){
+		window.addEventListener('resize', this._handleResize);
+		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);
+
+		this.initializeImages();
 	}
 
 	//componentDidUnmount(){
@@ -1703,6 +1484,8 @@ class PicturePreview extends React.Component{
 						...{
 							viewContext: viewContext,
 							updateImageState: this.updateImageState,
+							clearImageState: this.clearImageState,
+							initializeImages: this.initializeImages,
 							imageElement: this.image,
 							setupImageRef: this.setupImageRef,
 							updateImageDimension: this.updateImageDimension,
