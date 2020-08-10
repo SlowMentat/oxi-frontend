@@ -743,7 +743,8 @@ a{
 		position: absolute;
 		width: 400px;
 		background-color: unset;
-    	height: var(--cc-desktop-height);;
+		height: unset;
+    	/*height: var(--cc-desktop-height);*/
     }
 
     @include mobile_rules {

@@ -11,11 +11,10 @@ import { ThemeProvider } from '@rmwc/theme';
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
-//import { batchedSubscribe } from 'redux-batched-subscribe';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { createLogger } from 'redux-logger';
-import { Provider, ReactReduxContext  } from 'react-redux';
+import { Provider, ReactReduxContext, batch } from 'react-redux';
 //import Cookies from 'universal-cookie';
 //import fetch from 'cross-fetch';
 import axios from 'axios';
@@ -109,7 +108,7 @@ const composeEnhancers = composeWithDevTools({
 //log initial store state
 //subscribe logging callback to store state change
 const store = createStore(
-//const stor = createStoreWithBatching(
+//const store = createStoreWithBatching(
 	createRootReducer(history), //root reducer with router state
 	//_OxiApp,
 	{
@@ -220,6 +219,32 @@ export const WrapMuiProviders = (children) => (
 			button: ({ children, ...rest }) => (
 				<span style={{font: '12px'}}>
 					{ children }
+				</span>
+			),
+			headline6: ({ children, ...rest }) => (
+				<div 
+					id="headline6" 
+					style={{
+						'font-family': 'Roboto',
+   						color: 'var(--color1)',
+   						'font-size': '1.8rem',
+   						'font-weight': 'bold',
+   						'letter-spacing': '.1rem',
+					}}
+				>
+					{children}
+				</div>
+			),
+			subtitle2: ({ children, ...rest }) => (
+				<span 
+					id="subtitle2" 
+					style={{
+						'font-family':'Roboto',
+   						'font-size': '1.2rem',
+   						color:'gray',
+					}}
+				>
+					{children}
 				</span>
 			)
 		}}

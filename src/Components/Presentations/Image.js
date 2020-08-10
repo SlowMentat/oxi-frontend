@@ -45,13 +45,16 @@ export const Image = (props) => {
 			src={src}
 			//className={FormStyles.image_img}
 			className={className}
-			ref={setupImageRef ? setupImageRef : null}
+			ref={onClickHandler => (img => {
+				img ? img.onclick = e => onClickHandler(e) : null;
+				setupImageRef ? setupImageRef(img) : null
+			})(onClick)}
 			style={{
 				...(imgLoaded ? ({}) : ({display:'none'}) ),
 				...imgStyle,
 			}}
 			onLoad={(e) => onLoad(e)}
-			onClick={onClick}
+			onClick={onClick ? (e) => onClick(e) : null}
 			crossorigin="Anonymous"
 		/>
 		</React.Fragment>

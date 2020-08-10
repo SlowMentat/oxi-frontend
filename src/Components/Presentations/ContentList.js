@@ -25,7 +25,7 @@ class ContentList extends React.Component {
 		this.extractNonExistingIds = this.extractNonExistingIds.bind(this);
 	}
 
-	//Searches for each element of stat.addedItemIds from this.props.addedItemIds to identify the new element in this.props.addedItemIds.
+	//Searches for each element of state.addedItemIds from this.props.addedItemIds to identify the new element in this.props.addedItemIds.
 	extractAddedElement(targetArray, searchArray){
 		for(let searchElement of searchArray){
 			let match = false;
@@ -90,7 +90,8 @@ class ContentList extends React.Component {
 					//Note:  This block will not be executed during componentDidMount
 					if(!duplicate){
 						this.props.modifyContentItems(this.props.selectedId, [...this.props.addedContents[this.props.selectedId].items, addedItemId]);
-						if(this.props.addedContents[this.props.selectedId].items.length > 0 || this.props.invalidatedContentIds.length > 0){
+
+						if(this.props.addedContents[this.props.selectedId].items.length > 0 || this.props.invalidatedContentIds.length > 0 || addedItemId){
 							this.props.clientInvalidateItems(this.props.invalidatedItemIds, [addedItemId]);
 							//TODO: experimental
 							this.props.addItemContent(this.props.selectedId, addedItemId);
@@ -292,7 +293,11 @@ class ContentList extends React.Component {
 		    				'--ic-height': '100px',
 		    				'--ic-width': 'calc(6*(2/3)*var(--ic-height))',
 		    				//'margin-left':'calc((var(--ip-width) - var(--ic-width))/2)',
-		    				'margin-left': (isDevice ? '' : '-200px'),
+		    				...(isDevice ?{
+		    					//'margin-left': /*'-200px'*/'0px',
+		    					left:'calc(50vw - 400px)',
+		    				} : 
+		    				{}),
 		    				bottom:'20px',
 		    			}}
 		    		>
@@ -311,12 +316,13 @@ class ContentList extends React.Component {
 		    						return(
 		    							<div 
 		    								style={{
-		    									display: 'inline',
+		    									display: 'flex',
+		    									'align-items': 'center',
 		    									height: '100%',
 		    									'padding-top': '5px',
 		    									'padding-bottom': '5px',
-		    									margin:'5px 5px 5px 5px',
-		    									'border-bottome': (selectedId === id ? 'solid 1px var(--color-01)' : '')
+		    									margin:'0px 5px 0px 5px',
+		    									'background-color': (selectedId === id ? 'var(--color-05-tint-01)' : 'unset')
 		    								}}
 		    							>
 		    								<img 

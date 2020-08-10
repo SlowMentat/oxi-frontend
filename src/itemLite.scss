@@ -31,6 +31,29 @@ div{
     }
 }
 
+:local(.itemDeleteBtn_div){
+	position: absolute;
+    --btn-container-width: 28px;
+    width: var(--btn-container-width);
+    height: var(--btn-container-width);
+    top: 2px;
+    left: 2px;
+    background-color: white;
+    border-radius: 2px;
+    border: solid 2px var(--color-05-tint-02);
+    display: flex;
+    z-index: 1;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+	@include desktop_rules {
+    }
+
+    @include mobile_rules {
+    }
+}
+
 :local(.itemLiteBrowse_div){
 	composes: itemLite_div;
 
@@ -142,6 +165,7 @@ div{
 	/*--selected-size-height: 27px;*/
 	--selected-size-height: 40px;
 	--selected-size-border: 1px;
+	--size-color: var(--color-05-tint-01);
 
 	position: absolute;
 	width: var(--selected-size-height);
@@ -150,7 +174,8 @@ div{
 	font-weight: bold;
 	line-height: calc(var(--selected-size-height) - var(--selected-size-border));
 	text-align: center;
-	border: solid var(--selected-size-border) var(--color1);
+	border: solid var(--selected-size-border) var(--color-05-tint-01);
+	background-color: var(--color-05-tint-01);
 	border-radius: 4px;
 	bottom: 10px;
 	left: calc(50% - var(--selected-size-height)/2);
@@ -162,5 +187,7 @@ div{
 
 :local(#selectedSizeIcon span){
 	color: var(--color1);
+	color: white;
+	font-weight: 100;
 	font-size: 18px;
 }

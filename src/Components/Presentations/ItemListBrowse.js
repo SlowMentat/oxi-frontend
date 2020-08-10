@@ -37,7 +37,13 @@ const PagedItemListBrowse = ({className, ...props}) => (
 			<div 
 				className={ItemStyles.itemListBrowseContainer_div}
 			>
-				<TransitionGroup>
+				<TransitionGroup
+					style={!isDevice ? {
+						display: 'flex',
+    					'flex-wrap': 'wrap',
+    					'justify-content': 'space-around',
+					} : {}}
+				>
 			   		{
 			   			props.itemIds.map((itemId) => {
 			   			//this.state.itemIds.map((itemId) => {
@@ -50,7 +56,8 @@ const PagedItemListBrowse = ({className, ...props}) => (
 			   							tiemout={200}
 			   							classNames="itemBrowseInitialize"
 			   							onExit={(element) => {console.log(itemId, ' exited.  Element is: ', element)}}
-			   							unmountOnExit >
+			   							unmountOnExit 
+			   						>
 			   							{
 			   								(state) => (state === 'unmounted' ? null : (<ItemBrowse
 			   									key={itemId}

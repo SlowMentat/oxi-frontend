@@ -327,7 +327,9 @@ class ImagePreview extends React.Component{
 								<Image
 									//handleImageLoad={e => this._handleImgLoad(e)}
 									//onImgLoaded={onImgLoaded}
-									setupImageRef={this.props.setupImageRef}
+									setupImageRef={(img) => {
+										this.props.setupImageRef(img, id)
+									}}
 									imgStyle={{'background-color':'#f9f9f9', 'object-fit':'contain'}}
 									src={images[id] ? images[id].src : null}
 									imgLoaded={this.state.imgLoaded}
@@ -346,7 +348,7 @@ class ImagePreview extends React.Component{
 									itemMapDimension={this.props.itemMapDimension}
 									itemIdHovered={this.props.itemIdHovered}
 									changeItemHovered={this.props.changeItemHovered}
-						
+									//simulateImageClick={this.props.simulateImageClick}						
 									selectedContentId = { selectedContentId }
 									contents = { contents }
 								/>							
@@ -1096,11 +1098,18 @@ class PicturePreview extends React.Component{
 	}
 
 	setupImageRef(img, id){
+
+		const shouldUpdateClickHandlers = () => (
+				!this.simulateImageClickHandlers[id] ||
+				img.width != this.state.images[id].imageRef.width ||
+				img.height != this.state.images[id].imageRef.height
+		);
+
 		const {
 			contentState
 		} = this.props;
 
-		if(img && id && !this.simulateImageClickHandlers[id]){
+		if(img && id && shouldUpdateClickHandlers()){
 			this.image = img;
 			//this.image ? this.image.crossOrigin = "Anonymous" : null;
 			this.simulateImageClickHandlers[id] = this.simulateImageClickFactory(img).bind(this);
@@ -1341,6 +1350,10 @@ class PicturePreview extends React.Component{
 	componentDidMount(){
 		window.addEventListener('resize', this._handleResize);
 		//this.props.contentViewResized(this.contentViewRef.clientWidth, this.contentViewRef.clientHeight);
+		
+		//for(var id of Object.keys(this.state.images)){
+		//	this.simulateImageClickHandlers[id] = this.simulateImageClickFactory(img).bind(this);
+		//}
 
 		this.initializeImages();
 	}

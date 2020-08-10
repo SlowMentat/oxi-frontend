@@ -429,7 +429,8 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 					...state.byIds,
 					[action.payload.entity.id]: {
 						...state.byIds[action.payload.entity.id],
-						coverpicuri: action.payload.entity.coverpicuri
+						coverpicuri: action.payload.entity.coverpicuri,
+						coverPictureId: action.payload.entity.coverPictureId,
 					}
 				}
 			});

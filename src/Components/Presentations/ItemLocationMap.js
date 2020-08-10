@@ -36,6 +36,9 @@ export default class ItemLocationMap extends React.Component{
 		this._onStart = this._onStart.bind(this);
 		this._onStop = this._onStop.bind(this);
 		this._handleDrag = this._handleDrag.bind(this);
+		this.getCircleRadius = this.getCircleRadius.bind(this);
+		this.getCircleColor = this.getCircleColor.bind(this);
+
 		this.state = {
 			activeDrags: 0,
 			draggedItemId: null,
@@ -127,6 +130,15 @@ export default class ItemLocationMap extends React.Component{
 		this._handleOnMouseUp(event, itemId);
 	}
 
+	getCircleRadius(itemId){
+		var size = isDevice ? 4 : 2;
+		return(this.props.itemIdHovered == itemId ? `${size*1.5}%` : `${size}%`);
+	}
+
+	getCircleColor(itemId){
+		return(this.props.itemIdHovered === itemId ? 'var(--color-05-tint-01)' : '#ececec');
+	}
+
 	render(){
 		const dragHandlers = {
 			onStart: this._onStart, 
@@ -158,7 +170,8 @@ export default class ItemLocationMap extends React.Component{
 					//style={Object.assign({}, svgContainerStyle, this.props.itemMapDimension)}
 					className={FormStyles.itemMapSvgContainer_div}
 					style={{
-						...(isDevice ? {} : this.props.itemMapDimension)
+						//...(isDevice ? {} : this.props.itemMapDimension)
+						...(isDevice ? {} : {width: '100%', height:'100%'})
 					}}
 				>
 					<svg 
@@ -237,8 +250,8 @@ export default class ItemLocationMap extends React.Component{
 														id={itemId}
 														stroke-width='2px' 
 														stroke='black' 
-														fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'} 
-														r='2%' 
+														fill={this.getCircleColor(itemId)} 
+														r={this.getCircleRadius(itemId)}
 														cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
 														cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
 														className={ItemStyles.itemPin}
@@ -258,8 +271,8 @@ export default class ItemLocationMap extends React.Component{
 													id={itemId}
 													stroke-width='2px' 
 													stroke='black' 
-													fill={this.props.itemIdHovered === itemId ? '#6dd7b4' : '#ececec'}  
-													r='2%' 
+													fill={this.getCircleColor(itemId)}
+													r={this.getCircleRadius(itemId)}
 													cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
 													cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
 													>

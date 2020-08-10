@@ -128,6 +128,7 @@ class CroppableImageForm extends React.Component{
 		this._onCropChange = this._onCropChange.bind(this);
 		this._handleAcceptCrop = this._handleAcceptCrop.bind(this);
 		this._handleImageLoad = this._handleImageLoad.bind(this);
+		this._handleImageError = this._handleImageError.bind(this);
 		//this.simulateImageClick = this.simulateImageClick.bind(this);
 		this._handleIconHover = this._handleIconHover.bind(this);
 		this.setupCropImgRoot = this.setupCropImgRoot.bind(this);
@@ -1175,6 +1176,11 @@ class CroppableImageForm extends React.Component{
 		this.props.setupImageRef(imgRef, id);
 	}
 
+	// TODO: finish implementation.  Setting images src in PreviewPicture State to a fallback src on error
+	_handleImageError(id){
+		console.log('Error loading image');
+	}
+
 	_handleIconHover(event, icon, hovering){
 		switch(icon){
 			case 'file':
@@ -1538,7 +1544,7 @@ class CroppableImageForm extends React.Component{
 							onImageLoaded={(img) => this._onCropImageLoaded(img, id)}
 							onComplete={this._onCropComplete}
 							onChange={(pixelCrop, percentCrop) => this._onCropChange(pixelCrop, percentCrop, id)}
-							setupImageRef={(img) => this.props.setupImageRef(img, id)}
+							setupImageRef={img => this.props.setupImageRef(img, id)}
 							flag={this.state.flag}
 							ruleOfThirds={true}
 						/>	
@@ -1553,8 +1559,18 @@ class CroppableImageForm extends React.Component{
 							src={images[id].croppedSrc}
 							// alkjdf
 							onClick={e => this.props.onImageClick(e)} 
-							onLoad={(img) => this._handleImageLoad(this.props.images[id].imageRef, id)} 
-							ref={(img) => this.props.setupImageRef(img, id)}
+							// The img element reference has already been set in images state object of the parent component when it's mounted.
+							// Reference the images state object for updates to img element.
+							onLoad={e => {
+								e.target.onclick = e => this.props.onImageClick(e);
+								this._handleImageLoad(e.target, id)
+							}}
+							onError={() => this._handleImageError()}
+							// Called by react when component mounts
+							ref={img => {
+								img ? img.onclick = e => this.props.onImageClick(e) : null;
+								this.props.setupImageRef(img, id);
+							}}
 							loading="lazy" 
 							crossOrigin="Anonymous"
 						/>	
@@ -1754,7 +1770,15 @@ class CroppableImageForm extends React.Component{
 										id="cropContainer"
 										ref={this.setupCropImgRoot}
 										style={{
-											height: '100%',
+											...(isDevice ? 
+												{
+													height: 'calc(100vw / var(--img-aspect-ratio))',
+													positon: 'relative',
+												} : 
+												{
+													height:'100%'
+												}
+											),
 											width: 'auto',
 											margin: 'auto',
 											display:'flex',

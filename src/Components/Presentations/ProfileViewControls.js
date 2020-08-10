@@ -54,6 +54,7 @@ export default class ProfileViewControls extends React.Component{
 			goBack,
 			overrideOnExit,
 			showComments,
+			//refreshOnCoverpicUpdate,
 		} = this.props;
 
 		var {
@@ -144,8 +145,13 @@ export default class ProfileViewControls extends React.Component{
 										new Promise((resolve, reject) => {
 											resolve( changeOutfitCoverPic({ 
 												id: entitiesStateReducer.outfits.selected,
-												coverpicuri: pictures[contents[selectedContentId].picture].smalluri 
+												//coverpicuri: pictures[contents[selectedContentId].picture].smalluri 
+												coverPictureId: pictures[contents[selectedContentId].picture].id,
+												coverpicuri: pictures[contents[selectedContentId].picture].mediumuri,
 											}) );
+										}).then(result => {
+											// Force update of outfit list
+											//refreshOnCoverpicUpdate(pictures[contents[selectedContentId].picture].mediumuri)
 										});
 									}}									
 									icon="portrait"		

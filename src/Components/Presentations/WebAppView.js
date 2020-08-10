@@ -524,6 +524,7 @@ class OutfitNav extends React.Component{
 			setAppViewContext,
 			handleAddOutfitClicked,
 			webAppViewContext,
+			updatedCoverpicTrigger
 		} = this.props;
 
 		var URI = pathname ? pathname.split('/') : '';
@@ -573,6 +574,7 @@ class OutfitNav extends React.Component{
 							//setPreviewedOutfit={setPreviewedOutfit}
 							previewedOutfitId={previewedOutfitId}
 							/*routeToHostProfile={this.props.routeToHostProfile}*/ 
+							updatedCoverpicTrigger={updatedCoverpicTrigger}
 						/>
 						{
 							this.props.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() ? controls : null
@@ -667,6 +669,7 @@ export default class webAppView extends React.Component {
 			base64HostImage: null,
 			base64OwnerImage: null,
 			previewedOutfitId: null,
+			//updatedCoverpicTrigger: null,
 		}
 
 		this._handleItemsListUpdated = this._handleItemsListUpdated.bind(this);
@@ -680,6 +683,7 @@ export default class webAppView extends React.Component {
 		this._handleHostImageReceived = this._handleHostImageReceived.bind(this);
 		//this.setPreviewedOutfit = this.setPreviewedOutfit.bind(this);
 		this.previousLocation = props.location;
+		//this.refreshOnCoverpicUpdate = this.refreshOnCoverpicUpdate.bind(this);
 
 		var {
 			pathname,
@@ -906,6 +910,13 @@ export default class webAppView extends React.Component {
 		}))
 	}
 
+	//refreshOnCoverpicUpdate(coverpicuri){
+	//	this.setState(prevState => ({
+	//		...prevState,
+	//		updatedCoverpicTrigger: coverpicuri,
+	//	}));
+	//}
+
 	// Needed to refresh OutfitPreview Modal with the complete outfit entity (containing child contents array) returned from http request
 	//setPreviewedOutfit(id){
 	//	this.setState(prevState => ({
@@ -985,6 +996,7 @@ export default class webAppView extends React.Component {
 		const getOutfitPreviewModal = (props) => {
 			const {
 				showComments,
+				//refreshOnCoverpicUpdate,
 			} = props;
 
 			const {
@@ -1042,6 +1054,7 @@ export default class webAppView extends React.Component {
 						isControlsHidden={this.state.isControlsHidden} 
 						overrideOnExit={overrideOnExit}
 						isCommentsShown={isCommentsShown}
+						//refreshOnCoverpicUpdate={refreshOnCoverpicUpdate}
 						showComments={(event, isShown) => {
 							showComments(isShown);
 						}}
@@ -1075,7 +1088,20 @@ export default class webAppView extends React.Component {
 				modalContent = createModalFragment(`${this.props.match.url}/edit-profile-pic`);
 				break;
 			case this.props.formType === OxiAppConstants.FormType.OUTFIT_PREVIEW:
-				modalContent = createModalFragment(`${this.props.match.url}/outfit_preview`, (compoundStyles, overrideOnExit, showComments, isCommentsShown) => getOutfitPreviewModal({compoundStyles, overrideOnExit, showComments, isCommentsShown}));
+				modalContent = createModalFragment(
+					`${this.props.match.url}/outfit_preview`, 
+					(compoundStyles, overrideOnExit, showComments, isCommentsShown) => {
+						return getOutfitPreviewModal(
+							{
+								compoundStyles, 
+								overrideOnExit, 
+								showComments, 
+								isCommentsShown,
+								//refreshOnCoverpicUpdate: (id, val) => this.refreshOnCoverpicUpdate(id, val),
+							},
+						);
+					}
+				);
 				break;
 			default:
 				break;
@@ -1259,6 +1285,7 @@ export default class webAppView extends React.Component {
 															setAppViewContext={setAppViewContext}
 															webAppViewContext={webAppViewContext}
 															confirmOutfitDelete={confirmOutfitDelete}
+															//updatedCoverpicTrigger={this.state.updatedCoverpicTrigger}
 														/>
 
 														

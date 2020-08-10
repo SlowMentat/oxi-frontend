@@ -73,7 +73,7 @@
     border-radius: calc(var(--dot-height)/2);
     height: var(--dot-height);
     width: var(--dot-height);
-    background-color: var(--color-01);
+    background-color: var(--color1);
 
     @include desktop_rules { 
         margin-top: calc((var(--clc-height) - var(--dot-height))/2);
@@ -89,7 +89,7 @@
 
 :local(.contentBullet_div--selected){
     composes:stdContentBullet_div;
-    background-color: var(--color-01-tint-02);
+    background-color: var(--color-05);
     /*height:15px;
     width:15px;
     margin-top: calc(34px - 7.5px);*/

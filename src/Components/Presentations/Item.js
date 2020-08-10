@@ -9,7 +9,8 @@ import VisibleItemAsSeenOnList from '../../Components/Containers/VisibleItemAsSe
 import { SvgIcon } from '../SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
-import { Button } from '../../Components/Presentations/Controls.js';
+//import { Button } from '../../Components/Presentations/Controls.js';
+import { IconButton, Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
 import { camelize } from '../../Util/Misc.js';
 import Rating from '../../Components/Presentations/Rating.js';
 import { Tooltip } from '@rmwc/tooltip';
@@ -158,6 +159,7 @@ export class ItemLite extends React.Component{
 			expandItem,
 			onBookmarkClicked,
 			onSizeHover,
+			deleteItem,
 		} = this.props;
 
 		var { 
@@ -174,6 +176,8 @@ export class ItemLite extends React.Component{
 			toggleInfoExpand,
 			isExpanded,			
 			apparelTypeIcon,
+			viewState,
+			selectedContent,
 		} = this.props;
 
 		return(  		
@@ -235,31 +239,33 @@ export class ItemLite extends React.Component{
 								style={{
 									position:'absolute',
 									width:'calc(50% - 1rem)',
-									padding: '0 1rem 1rem 1rem',
+									padding: '1rem 1rem 1rem 1rem',
 									'text-align':'left',
+									transition: 'transform 200ms cubic-bezier(0.42, 0.54, 0.71, 1.37)',
+									...(viewState === OxiAppConstants.viewState.EDIT ? {'transform': 'translateX(36px)'} : {transform: 'translateX(0px)'}),
 								}}
 							>
 								<Typography
 									use="headline6"
-									tag="h2"
+									//tag="h2"
 								>
   									{ retailerName }
 								</Typography>
 								<Typography
 									use="subtitle2"
-									tag="h3"
+									//tag="h3"
 									theme="textSecondaryOnBackground"
-									style={{marginTop: '-1rem'}}
+									//style={{marginTop: '-1rem'}}
 								>
-									{}
+									{handle}
 								</Typography>
-								<Typography
+								{/*<Typography
 									use="body1"
 									tag="div"
 									theme="textSecondaryOnBackground"
 								>
 									{handle}
-								</Typography>
+								</Typography>*/}
 							</div>
 						</CardPrimaryAction>
 
@@ -325,6 +331,24 @@ export class ItemLite extends React.Component{
 						}
 
 					</Card>
+
+					{
+						viewState === OxiAppConstants.viewState.EDIT ? 
+							<div className={ItemLiteStyles.itemDeleteBtn_div}>						
+								<IconButton
+									theme="textPrimaryOnLight"
+									class=""
+									label="discard"
+									labelSize="1.2rem"
+									onClick={e => {
+		    							deleteItem([id], selectedContent);
+									}}
+									icon={{icon: 'close', basename: 'material-icons-outlined'}}
+									style={{'margin-left':'-1px', 'font-size':'1.8rem'}}
+								/>
+							</div> :
+							null
+					}
 				</div>
 
 			{/*}
@@ -691,7 +715,7 @@ export class ItemBrowse extends React.Component{
 		var isSelected = item !== undefined ? selectedAllIds.includes(item.id) : [];
 
 		return(		
-			<React.Fragment>
+			<div>
 				<Card 
 					style={{
 						width:'100%',
@@ -704,6 +728,7 @@ export class ItemBrowse extends React.Component{
 								}) : 
 								({
 									'margin-bottom': '50px',
+									width: 'var(--ilbc-width)',
 								})),
 					}}
 				>
@@ -717,8 +742,8 @@ export class ItemBrowse extends React.Component{
 										//'max-height': '120px',
 									}) : 
 									({
-										width:'50%',
-										'margin-left':'50%',
+										//width:'50%',
+										//'margin-left':'50%',
 
 									})),
 								'border-radius':'0px',
@@ -815,9 +840,7 @@ export class ItemBrowse extends React.Component{
 						</List>
 					</CollapsibleList>
 				</Card>
-
-
-  			</React.Fragment>
+  			</div>
 		);
 	}
 }
@@ -847,11 +870,11 @@ export class ItemBrowseInfo extends React.Component {
 		return(
 			<React.Fragment>
 				<CSSTransition
-					    tiemout={400}
-					    classNames="expandedItemInfoContainer_div"
-					    in={isExpanded}
-					   	unmountOnExit >
-	
+				    tiemout={400}
+				    classNames="expandedItemInfoContainer_div"
+				    in={isExpanded}
+				   	unmountOnExit 
+				>	
 					<div className={ItemStyles.expandedItemInfoContainer_div} style={this.props.styles}>
 						<CSSTransition
 								//timeout={}
@@ -1031,6 +1054,7 @@ export class Item extends React.Component{
 			selectedId,
 			sizeGroups,
 			toggleMetricPanel,
+			deleteItem,
 		} = this.props;
 
 		const {
@@ -1039,6 +1063,8 @@ export class Item extends React.Component{
 			isExpanded,
 			imageHeight,
 			apparelTypeByIds,
+			viewState,
+			selectedContent,
 		} = this.props;
 
 		const { isSaved } = this.state;
@@ -1241,7 +1267,11 @@ export class Item extends React.Component{
 
 					<ItemLite 
 						id={item.id}
+						viewState={viewState}
 						isProfileView={isProfileView}
+						unsaveItem={unsaveItem}
+						deleteItem={deleteItem}
+						selectedContent={selectedContent}
 						handleOnClick={null}
 						retailerName={ vendor || udr}
 						handle={handle || 'custom item'}
@@ -1292,7 +1322,8 @@ export class Item extends React.Component{
 									toggleMetricPanel={toggleMetricPanel} />
 							) : 
 							() => (null)
-						} />
+						} 
+					/>
 	
 					{/*
 						//TODO:  figure out what to do with this

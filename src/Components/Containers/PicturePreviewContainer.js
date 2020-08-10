@@ -264,67 +264,68 @@ const mapDispatchToProps = (dispatch) => ({
 	},
 	createResponseHandler: (addedEntities, entitiesStateReducer, schema, overwriteItemContents=null, itemContentCount, exitEditMode=false) => {
 		return (response) => {
-			let responseData = response.data.length === 0 ? [response.data] : response.data
-			//normalize response data and create a new outfit node in entitiesReducer tree
-			let normalizedJson = normalize(responseData, schema);
-			console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
-			const selectAddedContentId = (dispatch, schemaType) => {
-				let addedContentIds = [];
-				let entityType = "";
-				switch(schemaType){
-					//response data is of type outfit
-					case OxiAppConstants.JsonPropertyNames.OUTFIT:	
-						//find the new content id
-						for(let content of responseData[0].contents){
-							for(let existingContentId of addedEntities.contents.allIds){
-								if(content.id === existingContentId) break;
-							}
-							addedContentIds = [...addedContentIds, content.id];
-						}
-						entityType = OxiAppConstants.EntityTypes.OUTFIT;
-						break;
-					//response data is of type content
-					case OxiAppConstants.JsonPropertyNames.CONTENT:	
-						//find the new content id
-						for(let content of responseData){
-							for(let existingContentId of addedEntities.contents.allIds){
-								if(content.id === existingContentId) break;
-							}
-							addedContentIds = [...addedContentIds, content.id];
-						}
-						entityType = OxiAppConstants.EntityTypes.CONTENT;
-						break;
-					default:
-						return false;
-				}
-				dispatch(selectAndPropagate(
-					OxiAppConstants.EntityTypes.OUTFIT, 
-					(/*response.data.id || */entitiesStateReducer.outfits.selected),
-					(addedContentIds.length > 0 ? addedContentIds[0] :  null)));
-				return addedContentIds;
-			}
+			createResponseHandler(dispatch, addedEntities, entitiesStateReducer, schema, overwriteItemContents, itemContentCount)([response]);
+			//let responseData = response.data.length === 0 ? [response.data] : response.data
+			////normalize response data and create a new outfit node in entitiesReducer tree
+			//let normalizedJson = normalize(responseData, schema);
+			//console.log('PicturePreviewContainer#createResponseHandler: clearing all clientInvalidations ', normalizedJson);
+			//const selectAddedContentId = (dispatch, schemaType) => {
+			//	let addedContentIds = [];
+			//	let entityType = "";
+			//	switch(schemaType){
+			//		//response data is of type outfit
+			//		case OxiAppConstants.JsonPropertyNames.OUTFIT:	
+			//			//find the new content id
+			//			for(let content of responseData[0].contents){
+			//				for(let existingContentId of addedEntities.contents.allIds){
+			//					if(content.id === existingContentId) break;
+			//				}
+			//				addedContentIds = [...addedContentIds, content.id];
+			//			}
+			//			entityType = OxiAppConstants.EntityTypes.OUTFIT;
+			//			break;
+			//		//response data is of type content
+			//		case OxiAppConstants.JsonPropertyNames.CONTENT:	
+			//			//find the new content id
+			//			for(let content of responseData){
+			//				for(let existingContentId of addedEntities.contents.allIds){
+			//					if(content.id === existingContentId) break;
+			//				}
+			//				addedContentIds = [...addedContentIds, content.id];
+			//			}
+			//			entityType = OxiAppConstants.EntityTypes.CONTENT;
+			//			break;
+			//		default:
+			//			return false;
+			//	}
+			//	dispatch(selectAndPropagate(
+			//		OxiAppConstants.EntityTypes.OUTFIT, 
+			//		(/*response.data.id || */entitiesStateReducer.outfits.selected),
+			//		(addedContentIds.length > 0 ? addedContentIds[0] :  null)));
+			//	return addedContentIds;
+			//}
 	
-			//Remove all entities from addedEntitiesReducer
-			dispatch(clearAllAddedEntitiesState(addedEntities));
-			dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
+			////Remove all entities from addedEntitiesReducer
+			//dispatch(clearAllAddedEntitiesState(addedEntities));
+			//dispatch(editContentView(OxiAppConstants.viewState.PREVIEW));
 	
-			let itemContentJson = {};
-			switch(overwriteItemContents){
-				case null:
-					break;
-				case true:  //Overwrites all of entitiesReducer#itemContent
-					itemContentJson = buildItemContentsObject(schema.schema._key, responseData, 0);
-					break;
-				case false:  //appends to entitiesReducer#itemContent
-					itemContentJson = buildItemContentsObject(schema.schema._key, responseData, itemContentCount);
-					break;
-				default:
-					break;
-			}
-			if(Object.keys(itemContentJson).length > 0) dispatch(createItemContent(itemContentJson));
+			//let itemContentJson = {};
+			//switch(overwriteItemContents){
+			//	case null:
+			//		break;
+			//	case true:  //Overwrites all of entitiesReducer#itemContent
+			//		itemContentJson = buildItemContentsObject(schema.schema._key, responseData, 0);
+			//		break;
+			//	case false:  //appends to entitiesReducer#itemContent
+			//		itemContentJson = buildItemContentsObject(schema.schema._key, responseData, itemContentCount);
+			//		break;
+			//	default:
+			//		break;
+			//}
+			//if(Object.keys(itemContentJson).length > 0) dispatch(createItemContent(itemContentJson));
 	
-			mergeResponseEntities(dispatch, normalizedJson);
-			selectAddedContentId(dispatch, schema.schema._key);	
+			//mergeResponseEntities(dispatch, normalizedJson);
+			//selectAddedContentId(dispatch, schema.schema._key);	
 		
 			exitEditMode ? exitEditMode() : null; 
 		}

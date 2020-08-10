@@ -90,6 +90,7 @@ export default class ItemList extends React.Component{
 		    								name="DeleteIcon"
 		    								onClick={() => {
 		    									this.props.deleteItem(this.props.multipleSelectedAllIds, this.props.selectedContent);
+		    									
 		    									//preemptively remove the selected item ids from the item array property of this.props.selectedContent reference
 		    									let updatedItems = this.props.selectedContent.items.filter(id => {
 		    										for(let removedId of this.props.multipleSelectedAllIds){
@@ -174,7 +175,10 @@ export default class ItemList extends React.Component{
 			    											compareMetrics={this.props.compareMetrics}
 			    											sizeGroups={this.props.sizeGroups}
 			    											getCoverPic={this.props.getCoverPic} 
-															toggleMetricPanel={this.props.toggleMetricPanel} />) 
+															toggleMetricPanel={this.props.toggleMetricPanel} 
+															deleteItem={this.props.deleteItem}
+															selectedContent={this.props.selectedContent}
+														/>) 
 			    									)
 			    								}
 			    							</CSSTransition>
@@ -236,7 +240,10 @@ export default class ItemList extends React.Component{
 			    											getCoverPic={this.props.getCoverPic} 
 															toggleMetricPanel={this.toggleMetricPanel} 
 															hideHeader={this.props.hideHeader}
-															hideControls={this.props.hideControls} />))
+															hideControls={this.props.hideControls} 
+															deleteItem={this.props.deleteItem}
+															selectedContent={this.props.selectedContent}
+														/>))
 			    								}
 			    							</CSSTransition>
 			    						));

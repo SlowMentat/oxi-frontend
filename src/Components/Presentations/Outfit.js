@@ -207,7 +207,6 @@ export class Outfit extends React.Component{
 			history,
 			edittingProfilePage,
 			profilePicUri,
-
 		} = this.props;
 
 		const ppIconStyles = {

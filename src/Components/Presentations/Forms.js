@@ -884,7 +884,7 @@ export class ItemForm extends React.Component{
 
 		// Assuming anything added to itemAllIds are appended, so the new ids are determined from the diff in lengths
 		// Extract only number type ids which represent added unpersisted items
-		this.prevAddedItemIds = this.props.itemAllIds.slice(prevProps.length, this.props.itemAllIds.length).filter(id => typeof id === 'number');
+		this.prevAddedItemIds = this.props.itemAllIds.slice(prevProps.itemAllIds.length, this.props.itemAllIds.length).filter(id => typeof id === 'number');
 		this.prevAddedItemIds.length > 0 && this.props.clientInvalidateAddedItems(this.prevAddedItemIds);
 	}
 
@@ -990,7 +990,21 @@ export class ItemForm extends React.Component{
 		}
 
 		console.log('itemEntity = ', itemEntity);
-		this.props.submitAction(itemEntity);
+		this.props.submitAction(itemEntity);		
+		//var isItemInvalidated = false;
+
+		//for(let id of this.props.entitiesStateReducer.items.clientInvalidated){
+		//	if(id == item.id){
+		//		isItemInvalidated = true;
+		//		break;
+		//	}
+		//}
+
+		//if(!isItemInvalidated){
+		//	console.log("item.id = " + item.id)
+		//	this.props.clientInvalidateAddedItems([item.id]);
+		//}
+
 		//TODO:  	commenting out line below, but there is a need to handle the ids of server persisted items as UUID
 		// 			and any newly created item id as incremented integer... maybe calling edittingItem is not needed here
 		//this.props.editingItem(this.props.itemAllIds);
