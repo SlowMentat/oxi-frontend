@@ -27,6 +27,8 @@ import {
 	fetchEntities,
 	selectMultipleEntity,
 	deselectMultipleEntity,
+	setNextPageURL,
+	setPrevPageURL,
 } from '../../Components/Actions/indexActions.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import OutfitList from '../../Components/Presentations/OutfitList.js';
@@ -162,9 +164,9 @@ const mapDispatchToProps = (dispatch, props) => ({
 	},
 	previewOutfitFromBrowse: (outfitId) => {
 		new Promise((resolve, reject) => {
-			return resolve(dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, null, null, `${OxiAppConstants.serviceURL}/outfit/${outfitId}`)));
+			resolve(dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, null, null, `${OxiAppConstants.serviceURL}/outfit/${outfitId}`)));
 		})
-		.then(normalizedJson => {
+		.then(({normalizedJson, response}) => {
 			const {
 				outfits,
 				contents,

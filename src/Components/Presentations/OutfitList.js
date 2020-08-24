@@ -17,6 +17,8 @@ import PagedList from './PagedList.js';
 import styled from 'styled-components';
 import { desktopRules, mobileRules } from '../../mixin.js';
 
+import { ListLoadProgress } from '../../Components/Presentations/FitseeUI/ListLoadProgress.js';
+
 const container1_div = {
 	'height': '100%',
     'padding-left': '200px',
@@ -57,8 +59,8 @@ class PagedOutfitList extends React.Component{
 
 		const getIsSelected = (testId) => {
 			for(var id of this.props.entitiesStateReducer.outfits.multipleSelected){
-				console.log('multipleSelected = ', this.props.entitiesStateReducer.outfits.multipleSelected);
-				console.log('testId = ', testId, '\nid = ', id);
+				console.debug('multipleSelected = ', this.props.entitiesStateReducer.outfits.multipleSelected);
+				console.debug('testId = ', testId, '\nid = ', id);
 				if(testId === id) return true;
 			}
 			return false;
@@ -66,6 +68,7 @@ class PagedOutfitList extends React.Component{
 
 		return(
 			<PagedListContainer
+				id={OxiAppConstants.PageListIds.c}
 				className={this.props.className}
     			//scrollContainerStyle={this.props.scrollContainerStyle}
     			currentPage={this.props.currentPage}
@@ -192,6 +195,17 @@ class PagedOutfitList extends React.Component{
 										/>
 									) : null}
 								</div>
+								{/*	<ListLoadProgress isShown={this.props.isFetching}/>*/}
+								{/*<div
+									className={Styles.listLoading_div}
+									style={{
+										'height': '125px',
+									}}
+								>
+									<div>
+										{this.props.isFetching ? <CircularProgress size="48" /> : null}
+									</div>
+								</div>*/}
 		    				</div>
 		    			</div>
     				</React.Fragment>

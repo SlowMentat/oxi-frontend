@@ -22,7 +22,7 @@ import {
 	InputTextFieldAccount 
 } from '../../Components/Presentations/CommonElements.js';
 
-import { ItemTextField } from '../../Components/Presentations/FitseeUI/InputsAndControls/TextField.js'
+import { ItemTextField, TextField } from '../../Components/Presentations/FitseeUI/InputsAndControls/TextField.js'
 
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import CreateAccountStyles from '../../createAccount.scss';
@@ -202,6 +202,7 @@ function FormDeck(props){
 					owner={props.owner}
 					getCoverPic={props.getCoverPic}
 					addProfilePic={props.addProfilePic}
+					cropProfilePic={props.cropProfilePic}
 					//username={props.profile.username}}
 				/>
 			)
@@ -449,7 +450,9 @@ export class ProfilePicForm extends React.Component{
 
 		this.state = {
 			isEditing: false,
+			isNewImage: false,
 			src: null,
+			filename:null,
 			base64Image: null,
 			crop: (
 				crop ? 
@@ -546,6 +549,10 @@ export class ProfilePicForm extends React.Component{
 		event.preventDefault();
 
 		//methods
+		const {
+			addProfilePic,
+			cropProfilePic,
+		} = this.props;
 
 		//variables
 		const {
@@ -556,7 +563,9 @@ export class ProfilePicForm extends React.Component{
 
 
 		
-		this.props.addProfilePic(this.state.base64Image, JSON.stringify(this.state.crop));
+		this.state.isNewImage ? 
+			addProfilePic(this.state.base64Image, JSON.stringify(this.state.crop)) :
+			cropProfilePic(JSON.stringify(this.state.crop));
 			//reaload images
 			//this.forceUpdate();
 		
@@ -579,6 +588,7 @@ export class ProfilePicForm extends React.Component{
 					base64Image: reader.result,
 					isEditing: true,
 					ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
+					isNewImage: true,
 				}))
 			}
 			// reader.addEventListener('load',(this) => this.setState({src: reader.result}), false);
@@ -623,7 +633,12 @@ export class ProfilePicForm extends React.Component{
 			({
 				width: '33%',
 			}) :
-			({})
+			({});
+
+		const setupRef = (element, reference) => {
+			this[reference] ? null : this.setState(this.state);
+			this[reference] = element ? element : this[reference];
+		}
 
 		var content = null;
 
@@ -687,17 +702,24 @@ export class ProfilePicForm extends React.Component{
 				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
 					<input 
 						id="fileInput" 
-						ref={input => this.fileInput = input}
+						ref={input => {
+							setupRef(input, 'fileInput');
+							//this.fileInput ? null : this.setState(this.state);
+							//this.fileInput = input ? input : this.fileInput;
+						}}
 						type="file" 
 						//multiple name="imageFile" 
 						//onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
 						onChange={this._onSelectFile}
 						style={{display:'none'}} 
 					/>
-					<IconButton 
+					<button 
 						id="submitButton" 
 						type="submit" 
-						onClick={this._handleSubmit} style={{display:'none'}}
+						ref={button => {
+							setupRef(button, 'button');
+						}}
+						onClick={e => this._handleSubmit(e)} style={{display:'none'}}
 					/>
 				</form>
 				<div 
@@ -751,6 +773,7 @@ export class ProfilePicForm extends React.Component{
 									<IconButton
 										//onClick={this._addNewPicture}
 										icon="add_a_photo"
+										onClick={this.fileInput ? (e) => this.fileInput.click(e) : null}
 										//style={{...eppCtrl_div, ...page1ButtonStyles}}
 									/>
 								</label>
@@ -807,6 +830,7 @@ export class ProfilePicForm extends React.Component{
 										label='save'
 										labelSize='12px'
 										raised
+										onClick={this.button ? e => this.button.click(e) : null}
 										//style={eppCtrl_div} 
 									/>
 								</label>
@@ -1342,7 +1366,7 @@ export class DiscardForm extends React.Component{
 							</div>
 						</div>
 					</div>
-				</Elevation>
+				</Elevation> 
 			</div>
 		);
 	}
@@ -1400,41 +1424,74 @@ const InvalidPasswordPrompt = ({props}) => (
 
 //TODO:  Make sure to perfom server side validation as well.
 const validateEmail = (email) => {
+	// TODO: this regex used as a value for rmwc TextField's pattern prop throws an error: Invalid expression... Lone quantifier brackets
     //regular expression that accepts unicode
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return re.test(String(email).toLowerCase());
 }
 
-export const CreateAccountField = ({props}) => (
-	<div className={CreateAccountStyles.inputContainer_div}>
-		<InputTextFieldAccount props={{
-			containerStyle: CreateAccountStyles.inputTextContainer_div, 
-			inputStyle: (props.selectedFieldName === props.name ? CreateAccountStyles['inputText_input--selected'] : CreateAccountStyles.inputText_input), 
-			name: props.name, 
-			placeholder: props.placeholder, 
-			onChange: props.onChange,
-			onSelect: props.onSelect,
-			selectedFieldName: props.selectedFieldName
-		}}/>
-		<div className={CreateAccountStyles.validatorIconContainer_div}>
-			<div className={CreateAccountStyles.validatorIcon_div}>
-				{
-					props.isValid ? 
-						<SvgIcon name='OkIcon' fill='#6dd7b4'/> :
-						<div style={{
-							width:'10px', 
-							height:'10px', 
-							'border-radius':'5px', 
-							'background-color':'#b46262', 
-							position:'absolute', 
-							top: '10px',
-							left: 'calc(50% - 5px)'
-						}} />
-				}
-			</div>
+export const CreateAccountField = ({props}) => {
+	var isValid = true;
+
+	const {
+		onChange,
+		onSelect,
+	} = props;
+	
+	const {
+		fieldCompleteness,
+		name,
+	} = props;
+	
+	for(let requirement in fieldCompleteness[name]){
+		if(!fieldCompleteness[name][requirement]){
+			isValid = false;
+			break;
+		}
+	}
+
+	return (
+		<div className={CreateAccountStyles.inputContainer_div}>
+			<TextField
+				//style={CreateAccountStyles.inputTextContainer_div}
+				style={{width: '100%'}}
+				theme="secondary"
+				outlined
+				label={name}
+				onChange={onChange}
+				//invalid={Object.keys(fieldCompleteness[name]).reduce((accum, req) => (!fieldCompleteness[name][req] && accum), true)}
+				invalid={!isValid}
+				onFocus={onSelect}
+			/>
+			{/*<InputTextFieldAccount props={{
+				containerStyle: CreateAccountStyles.inputTextContainer_div, 
+				inputStyle: (props.selectedFieldName === props.name ? CreateAccountStyles['inputText_input--selected'] : CreateAccountStyles.inputText_input), 
+				name: props.name, 
+				placeholder: props.placeholder, 
+				onChange: props.onChange,
+				onSelect: props.onSelect,
+				selectedFieldName: props.selectedFieldName
+			}}/>
+			<div className={CreateAccountStyles.validatorIconContainer_div}>
+				<div className={CreateAccountStyles.validatorIcon_div}>
+					{
+						props.isValid ? 
+							<SvgIcon name='OkIcon' fill='#6dd7b4'/> :
+							<div style={{
+								width:'10px', 
+								height:'10px', 
+								'border-radius':'5px', 
+								'background-color':'#b46262', 
+								position:'absolute', 
+								top: '10px',
+								left: 'calc(50% - 5px)'
+							}} />
+					}
+				</div>
+			</div>*/}
 		</div>
-	</div>
-);
+	);
+}
 
 export class CreateAccountForm extends React.Component{
 	constructor(props){
@@ -1443,17 +1500,20 @@ export class CreateAccountForm extends React.Component{
 		let sharedState = {
 			fieldValues:{
 				'email':'',
-				'password':'',
 				'username':'',
+				'password':'',
 			},
 			fieldPlaceHolders:{
 				'email':'Email',
-				'password':'Password',
 				'username':'Username',
+				'password':'Password',
 			},
 			fieldCompleteness:{
 				email:{
 					'validEmailSyntax': false,
+				},
+				username:{
+					'validUsername': true,
 				},
 				password:{
 					'validPasswordLength': false,
@@ -1461,9 +1521,6 @@ export class CreateAccountForm extends React.Component{
 					'validPasswordNumber': false,
 					'validPasswordLowercase': false,
 				},
-				username:{
-					'validUsername': true,
-				}
 			},
 			'selectedFieldName': ''		
 		};
@@ -1504,7 +1561,8 @@ export class CreateAccountForm extends React.Component{
 				}) :
 				({
 					...sharedState,
-				})
+				});
+
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
 		this._handleInputSelect = this._handleInputSelect.bind(this);
@@ -1520,16 +1578,17 @@ export class CreateAccountForm extends React.Component{
 		if(validEmailSyntax && (validPasswordLength && validPasswordLowercase && validPasswordNumber && validPasswordUppercase) && validUsername){
 			if(this.props.accountType === 'shopper'){
 				this.props.createUser(this.state.fieldValues);
-			}else if (this.props.accountType === 'retailer'){
+			}
+			else if (this.props.accountType === 'retailer'){
 				this.props.createCompany(this.state.fieldValues);
 			}
 		}
 		//Clear email password and username from react state
-		this.setState({
-			'email':'',
-			'password':'',
-			'username':''
-		});
+		//this.setState({
+		//	'email':'',
+		//	'password':'',
+		//	'username':''
+		//});
 	}
 
 	validatePassword(password) {
@@ -1611,7 +1670,7 @@ export class CreateAccountForm extends React.Component{
 
 	render(){
 		return(
-			<div>
+			<div style={{display: 'flex', 'justify-content':'center'}}>
 				<div className={CreateAccountStyles.accountFormContainer_div}>
 					<div>
 						{
@@ -1630,7 +1689,8 @@ export class CreateAccountForm extends React.Component{
 															onChange: (e) => this._handleInputFieldChange(field, e.target.value),
 															selectedFieldName: this.state.selectedFieldName,
 															onSelect: (e) => this._handleInputSelect(field, e),
-															isValid: Object.keys(this.state.fieldCompleteness[field]).reduce(fieldValidReducer, true)
+															isValid: Object.keys(this.state.fieldCompleteness[field]).reduce(fieldValidReducer, true),
+															fieldCompleteness: this.state.fieldCompleteness,
 														}}/>
 													{
 														field === 'password' ? 
@@ -1667,19 +1727,38 @@ export class CreateAccountForm extends React.Component{
 										//}}
 									>
 										<div className={CreateAccountStyles.termsTextContainer_div}>
-											<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
+											{/*<div className={CreateAccountStyles.inputAcceptTermsContainer_div}>
 												<div className={CreateAccountStyles.inputAcceptTerms_div}>
 													<input type='checkbox' className={CreateAccountStyles.inputAcceptTerms_checkbox}>
 													</input>
 												</div>
-											</div>
+											</div>*/}
 											<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
 												<div className={CreateAccountStyles.textAcceptTerms_div}>
 													<p>By clicking submit, you are agreeing to the <a style={{color:'var(--color6)'}}>Fitsee Terms of Service</a></p>
 												</div>
 											</div>
 										</div>
-										<div className={CreateAccountStyles.submitBtnContainer1_div}>										
+										<div
+											id="accountSubmitBtn_div"
+											//style={{
+											//	display: 'flex',
+											//	'justify-content':'center',
+											//	'margin-top': '15px',
+											//}}
+										>
+											<Button
+												theme={["textPrimaryOnDark", "primaryBg"]}
+												label="submit"
+												raised
+												onClick={(e) => {
+													e.preventDefault();
+													logout();
+													this._handleOnSubmit();
+												}} 
+											/>
+										</div>
+										{/*<div className={CreateAccountStyles.submitBtnContainer1_div}>										
 											<div className={CreateAccountStyles.submitBtnContainer_div}>
 												<div
 													className={CreateAccountStyles.submitBtn_div} 
@@ -1693,7 +1772,7 @@ export class CreateAccountForm extends React.Component{
 													SUBMIT
 												</div>
 											</div>
-										</div>
+										</div>*/}
 									</div>
 								</div>
 							</form>)

@@ -204,18 +204,32 @@ export function SiteNav(props){
 
 	switch(true){
 		case props.webAppView === 'landing' :
-			viewControls = <div style={{float:'right', width:'0px'}}>
-    			<div className={NavStyles.landingCtrl_div}>
-    				<div className={NavStyles.landingBtnContainer_div}>
-    					<div 
-    						className={NavStyles.landingBtn_div}
-    						onClick={(e) => {props.history.push('/shop/browse')}}
-    					>
-    						Login
+			viewControls = 
+				<div style={{
+					width: 'auto',
+					height: '100%',
+					display: 'flex',
+					'justify-content': 'flex-end',
+					'align-items': 'center',
+					'padding-right':'2.5rem',
+				}}>
+					<Button
+						label="sign in"						
+						outlined
+						theme="primary"
+    					onClick={(e) => {props.history.push('/shop/browse')}}
+					/>
+    				{/*<div className={NavStyles.landingCtrl_div}>
+    					<div className={NavStyles.landingBtnContainer_div}>
+    						<div 
+    							className={NavStyles.landingBtn_div}
+    							onClick={(e) => {props.history.push('/shop/browse')}}
+    						>
+    							Login
+    						</div>
     					</div>
-    				</div>
+    				</div>*/}
     			</div>
-    		</div>
 			break;
 
 		case isDevice && webAppView == OxiAppConstants.navRequestMap.a.toLowerCase():
@@ -271,90 +285,95 @@ export function SiteNav(props){
     						<div className={NavStyles.navBanner_div}>
     							{ viewControls }
     						</div>
-
-    						<div className={NavStyles.managementContainer_div}>
-    							<div 
-    								style={{
-    									height:'100%',
-    									position:'relative', 
-    									display: 'flex',
-    									'justify-content':'space-evenly',
-    									'align-items':'center',
-    								}}
-    							>
-    								<Tooltip content="coming soon" showArrow>
-										<IconButton
-											onClick={e => hideMenu('')}
-											icon="shopping_cart"
-											style={customMngmtCotnianerStyles}
-											class="material-icons material-icons--outline"
-										/>
-									</Tooltip>
-
-									<MenuSurfaceAnchor>
-										<Menu 
-											open={isMenu && popupMenuType === OxiAppConstants.MenuType.c} 
-											style={{top:'60px', width: '200px'}}
-										>
-											{/* get notifcation list <MenuItem>Logout</MenuItem>*/}
-										</Menu>
-										<IconButton
-											onClick={() => {
-												if(isMenu){
-													console.log('popupMenuType = ', popupMenuType);
-													popupMenuType === OxiAppConstants.MenuType.c ? hideMenu('') : showMenu(OxiAppConstants.MenuType.c);
-												}
-												else{
-													//positionMenu(50, 50);
-													showMenu(OxiAppConstants.MenuType.c);
-												}
-											}}
-											style={customMngmtCotnianerStyles}
-											icon="notifications_none"
-										/>
-									</MenuSurfaceAnchor>
-
-									<MenuSurfaceAnchor>
-										<Menu 
-											open={isMenu && popupMenuType === OxiAppConstants.MenuType.a}
-											style={{top:'60px', width:'200px'}}
-										>
-											{
-												["Account", "Logout"].map(option => {
-													return(<MenuItem onClick={e => logout()}>{option}</MenuItem>);
-												})
-											}
-										</Menu>
-										<IconButton 
-											onClick={() => {
-												if(isMenu){
-													popupMenuType === OxiAppConstants.MenuType.a ? hideMenu('') : showMenu(OxiAppConstants.MenuType.a);
-												}
-												else{
-													//positionMenu(50, 50);
-													showMenu(OxiAppConstants.MenuType.a);
-												}
-											}}
-											icon="settings"
-											style={customMngmtCotnianerStyles}
-										/>
-									</MenuSurfaceAnchor>
-
-								</div>
-								{ /*
-									isMenu ? 
-										<MenusContainer 
-											menuType={popupMenuType} 
-											position={{
-												top: '65px',
-												bottom: 'unset',
-												left: 'unset',
-												...getMenuPosition(popupMenuType)
-											}}
-										/> : 
-										null 
-								*/}
-    						</div>
+    						{
+    							props.webAppView != 'landing' ?
+    								<div>
+    									<div className={NavStyles.managementContainer_div}>
+    										<div 
+    											style={{
+    												height:'100%',
+    												position:'relative', 
+    												display: 'flex',
+    												'justify-content':'space-evenly',
+    												'align-items':'center',
+    											}}
+    										>
+    											<Tooltip content="coming soon" showArrow>
+													<IconButton
+														onClick={e => hideMenu('')}
+														icon="shopping_cart"
+														style={customMngmtCotnianerStyles}
+														class="material-icons material-icons--outline"
+													/>
+												</Tooltip>
+			
+												<MenuSurfaceAnchor>
+													<Menu 
+														open={isMenu && popupMenuType === OxiAppConstants.MenuType.c} 
+														style={{top:'60px', width: '200px'}}
+													>
+														{/* get notifcation list <MenuItem>Logout</MenuItem>*/}
+													</Menu>
+													<IconButton
+														onClick={() => {
+															if(isMenu){
+																console.log('popupMenuType = ', popupMenuType);
+																popupMenuType === OxiAppConstants.MenuType.c ? hideMenu('') : showMenu(OxiAppConstants.MenuType.c);
+															}
+															else{
+																//positionMenu(50, 50);
+																showMenu(OxiAppConstants.MenuType.c);
+															}
+														}}
+														style={customMngmtCotnianerStyles}
+														icon="notifications_none"
+													/>
+												</MenuSurfaceAnchor>
+			
+												<MenuSurfaceAnchor>
+													<Menu 
+														open={isMenu && popupMenuType === OxiAppConstants.MenuType.a}
+														style={{top:'60px', width:'200px'}}
+													>
+														{
+															["Account", "Logout"].map(option => {
+																return(<MenuItem onClick={e => logout()}>{option}</MenuItem>);
+															})
+														}
+													</Menu>
+													<IconButton 
+														onClick={() => {
+															if(isMenu){
+																popupMenuType === OxiAppConstants.MenuType.a ? hideMenu('') : showMenu(OxiAppConstants.MenuType.a);
+															}
+															else{
+																//positionMenu(50, 50);
+																showMenu(OxiAppConstants.MenuType.a);
+															}
+														}}
+														icon="settings"
+														style={customMngmtCotnianerStyles}
+													/>
+												</MenuSurfaceAnchor>
+			
+											</div>
+											{ /*
+												isMenu ? 
+													<MenusContainer 
+														menuType={popupMenuType} 
+														position={{
+															top: '65px',
+															bottom: 'unset',
+															left: 'unset',
+															...getMenuPosition(popupMenuType)
+														}}
+													/> : 
+													null 
+											*/}
+    									</div>
+    								</div> :
+    								null
+    						}
     					</React.Fragment>
     				)
     		}
@@ -1067,7 +1086,6 @@ export default class webAppView extends React.Component {
 		//Get the users saved items if not already exists
 		Object.keys(this.props.savedItemMap).length === 0 ? this.props.getSavedItems() : null;
 
-		// TODO make this switch statement depend on OxiAppConstants FormTypes
 		switch(true){
 			case this.props.formType === OxiAppConstants.FormType.LOGIN:
 				modalContent = createModalFragment(`${this.props.match.url}/login`);

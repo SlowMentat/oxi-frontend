@@ -4,6 +4,7 @@ import AsSeenOnStyles from '../../itemAsSeenOnList.scss';
 
 //Presentation Component 
 import PagedList from './PagedList.js';
+import PagedListContainer from '../../Components/Containers/PagedListContainer.js'
 
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
@@ -114,7 +115,7 @@ class ItemAsSeenOn extends React.Component{
 }
 
 const AsSeenOnPagedList = ({className, ...props}) => (	
-   	<PagedList
+   	<PagedListContainer
    		id="itemAsSeenOnList"
    		className={className}
    		scrollContainerStyle={AsSeenOnStyles.contentContainer_div}
@@ -155,7 +156,8 @@ const AsSeenOnPagedList = ({className, ...props}) => (
 const StyledAsSeenOnPagedList = styled(AsSeenOnPagedList)`
 	margin-top: 7px;
 	padding-top: 0px;
-	margin-bottom: 10px;
+	margin-bottom: 0px;
+	overflow: auto;
 `;
 
 class ItemAsSeenOnList extends React.Component{

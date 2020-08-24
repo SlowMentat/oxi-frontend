@@ -15,10 +15,11 @@ import ItemStyles from '../../itemBrowse.scss';
 import styled from 'styled-components';
 import { desktopRules, mobileRules } from '../../mixin.js';
 
+import { ListLoadProgress } from '../../Components/Presentations/FitseeUI/ListLoadProgress.js';
 
 const PagedItemListBrowse = ({className, ...props}) => (
 	<PagedListContainer
-		id="itemListBrowse"
+		id={OxiAppConstants.PageListIds.a}
 		className={className}
 		//pageBufferSize={props.pageBufferSize}
 		currentPage={props.currentPage}
@@ -82,6 +83,7 @@ const PagedItemListBrowse = ({className, ...props}) => (
 			   				);
 			   			})
 			   		}
+					{/*<ListLoadProgress isShown={props.isFetching}/>*/}
 			   	</TransitionGroup>
 			</div>
 		</React.Fragment>

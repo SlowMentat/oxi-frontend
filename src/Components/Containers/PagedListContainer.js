@@ -21,7 +21,7 @@ const mapStateToProps = (state, props) => ({
 const mapDispatchToProps = (dispatch) => ({
 	getContentsByItemId: (URL) => {
 		return new Promise((resolve, reject) => {
-			resolve(dispatch(fetchContentsWithOutfitByItemId(URL)));
+			resolve(dispatch(fetchContentsWithOutfitByItemId(null, URL)));
 		})
 		.then((response) => {
 
@@ -34,11 +34,17 @@ const mapDispatchToProps = (dispatch) => ({
 		.then((response) => {
 			console.log('RESPONSE = ', response)
 			return response;
-		})
+		});
 		
 	},
 	getOutfits: (URL) => {
-		dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', '', URL, '', ''));
+		return new Promise((resolve, reject) => {
+			resolve(dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', '', URL, '', '')));
+		})
+		.then(({normalizedJson, response}) => {
+			console.log('RESPONSE = ', response)
+			return response;
+		});
 	}
 
 })

@@ -28,17 +28,17 @@
 				initialScreenHeight = window.screen.height;
 				initialInnerHeight = window.innerHeight;
 				isDevice = isPhoneGap();
-				navigator.splashscreen.hide();
+				//navigator.splashscreen.hide();
 			}
 
 			document.addEventListener("deviceready", onDeviceReady, false);
 
 			setTimeout(
 				function () {
-       	 		const vpWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-       	 		const vpHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-       	 		let viewport = document.querySelector("meta[name=viewport]");
-       	 		viewport.setAttribute("content", "height=" + vpHeight + "px, width=" + vpWidth + "px, initial-scale=1.0");
+       	 			const vpWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+       	 			const vpHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+       	 			let viewport = document.querySelector("meta[name=viewport]");
+       	 			viewport.setAttribute("content", "height=" + vpHeight + "px, width=" + vpWidth + "px, initial-scale=1.0");
     			}, 
     			300
     		);

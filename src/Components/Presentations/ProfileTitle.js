@@ -57,8 +57,11 @@ export const PpIcon = (props) => {
 					//isMobile ? 
 					isDevice ?
 						({
-							'font-size':'48px', 'color':'#ffffff5c',
+							'font-size':'48px', 
+							//'color':'var(--color-mobile-icon-bg)',
         					'border':'solid 5px #f9f9f9',
+
+        					'color':'var(--color-01-tint-02)',
 						}) : 
 						({ 
 							'background-color':'#f9f9f9', 

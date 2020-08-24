@@ -11,7 +11,7 @@ export default class ItemList extends React.Component{
 		this.state = {
 			itemIds: [...props.itemIds],
 			addedItemIds: [...props.addedItemIds],
-			expandedItemId: false,
+			expandedItemId: isDevice,
 			sizeGroupIndLUT:{},
 			loaded: false,
 		};
@@ -107,6 +107,9 @@ export default class ItemList extends React.Component{
 		    	</div>
 				<div 
 					className={ItemStyles.itemsContainer_div}
+					style={{
+						...(isDevice ? {'z-index': '1'} : {})
+					}}
 					//style={{height: this.props.imageHeight}} 
 				>
 		    		<div style={{position:'relative', height:'100%'}}>

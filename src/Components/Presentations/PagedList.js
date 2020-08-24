@@ -8,6 +8,7 @@ import LoaderWrapper from '../../Util/LoaderWrapper.js';
 //CSS Styles
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
+import { ListLoadProgress } from '../../Components/Presentations/FitseeUI/ListLoadProgress.js';
 
 class PagedList extends React.Component{
 	constructor(props){
@@ -30,7 +31,7 @@ class PagedList extends React.Component{
 
 		//Add scroll event listener to component
 		console.log(`\nCOMPONENT DID MOUNT (id:${this.props.id})\n`)
-		this._handleScroll();
+		//this._handleScroll();
 		window.addEventListener('scroll', this._handleScroll, true);
 	}
 
@@ -63,7 +64,8 @@ class PagedList extends React.Component{
     	this.setState({loaded:true});
     }
 
-	_handleScroll(){
+	_handleScroll(event){
+
 		//event !== undefined ? event.stopImmediatePropagation() : null;
 		console.log(`\n_handleScroll called (${this.props.id})`);
 		const { handleScroll, containerRef, scrollContainerRef } = this;
@@ -83,10 +85,15 @@ class PagedList extends React.Component{
 		console.log(`innerHeight + scrollTop:  ${innerHeight} + ${scrollTop} = ${innerHeight + scrollTop}\n`);
 		console.log(`offsetTop + clientTop + offsetBottom + scrollHeight:  ${offsetTop} + ${clientTop} + ${offsetBottom} + ${scrollHeight} = ${offsetTop + offsetBottom + scrollHeight}\n`);
 
-		let pagingDown = (
-					innerHeight + scrollTop >= (offsetTop + offsetBottom + scrollHeight) &&
-					//this.props.currentPage < this.props.lastPage &&
-					!this.props.isFetching);
+		// Check if list exists, otherwise this will prematurely call a pagedown when navigating between browse and profile tabs.
+		let pagingDown = this.props.list ? 
+			(
+				innerHeight + scrollTop >= (offsetTop + offsetBottom + scrollHeight) &&
+				//this.props.currentPage < this.props.lastPage &&
+				!this.props.isFetching
+			) :
+			false;
+
 		let pagingUp = false/*(
 					scrollTop === 0 &&
 					this.props.currentPage !== 0 &&
@@ -105,12 +112,21 @@ class PagedList extends React.Component{
 
 				new Promise((resolve, reject) => {
 					switch(this.props.id){
-						case OxiAppConstants.PageListIds.ITEM_LIST_BROWSE:
+						// id is itemListBrowse
+						case OxiAppConstants.PageListIds.a:
 							resolve( this.props.getItems(this.props.nextPageURL) );
 							break;
-						case OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST:
-							resolve( this.props.getContentById(this.props.nextPageURL) );
+
+						// id is itemAsSeenOnList
+						case OxiAppConstants.PageListIds.b:
+							//resolve( this.props.getContentById(this.props.nextPageURL) );
+							resolve( this.props.getContentsByItemId(this.props.nextPageURL) );
 							break
+
+						// id is outfitList
+						case OxiAppConstants.PageListIds.c:
+							resolve(this.props.getOutfits(this.props.nextPageURL))
+
 						default:
 							resolve(null);
 							break;
@@ -150,10 +166,10 @@ class PagedList extends React.Component{
 				console.log(`${this.props.id} triggered pageUp fetch\n`);
 				new Promise((resolve, reject) => {
 					switch(this.props.id){
-						case OxiAppConstants.PageListIds.ITEM_LIST_BROWSE:
+						case OxiAppConstants.PageListIds.a:
 							resolve( this.props.getItems(this.props.prevPageURL) );
 							break;
-						case OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST:
+						case OxiAppConstants.PageListIds.b:
 							resolve( this.props.getContentById(this.props.prevPageURL) );
 							break
 						default:
@@ -221,16 +237,16 @@ class PagedList extends React.Component{
 			webAppView,
 		} = this.props;
 
-		let elementHeight = id === OxiAppConstants.PageListIds.ITEM_LIST_BROWSE ? 
+		let elementHeight = id === OxiAppConstants.PageListIds.a ? 
 			112 :
-			id === OxiAppConstants.PageListIds.ITEM_AS_SEEN_ON_LIST ? 
+			id === OxiAppConstants.PageListIds.b ? 
 				60 :
 				0;
 
 		let endOfPageMargin = pages[lastPage] === undefined ? 
 			0 : 
 			lastPage > 0 ? 
-				(elementHeight * (pages[lastPage - 1].length -  pages[lastPage].length)) : 
+				(elementHeight * (pages[lastPage - 1].length - pages[lastPage].length)) : 
 				0;
 
 		return(
@@ -252,25 +268,38 @@ class PagedList extends React.Component{
 					}
 		    		/*className={Styles.pagedListContainer_div}*/
 					ref={this.setScrollContainerRef} >
-						<div
-							style={{
-								'margin-bottom': `${endOfPageMargin}px`
-							}} 
-							ref={this.setContainerRef} >
-							{list}
-						</div>
-						<LoaderWrapper 
-							loaded={this.state.loaded}
-							style={
-								loaderContainerStyles ? 
-									(loaderContainerStyles) :
-									({
-										display:'none',
-										height: '125px',
-    									'padding-top': '43.5px',	
-									})
+						<div 
+							id={`${id}_contentWrapper`}
+							style={id !== OxiAppConstants.PageListIds.b && !isDevice && webAppView !== OxiAppConstants.navRequestMap.b.toLowerCase() ? 
+								{
+									'--ilbc-width': '400px',
+    								width: 'calc(2*var(--ilbc-width) + 100px)',
+    								'margin-left': 'calc((100vw - 300px - 2*var(--ilbc-width) - 100px)/2 - 100px)',
+								} :
+								{}
 							}
-						/>
+						>
+							<div
+								style={{
+									'margin-bottom': `${endOfPageMargin}px`
+								}} 
+								ref={this.setContainerRef} >
+								{list}
+							</div>
+							<LoaderWrapper 
+								loaded={this.state.loaded}
+								style={
+									loaderContainerStyles ? 
+										(loaderContainerStyles) :
+										({
+											display:'none',
+											height: '125px',
+    										'padding-top': '43.5px',	
+										})
+								}
+							/>
+							<ListLoadProgress isShown={this.props.isFetching}/>
+						</div>
 				</div>
 			</React.Fragment>
 		);

@@ -53,7 +53,10 @@ const mapStateToProps = (state, props) => {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-	createUser: (formData) => {
+	createUser: async (formData) => {
+		//console.log('posting null body to /profile');
+		//dispatch(postProfile({id:null}));
+		console.log('creating user');
 		dispatch(createUser(formData));
 	},
 	createCompany:(formData) => {

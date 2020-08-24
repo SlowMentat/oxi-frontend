@@ -79,8 +79,8 @@ import { devToolsEnhancer } from 'redux-devtools-extension';
 import { composeWithDevTools } from 'redux-devtools-extension';
 //import devTools from 'remote-redux-devtools';
 
-import { createBrowserHistory } from 'history';
-import createHashHistory from 'history/createHashHistory';
+import { createBrowserHistory, createHashHistory } from 'history';
+//import createHashHistory from 'history/createHashHistory';
 
 import { routerMiddleware } from 'connected-react-router';
 import { ConnectedRouter } from 'connected-react-router'
@@ -192,6 +192,7 @@ class App extends React.Component {
 							}
 						/>
 						<Route 
+							// /account/user/register and anything else not caught above
 							path={this.props.match.url} 
 							render={({match, location, history}) => (
 								<div id="LandingPageContainer_div">

@@ -247,8 +247,9 @@ export const OxiAppConstants = Object.freeze({
 		HELP: "HELP",
 	},
 	PageListIds:{
-		ITEM_LIST_BROWSE: 'itemListBrowse',
-		ITEM_AS_SEEN_ON_LIST: 'itemAsSeenOnList',
+		a: 'itemListBrowse',
+		b: 'itemAsSeenOnList',
+		c: 'outfitList',
 	},
 	EmbeddedEntityPropertyNames : {	
 		PROFILE : "profileDto",

@@ -25,12 +25,25 @@
 
 :local(.termsTextContainer_div){
 	composes: inputTextContainer_div;
+	width: 100%;
+	display: block;
 
 	@include desktop_rules {
 	}
 
 	@include mobile_rules {
-		width: 75%
+	}
+}
+
+:local(#accountSubmitBtn_div){
+	display: flex;
+    justify-content: center;
+
+	@include desktop_rules {
+	}
+
+	@include mobile_rules {
+    	margin-top: 15px;
 	}
 }
 
@@ -119,18 +132,19 @@
 }
 
 :local(.textAcceptTerms_div){
-	height: inherit;	
+	height: inherit;
+	color: var(--color-01-shade-01);
 
 	@include desktop_rules {
-		color: var(--color-mobile-icon-bg);
-		line-height: 30px;	
-		font-size: 15px;
+		//color: var(--color-mobile-icon-bg);
+		line-height: 3rem;	
+		font-size: 1.5rem;
 	}
 
 	@include mobile_rules {
-		color: #263238;    
-		line-height: 13px;
-    	font-size: 13px;
+		/*color: #263238;    */
+		line-height: 1.3rem;
+    	font-size: 1.3rem;
 	}
 }
 
@@ -139,8 +153,8 @@
     margin: auto;
 
 	@include desktop_rules {
-		width: 800px;
-    	padding-left: 50px;
+		width: 100%;
+    	/*padding-left: 50px;*/
 	}
 
 	@include mobile_rules {
@@ -151,7 +165,7 @@
 
 	height: 100vh;
    	width: 100%;
-   	margin-top: 80px;
+   	//margin-top: 80px;
    	padding-top: 80px;
 
 	@include desktop_rules {
@@ -168,8 +182,8 @@
 	height: 275px;	
 
 	@include desktop_rules {
-		width: 550px;	
-		margin-left: 135px;
+		width: 500px;	
+		/*margin-left: 135px;*/
 	}
 
 	@include mobile_rules {
@@ -181,7 +195,8 @@
 :local(.inputContainer_div){
 	margin-top: 25px;
 	width: 100%;
-	height: 37px;
+	/*height: 37px;*/
+	height: auto;
 
 	@include desktop_rules {
 	}
@@ -200,19 +215,21 @@
 
 :local(.submitContainer_div){
 	margin-top: 35px;
+	display: flex;
 
 	@include desktop_rules {
-		height: 30px;
+		/*height: 30px;*/
 	}
 
 	@include mobile_rules {
-    	padding-left: 15px;
+		flex-direction: column;
+    	/*padding-left: 15px;
     	padding-right: 15px;
     	width: 100vw;
     	position: fixed;
     	left: 0px;
     	bottom: 0px;
-    	height: 80px;
+    	height: 80px;*/
 	}
 }
 
@@ -249,12 +266,15 @@
 
 :local(.submitBtnContainer1_div){
 	composes: validatorIconContainer_div;
+	width: 100%;
+	display: flex;
+	height: auto;
+	justify-content: center;
 
 	@include desktop_rules {
 	}
 
 	@include mobile_rules {
-		width: 25%;
 	}
 }
 
@@ -295,15 +315,16 @@
 :local(.invalidInputPromptContainer_div){
 	padding-top: 10px;
 	height: auto;
-	display: inline-block;
+	display: flex;
 
 	@include desktop_rules {
 		/*height: 100px;*/
-		width: 60%;
+		/*width: 60%;*/
 	}
 
 	@include mobile_rules {
-		width: 90%;
+		/*width: 90%;*/
+
 	}
 }
 
@@ -314,38 +335,52 @@
     width: auto;
     float: right;
     border-radius: 4px;
-    border: solid 2px var(--color-password-req);
-    background-color: var(--color-password-req);
+    /*border: solid 2px var(--color-password-req);
+    background-color: var(--color-password-req);*/
     padding: 6px;
     transition: height 100ms linear;
     margin-bottom: 25px;
-    padding-top: 17px;
+    /*padding-top: 17px;*/
 }
 
 :local(.invalidMessageContainer_div){
+	margin-bottom: calc(var(--padding)/2);
+    height: calc(var(--line-height) + 2*var(--padding));
 
 	@include desktop_rules {
-		height: 15px;
+   		--line-height: 1.4rem;
+   		--font-size: 1.4rem;
+   		--padding: .6rem;
 	}
 
 	@include mobile_rules {
-		margin-bottom: 2px;
-		height: 18px;
-
+   		--line-height: 1.4rem;
+   		--font-size: 1.4rem;
+   		--padding: .6rem;
 	}
 }
 
 :local(.invalidMessage_div){
+	font-size: var(--font-size);
+    line-height: var(--line-height);
+    display: inline-block;
+    /*background-color: var(--color-05-tint-01);*/
+    background-color: var(--color-02-shade-01);
+    border-radius: 3px;
+    padding: var(--padding);
+    border-top-left-radius: 0px;
+    color: white;
+    height: 100%;
 
 	@include desktop_rules {
-		height: inherit;
+		/*height: inherit;
     	font-size: 12px;
     	line-height: 12px;
-    	margin-top: 1.5px;
+    	margin-top: 1.5px;*/
 	}
 
 	@include mobile_rules {
-		height: inherit;
+		/*height: inherit;
     	font-size: 12px;
     	line-height: 12px;
     	display: inline-block;
@@ -353,6 +388,6 @@
     	border-radius: 3px;
     	padding: 3px;
     	border-top-right-radius: 0px;
-    	color: white;
+    	color: white;*/
 	}
 }

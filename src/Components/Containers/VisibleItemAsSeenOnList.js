@@ -50,8 +50,8 @@ const mapDispatchToProps = dispatch => ({
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 	previewOutfitFromBrowse: (outfitId) => {
 		new Promise(async (resolve, reject) => {
-			var result = await dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, null, null, `${OxiAppConstants.serviceURL}/outfit/${outfitId}`));
-			resolve(result);
+			var {normalizedJson, response} = await dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, null, null, `${OxiAppConstants.serviceURL}/outfit/${outfitId}`));
+			resolve(normalizedJson);
 		})
 		.then(normalizedJson => {
 			const {

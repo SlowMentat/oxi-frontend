@@ -27,11 +27,13 @@ import {
 	modifyProfile,
 	postProfile,
 	postImage,
+	putCrop,
 	setFormOverlayVisibility,
 	deselectAndPropogate,
 	verifyIntent,
 	setWebAppViewContext,
 	deleteOutfits,
+	replaceProfile,
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -100,7 +102,7 @@ const mapStateToProps = (state, props) => {
 		addedEntitiesReducer: state.addedEntitiesReducer,
 		allApparelTypes: Object.values(state.entitiesReducer.apparelTypes.byIds),
 		viewState: state.contentViewState.viewState,
-		profile: state.entitiesReducer.profile.byIds
+		profile: state.entitiesReducer.profile.byIds,
 	};
 }
 
@@ -230,28 +232,43 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			dispatch(createSizeGroups(sizeGroup));
 		},
 		getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
-		addProfilePic : (imageData, crop) => {
+		addProfilePic : (imageData, crop) => {			
 			
-			const onAddProfilePic = async (pictureId) => {
+			const onAddProfilePic = async (pictureDto) => {
 				const {
 					owner,
 				} = ownProps;
 
-				var profileWithCrop = {
-					...owner,
-					'pictureDto': {
-						...owner.pictureDto,
-						crop,
-						id: pictureId,
-					}
-				};
-
 				//TODO:  method name misleading.  should be putProfile
-				await dispatch(postProfile(profileWithCrop));
+				//await dispatch(postProfile(profileWithCrop));
 				//dispatch(setFormVisibility(null));
+
+				dispatch(replaceProfile({
+					'owner': {
+						...owner,
+						['pictureDto']: {...pictureDto},
+					}
+				}));
 			}
 
-			if(imageData !== null) postImage(imageData, () => onAddProfilePic, null, true);
+			if(imageData !== null) postImage(imageData, () => onAddProfilePic, null, true, crop);
+		},
+		cropProfilePic: (crop) => {
+			const {
+				owner,
+			} = ownProps;
+
+			new Promise((resolve, reject) => {
+				resolve(putCrop(null, null, crop, owner.pictureDto.originaluri, 'profile'));
+			})
+			.then(pictureDto => {
+				dispatch(replaceProfile({
+					'owner': {
+						...owner,
+						['pictureDto']: {...pictureDto},
+					}
+				}));
+			});
 		},
 		navToOutfitPreviewModal: (posx, posy) => {
 			dispatch(setFormVisibility("OutfitPreview", null, null, null));

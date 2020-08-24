@@ -444,12 +444,10 @@ export function fetchImage(filename, callback, picture, cancel=()=>{} ){
 	.catch(msg => console.error(msg));
 }*/
 
-export async function putCrop(imageFiles, contentId, crop){
-	const oglFilename = imageFiles[contentId].fileData.match(/\/(ogl[a-zA-Z0-9]+).[a-z]+$/)[1];
-	//const { contentId } = imageFiles[contentId];
-
+export async function putCrop(imageFiles, contentId, crop, oglFilename, type=''){
+	//const oglFilename = imageFiles[contentId] ? imageFiles[contentId].fileData.match(/\/(ogl[a-zA-Z0-9]+).[a-z]+$/)[1] : filename;
 	return axios.put(
-		OxiAppConstants.serviceURL + '/crop',
+		OxiAppConstants.serviceURL + `/crop?type=${type}`,
 		{
 			crop,
 			originaluri: oglFilename,
@@ -458,8 +456,8 @@ export async function putCrop(imageFiles, contentId, crop){
 		{}
 	).then(response => {
 		if(response.status === OxiAppConstants.HttpStatus.OK){
-			//generateOnSuccessHandler && generateOnSuccessHandler()(response.data);
-			return {[contentId]: response.data};
+			var result = contentId ? {[contentId]: response.data} : response.data;
+			return result;
 		}
 		else{
 			throw response.status;
@@ -554,7 +552,8 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 			}
 			// Crop of exisitng image has changed. 
 			else{
-				batchRequest = [...batchRequest, putCrop(imageFiles, contentId, crop)];
+				let filename = imageFiles[contentId].fileData.match(/\/(ogl[a-zA-Z0-9]+).[a-z]+$/)[1];
+				batchRequest = [...batchRequest, putCrop(imageFiles, contentId, crop, filename)];
 			}
 
 			//batchRequest = [

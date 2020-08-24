@@ -117,10 +117,10 @@
 
 .itemListBrowseContainer_div{
 	@include desktop_rules {
-		--ilbc-width: 400px;
+		/*--ilbc-width: 400px;
 		width: calc(2*var(--ilbc-width) + 100px);
+    	margin-left: calc((100vw - 300px - 2*var(--ilbc-width) - 100px)/2 - 100px);*/
     	/*margin-left: 400px;*/
-    	margin-left: calc((100vw - 300px - 2*var(--ilbc-width) - 100px)/2 - 100px);
     }
 
     @include mobile_rules {

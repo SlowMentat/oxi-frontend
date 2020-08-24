@@ -34,12 +34,12 @@ import {
 	Typography
 } from '@rmwc/typography';
 
-import '@rmwc/list/styles';
+//import '@rmwc/list/styles';
 import {
 	CollapsibleList,
 	List,
 	SimpleListItem,
-} from '@rmwc/list';
+} from '../../Components/Presentations/FitseeUI/List.js';
 
 import '@rmwc/grid-list/styles';
 import {
@@ -160,6 +160,7 @@ export class ItemLite extends React.Component{
 			onBookmarkClicked,
 			onSizeHover,
 			deleteItem,
+			onDeselect,
 		} = this.props;
 
 		var { 
@@ -313,6 +314,7 @@ export class ItemLite extends React.Component{
 							isActive ? 
 								(<CollapsibleList
 									handle={
+										isDevice ? <div></div> :
 										<SimpleListItem
 											text="See more"
 											graphic=""
@@ -320,9 +322,25 @@ export class ItemLite extends React.Component{
 										/>
 									}
 									//defaultOpen={ isSelected }
-									onOpen={ () => expandItem(id.toLowerCase()) }
-									onClose={ () => collapseItem() }
+									defaultOpen={isDevice}
+									onOpen={ !isDevice ? () => expandItem(id.toLowerCase()) : ()=>{/*do nothing */} }
+									onClose={ !isDevice ? () => collapseItem() : ()=>{/*do nothing*/} }
 								>
+									<div
+										style={{
+											width: '100%',
+											display: 'flex',
+											'justify-content': 'flex-end',
+											'border-top':'solid 1px var(--color-02)',
+										}}
+									>
+										<Button
+											label="close"
+											theme="primary"
+											trailingIcon="keyboard_arrow_right"
+											onClick={(e => onDeselect(id))}
+										/>
+									</div>
 									<List style={{maxHeight: '100%', overflow:'auto'}} >
 										{ infoComponent ? infoComponent(isExpanded) : null }
 									</List>
@@ -484,19 +502,21 @@ export class ItemInfo extends React.Component {
 			sizeGroups,
 		} = this.props;
 
+		const isShown = isExpanded || isDevice;
+
 		return(
 			<CSSTransition
 				//tiemout={1000}
 				timeout={{enter:400, exit:400}}
 				classNames="expandedItemInfoContainer_div"
-				in={isExpanded}
+				in={isShown}
 				unmountOnExit={false} 
 			>
 				<div 
 					className={ItemStyles.expandedItemInfoContainer__div} 
 					style={{
 						...this.props.styles, 
-						...(isExpanded ? 
+						...(isShown ? 
 							({opacity: 1}) : 
 							({opacity: 0, transition: 'transform var(--item-info-transition-period) linear 70ms, opacity 0ms linear var(--item-transition-total)'}))
 					}}
@@ -504,11 +524,14 @@ export class ItemInfo extends React.Component {
 					<CSSTransition
 						timeout={{enter:400, exit:400}}
 						classNames="expandedItemInfo_div"
-						in={isExpanded} 
+						in={isShown} 
 						unmountOnExit={false} 
 					>
 						<div 
 							className={ItemStyles.expandedItemInfo__div}
+							style={{
+								...(isDevice ? {opacity: '1'} : {})
+							}}
 						>
 							<div className={ItemStyles.variantOptionsContainer_div}>
 								<div className={ItemStyles.variantSizeOptionsContainer_div}>
@@ -809,7 +832,11 @@ export class ItemBrowse extends React.Component{
 						style={{
 							'font-size':'18px',
 							'color': 'gray',
-							'border-bottom':'solid .1rem var(--color-02)'
+							'border-bottom':'solid .1rem var(--color-02)',
+							// Needed for Paaging via VisibleItemAsSeenOnList to work
+						}}
+						innerStyle={{
+							'overflow':'unset',
 						}}
 						handle={
 							<SimpleListItem
@@ -830,7 +857,10 @@ export class ItemBrowse extends React.Component{
 						}}
 					>
 						<List
-							style={{maxHeight: '100%', overflow:'auto'}}
+							style={{
+								maxHeight: '100%', 
+								overflow: 'unset',
+							}}
 						>
 							{
 								isSelected ?
@@ -1055,6 +1085,7 @@ export class Item extends React.Component{
 			sizeGroups,
 			toggleMetricPanel,
 			deleteItem,
+			onDeselect,
 		} = this.props;
 
 		const {
@@ -1202,7 +1233,21 @@ export class Item extends React.Component{
 					className={isExpanded ? ItemStyles['itemContainerPreview_div--opened'] : itemContainerStyles}
 					onMouseOver={this.props._handleMouseOver.bind(this)}
 					onMouseLeave={this.props._handleMouseLeave.bind(null)} 
-					style={{'--index':`${this.props.index}`, height:'auto'}}
+					style={{
+						'--index':`${this.props.index}`, 
+						height:'auto',
+						...(isDevice ? 
+								{
+									height: '100vh',
+									top:'0px',
+									transition: 'transform 150ms cubic-bezier(0.45, 0.05, 0.55, 0.95)',
+									//transform: 'translateX(100vw)',
+									//transform: (isSelected ? 'translateX(0vw)' : 'translateX(100vw)'),
+									animation: (isSelected ? 'slideInRTL 200ms' : 'slideOutLTR 200ms'),
+								} :
+								{}
+							),
+					}}
 					//style={
 					//	!isProfileView ? 
 					//	{} : 
@@ -1222,8 +1267,8 @@ export class Item extends React.Component{
 							this.props.onDeselect(this.props.selectedAllIds.filter(id => id != this.props.item.id)[0]);
 						}
 						(isSelected === true) ? this.props.onDeselect(this.props.item.id) : this.props.onSelect(this.props.item.id);
-					}} >
-
+					}} 
+				>
 					<CSSTransition
 					    tiemout={200}
 					    classNames="itemMenuContainer"
@@ -1275,6 +1320,8 @@ export class Item extends React.Component{
 						handleOnClick={null}
 						retailerName={ vendor || udr}
 						handle={handle || 'custom item'}
+						isSelected={isSelected}
+						onDeselect={onDeselect}
 						//sizeLabel={!isActive ? uds : size !== undefined ? size.sizeLabel : '?'}
 						sizeLabel={genSizeLabel}
 						//metric={size ? size.metric : null}

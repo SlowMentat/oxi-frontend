@@ -74,7 +74,6 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 	console.log('destination = ', location);
 
 	switch(location){
-
 		case OxiAppConstants.navRequestMap.a.toLowerCase():
 
 			dispatch(setWebAppView(location));
@@ -82,7 +81,14 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 			//TODO:  filtered fetch via queary parameters
 			
 			isOwnerProfileEntityPresent ? null : dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''));
-			dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all'));
+			
+			new Promise((resolve, reject) => {
+				resolve(dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, '', 'all')))
+			})
+			.then(({normalizedJson, response}) => {
+				dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.OUTFIT, response.data._links.after.href));
+			});
+
 			dispatch(fetchItemMenus());
 			dispatch(unsetPreviewFocus());
 			break;
@@ -90,7 +96,8 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 		case OxiAppConstants.navRequestMap.b.toLowerCase():
 			console.log('about to dispatch fetchItemMenus()')
 			//Get the Brand and Retailer Lists
-			dispatch(fetchItemMenus()).then((response) => {
+			dispatch(fetchItemMenus())
+			.then((response) => {
 				//dispatch(deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT));
 				dispatch(fetchEntities(OxiAppConstants.EntityTypes.OUTFIT, `/${hostUsername}`, ''));
 				dispatch(fetchEntities(
@@ -104,9 +111,12 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 					owner
 				));
 
-			}).then(response => {
+			})
+			.then((response) => {
 				dispatch(setWebAppView(location));	
-			}).catch((error) => {
+				dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.OUTFIT, response.data._links.after.href));
+			})
+			.catch((error) => {
 				console.error('exception occured within dispatch to fetchItemMenus.  Reason is: ', error);
 				dispatch(networkActions.handleUnauthorizedRequest(error.response));
 			})
@@ -178,7 +188,12 @@ export function createUser(formData /*email, password, username*/){
 				'email': email,
 				'password': password,
 				'username': username			
-			}
+			},
+			//{
+			//	headers:{
+			//		'content-type':'application/x-www-form-urlencoded'
+			//	}
+			//}
 			//{
 			//	headers:{
 			//		'www-authenticate':'Bearer',
@@ -251,6 +266,17 @@ export function fetchEntitiesIfNeeded(entityType){
 			//Let the calling code know there's nothing to wait for
 			return Promise.resolve();
 		}
+	}
+}
+
+function getLinks(dispatch, links, entityType){
+	if(links !== undefined){
+		links.after ? 
+			dispatch(genericActions.setNextPageURL(entityType, links.after.href)) : 
+			dispatch(genericActions.setNextPageURL(entityType, null));
+		!links.prev ? 
+			dispatch(genericActions.setPrevPageURL(entityType, null)) :
+			dispatch(genericActions.setPrevPageURL(entityType, links.prev.href)) 
 	}
 }
 
@@ -371,18 +397,26 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				username = linkURL ? '' : username;
 				console.log(`requestParams = ${requestParams}, URI = ${URI}, username = ${username}, linkURL = ${linkURL}`)
 				
-				return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`, config)
+				//return axios.get(`${(linkURL || OxiAppConstants.serviceURL)}${URI}${username}?${requestParams}&page=${pageStart}&size=${pageSize}`, config)
+				
+				customReqParams = (URI === '') ? '' : `?filter=${filter}&firstResult=${0}&maxResults=${10}&date=${new Date(Date.now()).toISOString()}&direction=${0}`; 
+
+				return axios.get(encodeURI(`${linkURL || OxiAppConstants.serviceURL}${URI}${username}${customReqParams}`))
 				.then((response) => {
+					dispatch(genericActions.receiveEntities(entityType, null));
+					let normalizedJson = null;
+
 					if(response.status === OxiAppConstants.HttpStatus.OK){
 						// Determine json body extraction method by check if response is a paged resource.
-						let json = response.data._embedded ? response.data._embedded.outfitDtoes : response.data;
-						console.log("json");
-						console.log(json);
-						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
-
+						let json = response.data._embedded ? response.data._embedded.outfitDtoes : response.data;						
 						let itemContentJson = null;
 						let likeCount =null;
-						let normalizedJson = null;
+
+						console.log("json");
+						console.log(json);
+
+						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
+						getLinks(dispatch, response.data._links, OxiAppConstants.EntityTypes.OUTFIT);
 
 						//Manually build itemContents join table
 						itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.OUTFIT, json);
@@ -405,13 +439,17 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						mergeResponseEntities(dispatch, normalizedJson);
 						let outfitKeys = Object.keys(normalizedJson.entities.outfits);
 						//genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
-						return normalizedJson;
+						
 					}else{
 						//handleUnauthorizedRequest(response);
 					}
+					var result = {normalizedJson, response};
+					return result;
 				})
 				.catch(error => {
+					dispatch(genericActions.receiveEntities(entityType, error));
 					console.log(error);
+
 					if (error.response) {
 						// The request was made and the server responded with a status code
 						// that falls out of the range of 2xx
@@ -420,16 +458,20 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						console.log(error.response.headers);
 						//Check if error is due to forbidden response staatus
 						dispatch(networkActions.handleUnauthorizedRequest(error.response));
-					} else if (error.request) {
+					} 
+					else if (error.request) {
 						// The request was made but no response was received
 						// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
 						// http.ClientRequest in node.js
 						console.log(error.request);
-					} else {
+					} 
+					else {
 						// Something happened in setting up the request that triggered an Error
 						console.log('Error', error.message);
 					}
+
 					console.log(error.config);
+					throw(error);
 				});
 				break;
 
@@ -493,7 +535,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 				return axios.get(encodeURI(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`))
 				.then((response) => {
 					if(response.status === OxiAppConstants.HttpStatus.OK){
-						let normalizedJson = response.data._embedded.items._embedded.itemDtoes.reduce((accum, currentObject) => {
+						let normalizedJson = response.data./*_embedded.items.*/_embedded.items.reduce((accum, currentObject) => {
 							return(Object.assign(accum, {
 								[currentObject.id]: {
 									'id': currentObject.id, 
@@ -509,41 +551,9 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						},{});
 						console.log('normalizedJson Items:  ', normalizedJson);
 						dispatch(genericActions.receiveEntities(entityType.toLowerCase(), null));
-						//dispatch(entityActions.replaceItems(normalizedJson));
-						//if(response.data.page !== undefined){
-						/*if(response.data._links !== undefined && response.data._links.after !== undefined){
-							const {size, totalElements, totalPages, number} = response.data.page;
-							const nextPageURL = response.data._links.after.href;
-							console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
 
-							dispatch(genericActions.setEntityCurrentPage(OxiAppConstants.EntityTypes.ITEM, number));
-							dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.ITEM, totalPages - 0));
-							dispatch(genericActions.modifyPagedEntityIds(OxiAppConstants.EntityTypes.ITEM, number, Object.keys(normalizedJson)));
-							//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
-						}*/
-
-						//TODO: this is makes unecessary calls to redux store.  setting page URL should be handled in the PageList component, but Im not sure how to extract 
-						//		response data from the dispatch call in PageListContainer.  quick fix is to set the values here then reset them with the correct page number in
-						//		PageList component :(
-						/*if(linkURL === null){
-							if(response.data._links !== undefined){
-								response.data._links.next ? 
-									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.next.href)) : 
-									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
-								!response.data._links.prev ? 
-									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null)) :
-									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) 
-							}
-						}*/
 						if(true/*linkURL === null*/){
-							if(response.data._links !== undefined){
-								response.data._links.after ? 
-									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.after.href)) : 
-									dispatch(genericActions.setNextPageURL(OxiAppConstants.EntityTypes.ITEM, null));
-								!response.data._links.prev ? 
-									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, null)) :
-									dispatch(genericActions.setPrevPageURL(OxiAppConstants.EntityTypes.ITEM, response.data._links.prev.href)) 
-							}
+							getLinks(dispatch, response.data._links, OxiAppConstants.EntityTypes.ITEM);
 						}
 							
 						//mergeResponseEntities(dispatch, {'entities': {'items': normalizedJson}}); //TODO clean this up.  Use schema
@@ -554,7 +564,9 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 					return response;
 				})
 				.catch(error => {
+					dispatch(genericActions.receiveEntities(entityType, error));					
 					console.log(error);
+
 					if (error.response) {
 						// The request was made and the server responded with a status code
 						// that falls out of the range of 2xx
@@ -563,15 +575,18 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 						console.log(error.response.headers);
 						//Check if error is due to forbidden response staatus
 						dispatch(networkActions.handleUnauthorizedRequest(error.response));
-					} else if (error.request) {
+					} 
+					else if (error.request) {
 						// The request was made but no response was received
 						// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
 						// http.ClientRequest in node.js
 						console.log(error.request);
-					} else {
+					} 
+					else {
 						// Something happened in setting up the request that triggered an Error
 						console.log('Error', error.message);
 					}
+
 					console.log(error.config);
 				});
 				//console.log('response in thunk = ',getPromise);
@@ -606,8 +621,16 @@ export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=
 		let pageSize = 9;
 		let pageBufferSize = 2;
 		let URI = linkURL ? '' : `/contents/items/${itemId}`;
-		return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?page=${pageStart}&size=${pageSize}`)
+
+
+		const customReqParams = (URI === '') ? '' : `?firstResult=${0}&maxResults=${10}&date=${new Date(Date.now()).toISOString()}&direction=${0}`; 
+
+		return axios.get(encodeURI(`${linkURL || OxiAppConstants.serviceURL}${URI}${customReqParams}`))
+		//return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?page=${pageStart}&size=${pageSize}`)
 		.then((response) => {
+
+			dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
+
 			if(response.status === OxiAppConstants.HttpStatus.OK){
 				let json = response.data._embedded[OxiAppConstants.EmbeddedEntityPropertyNames.CONTENT_WITH_OUTFIT];//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
 				console.log("json");
@@ -623,15 +646,17 @@ export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=
 				//dispatch(createItemContent(itemContentJson));							
 	
 
-				if(response.data.page !== undefined){
-					const {size, totalElements, totalPages, number} = response.data.page;
-					console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
-
-					dispatch(genericActions.setEntityCurrentPage(OxiAppConstants.EntityTypes.CONTENT, number));
-					dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.CONTENT, totalPages - 0));
-					dispatch(genericActions.modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, number, Object.keys(normalizedJson.entities.contents)));
-					//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
-				}
+				// TODO: I think the three lines below can be romved.
+				//if(response.data.page !== undefined){
+				//	const {size, totalElements, totalPages, number} = response.data.page;
+				//	console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
+//
+				//	// TODO: I think the three lines below can be romved.
+				//	dispatch(genericActions.setEntityCurrentPage(OxiAppConstants.EntityTypes.CONTENT, number));
+				//	dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.CONTENT, totalPages - 0));
+				//	dispatch(genericActions.modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, number, Object.keys(normalizedJson.entities.contents)));
+				//	//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
+				//}
 
 
 				//mergeResponseEntities(dispatch, normalizedJson);
@@ -641,12 +666,14 @@ export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=
 				/*let contentKeys = Object.keys(normalizedJson.entities.contents);
 				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null*/
 				//genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
+				getLinks(dispatch, response.data._links, OxiAppConstants.EntityTypes.CONTENT);
 				return response;
 			}else{
 				//handleUnauthorizedRequest(response);
 			}
 		})
 		.catch(error => {
+			dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
 			console.log(error);
 			if (error.response) {
 				// The request was made and the server responded with a status code

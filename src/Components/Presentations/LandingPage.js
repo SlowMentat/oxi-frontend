@@ -37,6 +37,8 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {stepOne} from '../../Content/SvgLandingPage';
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
+import { Button, IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
+
 const descriptionContainerStyle = {
 	'font-family': 'Comfortaa, cursive',
 	'text-align':'center',
@@ -714,7 +716,16 @@ class Portal extends React.Component{
 							<p>{this.props.description}</p>
 						</div>
 						<div className={Styles.signupBtnContainer_div} >
-							<div 
+							<Button
+								theme={["textPrimaryOnDark", "primaryBg"]}
+								label="create account"
+								raised
+								onClick={(event) => {
+									event.stopPropagation();
+									this.props.navToCreateAccount()
+								}}
+							/>
+							{/*<div 
 								className={Styles.signupBtn_div} 
 								//style={this.state.isMouseOver ? ({'display': 'block'}) :  ({'display':'none'}) }
 								onClick={(event) => {
@@ -725,7 +736,7 @@ class Portal extends React.Component{
 								<div className={Styles.signupBtnText_div} >
 									{this.props.actionIndicator}
 								</div>
-							</div>
+							</div>*/}
 						</div>
 					</div>
 				</div>
@@ -745,6 +756,10 @@ export default class LandingPage extends React.Component{
 		super(props);
 		this.registerUserURI = "/account/user/register";
 		this.registerRetailerURI = "/account/retailer/register";
+
+		this.state={
+			isLearnMoreShown: false,
+		}
 	}
 
 	render() {
@@ -783,7 +798,94 @@ export default class LandingPage extends React.Component{
 												//	'margin-top': '25px',
 												//}}
 											>
-												<Portal 
+												<div className={Styles.uvpPageSlot_div}>
+													<div className="uvpMessage_div">
+														Discover styles and shop apparel that fit you.
+													</div>											
+												</div>
+												<div className={Styles.signupBtnContainer_div} >
+													<Button
+														theme={["textPrimaryOnDark", "primaryBg"]}
+														label="create account"
+														raised
+														onClick={(event) => {
+															event.stopPropagation();
+															this.props.navToCreateAccount("shopper")
+														}}
+													/>
+												</div>
+
+												<div className={Styles.howItWorksButtonContainer_div}>
+													<div className={Styles.howItWorksButton_div}>
+														<Button
+															style={{'margin-top':'-18px', 'background-color': 'white'}}
+															label="learn more"
+															outlined
+															onClick={(e) => {this.setState({isLearnMoreShown: true})}}
+														/>
+													</div>
+												</div>
+
+												<div style={{
+													with:'100%',
+													height:'auto',
+													height: '-webkit-fill-available',
+													animation: 'risingFadeIn 300ms',
+													display: (this.state.isLearnMoreShown ? 'block' : 'none'),
+												}}>
+													<div 
+														className={Styles.landingPageSlot_div} 
+														//style={{'flex-direction':'row-reverse'}}
+													>
+														<div className="howItWorksImage_div">
+															<div
+																style={{
+																	width:'24px',
+																	height:'24px',
+																	'border-radius':'50%',
+																}}
+															>
+																<SvgIcon 
+																	//className={OutfitStyles.measureBtn_svg} 
+																	name="MeasureIcon" 
+																	//fill={fill}
+																	stroke="#FFF"
+																	strokeWidth="2"
+																/>
+															</div>
+														</div>
+														<div className="howItWorksMessage_div">
+															Add your measurements.
+														</div>													
+													</div>
+													<div 
+														className={Styles.landingPageSlot_div} 
+														style={{'flex-direction':'row-reverse'}}
+													>
+														<div 
+															className="howItWorksImage_div" 
+															style={{'background-color':'var(--color-01-tint-02)'}}
+														>
+														</div>
+														<div className="howItWorksMessage_div">
+															Upload your outfits.
+														</div>											
+													</div>
+													<div 
+														className={Styles.landingPageSlot_div} 
+														//style={{'flex-direction':'row-reverse'}}
+													>
+														<div 
+															className="howItWorksImage_div" 
+														>
+														</div>
+														<div className="howItWorksMessage_div">
+															Browse outfits and compare sizes.
+														</div>											
+													</div>
+												</div>
+
+												{/*<Portal 
 													title="Shopper"
 													description="Discover new styles, be confident in the fit, and get rewarded.  Join the community of shoppers, designers, and retailers to streamline your online shopping experience."
 													infoLink={null}
@@ -792,7 +894,7 @@ export default class LandingPage extends React.Component{
 													enterPortal={() => this.props.navStateToBrowse(this.props.handlePortalSelect, (this.props.profile !== undefined))}
 													navToCreateAccount={() => this.props.navToCreateAccount('shopper')}
 												/>
-												{/*<Portal 
+												<Portal 
 													title="E-Retailer"
 													description="Get your apparel noticed.  Leverage our community affiliate program to increase exposure and gain insights on what's trending."
 													infoLink={null}
