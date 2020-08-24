@@ -151,6 +151,9 @@ $sliderWidth: 15px;
 :local(.fieldListTitleContainer2_div){
 	height: inherit;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 :local(.toleranceSettingsContianer_div){
@@ -182,6 +185,7 @@ $sliderWidth: 15px;
 
     @include mobile_rules {
         margin: auto;
+        width: 100%;
     }
 }
 
@@ -201,9 +205,10 @@ $sliderWidth: 15px;
 
     @include mobile_rules {
         font-size: 2rem;
-        margin-top: calc(25px - 15px);
+        /*margin-top: calc(25px - 15px);
         text-align: left;
-        margin-left: calc(-1*var(--profile-ctrl-container-padding)/2);
+        margin-left: calc(-1*var(--profile-ctrl-container-padding)/2);*/
+        width: auto;
     }
 }
 
@@ -379,8 +384,11 @@ $sliderWidth: 15px;
 
 :local(.btnsContainer_div){    
 	width: 100%;
-    height: 35px;
+    /*height: 35px;*/
     margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 
 :local(.btns_div){
@@ -493,7 +501,8 @@ $sliderWidth: 15px;
 
 :local(.toleranceControllersContainer_div){
     position: absolute;
-    top: 0px;
+    /*top: 0px;*/
+    top: -2px;
     width: 100%;
 }
 
