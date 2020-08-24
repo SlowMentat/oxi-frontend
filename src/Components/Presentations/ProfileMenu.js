@@ -46,6 +46,8 @@ import {roundTo, ongoingTouchIndexById, copyTouch } from '../../Util/Misc.js';
 //SVG
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 
+import { Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
+
 
 
 
@@ -636,7 +638,16 @@ class ToleranceSettings extends React.Component{
 					style={{
 						position: 'absolute',
 						width: '100%',
-						...(isDevice ? ({bottom: '36px'}) : ({bottom: '0px'})),
+						...(isDevice ? 
+							{
+								//bottom: '36px',
+								position: 'relative', 
+								'margin-top': '6.4rem',
+							} : 
+							{
+								bottom: '0px'
+							}
+						),
 					}}
 				>
 					<div style={{
@@ -649,6 +660,7 @@ class ToleranceSettings extends React.Component{
 								this.filteredFieldNames.map(field => (	
 									field != 'height' ?//Skip height
 										(<div 
+											key={`${field}_ruler`}
 											className={ProfileMenuStyles.measurements_div}
 											style={(
 												field === this.props.selectedField ? 
@@ -731,6 +743,7 @@ class ToleranceSettings extends React.Component{
 
 									return(
 										<div 
+											key={`${field}_slider`}
 											className={ProfileMenuStyles.sliderContainer_div}
 											onPointerDown={(event) => this.props.selectToleranceField(field)}
 										>											
@@ -842,7 +855,12 @@ class ToleranceSettings extends React.Component{
 					</div>
 
 					<div className={ProfileMenuStyles.btnsContainer_div}>
-						<div className={ProfileMenuStyles.btns_div}>
+						<Button
+							theme={["textPrimaryOnDark", "primaryBg"]}
+							elevated
+							label="submit"
+						/>
+						{/*<div className={ProfileMenuStyles.btns_div}>
 							<div 
 								onClick={(event) => this.props.handleOnSubmit()} 
 								className={ProfileMenuStyles.submitBtnText_div}
@@ -850,7 +868,7 @@ class ToleranceSettings extends React.Component{
 							>
 								Submit
 							</div>
-						</div>
+						</div>*/}
 					</div>
 
 				</div>
