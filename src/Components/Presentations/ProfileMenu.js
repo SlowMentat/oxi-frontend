@@ -163,7 +163,7 @@ const checkBoxStyle = {
 const selectedCheckBoxStyle = {
 	...checkBoxStyle,
 	...{
-    	'background-color': 'var(--color9)',
+    	'background-color': 'var(--color-01)',
 	}	
 };
 
@@ -217,7 +217,7 @@ const TolerancePresets = ({props}) => {
 	);
 }
 
-const SlideSwitch = ({props}) => (
+export const SlideSwitch = ({props}) => (
 	<div 
 		//className={ProfileMenuStyles.inputNumberContainer_div}
 		className={ProfileMenuStyles.unitSwitch_div}
@@ -2266,10 +2266,12 @@ export default class ProfileMenu extends React.Component{
 							this.state.fieldListTitle === this.menuPage1 ? (
 								<React.Fragment>
 
-									<SlideSwitch props={{
-										toggleSlidSwitch: this._toggleSlidSwitch,
-										units: this.state.units
-									}}/>
+									<SlideSwitch 
+										props={{
+											toggleSlidSwitch: this._toggleSlidSwitch,
+											units: this.state.units
+										}}
+									/>									
 
 									<div 
 										style={{

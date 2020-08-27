@@ -1585,6 +1585,7 @@ a{
 	--border-color: var(--color-desktop-01);
 	transition: border-color 50ms linear;
 	border: solid var(--border-width) var(--border-color);
+	animation: imgFadeIn 400ms;
 
 	@include desktop_rules {
     }

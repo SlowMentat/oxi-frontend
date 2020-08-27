@@ -675,12 +675,16 @@ $isDebug: false;
     left: 0px;
     width: 48px;
     height: 48px;
-    display: inline-block;
+    /*display: inline-block;*/
     vertical-align: top;
     border: solid var(--outline-width) var(--color-01);
     border-radius: calc(var(--icon-width)/2);
     overflow: hidden;
     max-width: 48px;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 :local(.ownerIconContainer_div){
@@ -690,6 +694,7 @@ $isDebug: false;
    left: unset;
    background-color: white;
    border: solid var(--outline-width) var(--color-01);
+   overflow: unset;
 }
 
 :local(.ownerIndicator){

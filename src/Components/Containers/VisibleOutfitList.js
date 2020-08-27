@@ -199,6 +199,9 @@ const mapDispatchToProps = (dispatch, props) => ({
 	getOutfitPreviewForm: (posx, posy) => {
 		dispatch(setFormVisibility("OutfitPreview", null, null, null));
 	},
+	openProfilePicForm: (posx, posy) => {
+		dispatch(setFormVisibility(OxiAppConstants.FormType.PROFILE_PIC, null, null));
+	},
 })
 
 const VisibleOutfitList = connect(mapStateToProps, mapDispatchToProps)(OutfitList);

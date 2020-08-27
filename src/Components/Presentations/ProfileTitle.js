@@ -53,23 +53,25 @@ export const PpIcon = (props) => {
 			/>) :
 			(<i 
 				class="material-icons" 
-				style={ 
+				style={customDefaultStyle 
 					//isMobile ? 
-					isDevice ?
-						({
-							'font-size':'48px', 
-							//'color':'var(--color-mobile-icon-bg)',
-        					'border':'solid 5px #f9f9f9',
-
-        					'color':'var(--color-01-tint-02)',
-						}) : 
-						({ 
-							'background-color':'#f9f9f9', 
-							'font-size':'48px', 
-							'color': 'var(--color-mobile-icon-bg)',
-							'background-color': 'var(--color-01-tint-01)',
-							...customDefaultStyle, 
-						}) 
+					//isDevice ?
+					//	({
+					//		'font-size':'7.2rem', 
+        			//		'border':'solid 5px #f9f9f9',
+        			//		//'color':'var(--color-01-tint-02)',
+        			//		'background-color': '#f9f9f9',
+    				//		color: 'var(--color-01-tint-02)',
+					//	}) : 
+					//	({ 
+					//		'background-color':'#f9f9f9', 
+					//		'font-size':'4.8rem', 
+					//		//'color': 'var(--color-mobile-icon-bg)',
+					//		//'background-color': 'var(--color-01-tint-01)',
+        			//		'background-color': '#f9f9f9',
+    				//		color: 'var(--color-01-tint-02)',
+					//		...customDefaultStyle, 
+					//	}) 
 				}
 				onClick={(e) => {
 					e.stopPropagation();
@@ -126,6 +128,7 @@ class ProfileTitle extends React.Component{
 			//ownerpicuri,
 			base64Image,
 			imageName,
+			style,
 		} = this.props;
 
 		const customStyle = {
@@ -159,7 +162,10 @@ class ProfileTitle extends React.Component{
 		}
 	
 		return (
-			<div className={MetricStyles.metricsDataHeader_div}>
+			<div 
+				className={MetricStyles.metricsDataHeader_div}
+				style={style}
+			>
 				<div className={MetricStyles.profilePicContainer_div}>
 					<div 
 						className={MetricStyles.profilePic_div}

@@ -174,6 +174,7 @@ export function SiteNav(props){
 		webAppView,
 		webAppViewContext,
 		selectedOutfitIds,
+		ownerpicuri,
 	} = props;
 
 	const [ isSettingsOpen, setIsSettingsOpen ] = useState(false);
@@ -259,9 +260,21 @@ export function SiteNav(props){
 			viewControls = null;
 			break;
 
+		case !isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
+			viewControls = 
+				<React.Fragment>
+					<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...props} />
+					<ProfileTitleContainer
+						imageName={ownerpicuri}
+						style={{top:'0px'}}
+					/>
+				</React.Fragment>
+			break;
+
 		case !isDevice:
 			viewControls = <Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...props} />
 			break;
+
 
 		default:
 			break;
@@ -1009,6 +1022,7 @@ export default class webAppView extends React.Component {
 				setAppViewContext={setAppViewContext}
 				selectedOutfitIds={entitiesStateReducer.outfits.multipleSelected}
 				confirmOutfitDelete={confirmOutfitDelete}
+				ownerpicuri={ownerpicuri}
 			/>
 		);
 
