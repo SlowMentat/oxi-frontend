@@ -117,6 +117,7 @@ class PagedOutfitList extends React.Component{
 								username={ uri }
 								getCoverPic={this.props.getCoverPic}
 								isProfileView={ isProfileView }
+								openProfilePicForm={e => this.props.openProfilePicForm(e)}
 							>
 							</ProfileHeader>
 							

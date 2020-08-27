@@ -134,7 +134,7 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 					console.log(reason)
 				});
 			}
-			//dispatch(setWebAppView('landing'));
+			dispatch(setWebAppView(location));
 			dispatch(unsetPreviewFocus());
 			break;
 

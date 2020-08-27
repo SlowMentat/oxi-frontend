@@ -87,15 +87,27 @@ export class MetricPanel extends React.Component{
 
 		const ppIconStyles = {
 			'padding':'2px',
-			'border-radius': '24px',
-			'font-size': '38px',
+			'border-radius': '3.8rem',
+			'font-size': '3.8rem',
 			//'--border-width':'0px',
         	'border':'solid 0px #f9f9f9',
 		}
 
 		const ppIconDefaultStyle = {
-			...ppIconStyles,
+        	'background-color': '#f9f9f9',
+    		color: 'var(--color-01-tint-02)',
+			'border-radius': '3.8rem',
+			'font-size': '3.8rem',
+			...(isDevice ?
+				({
+					//'font-size':'3.8rem',
+				}) : 
+				({ 
+					//'font-size':'3.8rem',
+				})
+			),
 		}
+
 
 		const metricBlockContent = 
 			<div
@@ -283,7 +295,7 @@ export class MetricPanel extends React.Component{
 												</div>
 											</div>
 											<div className={MetricStyles.ownerIconContainer_div}>
-												<div style={{position:'relative'}}>
+												<div style={{position:'relative', 'height': '100%'}}>
 													<div className={MetricStyles.ownerIndicator}>
 													</div>
 												</div>

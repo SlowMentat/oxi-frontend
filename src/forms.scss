@@ -626,22 +626,35 @@ input::placeholder {
     }
 }
 
+
 :local(.eppHeader_div){
     /*padding-left: 10px;*/
-    position: relative;
     height: var(--ctrls-height);
-    line-height: 24px;
-    font-size: 14px;
+    /*line-height: 24px;
+    font-size: 14px;*/
+    display: flex;
+    justify-content: flex-end;
     /*color: var(--color-mobile-icon-bg);*/
+
 }
 
 :local(.eppPicture_div){
     height: var(--picture-height);
     width: 100%;
-    text-align: center;
+    /*text-align: center;*/
     /*background-color: var(--color-mobile-icon-bg);*/
-    background-color: black;
+    background-color: var(--color-02);
     /*background-color: #b2b2b2;*/
+    
+    @include desktop_rules {
+        position: relative;
+    }
+
+    @include mobile_rules {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 :local(.editProfilePicCtrls_div){

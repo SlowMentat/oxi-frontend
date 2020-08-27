@@ -210,11 +210,29 @@ export class Outfit extends React.Component{
 		} = this.props;
 
 		const ppIconStyles = {
-        	'width':' 58px',
-        	'height':' 58px',
+        	'width':' 5.8rem',
+        	'height':' 5.8rem',
         	'border-radius':' 29px',
         	'background-color':'#263238',
         	...(isDevice ? ({margin: '5px'}) : ({})),
+		}
+
+		const ppIconDefaultStyle = {
+        	'background-color': '#f9f9f9',
+    		color: 'var(--color-01-tint-02)',
+    		display: 'flex',
+    		'justify-content': 'center',
+    		'align-items': 'center',
+    		'font-size': '5.8rem',
+    		'border-radius': '5.8rem',
+			//...(isDevice ?
+			//	({
+			//		'font-size':'3.8rem',
+			//	}) : 
+			//	({ 
+			//		'font-size':'5.8rem',
+			//	})
+			//),
 		}
 
 		let contextualStyles = null;
@@ -274,10 +292,13 @@ export class Outfit extends React.Component{
 											imageName={profilePicUri}
 											isMobile={false} 
 											customStyle={ppIconStyles}
-											customDefaultStyle={{
-												...ppIconStyles,
-												'border':'solid 5px var(--color-desktop-01)',
-											}}
+											customDefaultStyle={
+												ppIconDefaultStyle
+												//{
+												//	...ppIconStyles,
+												//	'border':'solid 5px var(--color-desktop-01)',
+												//}
+											}
 											onClick={(e) => {
 												history.push(`/shop/profile/${username}`);
 												navToHostProfile(username, owner);

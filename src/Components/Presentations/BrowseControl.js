@@ -182,7 +182,9 @@ class BrowseControl extends React.Component{
 
 		return(
 			<React.Fragment>	
-				<div className={BrowseControlStyles.buttonContainer_div}>
+				<div 
+					className={BrowseControlStyles.buttonContainer_div}
+				>
 					{
 						isDevice ?
 							<React.Fragment>

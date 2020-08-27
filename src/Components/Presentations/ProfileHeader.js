@@ -145,6 +145,10 @@ export default class ProfileHeader extends React.Component{
 	render(){
 
 		const {
+			openProfilePicForm
+		} = this.props;
+
+		const {
 			base64Image,
 		} = this.state;
 
@@ -175,8 +179,24 @@ export default class ProfileHeader extends React.Component{
 			'cursor':'unset',
 		}
 
+		//const ppIconDefaultStyle = {
+		//	...ppIconStyle,	
+		//	'font-size':'7.2rem',
+		//}
+
 		const ppIconDefaultStyle = {
-			...ppIconStyle,
+        	'background-color': '#f9f9f9',
+    		color: 'var(--color-01-tint-02)',
+			...(isDevice ?
+				({
+					'font-size':'7.2rem', 
+        			'border':'solid 5px #f9f9f9',
+				}) : 
+				({ 
+					'background-color':'#f9f9f9', 
+					'font-size':'9.6rem', 
+				})
+			),
 		}
 
 		return(
@@ -190,6 +210,9 @@ export default class ProfileHeader extends React.Component{
 							customStyle={ppIconStyle}
 							customDefaultStyle={ppIconDefaultStyle}
 							onClick={(e) => {
+								if(owner && owner.username === username){
+									openProfilePicForm(e);
+								}
 							}}
 						/>
 					</div>

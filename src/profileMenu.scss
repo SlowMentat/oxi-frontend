@@ -95,6 +95,7 @@ $sliderWidth: 15px;
         border-width: var(--profile-ctrl-container-border-width);
         border-radius: 3px;
         background-color: white; 
+        position: relative;
     }
 
     @include mobile_rules {
@@ -121,6 +122,7 @@ $sliderWidth: 15px;
         height: 714.5px;
         width: var(--profile-ctrl-contianer-width);
         margin-left: -1px;
+        position: relative;
     }
 
     @include mobile_rules {
@@ -282,7 +284,7 @@ $sliderWidth: 15px;
 }
 
 :local(.inputNumberContainer_div){
-    position: relative;
+    /*position: relative;*/
     --input-number-container-padding: 3.5px;
     width: 100%;
     margin: auto;
@@ -294,7 +296,7 @@ $sliderWidth: 15px;
     /*height: 30px;*/
     /*transition: color 200ms ease-in-out, background-color 200ms ease-in-out*/
 
-    @inlcude desktop_rules {
+    @include desktop_rules {
         top: calc(10px + (100vh - 80px - var(--container-height))/2);
     }
 
@@ -307,17 +309,24 @@ $sliderWidth: 15px;
     composes: inputNumberContainer_div;
     position: absolute;
     margin-top: 0px;
-    width: 120px;
+    padding: unset;
+    display: flex;
+    z-index: 1;
 
-    @inlcude desktop_rules {
-        top: 45px;
-        right: 300px;
+    @include desktop_rules {
+        top: 15px;
+        /*right: 300px;*/
+        width: calc(200% - 2*var(--profile-ctrl-container-padding));
+        justify-content: center;
+        align-items: center;
     }
 
     @include mobile_rules {
         /*left: calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding));*/
-        top: 10px;
+        top: 170px;
         right: 5px;
+        justify-content: flex-end;
+        /*width: 120px;*/
     }
 }
 
@@ -699,16 +708,21 @@ $sliderWidth: 15px;
 
 :local(.slideSwitchLabelContainer_div){
     display: inline-block;
-    width: 25%;
+    /*width: 25%;*/
     height: inherit;
     line-height: 30px;
     vertical-align: top;
     text-align: center;
     font-size: 12px;
+
+    padding: 0px 5px 0px 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 :local(.slideSwitchLabel_div){
-    height: inherit;
+    /*height: inherit;*/
     /*color: #525252;*/
     color: #bbbbbb;
     font-family: 'Archivo Black', sans-serif;
@@ -716,8 +730,9 @@ $sliderWidth: 15px;
 
 :local(.slideSwitchContainer_div){
     display: inline-block;
-    width: 50%;
-    height: inherit;
+    /*width: 50%;*/
+    width: 48px;
+    height: 23px;
 }
 
 :local(.slideSwitch_div){

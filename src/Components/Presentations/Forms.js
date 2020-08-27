@@ -454,6 +454,7 @@ export class ProfilePicForm extends React.Component{
 			src: null,
 			filename:null,
 			base64Image: null,
+			imgAspectRatio: null,
 			crop: (
 				crop ? 
 					crop : 
@@ -481,6 +482,8 @@ export class ProfilePicForm extends React.Component{
 		this.pageLeft = this.pageLeft.bind(this);
 		this.pageRight = this.pageRight.bind(this);
 		this._handleImageReceived = this._handleImageReceived.bind(this);
+		this._handleImageLoad = this._handleImageLoad.bind(this);
+		this.iniDimensions = this.iniDimensions.bind(this);
 	}
 
 	componentDidMount(){
@@ -573,9 +576,86 @@ export class ProfilePicForm extends React.Component{
 		//event.preventDefault();
 	}
 
+	_handleImageLoad(img){
+		this.setState({
+			imgAspectRatio: img.naturalWidth / img.naturalHeight,
+		});
+	}
+
+	iniDimensions(aspectRatio, isRootPortrait){
+		var result = {};
+		const frameAspectRatio = this.cropImgRoot.clientWidth / this.cropImgRoot.clientHeight;
+
+		if(isRootPortrait){
+			switch(true){
+				// Landsape or square image
+				case aspectRatio >= 1:
+					result = {height: 'auto', width: '100%'};
+					break;
+	
+				// Image height is less than the crop root when both widths are equal
+				case aspectRatio < 1 && aspectRatio >= frameAspectRatio:
+					result = {height: 'auto', width: '100%'};
+					break;
+	
+				// Image height is greater than the crop root when both widths are equal
+				case aspectRatio < frameAspectRatio:
+					result = {height: '100%', width: 'auto'};
+					break;
+	
+				default:
+					break;
+			}
+		}
+		else{
+			switch(true){
+				// portrait or square image
+				case aspectRatio <= 1:
+					result = {height: '100%', width: 'auto'};
+					break;
+	
+				// Image width is less than the crop root when both heights are equal
+				case aspectRatio > 1 && aspectRatio <= frameAspectRatio:
+					result = {height: '100%', width: 'auto'};
+					break;
+	
+				// Image width is greater than the crop root when both heights are equal
+				case aspectRatio > frameAspectRatio:
+					result = {height: 'auto', width: '100%'};
+					break;
+	
+				default:
+					break;
+			}
+		}
+
+		//if(isRootPortrait){
+		//	result = (aspectRatio > 1 ? {height: '100%', width: 'auto'} : {height: 'auto', width: '100%'});
+		//}
+		//else{
+		//	result = (aspectRatio > 1 ? {height: 'auto', width: '100%'} : {height: '100%', width: 'auto'});
+		//}
+
+		return result;
+	}
+
 	setupCropImgRoot(div){
 		//div ? div.className = FormStyles.imgEditContainer_div : null;  //Don't do this
+		div ? div.style.cssText =  'display: flex; justify-content: center; align-items: center; background-color: var(--color-02)' : null;
 		this.cropImgRoot = div;
+
+		//if(div && this.state.crop.width == 0 && this.state.crop.height == 0 && div.naturalHeight && div.naturalWidth){
+		//	var cropDim = .8 * (div.naturalHeight > div.naturalWidth ? div.naturalHeight : div.naturalWidth);
+//
+		//	this.setState(prevState => ({
+		//		...prevState,
+		//		crop:{
+		//			...prevState.crop,
+		//			width: cropDim,
+		//			height: cropDim,
+		//		}
+		//	}));
+		//}
 	}
 
 	_onSelectFile(event){
@@ -589,7 +669,7 @@ export class ProfilePicForm extends React.Component{
 					isEditing: true,
 					ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
 					isNewImage: true,
-				}))
+				}));
 			}
 			// reader.addEventListener('load',(this) => this.setState({src: reader.result}), false);
 			reader.readAsDataURL(event.target.files[0]);
@@ -640,6 +720,16 @@ export class ProfilePicForm extends React.Component{
 			this[reference] = element ? element : this[reference];
 		}
 
+		const deviceImageSizing = {
+    		width: '100%',
+    		height: 'auto',
+		}
+
+		const desktopImageSizing = {
+			width: 'auto',
+			height: '100%',
+		}
+
 		var content = null;
 
 		if(this.state.isEditing){ 
@@ -652,20 +742,71 @@ export class ProfilePicForm extends React.Component{
 					//maxWidth={100}
 					//minY={this.minYPercent}
 					style={{
-						height:'100%',
 						'max-height': '100%',
+						'max-width': '100%',
+						height:  'auto',
 						width: 'auto',
+						//...(
+						//	isDevice ? 
+						//	{
+						//		...deviceImageSizing
+						//	} :
+						//	{
+						//		...desktopImageSizing				
+						//	}
+						//)
+					}}
+					imageStyle={{
+						'max-height': this.cropImgRoot.clientHeight,
+						'max-width': this.cropImgRoot.clientWidth,
+						...(this.iniDimensions(this.state.imgAspectRatio, isDevice))
 					}}
 					cropImgRoot={this.cropImgRoot}
 					src={this.state.base64Image}
 					crop={this.state.crop}
-					//onImageLoaded={(imageElement) => {this._onImageLoaded(imageElement)} }
+					onImageLoaded={(imageElement) => {this._handleImageLoad(imageElement)} }
 					//onComplete={this._onCropComplete}
 					onChange={this._onCropChange}
 					//setupImageRef={this.props.setupImageRef}
 					//flag={this.state.flag}
 					ruleOfThirds={true}
 					circularCrop={true}
+					//renderComponent={
+					//	<div
+					//		style={{
+					//			display: 'flex',
+					//			'justify-content': 'center',
+					//			'align-items': 'center',
+					//			height: 'inherit',
+					//			width: 'inherit,'
+					//		}}
+					//	>
+					//		<img 
+					//			style={{
+					//				float: 'unset',
+    				//				'max-width': 'unset',
+    				//				'object-fit': 'cover',
+    				//				display: 'inline',
+    				//				...(
+    				//					isDevice  ?
+    				//						{
+    				//							...(this.iniDimensions(this.state.imgAspectRatio, isDevice))
+    				//							//width: '100%',
+    				//							//height: 'auto',
+    				//							//float: 'unset',
+    				//						} : 
+    				//						{}
+    				//				)
+					//			}}
+					//			className={FormStyles.imgEdit_img}
+					//			src={this.state.base64Image}
+					//			onClick={this.props.onImageClick} 
+					//			onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
+					//			//ref={this.props.setupImageRef}
+					//			loading="lazy" 
+					//		/>	
+					//	</div>
+					//}
 				/>
 			)
 		}
@@ -677,13 +818,23 @@ export class ProfilePicForm extends React.Component{
     					'max-width': 'unset',
     					'object-fit': 'cover',
     					display: 'inline',
+    					...(
+    						isDevice  ?
+    							{
+    								width: '100%',
+    								height: 'auto',
+    								float: 'unset',
+    							} : 
+    							{}
+    					)
 					}}
 					className={FormStyles.imgEdit_img}
 					src={this.state.base64Image}
 					onClick={this.props.onImageClick} 
-					onLoad={(imgRef) => this._handleImageLoad(this.props.imageElement)} 
+					onLoad={(imgRef) => this._handleImageLoad(imgRef)} 
 					//ref={this.props.setupImageRef}
-					loading="lazy" />	
+					loading="lazy" 
+				/>	
 			)
 		}
 
@@ -691,8 +842,14 @@ export class ProfilePicForm extends React.Component{
 			<div 
 				className={Styles.modal}
 				style={{
-					position: 'relative',
-					width: '500px',
+					...(
+						isDevice ? 
+							{} : 
+							{
+								position: 'relative',
+								width: '500px',
+							}
+					)
 				}}
 				onClick={(event) => {
 					event.stopPropagation();
@@ -713,9 +870,12 @@ export class ProfilePicForm extends React.Component{
 						onChange={this._onSelectFile}
 						style={{display:'none'}} 
 					/>
-					<button 
+					<Button 
 						id="submitButton" 
-						type="submit" 
+						style={{
+
+						}}
+						label="submit" 
 						ref={button => {
 							setupRef(button, 'button');
 						}}
@@ -726,21 +886,55 @@ export class ProfilePicForm extends React.Component{
 					className={FormStyles.editProfilePic_div}
 					onClick={event => {event.stopPropagation()}}
 				>
-					<div className={FormStyles.eppHeader_div}>
-						Profile Pic
+					<div 
+						className={FormStyles.eppHeader_div}
+					>
+						<div
+							style={{
+								display: 'flex',
+								//'justify-content': 'center',
+								'padding-left':'18px',
+								'align-items': 'center',
+								height: '100%',
+								width: '100%',
+								'font-size': '2.4rem',
+								'font-weight': 'bolder',
+								color: 'var(--color-02-shade-02)',
+							}}
+						>
+							Profile Picture
+						</div>
 						<IconButton
 							onClick={(event) => cancelAction(event)}
 							icon="cancel"
 							style={{
-								position:'absolute',
-								top:'0px',
-								right:'0px',
+								...(
+									isDevice ? 
+										{} :
+										{
+											position:'absolute',
+											top:'0px',
+											right:'0px',
+										}
+								)
 							}}
 						/>
 					</div>
 					<div 
 						className={FormStyles.eppPicture_div}
-						ref={this.setupCropImgRoot} 						
+						style={{
+							'max-width': 'unset',
+							...(
+								isDevice ?
+									{
+										iwdth: '100%',
+										height: 'auto',
+										'border-radius': 'unset',
+									} : 
+									{}
+							)							
+						}}
+						ref={div => this.setupCropImgRoot(div)} 						
 					>
 						{
 							content ? 
@@ -826,7 +1020,7 @@ export class ProfilePicForm extends React.Component{
 									</div>*/}
 									<Button
 										//icon="cloud_upload"
-										theme='secondaryBg'
+										theme={["textPrimaryOnDark", "primaryBg"]}
 										label='save'
 										labelSize='12px'
 										raised
