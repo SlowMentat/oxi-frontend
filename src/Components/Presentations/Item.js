@@ -314,33 +314,39 @@ export class ItemLite extends React.Component{
 							isActive ? 
 								(<CollapsibleList
 									handle={
-										isDevice ? <div></div> :
-										<SimpleListItem
-											text="See more"
-											graphic=""
-											metaIcon="expand_more"
-										/>
+										isDevice ? 
+											<div>
+											</div> :
+											<SimpleListItem
+												text="See more"
+												graphic=""
+												metaIcon="expand_more"
+											/>
 									}
 									//defaultOpen={ isSelected }
 									defaultOpen={isDevice}
 									onOpen={ !isDevice ? () => expandItem(id.toLowerCase()) : ()=>{/*do nothing */} }
 									onClose={ !isDevice ? () => collapseItem() : ()=>{/*do nothing*/} }
 								>
-									<div
-										style={{
-											width: '100%',
-											display: 'flex',
-											'justify-content': 'flex-end',
-											'border-top':'solid 1px var(--color-02)',
-										}}
-									>
-										<Button
-											label="close"
-											theme="primary"
-											trailingIcon="keyboard_arrow_right"
-											onClick={(e => onDeselect(id))}
-										/>
-									</div>
+									{
+										isDevice ? 
+											<div
+												style={{
+													width: '100%',
+													display: 'flex',
+													'justify-content': 'flex-end',
+													'border-bottom':'solid 1px var(--color-02)',
+												}}
+											>
+												<Button
+													label="close"
+													theme="primary"
+													trailingIcon="keyboard_arrow_right"
+													onClick={(e => onDeselect(id))}
+												/>
+											</div> :
+											null
+									}
 									<List style={{maxHeight: '100%', overflow:'auto'}} >
 										{ infoComponent ? infoComponent(isExpanded) : null }
 									</List>

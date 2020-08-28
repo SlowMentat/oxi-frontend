@@ -71,7 +71,7 @@ const mapDispatchToProps = (dispatch, state) => ({
 
 		//if(entitiesStateReducer.outfits.selected !== outfit.id || entitiesStateReducer.outfits.prevSelected === false){
 			//set the selected content to the first in the array.  Outfit should always have at least one content child entity.
-			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfit.id, outfit.contents[0], null));
+			//dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfit.id, outfit.contents[0], null));
 		//}
 
 		//inserts this outfit id into the allEdittingIds array, specifying what entities have been modified.
@@ -87,7 +87,11 @@ const mapDispatchToProps = (dispatch, state) => ({
 			dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.CONTENT, contentId));
 			//dispatch(updateContent(contentId));
 			//dispatch(addContent(contentId, outfit.id, contents[contentId].items));
-			let content = Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, contents[contentId]);	
+			let content = {
+				...OxiAppConstants.EntityTemplates.CONTENT, 
+				...contents[contentId]
+			};	
+
 			console.log('megered content = ', content);
 			dispatch(addContent(content));	
 				

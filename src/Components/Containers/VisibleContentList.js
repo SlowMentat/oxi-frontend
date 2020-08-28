@@ -92,7 +92,9 @@ const mapStateToProps = state => {
 		addedItemIds : state.addedEntitiesReducer.items.allIds,
 		pictures : state.entitiesReducer.pictures.byIds,
 		invalidatedItemIds: state.entitiesStateReducer.items.clientInvalidated,
-		invalidatedContentIds:  state.entitiesStateReducer.contents.clientInvalidated
+		invalidatedContentIds:  state.entitiesStateReducer.contents.clientInvalidated,
+		itemContents: state.entitiesReducer.itemContent.byIds,
+		addedItemContents: state.addedEntitiesReducer.itemContent.byIds,
 	});
 }
 

@@ -71,12 +71,27 @@ class ContentList extends React.Component {
 			case (itemIdsLengthDiff >= 1):
 				let addedItemId = this.extractAddedElement(this.state.addedItemIds, this.props.addedItemIds);
 				console.log('addedItemId = ', addedItemId);
+				var isInRedux = false;
 
-				if(addedItemId !== null){
+				// Check if item id already exist in redux state by referencing itemContent join object
+				const existsInRedux = (itemContents) => {
+					for(let key in itemContents){
+						if(addedItemId == itemContents[key].itemId){
+							return true;
+						}
+					}
+
+					return false;
+				} 
+
+				if(this.props.viewState == OxiAppConstants.viewState.EDIT) isInRedux = existsInRedux(this.props.addedItemContents);
+				else if(this.props.viewState == OxiAppConstants.viewState.PREVIEW) isInRedux = existsInRedux(this.props.itemContents);
+
+				if(addedItemId !== null && !isInRedux){
 					let duplicate = false;
 
 					// Checking for duplicate entries.  
-					// On entry into edit contentext view the selected outfit and all child entities are copied to the addedEntitiesReducer.
+					// On entry into edit context view the selected outfit and all child entities are copied to the addedEntitiesReducer.
 					// This means the selected contents will have its child items array populated.  Adding a new content in this context will 
 					// duplicate the elements in previously selected content's items array before the select leaf of the entitesStateReducer.contents tree
 					// can switch to the newly created content entity.  Feels ugly but it works and items per content are limited.
