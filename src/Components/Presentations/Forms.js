@@ -414,9 +414,9 @@ class DropDownField extends React.Component{
 					textValue={this.props.inputValue}
 					fieldType={this.props.fieldType} 
 					label={this.props.fieldType.toLowerCase()}
-					onChange={() => {this.props.onInputChange(event)}} 
-					toggleFocus={() => this._handleOnInputFocus(event)}
-					toggleBlur={() => this._handleOnInputBlur(event)}
+					onChange={(e) => {this.props.onInputChange(e)}} 
+					toggleFocus={(e) => this._handleOnInputFocus(e)}
+					toggleBlur={(e) => this._handleOnInputBlur(e)}
 					style={{'margin-top':'10px', width:'100%'}}
 				/>
 				<div
@@ -430,7 +430,8 @@ class DropDownField extends React.Component{
 								fieldType={this.props.fieldType} 
 								context={this.props.context} 
 								filteredApparelTypes={this.props.filteredApparelTypes}
-								dropdownOptionSelected={this.props.dropdownOptionSelected} />
+								dropdownOptionSelected={this.props.dropdownOptionSelected} 
+							/>
 						}
 					</div>
 				</div>
@@ -646,7 +647,7 @@ export class ProfilePicForm extends React.Component{
 
 		//if(div && this.state.crop.width == 0 && this.state.crop.height == 0 && div.naturalHeight && div.naturalWidth){
 		//	var cropDim = .8 * (div.naturalHeight > div.naturalWidth ? div.naturalHeight : div.naturalWidth);
-//
+
 		//	this.setState(prevState => ({
 		//		...prevState,
 		//		crop:{
@@ -1109,41 +1110,48 @@ export class ItemForm extends React.Component{
 	_handleInputFieldChange(event, entryType='', entryObj={}, searchResultType='', searchResultObj={}){
 		const entryObjKey = Object.keys(entryObj)[0];
 
-		this.setState(prevState => ({
-			...prevState,
-			[entryType]:{
-				...prevState[entryType],
-				...entryObj,
-			},
-			/**
-			* Have to detect when entryObj contains retailer property because retailer
-			* name in type2SearchSelection.retailer object is saved as name property.
-			*/
-			...(
-				(/^(type2)/).test(entryType) ? 
-					// Update state with entered value
-					({
-						type2SearchSelection: {
-							...prevState.type2SearchSelection,
-							[entryObjKey]: {
-								...prevState.type2SearchSelection[entryObjKey],
-								[(entryObjKey === 'retailer' ? 'name' : entryObjKey)]: entryObj[entryObjKey],
+		this.setState(prevState => {
+			var entryObjectKey = Object.keys(entryObj)[0];
+			prevState[entryType][entryObjectKey] = entryObj[entryObjectKey];
+			
+			const result = {
+				...prevState,
+				[entryType]:{
+					...prevState[entryType],
+					//...entryObj,
+				},
+				/**
+				* Have to detect when entryObj contains retailer property because retailer
+				* name in type2SearchSelection.retailer object is saved as name property.
+				*/
+				...(
+					(/^(type2)/).test(entryType) ? 
+						// Update state with entered value
+						{
+							type2SearchSelection: {
+								...prevState.type2SearchSelection,
+								[entryObjKey]: {
+									...prevState.type2SearchSelection[entryObjKey],
+									[(entryObjKey === 'retailer' ? 'name' : entryObjKey)]: entryObj[entryObjKey],
+								}
 							}
+						} :
+						// Clear previously selected value if input changes
+						{
+							type1SearchSelection: {
+								...prevState.type1SearchSelection,
+								[entryObjKey]: {},
+							}						
 						}
-					}) :
-					// Clear previously selected value if input changes
-					({
-						type1SearchSelection: {
-							...prevState.type1SearchSelection,
-							[entryObjKey]: {},
-						}						
-					})
-			),
-			[searchResultType]:{
-				...prevState[searchResultType],
-				...searchResultObj
-			}
-		}));
+				),
+				[searchResultType]:{
+					...prevState[searchResultType],
+					...searchResultObj
+				}
+			};
+
+			return result;
+		});
 	}
 
 	_handleOnSubmit(event){
@@ -1410,30 +1418,38 @@ class ExistingItems extends React.Component{
 	}
 
 	render(){
+		const onInputChange = (event, key) => {
+			this.props.handleInputFieldChange(event, {[key]: event.target.value}, null);
+		
+			if(key === 'item'){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.a}?retailer=${this.props.fieldsObj['retailer']}&term=${event.target.value}`)); }
+			else if(key === "retailer"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.b}?term=${event.target.value}`)); }
+			else if(key === "size"){  }							
+		}
+
 		return(
 				<form className={FormStyles.addItemForm} action="" method="POST" autocomplete="off">
 					{
-						Object.keys(this.props.fieldsObj).map((key, ind) => (
-							<DropDownField 
-								key={ind}
-								context={0}
-								fieldType={key} 
-								onInputChange={(event) => {
-									if(key === 'item'){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.a}?retailer=${this.props.fieldsObj['retailer']}&term=${event.target.value}`)); }
-									else if(key === "retailer"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.b}?term=${event.target.value}`)); }
-									else if(key === "size"){  }
-									this.props.handleInputFieldChange(event, {[key]: event.target.value}, null);
-								}} 
-								inputValue={this.props.fieldsObj[key]}
-								dropdownItemIds={null}
-								allApparelTypes={this.props.allApparelTypes}
-								dropdownSelected={(event, value) => this.props.handleDropdownSelected(event, {[key]: value})}
-								dropdownOptionSelected = {(event, value) => this.props.handleDropdownOptionSelected(event, {[key]: value})}
-								hydrateTask={this.props.hydrateTasks[key]}
-								style={{height:'50px'}}
-								setKeyboardShown={this.props.setKeyboardShown}				
-							/>
-						))
+						Object.keys(this.props.fieldsObj).map((key, ind) => {
+							console.log('key = ', key, ', fieldsObj = ', this.props.fieldsObj);
+							return(
+								<DropDownField 
+									key={key}
+									context={0}
+									fieldType={key} 
+									onInputChange={(event) => {
+										onInputChange(event, key);
+									}} 
+									inputValue={this.props.fieldsObj[key]}
+									dropdownItemIds={null}
+									allApparelTypes={this.props.allApparelTypes}
+									dropdownSelected={(event, value) => this.props.handleDropdownSelected(event, {[key]: value})}
+									dropdownOptionSelected = {(event, value) => this.props.handleDropdownOptionSelected(event, {[key]: value})}
+									hydrateTask={this.props.hydrateTasks[key]}
+									style={{height:'50px'}}
+									setKeyboardShown={this.props.setKeyboardShown}				
+								/>
+							);
+						})
 					}
 				</form>
 		);
