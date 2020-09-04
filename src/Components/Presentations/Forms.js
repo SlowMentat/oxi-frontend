@@ -373,7 +373,7 @@ class DropDownField extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
-			isDown: false
+			isImplicitDown: false,
 		}
 		this._handleOnInputFocus = this._handleOnInputFocus.bind(this);
 		this._handleOnInputBlur = this._handleOnInputBlur.bind(this);
@@ -383,7 +383,7 @@ class DropDownField extends React.Component{
 		//set global
 		this.props.setKeyboardShown(true);
 		this.setState(prevState => ({
-				isDown: !prevState.isDown
+				isImplicitDown: !prevState.isImplicitDown
 			})
 		);
 		//Delete what any text existing in the text input
@@ -394,7 +394,7 @@ class DropDownField extends React.Component{
 	_handleOnInputBlur(event){
 		this.props.setKeyboardShown(false);
 		this.setState(prevState => ({
-				isDown: !prevState.isDown
+				isImplicitDown: !prevState.isImplicitDown
 			})
 		);
 	}
@@ -415,13 +415,33 @@ class DropDownField extends React.Component{
 					fieldType={this.props.fieldType} 
 					label={this.props.fieldType.toLowerCase()}
 					onChange={(e) => {this.props.onInputChange(e)}} 
-					toggleFocus={(e) => this._handleOnInputFocus(e)}
-					toggleBlur={(e) => this._handleOnInputBlur(e)}
-					style={{'margin-top':'10px', width:'100%'}}
+					toggleFocus={(e) => {
+						e.preventDefault(); 
+						this._handleOnInputFocus(e);
+						this.props.onExplicitDown(e);
+					}}
+					toggleBlur={(e) => {
+						e.preventDefault();
+						this._handleOnInputBlur(e);
+					}}
+					style={{
+						'margin-top':'10px', 
+						width: '100%',//'calc(100% - 56px)',
+					}}
 				/>
+				<div id='itemDropDownButton_div'>
+					<IconButton
+						icon={this.props.isExplicitDown || this.state.isImplicitDown ? 'expand_less' : 'expand_more'}
+						onClick={e => {
+							e.preventDefault();
+							e.stopPropagation();
+							this.props.isExplicitDown ? this.props.onExplicitUp(e) : this.props.onExplicitDown(e);
+						}}
+					/>
+				</div>
 				<div
-					className={this.state.isDown ? FormStyles.dropDownContainer : FormStyles['dropDownContainer--hidden']}
-					style={(this.state.isDown && initialInnerHeight > 0) ? ({height: `calc(${initialInnerHeight}px/2 - 80px)`}) : ({})}
+					className={this.state.isImplicitDown || this.props.isExplicitDown ? FormStyles.dropDownContainer : FormStyles['dropDownContainer--hidden']}
+					style={(this.state.isImplicitDown && initialInnerHeight > 0) ? ({height: `calc(${initialInnerHeight}px/2 - 80px)`}) : ({})}
 					//style={borderColor}
 				>
 					<div style={{'margin-left':'10px','margin-right':'10px','margin-top':'10px'}}>
@@ -1412,19 +1432,52 @@ export class ItemForm extends React.Component{
 class ExistingItems extends React.Component{
 	constructor(props){
 		super(props);
-		this.state = {
 
+		const isExplicitDown = Object.keys(props.fieldsObj).reduce((accum, key) => ({...accum, [key]: false}), {});
+
+		this.state = {
+			isExplicitDown
 		};
+
+		this.onInputChange = this.onInputChange.bind(this);
+		this.setExplicitDown = this.setExplicitDown.bind(this);
+	}
+
+
+	onInputChange(event, key){
+		this.props.handleInputFieldChange(event, {[key]: event.target.value}, null);
+	
+		if(key === 'item'){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.a}?retailer=${this.props.fieldsObj['retailer']}&term=${event.target.value}`)); }
+		else if(key === "retailer"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.b}?term=${event.target.value}`)); }
+		else if(key === "size"){  }							
+	}
+
+	setExplicitDown(fieldType){
+		if(fieldType){
+			this.setState(prevState => ({
+				...prevState,
+				isExplicitDown:{
+					//...prevState.isExplicitDown,
+					...(Object.keys(prevState.isExplicitDown).reduce((accum, key) => ({...accum, [key]:false}), {})),
+					[fieldType]: true,
+				},
+			}));
+		}
+	}
+
+	setExplicitUp(fieldType){
+		if(fieldType){
+			this.setState(prevState => ({
+				...prevState,
+				isExplicitDown:{
+					...prevState.isExplicitDown,
+					[fieldType]: false,
+				},
+			}));
+		}
 	}
 
 	render(){
-		const onInputChange = (event, key) => {
-			this.props.handleInputFieldChange(event, {[key]: event.target.value}, null);
-		
-			if(key === 'item'){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.a}?retailer=${this.props.fieldsObj['retailer']}&term=${event.target.value}`)); }
-			else if(key === "retailer"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.b}?term=${event.target.value}`)); }
-			else if(key === "size"){  }							
-		}
 
 		return(
 				<form className={FormStyles.addItemForm} action="" method="POST" autocomplete="off">
@@ -1434,16 +1487,19 @@ class ExistingItems extends React.Component{
 							return(
 								<DropDownField 
 									key={key}
+									isExplicitDown={this.state.isExplicitDown[key]}
+									onExplicitDown={(e) => this.setExplicitDown(key)}
+									onExplicitUp={(e) => this.setExplicitUp(key)}
 									context={0}
 									fieldType={key} 
-									onInputChange={(event) => {
-										onInputChange(event, key);
+									onInputChange={(e) => {
+										this.onInputChange(e, key);
 									}} 
 									inputValue={this.props.fieldsObj[key]}
 									dropdownItemIds={null}
 									allApparelTypes={this.props.allApparelTypes}
-									dropdownSelected={(event, value) => this.props.handleDropdownSelected(event, {[key]: value})}
-									dropdownOptionSelected = {(event, value) => this.props.handleDropdownOptionSelected(event, {[key]: value})}
+									dropdownSelected={(e, value) => this.props.handleDropdownSelected(e, {[key]: value})}
+									dropdownOptionSelected = {(e, value) => this.props.handleDropdownOptionSelected(e, {[key]: value})}
 									hydrateTask={this.props.hydrateTasks[key]}
 									style={{height:'50px'}}
 									setKeyboardShown={this.props.setKeyboardShown}				
