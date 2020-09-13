@@ -1561,13 +1561,25 @@ export default class ProfileMenu extends React.Component{
 		let maxPrefixLength = maxPrefix.length;
 		var { userMetricsDto, toleranceDto } = this.profile !== undefined ? this.profile : ({ userMetricsDto: {}, toleranceDto: {} });
 
-		var {
-			currentToleranceData,
-		} = currentToleranceData ? 
-			{currentToleranceData: currentToleranceData} : 
-			this.state ? 
-				this.state : 
-				({currentToleranceData:{}});
+		//var {
+		//	currentToleranceData,
+		//} = currentToleranceData ? 
+		//	{currentToleranceData: currentToleranceData} : 
+		//	this.state ? 
+		//		this.state : 
+		//		({currentToleranceData:{}});
+
+		if(!currentToleranceData){
+			currentToleranceData = this.state ? 
+				{
+					minTolerances: this.state.minToleranceFields,
+					maxTolerances: this.state.maxToleranceFields,
+				} : 
+				{
+					minTolerances: {},
+					maxTolerances: {},					
+				}
+		}
 
 		const calcTicks = (deltaTick, originTick) => {
 			return (deltaTick + originTick);

@@ -15,6 +15,7 @@ import * as genericActions from './GenericActions.js';
 import * as types from './Types.js';
 import * as networkActions from './NetworkActions.js';
 import * as entityActions from './EntityActions/Index.js';
+import { defaultCookieOptions } from './NetworkActions.js';
 //export * from './AppActions.js';
 //const FormData = require('form-data');
 
@@ -125,15 +126,21 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 			break;
 
 		case OxiAppConstants.navRequestMap.c.toLowerCase():
+
 			if(isOwnerProfileEntityPresent){
 				dispatch(showProfileMenu(true));
-			}else{
-				dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', '')).then(response => {
+			}
+			else{
+				dispatch(fetchEntities(OxiAppConstants.EntityTypes.PROFILE, '', ''))
+				.then(response => {
 					dispatch(showProfileMenu(true));
-				}).catch(reason => {
-					console.log(reason)
+				})
+				.catch(error => {
+					console.log(error);
+					dispatch(networkActions.handleUnauthorizedRequest(error.response));
 				});
 			}
+
 			dispatch(setWebAppView(location));
 			dispatch(unsetPreviewFocus());
 			break;
@@ -146,7 +153,7 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, owner={}){
 	return function(dispatch, getState){
 		console.log('in navigateTo()')
-		dispatch(networkActions.requestNavigation(location))
+		dispatch(networkActions.requestingNavigation(location))
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
 		if(
@@ -166,7 +173,7 @@ export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, 
 			dispatch(genericActions.removeAllEntities(OxiAppConstants.EntityTypes.OUTFIT));
 
 			selectDestination(location, dispatch, isOwnerProfileEntityPresent, hostUsername, owner);
-			dispatch(networkActions.requestNavigation(null));
+			dispatch(networkActions.requestingNavigation(null));
 		}
 	}
 }
@@ -207,7 +214,7 @@ export function createUser(formData /*email, password, username*/){
 				//save _csrf token in cookies
 				console.log('response headers: ');
 				console.log(response);
-				cookies.set('csrf_token', response.headers['x-csrf-token']);
+				cookies.set('csrf_token', response.headers['x-csrf-token'], defaultCookieOptions);
 				//Log user in
 				console.log('skipping login')
 				//axios(loginConfig(username, password))

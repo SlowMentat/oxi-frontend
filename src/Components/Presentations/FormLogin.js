@@ -30,6 +30,7 @@ import '@rmwc/typography/styles';
 import { Theme } from '@rmwc/theme';
 import '@rmwc/theme/styles';
 import { ThemeProvider } from '@rmwc/theme';
+import { defaultCookieOptions } from '../../Components/Actions/NetworkActions.js';
 
 
 
@@ -160,11 +161,11 @@ export default class FormLogin extends React.Component{
 		var cookieAuth = cookies.get('authorization');
 		
 		cookieAuth = cookieAuth === undefined || cookieAuth === null ? 
-			cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization']) :
+			cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization'], defaultCookieOptions) :
 			null;
 
 		if(cookieAuth === undefined || cookieAuth === null){
-			cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization']);
+			cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization'], defaultCookieOptions);
 		}
 		
 		const isBearerSet = cookies.get('authorization') ? 
@@ -173,7 +174,7 @@ export default class FormLogin extends React.Component{
 
 		isBearerSet ? 
 			(null) :
-			cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
+			cookies.set('authorization', cookies.get('authorization') + response.headers['authorization'], defaultCookieOptions);
 
 		//cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
 		axios.defaults.headers.common['authorization'] = cookies.get('authorization');

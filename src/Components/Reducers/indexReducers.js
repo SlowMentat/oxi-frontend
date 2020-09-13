@@ -2,6 +2,8 @@ import {combineReducers} from 'redux';
 import { connectRouter } from 'connected-react-router';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
+import { LOCATION_CHANGE } from 'react-router-redux';
+
 import * as types from '../Actions/Types.js';
 
 //import all reducers here
@@ -120,6 +122,26 @@ const appView = (state = {"webAppView": "landing", "webAppViewContext": null}, a
 			return Object.assign({}, state, action.payload);
 		case types.SELECT_WEB_APP_VIEW_CONTEXT:
 			return({...state, ...action.payload});
+
+		// Enabling webAppview state to change accordingly in response to url path changes.
+		case LOCATION_CHANGE:
+			const {
+				pathname
+			} = action.payload.location;
+
+			switch(true){
+				case pathname == OxiAppConstants.routeURIs.browse:
+					return({...state, "webAppView": OxiAppConstants.navRequestMap.a.toLowerCase()});
+
+				case pathname.match(/(.*)\/(.*)$/)[1] == OxiAppConstants.routeURIs.profile:
+					return({...state, "webAppView": OxiAppConstants.navRequestMap.b.toLowerCase()});
+
+				case pathname.match(/(.*)\/(.*)$/)[1] == OxiAppConstants.routeURIs.fitting:
+					return({...state, "webAppView": OxiAppConstants.navRequestMap.c.toLowerCase()});
+
+				default:
+					return state;
+			}
 		default:
 			return state;
 	}
@@ -970,7 +992,6 @@ const popupMenusReducer = combineReducers({
 const cache = combineReducers({
 	savedItemMap: entityReducerFactory(mapCache, OxiAppConstants.MapTypes.a, iniMapCacheState),
 })
-
 
 const createRootReducer = (history) => combineReducers({
 	//reducer used by conected-react-router

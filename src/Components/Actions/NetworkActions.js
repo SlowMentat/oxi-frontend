@@ -27,10 +27,20 @@ import { isDataUrl } from '../../Util/Misc.js';
 
 
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
-export const requestNavigation = scaffolding.makeActionCreator(types.REQUEST_NAVIGATION, null, 'location');
+export const requestingNavigation = scaffolding.makeActionCreator(types.REQUEST_NAVIGATION, null, 'location');
 export const cookies = new Cookies();
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
+
+axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
+
+//axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
+export const defaultCookieOptions = {
+	secure: true,
+	//httpOnly: true,
+	path:'/shop',
+	maxAge: 86400, // 24hrs
+};
 
 const postConfig = (url, data, params, headers) => {
 	//let authScheme = cookies.get('auth_scheme') !== null ? cookies.get('auth_scheme') : '';
@@ -77,8 +87,8 @@ export function handleUnauthorizedRequest(response){
 			console.log('Setting new csrf token');
 			console.log(response.headers['x-csrf-token']);
 
-			cookies.set('csrf_token', response.headers['x-csrf-token']);
-			cookies.set('authorization', response.headers['www-authenticate'] + ' ');
+			cookies.set('csrf_token', response.headers['x-csrf-token'], defaultCookieOptions);
+			cookies.set('authorization', response.headers['www-authenticate'] + ' ', defaultCookieOptions);
 			axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
 
 			dispatch(setFormVisibility("Login", response.request.responseURL, response.config.method));
@@ -91,7 +101,8 @@ export function handleUnauthorizedRequest(response){
 
 export function logout(){
 	//clear authorization token
-	cookies.set('authorization', null);
+	cookies.remove('authorization', defaultCookieOptions);
+	cookies.remove('csrf_token', defaultCookieOptions);
 	axios.defaults.headers.common['authorization'] = null
 }
 

@@ -70,6 +70,7 @@
     "react-media": "^1.9.2",
     "react-redux": "^7.1.0",
     "react-router-dom": "^5.2.0",
+    "react-router-redux": "^4.0.8",
     "react-touch": "^0.4.4",
     "react-transition-group": "^2.9.0",
     "redux": "^3.7.2",
