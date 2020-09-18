@@ -434,5 +434,16 @@ export const OxiAppConstants = Object.freeze({
 		dress: {
 			iconName: 'TypeDress',
 		},
+	},
+	messages:{
+		Notifications:[
+			"Get updates on the community.",
+			"Receive notifications on the latest trends, followings, likes, buys, and more."
+		],
+		Cart:[
+			"Manage shopping across myltiple retailers",
+			"No more shopping with a billion tabs open. As you add items to your cart, Fitsee manages your apparel across multiple retailers.",
+			"Check out is just a click of a button.",
+		]
 	}
 });

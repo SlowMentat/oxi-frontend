@@ -214,6 +214,16 @@ class BrowseControl extends React.Component{
 									}}
 									style={isOutfitBrowse ? ({color:'var(--color-02-shade-01)'}) : ({color:'var(--color-02)'})}
 								/>
+								<div>
+									<IconButton
+										label="Menu"
+										icon="more_horiz"
+										ripple={false}
+										onClick={(e) => {
+											this.props.toggleMenuDrawer(e, true)
+										}}
+									/>
+								</div>
 							</React.Fragment>
 							:
 							<React.Fragment>

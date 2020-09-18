@@ -128,8 +128,9 @@ export function mapImageUri(uri){
 
 export function getImageURL(filename, size){
   let url = 'https://www.oxisalechannel.com/images';
-  const prefix = filename.match(/^[A-Za-z0-9]{3}/)[0];
-  
+  const filenameMatch = filename.match(/^[A-Za-z0-9]{3}/);
+  const prefix = filenameMatch ? filenameMatch[0] : '';
+
   const {
     thumbnail,
     small,

@@ -1279,7 +1279,7 @@ a{
 
 :local(.landingPageSlot_div){
 	display: flex;
-    height: 25%;
+    height: 25vh;
     align-items: center;
 
 }
@@ -1311,7 +1311,7 @@ a{
 	align-items: center;
 	width: 50%;
     /*height: 100%;*/
-    height: 25vh;
+    height: 100%;
     background-color: var(--color-02);
 }
 
@@ -1606,4 +1606,30 @@ a{
     align-items: center;
 }
 
+.menuListItemText_div{
+	font-size: 1.8rem;
+	color:var(--color-01-shade-02);
+}
 
+
+.comingSoon_div{
+	position: relative;
+	text-align: left;
+	direction: ltr;
+	padding: 2.4rem 1.2rem;
+}
+
+.comingSoon_h1{
+	color: var(--color-04-tint-02);
+	display: flex;
+	align-items: center;
+	font-size: 2.4rem;
+	text-align: revert;
+}
+
+.msg_div{
+	font-size: 1.8rem;
+	margin-bottom: 2rem;
+	line-height: 2rem;
+	color: white;
+}

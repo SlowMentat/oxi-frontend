@@ -17,7 +17,8 @@ import LandingPageContainer from '../../Components/Containers/LandingPageContain
 import BrowseControlContainer from '../../Components/Containers/BrowseControlContainer.js';
 import BrowseFilterMenuContainer from '../../Components/Containers/BrowseFilterMenuContainer.js';
 import ProfileMenuContainer from '../../Components/Containers/ProfileMenuContainer.js';
-import { MetricPanel } from '../../Components/Presentations/MetricPanel.js'
+import { MetricPanel } from '../../Components/Presentations/MetricPanel.js';
+import { MenuDrawer } from '../../Components/Presentations/MenuDrawer.js';
 import ProfileViewControlsContainer from '../../Components/Containers/ProfileViewControlsContainer.js';
 import MenusContainer from '../../Components/Containers/MenusContainer.js';
 
@@ -164,6 +165,7 @@ export function SiteNav(props){
 		handleAddOutfitClicked,
 		setAppViewContext,
 		confirmOutfitDelete,
+		toggleMenuDrawer,
 	} = props;
 
 	const {
@@ -234,7 +236,11 @@ export function SiteNav(props){
 			break;
 
 		case isDevice && webAppView == OxiAppConstants.navRequestMap.a.toLowerCase():
-			viewControls = <BrowseControlContainer isMobile={true} />
+			viewControls = 
+				<BrowseControlContainer 
+					isMobile={true} 
+					toggleMenuDrawer={toggleMenuDrawer}
+				/>
 			break;
 
 		case isDevice && webAppView == OxiAppConstants.navRequestMap.b.toLowerCase():
@@ -618,7 +624,8 @@ class OutfitNav extends React.Component{
 			setAppViewContext,
 			handleAddOutfitClicked,
 			webAppViewContext,
-			updatedCoverpicTrigger
+			updatedCoverpicTrigger,
+			toggleMenuDrawer,
 		} = this.props;
 
 		var URI = pathname ? pathname.split('/') : '';
@@ -731,7 +738,10 @@ class OutfitNav extends React.Component{
     										{
     											isDevice ? 
     												<Nav blocks={Object.keys(OxiAppConstants.navRequestMap)} {...this.props} /> : 
-													<BrowseControlContainer isMobile={true}/>
+													<BrowseControlContainer 
+														isMobile={true}
+														toggleMenuDrawer={toggleMenuDrawer}
+													/>
 											}
     									</div>
     							}
@@ -758,6 +768,7 @@ export default class webAppView extends React.Component {
 			navDestination: props.location,
 			isFocusedPreview: false,
 			isMetricPanelOpen : false,
+			isMenueDrawerOpen: false,
 			isHeaderHidden: false,
 			isControlsHidden: false,
 			base64HostImage: null,
@@ -775,6 +786,7 @@ export default class webAppView extends React.Component {
 		this.toggleMetricPanel = this.toggleMetricPanel.bind(this);
 		this._handleOwnerImageReceived = this._handleOwnerImageReceived.bind(this);
 		this._handleHostImageReceived = this._handleHostImageReceived.bind(this);
+		this.toggleMenuDrawer = this.toggleMenuDrawer.bind(this);
 		//this.setPreviewedOutfit = this.setPreviewedOutfit.bind(this);
 		this.previousLocation = props.location;
 		//this.refreshOnCoverpicUpdate = this.refreshOnCoverpicUpdate.bind(this);
@@ -1038,10 +1050,17 @@ export default class webAppView extends React.Component {
 		}));
 	}
 
-	toggleMetricPanel(event, isOpen){
+	toggleMetricPanel(e, isOpen){
 		this.setState(prevState => ({
 			...prevState,
 			isMetricPanelOpen: (isOpen !== null && isOpen !== undefined ? isOpen : !prevState.isMetricPanelOpen),
+		}))
+	}
+
+	toggleMenuDrawer(e, isOpen){
+		this.setState(prevState => ({
+			...prevState,
+			isMenueDrawerOpen: (isOpen !== null && isOpen !== undefined ? isOpen : !prevState.isMenueDrawerOpen),
 		}))
 	}
 
@@ -1126,6 +1145,7 @@ export default class webAppView extends React.Component {
 				selectedOutfitIds={entitiesStateReducer.outfits.multipleSelected}
 				confirmOutfitDelete={confirmOutfitDelete}
 				ownerpicuri={ownerpicuri}
+				toggleMenuDrawer={this.toggleMenuDrawer}
 			/>
 		);
 
@@ -1278,8 +1298,8 @@ export default class webAppView extends React.Component {
 										...this.props, 
 										handleAddOutfitClicked: this._handleAddOutfitClicked,
 										ownerUsernamePath: ownerUsernamePath,
-										URI:URI,
-
+										URI:URI,										
+										toggleMenuDrawer: this.toggleMenuDrawer,
 									}
 								}/>
 								<div className={Styles.contentBlock}>
@@ -1296,6 +1316,16 @@ export default class webAppView extends React.Component {
 											ownerpicuri={ownerpicuri}
 											hostpicuri={hostpicuri}
 										/>
+										{
+											isDevice ?
+												<MenuDrawer
+													isOpen={this.state.isMenueDrawerOpen}
+													toggleMenuDrawer={this.toggleMenuDrawer}
+													userPicUri={ownerpicuri}
+													username={owner ? owner.username : ''}
+												/> :
+												null
+										}
 										<OutfitNav 
 											webAppView={this.props.webAppView}
 											browseSelection={this.props.browseSelection}
@@ -1312,6 +1342,7 @@ export default class webAppView extends React.Component {
 											setAppViewContext={setAppViewContext}
 											webAppViewContext={webAppViewContext}
 											confirmOutfitDelete={confirmOutfitDelete}
+											toggleMenuDrawer={this.toggleMenuDrawer}
 										/>
 										<Admin/>
 									</div>
@@ -1332,6 +1363,7 @@ export default class webAppView extends React.Component {
 										handleAddOutfitClicked: this._handleAddOutfitClicked,
 										ownerUsernamePath: ownerUsernamePath,
 										URI:URI,
+										toggleMenuDrawer: this.toggleMenuDrawer,
 									}
 								}/>
 								<div className={Styles.contentBlock}>
@@ -1353,6 +1385,16 @@ export default class webAppView extends React.Component {
 											ownerpicuri={ownerpicuri}
 											hostpicuri={hostpicuri}
 										/>
+										{
+											isDevice ? 
+												<MenuDrawer
+													isOpen={this.state.isMenueDrawerOpen}
+													toggleMenuDrawer={this.toggleMenuDrawer}
+													userPicUri={ownerpicuri}
+													username={owner ? owner.username : ''}
+												/> : 
+												null
+										}
 
 										{
 											false/*isDevice && isFocusedPreview*/ ?
@@ -1420,6 +1462,7 @@ export default class webAppView extends React.Component {
 															setAppViewContext={setAppViewContext}
 															webAppViewContext={webAppViewContext}
 															confirmOutfitDelete={confirmOutfitDelete}
+															toggleMenuDrawer={this.toggleMenuDrawer}
 															//updatedCoverpicTrigger={this.state.updatedCoverpicTrigger}
 														/>
 
@@ -1453,6 +1496,7 @@ export default class webAppView extends React.Component {
 										handleAddOutfitClicked: this._handleAddOutfitClicked,
 										ownerUsernamePath: ownerUsernamePath,
 										URI:URI,
+										toggleMenuDrawer: this.toggleMenuDrawer,
 									}
 								}/>
 								{/*this.props.webAppView !== 'measurements' ? this.props.navEventCallbacks.c(this.props.match.params.username) : null*/}
@@ -1480,6 +1524,7 @@ export default class webAppView extends React.Component {
 									setAppViewContext={setAppViewContext}									
 									webAppViewContext={webAppViewContext}
 									confirmOutfitDelete={confirmOutfitDelete}
+									toggleMenuDrawer={this.toggleMenuDrawer}
 								/>
 								{/*									
     								isDevice ? 

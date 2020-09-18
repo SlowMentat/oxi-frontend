@@ -24,6 +24,7 @@ import * as scaffolding from './Scaffolding.js';
 import { setFormVisibility , navigateTo} from './indexActions.js';
 import { RequestFailedException } from '../../Util/CustomExceptions.js';
 import { isDataUrl } from '../../Util/Misc.js';
+import { history } from '../../App.js';
 
 
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
@@ -100,10 +101,13 @@ export function handleUnauthorizedRequest(response){
 };
 
 export function logout(){
-	//clear authorization token
+	// Clear authorization token
 	cookies.remove('authorization', defaultCookieOptions);
 	cookies.remove('csrf_token', defaultCookieOptions);
-	axios.defaults.headers.common['authorization'] = null
+	axios.defaults.headers.common['authorization'] = null;
+	
+	// Route to splash page.
+	history.push('/');
 }
 
 //Thunks dispatched by anonymous callback functions passed to Axios response interceptor
