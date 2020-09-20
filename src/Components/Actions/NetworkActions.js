@@ -1,7 +1,7 @@
 import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
 import { normalize, denormalize } from 'normalizr';
 import { outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits } from '../../Util/Schema.js';
-import { buildItemContentsObject } from '../../Util/Schema.js'
+import { buildItemContentsObject } from '../../Util/Schema.js';
 import Cookies from 'universal-cookie';
 import qs from 'qs';
 import axios from 'axios';
@@ -36,12 +36,13 @@ const source = CancelToken.source();
 axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
 
 //axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
-export const defaultCookieOptions = {
+export const defaultCookieOptions = !isDevice  ? {
 	secure: true,
+	sameSite: 'lax',
 	//httpOnly: true,
 	path:'/shop',
 	maxAge: 86400, // 24hrs
-};
+} : {};
 
 const postConfig = (url, data, params, headers) => {
 	//let authScheme = cookies.get('auth_scheme') !== null ? cookies.get('auth_scheme') : '';
@@ -88,9 +89,9 @@ export function handleUnauthorizedRequest(response){
 			console.log('Setting new csrf token');
 			console.log(response.headers['x-csrf-token']);
 
-			cookies.set('csrf_token', response.headers['x-csrf-token'], defaultCookieOptions);
-			cookies.set('authorization', response.headers['www-authenticate'] + ' ', defaultCookieOptions);
-			axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
+			//cookies.set('csrf_token', response.headers['x-csrf-token'], defaultCookieOptions);
+			//cookies.set('authorization', response.headers['www-authenticate'] + ' ', defaultCookieOptions);
+			//axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
 
 			dispatch(setFormVisibility("Login", response.request.responseURL, response.config.method));
 			return response;

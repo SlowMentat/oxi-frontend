@@ -7,23 +7,31 @@ import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
 //import {sendAsyncRequest/*, OxiAppConstants*/} from '../../App.js';
 import axios from 'axios';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import {handleUnauthorizedRequest, requestInterceptor, loginConfig, cookies} from '../../Components/Actions/indexActions.js';
+
+import { 
+	TransitionGroup, 
+	CSSTransition,
+} from 'react-transition-group';
+
+import {
+	handleUnauthorizedRequest, 
+	requestInterceptor, 
+	loginConfig, 
+	cookies,
+} from '../../Components/Actions/indexActions.js';
+
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {denormalizeOutfit} from '../../Util/Schema.js';
-//import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js';
 import {InputTextField} from '../../Components/Presentations/CommonElements.js';
-/*import TypeJacket from '../SvgAssets/Icons/TypeJacket.js';
-import TypePants from '../SvgAssets/Icons/TypePants.js';
-import TypeShirtLong from '../SvgAssets/Icons/TypeShirtLong.js';
-import TypeShirtT from '../SvgAssets/Icons/TypeShirtT.js';
-import TypeShorts from '../SvgAssets/Icons/TypeShorts.js';*/
 import { SvgIcon } from '../SvgAssets/SvgIcon.js';
 import { Button } from '../../Components/Presentations/Controls.js';
-import { Route, Switch, Redirect } from 'react-router-dom';
 
-//import { TextField } from '@rmwc/textfield';
-//import '@rmwc/textfield/styles';
+import { 
+	Route, 
+	Switch, 
+	Redirect,
+} from 'react-router-dom';
+
 import { TextField } from './FitseeUI/index.js'
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
@@ -31,7 +39,8 @@ import { Theme } from '@rmwc/theme';
 import '@rmwc/theme/styles';
 import { ThemeProvider } from '@rmwc/theme';
 import { defaultCookieOptions } from '../../Components/Actions/NetworkActions.js';
-
+//import Cookies from 'universal-cookie';
+//var cookies = new Cookies();
 
 
 export default class FormLogin extends React.Component{
@@ -160,23 +169,50 @@ export default class FormLogin extends React.Component{
 	setAuthorization(response){
 		var cookieAuth = cookies.get('authorization');
 		
-		cookieAuth = cookieAuth === undefined || cookieAuth === null ? 
-			cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization'], defaultCookieOptions) :
-			null;
+		//cookieAuth = cookieAuth ? //cookieAuth === undefined || cookieAuth === null ? 
+		//	cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization'], defaultCookieOptions) :
+		//	null;
 
-		if(cookieAuth === undefined || cookieAuth === null){
-			cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization'], defaultCookieOptions);
+		if(!cookies.get('authorization')){
+			// Set the authorization cookie referencing the ww-authenticate and authorization response header values.
+			cookies.set(
+				'authorization', 
+				response.headers['www-authenticate'] + ' ' + response.headers['authorization'], 
+				defaultCookieOptions
+			);
+
+			console.log('After set: cookie authorization = ' + cookies.get('authorization'));
+		}
+		else{
+			// Add token to authorization cookie referencing the authorization respone header.
+			if(cookies.get('authorization').slice("Bearer ".length).length > 0){
+				// Bearer token has already been set
+			}
+			else{
+				cookies.set(
+					'authorization', 
+					cookies.get('authorization') + response.headers['authorization'], 
+					defaultCookieOptions
+				);
+			}			
 		}
 		
-		const isBearerSet = cookies.get('authorization') ? 
-			cookies.get('authorization').slice("Bearer ".length).length > 0 :
-			false;
+		//const isBearerSet = cookies.get('authorization') ? 
+		//	cookies.get('authorization').slice("Bearer ".length).length > 0 :
+		//	false;
+//
+		//isBearerSet ? 
+		//	(null) :
+		//	cookies.set('authorization', cookies.get('authorization') + response.headers['authorization'], defaultCookieOptions);
 
-		isBearerSet ? 
-			(null) :
-			cookies.set('authorization', cookies.get('authorization') + response.headers['authorization'], defaultCookieOptions);
+		//if(cookies.get('authorization')){
+		//}
+		//else{
+		//	// Authorization cookie not defined
+		//}
 
 		//cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
+		console.log('cookie authorization = ' + cookies.get('authorization'));
 		axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 		this.props.cancelAction !== undefined ? this.props.cancelAction() : null;
 		//this.props.history !== undefined ? this.props.history.goBack() : null;
