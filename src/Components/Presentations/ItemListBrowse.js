@@ -76,7 +76,9 @@ const PagedItemListBrowse = ({className, ...props}) => (
 			   									_handleMouseLeave={(event) => props.changeItemHovered(null, event)}
 			   									getContentsByItemId={() => props.getContentsByItemId(itemId)}
 			   									removeContentEntities={props.removeContentEntities}
-			   									getCoverPic={props.getCoverPic} />))
+			   									removeAuxContentEntities={props.removeAuxContentEntities}
+			   									getCoverPic={props.getCoverPic} />
+			   								))
 			   							}
 			   						</CSSTransition>
 			   					)

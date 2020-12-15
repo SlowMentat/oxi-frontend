@@ -19,9 +19,14 @@ function Modal(props){
 		
 		<Dialog
 			open={props.formType !== null}
-			preventOutsideDismiss={props.viewState === OxiAppConstants.viewState.EDIT || props.viewState === OxiAppConstants.viewState.ADD ? true : false}
+			preventOutsideDismiss={
+				props.viewState == OxiAppConstants.viewState.EDIT || 
+				props.viewState == OxiAppConstants.viewState.ADD ||
+				props.formType == OxiAppConstants.FormType.LOGIN
+			}
+			scrimOpacity={(props.modals[props.formType] ? props.modals[props.formType].scrimOpacity : 0.6)}
 			//preventOutsideDismiss={ true }
-			onClose={props.closeModal}
+			onClose={e => props.closeModal(props.formType)}
 			//style={ dialogStyle }
 		>
 			{/*<DialogContent>*/}

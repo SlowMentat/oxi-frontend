@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitnav.scss';
+import OutfitNavStyles from '../../outfitNav.scss';
 import Styles from '../../root.scss';
 import NavStyles from '../../nav.scss';
 import ControlStyles from '../../controls.scss';

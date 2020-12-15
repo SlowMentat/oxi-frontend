@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
-import { 
-	setFormVisibility, 
+import {
 	addContent, 
 	createItem, 
 	updateItem, 

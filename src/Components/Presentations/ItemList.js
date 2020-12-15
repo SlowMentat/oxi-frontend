@@ -17,16 +17,17 @@ export default class ItemList extends React.Component{
 		};
 	}
 
-	shouldComponentUpdate(nextProps, nextState) {
-        const differentItems = this.props.items !== nextProps.items;
-        const differentAddedItems = this.props.addedItems !== nextProps.addedItems;
-        const differentBrands = this.props.brands !== nextProps.brands;
-        const differentRetailers = this.props.retailers !== nextProps.retailers;
-        const diffExpandedItemId = this.state.expandedItemId !== nextState.expandedItemId;
-        const shouldUpdate = differentItems || differentItems || differentBrands || differentRetailers || diffExpandedItemId;
-        //console.log('should ItemList component updated: ', shouldUpdate);
-        return differentItems || differentItems || differentBrands || differentRetailers || diffExpandedItemId;
-    }
+	//shouldComponentUpdate(nextProps, nextState) {
+    //    //const differentItems = this.props.items !== nextProps.items;
+    //    const differentItems = JSON.stringify(this.props.items) !== JSON.stringify(nextProps.items);
+    //    const differentAddedItems = JSON.stringify(this.props.addedItems) !== JSON.stringify(nextProps.addedItems);
+    //    const differentBrands = this.props.brands !== nextProps.brands;
+    //    const differentRetailers = this.props.retailers !== nextProps.retailers;
+    //    const diffExpandedItemId = this.state.expandedItemId !== nextState.expandedItemId;
+    //    const shouldUpdate = differentItems || differentAddedItems || differentBrands || differentRetailers || diffExpandedItemId;
+    //    //console.log('should ItemList component updated: ', shouldUpdate);
+    //    return differentItems || differentAddedItems || differentBrands || differentRetailers || diffExpandedItemId;
+    //}
 
 	/*let itemKeys = Object.keys(items)
 	let idArray = itemIds;
@@ -181,6 +182,7 @@ export default class ItemList extends React.Component{
 															toggleMetricPanel={this.props.toggleMetricPanel} 
 															deleteItem={this.props.deleteItem}
 															selectedContent={this.props.selectedContent}
+															ownerTolerances={this.props.ownerTolerances}
 														/>) 
 			    									)
 			    								}
@@ -246,6 +248,7 @@ export default class ItemList extends React.Component{
 															hideControls={this.props.hideControls} 
 															deleteItem={this.props.deleteItem}
 															selectedContent={this.props.selectedContent}
+															ownerTolerances={this.props.ownerTolerances}
 														/>))
 			    								}
 			    							</CSSTransition>

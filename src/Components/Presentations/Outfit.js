@@ -19,6 +19,10 @@ import { Ripple } from '@rmwc/ripple';
 import  '@rmwc/elevation/styles';
 import { Elevation } from '@rmwc/elevation';
 import { Checkbox } from '../../Components/Presentations/FitseeUI/Checkbox.js';
+import '@rmwc/icon/styles';
+import { Icon } from '@rmwc/icon';
+import { Typography } from '@rmwc/typography';
+import '@rmwc/typography/styles';
 
 import { Image } from '../../Components/Presentations/Image.js';
 
@@ -32,12 +36,30 @@ const LikeButton = styled(({...props}) => (
 	color: var(--color-01);
 `;
 
+const OutfitTileFooter = ({...props}) => (
+	<div className={OutfitStyles.outfitTileFooter_div}>
+		<div className={OutfitStyles.tagCount_div}>
+			<Icon 
+				style={{
+					color:'var(--color-01-tint-01)',
+				}}
+				icon="local_offer"
+			/>
+		</div>
+		<div className={OutfitStyles.likeCount_div}>
+			<Typography use="subtitle3">Likes </Typography>
+			<Typography use="subtitle3">{props.likeCount}</Typography>
+		</div>
+	</div>
+);
+
 export class Outfit extends React.Component{
 	constructor(props){
 		super(props);
 		var {
 			coverpic,
 			hovering,
+			isLiked,
 		} = props;
 
 		this.state = {
@@ -46,12 +68,15 @@ export class Outfit extends React.Component{
 			base64ImageProfile: null,
 			hovering: hovering || false,
 			imgLoaded: false,
+			isLiked: isLiked,
 		};
 
 		this._handleTileClicked = this._handleTileClicked.bind(this);
 		this._handleImageReceived = this._handleImageReceived.bind(this);
 		this._handleOnMouseOver = this._handleOnMouseOver.bind(this);
 		this._handleOnMouseOut = this._handleOnMouseOut.bind(this);
+
+		this.isLiked = isLiked;
 	}
 
 	async componentDidMount(){
@@ -67,7 +92,7 @@ export class Outfit extends React.Component{
 		} = this.props;
 
 		var profilePicData = null;
-		var coverpicData = null
+		var coverpicData = null;
 
 		/*const updateProfilePicData = (event, data) => {profilePicData = data;}
 		const updateCoverpicData = (event, data) => {coverpicData = data;}
@@ -80,28 +105,10 @@ export class Outfit extends React.Component{
 		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);*/
 	}
 
-	async componentDidUpdate(prevProps){
-		// Methods
-		const {
-			getCoverPic,
-		} = this.props;
-
-		// Variables
-		const {
-			coverpicuri,
-			profilePicUri,
-		} = this.props;
-
-		/*var profilePicData = null;
-		var coverpicData = null
-
-		const updateProfilePicData = (data) => {profilePicData = data;}
-		const updateCoverpicData = (data) => {coverpicData = data;}
-
-		if(profilePicUri !== null && profilePicUri !== prevProps.profilePicUri) await getCoverPic(profilePicUri, updateProfilePicData, 'small');
-		if(coverpicuri !== prevProps.coverpicuri) await getCoverPic(coverpicuri, updateCoverpicData, 'small');
-
-		if(profilePicData || coverpicData) this._handleImageReceived(null, coverpicData, profilePicData);*/
+	async componentDidUpdate(prevProps, prevState){
+		//this.setState({
+		//	isLiked: this.props.isLiked === null ? prevProps.isLiked : this.props.isLiked
+		//});
 	}
 
 	_handleTileClicked(event){
@@ -195,7 +202,7 @@ export class Outfit extends React.Component{
 			owner,
 			outfit,
 			containerHeight,
-			isLiked,
+			//isLiked,
 			likeCount,
 			like,
 			unlike,
@@ -208,6 +215,8 @@ export class Outfit extends React.Component{
 			edittingProfilePage,
 			profilePicUri,
 		} = this.props;
+
+		const count = likeCount ? likeCount.count : null;
 
 		const ppIconStyles = {
         	'width':' 5.8rem',
@@ -243,7 +252,7 @@ export class Outfit extends React.Component{
 
 		var fill = "#FFF6";
 		var stroke = "#000";
-		//var isLiked = profileIds.owner ? profileIds.owner.likeCountIds.includes(likeCount.toUpperCase()) : false
+		var isLiked = this.props.isLiked === null ? this.isLiked : this.props.isLiked
 		
 		if(isLiked){
 			fill = "#000";
@@ -457,68 +466,9 @@ export class Outfit extends React.Component{
 									/> : 
 									null
 							}
-							{/*<Image
-								//setupImageRef={this.props.setupImageRef}
-								src={src}
-								className={OutfitStyles.outfitImage_img}
-								imgLoaded={this.state.imgLoaded}
-								onLoad={e => this.setState(prevState => ({...prevState, imgLoaded: true,})) }
-								imgStyle={{
-									'object-fit':'cover',
-								}}
-								defaultStyle={{
-
-								}}	
-								onClick={(event) => {
-									previewOutfitFromBrowse(id);
-									event.stopPropagation();
-								}}							
-							/>*/}
-							{/*<CSSTransition 
-								key={id}
-							    tiemout={200}
-							    classNames="outfitMenuContainer"
-							    in={(this.state.hovering && viewState === OxiAppConstants.viewState.PREVIEW && isDevice)}
-							    unmountOnExit >
-								<div 
-									className={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
-										OutfitStyles.outfitMenuContainer : 
-											!isSelected ? 
-												OutfitStyles.outfitTileMask : 
-												null } 
-									style={(viewState === OxiAppConstants.viewState.PREVIEW) ? 
-										showOutfitTileControls : 
-										({
-											'display':'block', 
-											'top':`calc(${outfitHeight} - 70px`
-										})}
-									//onMouseOver={(event) => event.stopPropagation()} 
-								>	
-									{
-										(webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && viewState === OxiAppConstants.viewState.PREVIEW) ?
-											( <OutfitEditDelete editOutfit={editOutfit}/> ) : 
-											(
-												<OutfitTileBrowseCtrls 
-													navToHostProfile={navToHostProfile} 
-													routeToHostProfile={routeToHostProfile}
-													username={isBrowse ? username : null}
-													getHostMeasurementsHandler={ () => { getHostMeasurements(id) } }
-													handleTileSelected={this._handleTileClicked}
-													showOutfitPreviewFromBrowse={() => showOutfitPreviewFromBrowse(id)}
-													
-													toggleMetricPanel={toggleMetricPanel}
-													owner={owner}
-													outfitId={id}
-													contentIds={contentIds}
-													previewOutfitFromBrowse={previewOutfitFromBrowse}
-													setPreviewFocus={setPreviewFocus}
-												/>
-											)
-									}
-								</div>
-							</CSSTransition>*/}
 						</div>
-					</Ripple>		
+					</Ripple>
+					<OutfitTileFooter likeCount={count}/>
 				</div>
 			</Elevation>
 		);

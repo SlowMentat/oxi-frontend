@@ -158,6 +158,8 @@ class PagedOutfitList extends React.Component{
 											outfit={this.props.outfits[outfitId]}
 											pictures={this.props.pictures}
 											//likeCountIdsSize={this.props.likeCountIdsSize}
+											likeCount={this.props.likeCounts[this.props.outfits[outfitId].likeCount]}
+											//likeCountIds={this.props.likeCountIds}
 											toggleMetricPanel={this.props.toggleMetricPanel}
 											owner={this.props.owner}
 											getOutfitPreviewForm={this.props.getOutfitPreviewForm}

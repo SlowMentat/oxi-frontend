@@ -1,6 +1,12 @@
 import { connect } from 'react-redux';
 import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
-import { setFormVisibility, fetchEntities, fetchImage } from '../../Components/Actions/indexActions.js';
+
+import { 
+	fetchEntities, 
+	fetchImage,
+	createModal,
+} from '../../Components/Actions/indexActions.js';
+
 import ProfileTitle from '../../Components/Presentations/ProfileTitle.js';
 
 const mapStateToProps = (state) => {
@@ -18,7 +24,11 @@ const mapDispatchToProps = (dispatch) => ({
 		/*dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))
 		dispatch(fetchEntities(OxiAppConstants.EntityTypes.RETAILER, '', ''))*/
 		//dispatch(fetchItemMenus())
-		dispatch(setFormVisibility(OxiAppConstants.FormType.PROFILE_PIC, null, null));
+		//dispatch(setFormVisibility(OxiAppConstants.FormType.PROFILE_PIC, null, null));
+		
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.PROFILE_PIC,
+		}));
 	},
 	//getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 })

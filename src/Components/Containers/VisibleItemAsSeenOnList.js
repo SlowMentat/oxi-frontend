@@ -1,7 +1,10 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
-	createItem, updateItem, 
+	//setFormVisibility, 
+	createModal,
+	removeModalById,
+	createItem, 
+	updateItem, 
 	selectMultipleEntity, 
 	deselectMultipleEntity,
 	setCurrentEntityPage,
@@ -23,27 +26,31 @@ const mapStateToProps = (state, props) => {
 		webAppView: state.appView.webAppView,
 		browseSelection: state.browseState.browseSelection,
 		multipleSelectedAllIds: state.entitiesStateReducer.items.multipleSelected,
-		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],
+		//selectedContent: state.addedEntitiesReducer.auxContents.byIds[state.entitiesStateReducer.auxContents.selected],
 
 		//pageBufferSize: state.entitiesReducer.items.pageBufferSize,
-		currentPage: state.entitiesStateReducer.contents.currentPage,
-		lastPage: state.entitiesStateReducer.contents.lastPage,
-		isFetching: state.entitiesStateReducer.contents.isFetching,
+		currentPage: state.entitiesStateReducer.auxContents.currentPage,
+		lastPage: state.entitiesStateReducer.auxContents.lastPage,
+		isFetching: state.entitiesStateReducer.auxContents.isFetching,
 
-		prevPageURL: state.entitiesStateReducer.contents.prevPageURL,
-		nextPageURL: state.entitiesStateReducer.contents.nextPageURL,
-		scrollPageHeight: state.entitiesStateReducer.contents.scrollPageHeight,
-		pages: state.entitiesReducer.contents.pages,
+		prevPageURL: state.entitiesStateReducer.auxContents.prevPageURL,
+		nextPageURL: state.entitiesStateReducer.auxContents.nextPageURL,
+		scrollPageHeight: state.entitiesStateReducer.auxContents.scrollPageHeight,
+		pages: state.entitiesReducer.auxContents.pages,
 
-		contents : state.entitiesReducer.contents.byIds,
+		contents : state.entitiesReducer.auxContents.byIds,
 		pictures : state.entitiesReducer.pictures.byIds,
-		contentIds : state.entitiesReducer.contents.allIds,
+		contentIds : state.entitiesReducer.auxContents.allIds,
 	});
 }
 
 const mapDispatchToProps = dispatch => ({
 	onClick : () => {
-		console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));
+		console.log("dispatching setFormVisibility for UpdateItme"); 
+		//dispatch(setFormVisibility("UpdateItem"));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.UPDATE_ITEM,
+		}));
 	},
 	setScrollPageHeight: (scrollPageHeight) => dispatch(setEntityScrollPageHeight(OxiAppConstants.EntityTypes.CONTENT, scrollPageHeight)),
 	setCurrentEntityPage: (page) => dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.CONTENT, page)),
@@ -65,7 +72,8 @@ const mapDispatchToProps = dispatch => ({
 				var contentArrays = Object.keys(contents);
 				const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
 				dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
-				dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+				//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));				
+				dispatch(removeModalById(OxiAppConstants.FormType.OUTFIT_PREVIEW));
 			}
 
 			//props.setPreviewedOutfit(outfitId);

@@ -11,3 +11,5 @@ export * from './ProfileActions.js';
 export * from './RetailerActions.js';
 export * from './SizeChartActions.js';
 export * from './SizeGroupActions.js';
+export * from './AuxContentActions.js';
+export * from './ModalActions.js';

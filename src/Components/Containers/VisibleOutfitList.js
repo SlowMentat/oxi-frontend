@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
+	//setFormVisibility, 
+	createModal,
+	removeModalById,
 	editContentView, 
 	clearEdittingIds,
 	addToEdittingIds,
@@ -73,11 +75,14 @@ const mapStateToProps = (state, props) => {
 
 		entitiesStateReducer: state.entitiesStateReducer,
 
-		likeCountIds: state.entitiesReducer.likeCount.byIds,
+		likeCountIds: state.entitiesReducer.likeCounts.allIds,
+		likeCounts: state.entitiesReducer.likeCounts.byIds,
 		owner: state.entitiesReducer.profile.byIds.owner,
 		profile: state.entitiesReducer.profile.byIds,
 		profileStats : state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.profileStatsDto : undefined,
 		location: state.router.location,
+
+
 		//profileIds: state.entitiesReducer.profile.byIds,
 		//likeCountIdsSize: state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.likeCountIds.length : null,
 	});
@@ -87,7 +92,10 @@ const mapDispatchToProps = (dispatch, props) => ({
 	onClickContextProfile : (outfitId, targetChildId) => {
 		console.log("view Outfit div clicked");
 		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, targetChildId));	
-		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+		//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.OUTFIT_PREVIEW,
+		}));
 	},
 	onClickContextBrowse : (outfitId, targetChildId) => {
 		console.log("outfit tile selected");
@@ -133,13 +141,15 @@ const mapDispatchToProps = (dispatch, props) => ({
 			//dispatch(addContent(contentId, outfit.id, contents[contentId].items));
 			let content = Object.assign({}, OxiAppConstants.EntityTemplates.CONTENT, contents[contentId]);	
 			console.log('megered content = ', content);
-			dispatch(addContent(content));		
+			dispatch(addContent(content));
+
 			for(let itemId of contents[contentId].items){
 				//dispatch(updateItem(itemId));
 				dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.ITEM, itemId));
 				dispatch(addItem(Object.assign({}, OxiAppConstants.EntityTemplates.ITEM, items[itemId])));
 				dispatch(addItemContent({id: null, itemId: itemId, contentId: contentId}));
 			}
+			
 			console.log('megered content after adding items = ', content);
 		}
 		//select the first child content.  There should always exist at least 1 content child per outfit
@@ -178,14 +188,20 @@ const mapDispatchToProps = (dispatch, props) => ({
 			const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
 
 			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
-			dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+			//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+			dispatch(createModal({
+				id: OxiAppConstants.FormType.OUTFIT_PREVIEW,
+			}))
 			//props.setPreviewedOutfit(outfitId);
 		});
 	},
 	showOutfitPreviewFromBrowse : (outfitId) => {	
 		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, null));
 		//dispatch(fetchEntities())
-		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+		//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.OUTFIT_PREVIEW,
+		}))
 	},
 	compareHostMeasurements: (outfitId) => {
 
@@ -197,10 +213,16 @@ const mapDispatchToProps = (dispatch, props) => ({
 		dispatch(postUnlike(outfitId, outfit));
 	},
 	getOutfitPreviewForm: (posx, posy) => {
-		dispatch(setFormVisibility("OutfitPreview", null, null, null));
+		//dispatch(setFormVisibility("OutfitPreview", null, null, null));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.OUTFIT_PREVIEW,
+		}))
 	},
 	openProfilePicForm: (posx, posy) => {
-		dispatch(setFormVisibility(OxiAppConstants.FormType.PROFILE_PIC, null, null));
+		//dispatch(setFormVisibility(OxiAppConstants.FormType.PROFILE_PIC, null, null));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.PROFILE_PIC,
+		}))
 	},
 })
 

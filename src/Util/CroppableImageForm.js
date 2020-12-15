@@ -109,7 +109,7 @@ class CroppableImageForm extends React.Component{
 			submitHovering: false,
 			cropHovering:false,
 			discardHovering:false,
-			showSourceDialog:false,
+			showSourceDialog:true,
 		}
 
 
@@ -639,7 +639,13 @@ class CroppableImageForm extends React.Component{
 	componentDidMount(){
 		window.addEventListener('resize', this.reloadImageRef);
 		//force click of fileInput button when user clicks add outfit button.
-		this.props.viewState === OxiAppConstants.viewState.ADD ? this.fileInput.click() : null;
+		!isDevice && this.props.viewState === OxiAppConstants.viewState.ADD ? this.fileInput.click() : null;
+
+		// Force open the Image Source Dialogue 
+		this.setState(prevState => ({
+			...prevState, 
+			showSourceDialog: true,
+		}))
 		this._isMounted = true;
 	}
 
@@ -1439,6 +1445,9 @@ class CroppableImageForm extends React.Component{
 			entitiesStateReducer,
 			indLength,
 			swipeCallback,
+			onFolderSelect,
+			isImageSourceModalOpen,
+			outfitPreviewModal,
 		} = this.props;
 
 		//const {
@@ -1471,7 +1480,7 @@ class CroppableImageForm extends React.Component{
 				};
 				
 				const onCameraFail = () => {
-					console.log("pictrue retreival failed");
+					console.log("picture retreival failed");
 				};
 				
 				navigator.camera.getPicture(onCameraSuccess, onCameraFail, {
@@ -1496,32 +1505,7 @@ class CroppableImageForm extends React.Component{
 		const getContent = (id) => {
 			if(id && images[id]){
 				if(this.props.images[id].cropping){
-					return (
-						//<ReactCrop
-						//	className={ReactCropStyles}
-						//	rotation={this.state.images[contentState.selected].rotation}
-						//	//This is a percentage of actual image height wrp <img> tag height
-						//	maxHeight={this.maxHeight}
-						//	maxWidth={this.maxWidth}
-						//	minY={this.minYPercent}
-						//	style={{
-						//		height:'100%',
-						//		'max-height': `${this.state.images[contentState.selected].maxHeight}${this.state.images[contentState.selected].maxHeight === 'unset' ? '' : 'px'}`,//`${maxHeightVal}px`,
-						//		'margin-top': `${this.state.images[contentState.selected].minYPixel}px`,//`${this.minYPixel}px`//`calc(${this.maxHeight}px/2 - ${imageHeight}px/2)`
-						//		width: 'auto',
-						//		'background-color':'unset',
-						//	}}
-						//	cropImgRoot={this.cropImgRoot}
-						//	src={src}
-						//	crop={this.state.images[contentState.selected].crop}
-						//	onImageLoaded={(imageElement) => {this._onCropImageLoaded(imageElement)} }
-						//	onComplete={this._onCropComplete}
-						//	onChange={this._onCropChange}
-						//	setupImageRef={this.props.setupImageRef}
-						//	flag={this.state.flag}
-						//	ruleOfT hirds={true}
-						///>
-	
+					return (	
 						<ReactCrop
 							className={ReactCropStyles}
 							rotation={this.props.images[id].rotation}
@@ -1578,6 +1562,16 @@ class CroppableImageForm extends React.Component{
 				}
 			}	
 		}	
+		
+		// Invoke folder selection callback to force open the IMAGE_SOURCE modal
+		if(
+			isDevice && 
+			this.state.showSourceDialog && 
+			!isImageSourceModalOpen && 
+			outfitPreviewModal.otherData.isNewOutfit ){
+
+			onFolderSelect(null, (e, source) => sourceMobilePhoto(e, source));
+		}
 
 		return (
 			<div style={this.props.imgFormStyle}>
@@ -1622,64 +1616,69 @@ class CroppableImageForm extends React.Component{
 							style={customButtonStyles}
 						/>
 						{
-							isDevice ? 
-							<React.Fragment>
-								<MenuSurfaceAnchor >
-									<Menu
-										style={{
-											bottom:'48px',
-											width:'auto',
-											'background-color':'var(--color-02-tint-01)',
-										}}
-										horizontal={true}
-										open={this.state.showSourceDialog}
-										renderToPortal
-										//onSelect={e => {console.log(e.detail.index); sourceMobilePhoto(e);}}
-										onClose={e => { 
-											this.setState(prevState => ({
-												...prevState, 
-												showSourceDialog: false
-											}))
-										}}
-									>
-										{/*<MenuItem fontSize="1.8rem">Camera</MenuItem>
-										<MenuItem fontSize="1.8rem">File</MenuItem>*/}
-										<SimpleListItem 
-											role="menuitem" 
-											tabindex="0" 
-											text="Camera"
-											graphic="add_a_photo" 
-											onClick={e => sourceMobilePhoto(e, Camera.PictureSourceType.CAMERA)}
-										/>
-										<SimpleListItem 
-											role="menuitem" 
-											tabindex="0" 
-											text="Storage"
-											graphic="folder_open" 
-											onClick={e => sourceMobilePhoto(e, Camera.PictureSourceType.PHOTOLIBRARY)}
-										/>
-									</Menu>
-								</MenuSurfaceAnchor>
-								<Button
-									theme="textPrimaryOnLight"
-									labelSize="1.2rem"
-									onClick={(e) => {
-										e.stopPropagation();
-										this.setState(prevState => ({
-											...prevState, 
-											showSourceDialog: true
-										}));
-									}}
-									icon="insert_photo"
-								/> 
-							</React.Fragment> :
+							//<React.Fragment>
+							//	<MenuSurfaceAnchor >
+							//		<Menu
+							//			style={{
+							//				bottom:'48px',
+							//				width:'auto',
+							//				'background-color':'var(--color-02-tint-01)',
+							//			}}
+							//			horizontal={true}
+							//			open={this.state.showSourceDialog}
+							//			renderToPortal
+							//			//onSelect={e => {console.log(e.detail.index); sourceMobilePhoto(e);}}
+							//			onClose={e => { 
+							//				this.setState(prevState => ({
+							//					...prevState, 
+							//					showSourceDialog: false
+							//				}))
+							//			}}
+							//		>
+							//			{/*<MenuItem fontSize="1.8rem">Camera</MenuItem>
+							//			<MenuItem fontSize="1.8rem">File</MenuItem>*/}
+							//			<SimpleListItem 
+							//				role="menuitem" 
+							//				tabindex="0" 
+							//				text="Camera"
+							//				graphic="add_a_photo" 
+							//				onClick={e => sourceMobilePhoto(e, Camera.PictureSourceType.CAMERA)}
+							//			/>
+							//			<SimpleListItem 
+							//				role="menuitem" 
+							//				tabindex="0" 
+							//				text="Storage"
+							//				graphic="folder_open" 
+							//				onClick={e => sourceMobilePhoto(e, Camera.PictureSourceType.PHOTOLIBRARY)}
+							//			/>
+							//		</Menu>
+							//	</MenuSurfaceAnchor>
+							//	<Button
+							//		theme="textPrimaryOnLight"
+							//		labelSize="1.2rem"
+							//		onClick={(e) => {
+							//			e.stopPropagation();
+							//			this.setState(prevState => ({
+							//				...prevState, 
+							//				showSourceDialog: true
+							//			}));
+							//		}}
+							//		icon="insert_photo"
+							//	/> 
+							//</React.Fragment> : 
 							<Button
 								theme="textPrimaryOnLight"								
 								label="file"
 								labelSize="1.2rem"
 								icon="folder_shared"
 								style={customButtonStyles}
-								onClick={this.fileInput ? (e) => this.fileInput.click(e) : null}
+								onClick={
+									this.fileInput ? 
+										(e) => {
+											isDevice ? onFolderSelect(null, (e, source) => sourceMobilePhoto(e, source)) : this.fileInput.click(e);
+										} : 
+										null
+								}
 							/>
 						}
 						<Switch
@@ -1748,7 +1747,8 @@ class CroppableImageForm extends React.Component{
 						//ref={this.setupCropImgRoot} 
 					>
 						{
-							Object.keys(this.props.images).map(id => (
+							//Object.keys(this.props.images).map(id => (
+							this.props.orderedContentIdIndPairs.map(idIndPair => (
 								<div 
 									id="imgAndItemMapdiv" /*ref={this.props.setupContentViewRef}*/
 									//ref={this.setupCropImgRoot} 
@@ -1756,10 +1756,10 @@ class CroppableImageForm extends React.Component{
 									style={{
 										display:'flex',
 										'align-items':'center',
-										...(images[id].cropping ? 
+										...(images[idIndPair[0]] && images[idIndPair[0]].cropping ?  
 												{
 													//margin: 'auto',
-													//'max-width': images[id].imageRef ? images[id].imageRef.naturalWidth : 'unset',
+													//'max-width': images[idIndPair[0]].imageRef ? images[idIndPair[0]].imageRef.naturalWidth : 'unset',
 												} : 
 												{
 
@@ -1785,7 +1785,7 @@ class CroppableImageForm extends React.Component{
 											'align-items':'center',
 										}}
 									>
-										{ getContent(id) }				
+										{ getContent(idIndPair[0]) }				
 										{
 											images[contentState.selected] === undefined ?
 												null/*(images.PromiseStatus === 'pending' ? 

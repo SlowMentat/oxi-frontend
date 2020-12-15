@@ -160,7 +160,7 @@ export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, 
 			getState().appView.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && 
 			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW
 		){
-			dispatch(networkActions.verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
+			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
 		}
 		else{
 			dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.ITEM, false));
@@ -623,7 +623,7 @@ export function fetchItemMenus(){
 
 export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=0, pageSize=50) => {
 	return function(dispatch){
-		dispatch(genericActions.requestEntities(OxiAppConstants.EntityTypes.CONTENT));
+		dispatch(genericActions.requestEntities(OxiAppConstants.EntityTypes.AUX_CONTENT));
 		let pageStart = 0;
 		let pageSize = 9;
 		let pageBufferSize = 2;
@@ -636,51 +636,25 @@ export const fetchContentsWithOutfitByItemId = (itemId, linkURL=null, pageStart=
 		//return axios.get(`${linkURL || OxiAppConstants.serviceURL}${URI}?page=${pageStart}&size=${pageSize}`)
 		.then((response) => {
 
-			dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
+			dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.AUX_CONTENT.toLowerCase(), null));
 
 			if(response.status === OxiAppConstants.HttpStatus.OK){
 				let json = response.data._embedded[OxiAppConstants.EmbeddedEntityPropertyNames.CONTENT_WITH_OUTFIT];//JSON.parse(response.data)._embedded.outfitDtoes;//response.json();
 				console.log("json");
 				console.log(json);
-				dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
+				dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.AUX_CONTENT.toLowerCase(), null));
 				//normalize received json payload
 				let normalizedJson = normalize(json, contentWithOutfitSchema);
-
 				console.log('entitiesStateReducer', normalizedJson); 
-				
-				//Manually build itemContents join table
-				//let itemContentJson = buildItemContentsObject(OxiAppConstants.JsonPropertyNames.CONTENT, json);
-				//dispatch(createItemContent(itemContentJson));							
-	
-
-				// TODO: I think the three lines below can be romved.
-				//if(response.data.page !== undefined){
-				//	const {size, totalElements, totalPages, number} = response.data.page;
-				//	console.log(`size = ${size}, totalElements = ${totalElements}, totalPages = ${totalPages}, number = ${number}`);
-//
-				//	// TODO: I think the three lines below can be romved.
-				//	dispatch(genericActions.setEntityCurrentPage(OxiAppConstants.EntityTypes.CONTENT, number));
-				//	dispatch(genericActions.setEntityLastPage(OxiAppConstants.EntityTypes.CONTENT, totalPages - 0));
-				//	dispatch(genericActions.modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, number, Object.keys(normalizedJson.entities.contents)));
-				//	//dispatch(setCurrentEntityPage(OxiAppConstants.EntityTypes.ITEM, number));
-				//}
-
-
-				//mergeResponseEntities(dispatch, normalizedJson);
-				//dispatch(entityActions.replaceContents(normalizedJson.entities.contents));
-				//dispatch(createPictures(normalizedJson.entities.picture));
-				dispatch(entityActions.createContent(normalizedJson.entities[OxiAppConstants.JsonPropertyNames.CONTENT_WITH_OUTFIT]));
-				/*let contentKeys = Object.keys(normalizedJson.entities.contents);
-				contentKeys ? modifyPagedEntityIds(OxiAppConstants.EntityTypes.CONTENT, page, contentKeys) : null*/
-				//genericActions.selectEntity(OxiAppConstants.EntityTypes.OUTFIT, (outfitKeys.length > 0 ? normalizedJson.entities.outfits[outfitKeys[0]].id : false));
-				getLinks(dispatch, response.data._links, OxiAppConstants.EntityTypes.CONTENT);
+				dispatch(entityActions.createAuxContent(normalizedJson.entities[OxiAppConstants.JsonPropertyNames.CONTENT_WITH_OUTFIT]));
+				getLinks(dispatch, response.data._links, OxiAppConstants.EntityTypes.AUX_CONTENT);
 				return response;
 			}else{
 				//handleUnauthorizedRequest(response);
 			}
 		})
 		.catch(error => {
-			dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.CONTENT.toLowerCase(), null));
+			dispatch(genericActions.receiveEntities(OxiAppConstants.EntityTypes.AUX_CONTENT.toLowerCase(), null));
 			console.log(error);
 			if (error.response) {
 				// The request was made and the server responded with a status code
@@ -813,29 +787,32 @@ export function mergeResponseEntities(dispatch, normalizedJson){
 	}
 }
 
-export function verifyIntent(intentTo){
+export function verifyIntent(formType){
 	return function(dispatch, getState){
-		switch(intentTo){
-			case OxiAppConstants.Intent.DISCARD_EDITS:
-							
-				if(getState().toggleModal.isModalVisible){
-					// Modal is currrently open so just overlay over existing modal
-					dispatch(setFormOverlayVisibility(OxiAppConstants.FormType.DISCARD_EDITS))
-				}
-				else{
-					dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_EDITS, null, null));
-				}
+		dispatch(entityActions.createModal({
+			id: formType,
+		}));
+		//switch(intentTo){
+		//	case OxiAppConstants.Intent.DISCARD_EDITS:
+		//					
+		//		if(getState().toggleModal.isModalVisible){
+		//			// Modal is currrently open so just overlay over existing modal
+		//			dispatch(setFormOverlayVisibility(OxiAppConstants.FormType.DISCARD_EDITS))
+		//		}
+		//		else{
+		//			dispatch(setFormVisibility(OxiAppConstants.FormType.DISCARD_EDITS, null, null));
+		//		}
 
-				break;
+		//		break;
 
-			case OxiAppConstants.Intent.DELETE_OUTFITS:
-				// Not expecting to require overlayed modal during outfit delete confirmation
-				dispatch(setFormVisibility(OxiAppConstants.FormType.DELETE_OUTFITS, null, null));
-				break;
+		//	case OxiAppConstants.Intent.DELETE_OUTFITS:
+		//		// Not expecting to require overlayed modal during outfit delete confirmation
+		//		dispatch(setFormVisibility(OxiAppConstants.FormType.DELETE_OUTFITS, null, null));
+		//		break;
 
-			default:
-				break;
-		}
+		//	default:
+		//		break;
+		//}
 	}
 }
 

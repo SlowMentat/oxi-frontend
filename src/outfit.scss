@@ -13,7 +13,8 @@
 
 :local(.stdOutfitBlock){
 	//composes:stdBlock from './root.scss';
-    --outfit-tile-width: 260px;
+    /*--outfit-tile-width: 260px;*/
+    --outfit-tile-width: calc(100vw * .15);
     --outfit-btn-container-width: 48px;
     --button-width: 24px;
     display: inline-block;
@@ -29,7 +30,7 @@
     padding:0px;   
 
     @include desktop_rules {
-        margin-left : 130px;
+        margin-left : 110px;
         margin-bottom : 50px;
         /*margin-top : 40px; */
         margin-top: 80px; 
@@ -686,5 +687,37 @@
     @include mobile_rules {
         height: 58px;
         line-height: 58px;
+    }
+}
+
+:local(.outfitTileFooter_div){
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        margin: 6px 12px;
+    }
+}
+
+:local(.likeCount_div){
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        height: 100%;
+    }
+}
+
+:local(.tagCount_div){
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        height: 100%;
     }
 }

@@ -35,6 +35,9 @@ export const Dialog = styled(({children, ...otherProps}) => (
 					`)
 				}
 			}
+			& .mdc-dialog__scrim{
+				opacity: ${props.scrimOpacity};
+			}
 		`)
 	}
 `;

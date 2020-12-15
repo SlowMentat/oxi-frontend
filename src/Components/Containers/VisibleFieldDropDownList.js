@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { 
-	/*setFormVisibility, 
-	addItem, 
+	/*addItem, 
 	selectAddedEntity, 
 	modifyContent, 
 	navigateTo, 
@@ -19,6 +18,7 @@ import {
 	clearClientInvalidation,
 	clearSelectMultipleEntity,
 	fetchSuggestion*/
+	replaceProfile,
 } from '../../Components/Actions/indexActions.js';
 import {FieldDropDownList} from '../../Components/Presentations/FieldDropDownList.js'
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -33,12 +33,18 @@ const mapStateToProps = (state, props) => {
 		retailerSize: state.searchState.addItemContext.sizeResults,
 		udrNameResults: state.searchState.addItemContext.udrNameResults,
 		udsLabelResults: state.searchState.addItemContext.udsLabelResults,
+		uDItemResults: state.searchState.addItemContext.uDItemResults,
 		sizeLabelResults: state.searchState.addItemContext.sizeLabelResults,
+		apparelTypes: state.entitiesReducer.apparelTypes.byIds,
+		ownerTolerances: state.entitiesReducer.profile.byIds.owner.toleranceDto,
 	});
 }
 
 const mapDispatchToProps = (dispatch) => ({
+	compareSize: (metrics) => {
+		metrics ? dispatch(replaceProfile({'host' : {'userMetricsDto': metrics}})) : null;
+	},
 })
 
-const VisibleFieldDropDownList = connect(mapStateToProps, mapDispatchToProps)(FieldDropDownList);
-export default VisibleFieldDropDownList;
+const VisibleFieldDropdownList = connect(mapStateToProps, mapDispatchToProps)(FieldDropDownList);
+export default VisibleFieldDropdownList;

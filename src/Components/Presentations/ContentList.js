@@ -94,7 +94,7 @@ class ContentList extends React.Component {
 					// On entry into edit context view the selected outfit and all child entities are copied to the addedEntitiesReducer.
 					// This means the selected contents will have its child items array populated.  Adding a new content in this context will 
 					// duplicate the elements in previously selected content's items array before the select leaf of the entitesStateReducer.contents tree
-					// can switch to the newly created content entity.  Feels ugly but it works and items per content are limited.
+					// can switch to the newly created content entity.  It's ugly but it works and items per content are limited.
 					for(let itemId of this.props.addedContents[this.props.selectedId].items){
 						if(itemId === addedItemId){
 							duplicate = true;
@@ -198,6 +198,7 @@ class ContentList extends React.Component {
 			pictures,
 
 			viewState,
+			orderedContentIdIndPairs,
 		} = this.props;
 
 		const {
@@ -214,17 +215,6 @@ class ContentList extends React.Component {
 			...contents,
 			...addedContents,
 		}
-
-		//const {
-		//	thumbnailuri,
-		//	smalluri,
-		//	mediumuri,
-		//	largeuri,
-		//} = !(allContents[contentId] && pictures) ? 
-		//		({}) :
-		//		pictures[allContents[contentId].picture] ?  
-		//			pictures[allContents[contentId].picture] : 
-		//			({});
 		
 		var uriByContentId = Object.keys(allContents).reduce((accum, id) => {
 
@@ -236,12 +226,6 @@ class ContentList extends React.Component {
 				[id]: result,
 			});
 		}, {});
-
-		//const addedThumbnailuri = !(addedContents[contentId] && pictures) ? 
-		//	(null) :
-		//	pictures[addedContents[contentId].picture] ? 
-		//		pictures[addedContents[contentId].picture].thumbnailuri : 
-		//		null;
 
 		//const addedCoverpicuri = addedContents[contentId] ? addedContents[contentId].coverpicuri : ({});
 		let addContentButton = null;
@@ -266,20 +250,6 @@ class ContentList extends React.Component {
 				}*/
 			}
 		}
-
-		/*switch(viewState){
-			case OxiAppConstants.viewState.ADD:
-				addContentButton = (<Content onClick={controlDisabled ?  console.log('Content control disabled!') : () => {onControlClick()}} isControl={true}>Add Content</Content>);
-
-				break;
-			case OxiAppConstants.viewState.EDIT:
-				addContentButton = (<Content onClick={controlDisabled ?  console.log('Content control disabled!') : () => {onControlClick()}} isControl={true}>Add Content</Content>);
-				break;
-			case OxiAppConstants.viewState.PREVIEW:
-				break;
-			default:
-				break;
-		}*/
 
 		if(selectedOutfitId != false){
 			if(viewState !== OxiAppConstants.viewState.PREVIEW && addedOutfitEntity.byIds[selectedOutfitId] !== undefined){
@@ -327,7 +297,8 @@ class ContentList extends React.Component {
 		    				}}
 		    			>
 		    				{
-		    					(viewState === OxiAppConstants.viewState.EDIT ? (addedContentIds) : (contentIds)).map(id => {
+		    					//(viewState === OxiAppConstants.viewState.EDIT ? (addedContentIds) : (contentIds)).map(id => {
+		    					orderedContentIdIndPairs.map(idIndPair => {
 		    						return(
 		    							<div 
 		    								style={{
@@ -337,7 +308,7 @@ class ContentList extends React.Component {
 		    									'padding-top': '5px',
 		    									'padding-bottom': '5px',
 		    									margin:'0px 5px 0px 5px',
-		    									'background-color': (selectedId === id ? 'var(--color-05-tint-01)' : 'unset')
+		    									'background-color': (selectedId === idIndPair[0] ? 'var(--color-05-tint-01)' : 'unset')
 		    								}}
 		    							>
 		    								<img 
@@ -345,9 +316,9 @@ class ContentList extends React.Component {
 		    										height: 'calc(100% - 10px)',
 		    										cursor: 'pointer',
 		    									}}
-		    									src={uriByContentId[id] ? getImageURL(uriByContentId[id].smalluri) : ""}
-		    									//src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[id].coverpicuri : contents[id].coverpicuri}.jpg`}
-		    									onClick={e => selectContentView(id)}
+		    									src={uriByContentId[idIndPair[0]] ? getImageURL(uriByContentId[idIndPair[0]].smalluri) : ""}
+		    									//src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[idIndPair[0]].coverpicuri : contents[idIndPair[0]].coverpicuri}.jpg`}
+		    									onClick={e => selectContentView(idIndPair[0])}
 		    								/>
 		    							</div>
 		    						);
@@ -365,48 +336,47 @@ class ContentList extends React.Component {
 		    				enabled={!controlDisabled} 
 		    				handleClick={onControlClick} />*/}
 		    			{
-		    				contentIds.map((id) => 
-		    					<Content 
-					    			key = {id}
-					    			{...contents[id]} 
-		    						id={id}
-					    			selectContentView={selectContentView} 
-					    			isControl={false} 
-					    			selectedId={selectedId}
-					    			thumbnail={uriByContentId[id].thumbnailuri} 
-					    			getCoverPic={getCoverPic}
-					    			isOutfitCoverpic={
-					    				!(selectedOutfit && uriByContentId[id].smalluri) ? 
-					    					(uriByContentId[id].smalluri === selectedOutfit.coverpicuri) :
-					    					false 
-					    			}
-		    					/>)
-		    			}
-		    			{
-		    				addedContentIds.map((id) => 
-		    					<Content 
-					    			key = {id}
-					    			{...addedContents[id]} 
-		    						id={id}
-					    			//onClick={onClickAddedContent}		    		
-					    			selectContentView={selectContentView} 
-					    			isControl={false} 
-					    			//coverpicuri={//TODO: this may not be necessary
-					    			//	!addedContents[id] ? 
-					    			//		undefined : 
-					    			//		addedCoverpicuri ? 
-					    			//			addedThumbnailuri : 
-					    			//			'blob'//addedContents[id].coverpicuri
-					    			//} 
-					    			coverpicuri={(uriByContentId[id] && uriByContentId[id].smalluri) || 'blob'}
-					    			getCoverPic={getCoverPic}
-					    			selectedId={selectedId}
-					    			addedItemIds={addedItemIds}
-					    			modifyContentItems={modifyContentItems}
-					    			addedContents = {addedContents}
-					    			isOutfitCoverpic={false}
-		    					/>)
-		    			}
+		    				viewState === OxiAppConstants.viewState.EDIT ?
+		    					orderedContentIdIndPairs.map((idIndPair) => 
+		    						<Content 
+					    				key={idIndPair[0]}
+					    				{...contents[idIndPair[0]]} 
+		    							id={idIndPair[0]}
+					    				selectContentView={selectContentView} 
+					    				isControl={false} 
+					    				selectedId={selectedId}
+					    				thumbnail={uriByContentId[idIndPair[0]] ? uriByContentId[idIndPair[0]].thumbnailuri : 'blob'} 
+					    				getCoverPic={getCoverPic}
+					    				isOutfitCoverpic={
+					    					(selectedOutfit && uriByContentId[idIndPair[0]] && uriByContentId[idIndPair[0]].smalluri) ? 
+					    						(uriByContentId[idIndPair[0]].smalluri === selectedOutfit.coverpicuri) :
+					    						false 
+					    				}
+		    						/>) :
+		    					orderedContentIdIndPairs.map((idIndPair) => 
+		    						<Content 
+					    				key={idIndPair[0]}
+					    				{...addedContents[idIndPair[0]]} 
+		    							id={idIndPair[0]}
+					    				//onClick={onClickAddedContent}		    		
+					    				selectContentView={selectContentView} 
+					    				isControl={false} 
+					    				//coverpicuri={//TODO: this may not be necessary
+					    				//	!addedContents[idIndPair[0]] ? 
+					    				//		undefined : 
+					    				//		addedCoverpicuri ? 
+					    				//			addedThumbnailuri : 
+					    				//			'blob'//addedContents[idIndPair[0]].coverpicuri
+					    				//} 
+					    				coverpicuri={(uriByContentId[idIndPair[0]] && uriByContentId[idIndPair[0]].smalluri) || 'blob'}
+					    				getCoverPic={getCoverPic}
+					    				selectedId={selectedId}
+					    				addedItemIds={addedItemIds}
+					    				modifyContentItems={modifyContentItems}
+					    				addedContents = {addedContents}
+					    				isOutfitCoverpic={false}
+		    						/>)
+		    			}	
 		    			{
 		    				/*(<DeleteContentButton 
 		    					style={{

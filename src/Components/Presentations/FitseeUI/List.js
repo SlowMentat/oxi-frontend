@@ -7,11 +7,16 @@ import '@rmwc/list/styles';
 import {
 	CollapsibleList as RmwcCollapsibleList,
 	ListItem as RmwcListItem,
+	SimpleListItem as RmwcSimpleListItem,
 } from '@rmwc/list';
+
+const extractCSS = (styles) => {
+	return(styles ? Object.keys(styles).reduce((accum, name) => `${name}:${styles[name]}`, "") : "");
+}
 
 export {
 	List,
-	SimpleListItem,
+	//SimpleListItem,
 	ListItemGraphic,
 	//ListItem,
 	ListItemMeta,
@@ -28,7 +33,7 @@ export const CollapsibleList = styled(({innerStyle, /*listItemStyles,*/ ...other
 	${
 		props => (`
 			& .rmwc-collapsible-list__children-inner{
-				${Object.keys(props.innerStyle).reduce((accum, name) => `${name}:${props.innerStyle[name]};`, "")}
+				${extractCSS(props.innerStyle)}
 			}
 		`)
 	}
@@ -45,6 +50,36 @@ CollapsibleList.defaultProps = {
 	//listItemStyles: {},
 	otherProps: {},
 }
+
+
+export const SimpleListItem = styled(({innerStyle, ...otherProps}) => (
+	<RmwcSimpleListItem
+		{...otherProps}
+	/>
+))`
+	${
+		props => (`
+			& .mdc-list-item{
+				${extractCSS(props.innerStyle)}
+			}
+
+			& .mdc-list-item__graphic{
+				${extractCSS(props.listIconStyle)}
+			}
+		`)
+	}
+`;
+
+SimpleListItem.propTypes = {
+	otherProps: PropTypes.object,
+	innerStyle: PropTypes.object,
+};
+
+SimpleListItem.defaultProps = {
+	innerStyle: {},
+	otherProps: {},
+}
+
 
 export const ListItem = styled(({innerStyle, ...otherProps}) => (
 	<RmwcListItem

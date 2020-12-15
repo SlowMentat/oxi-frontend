@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
+	//setFormVisibility, 
+	createModal,
+	removeModalById,
 	addItem, 
 	selectAddedEntity, 
 	modifyContent, 
@@ -34,6 +36,7 @@ import {
 	setWebAppViewContext,
 	deleteOutfits,
 	replaceProfile,
+	modifyModalMetaData,
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -54,24 +57,27 @@ import { withRouter } from 'react-router-dom';
 //}
 
 const mapStateToProps = (state, props) => {
-	console.log("state = " + state.toggleModal.modal)
+	//console.log("state = " + state.toggleModal.modal)
 	let outfits = null;
 	let contents = null;
 	let items = null;
 	let itemAllIds = null;
 
-	if(state.toggleModal.modal === OxiAppConstants.FormType.ADD_ITEM){
+	//if(state.toggleModal.modal === OxiAppConstants.FormType.ADD_ITEM){
+	if(state.modalsReducer.byIds[OxiAppConstants.FormType.ADD_ITEM]){
 		contents = state.addedEntitiesReducer.contents;
 		itemAllIds = state.addedEntitiesReducer.items.allIds;
 	}
 
 	//TODO:  won't worth with the current state implementaion.  Items being updated are done in the addedEntityReducer tree
-	else if(state.toggleModal.modal === OxiAppConstants.FormType.UPDATE_ITEM){
+	//else if(state.toggleModal.modal === OxiAppConstants.FormType.UPDATE_ITEM){
+	else if (state.modalsReducer.byIds[OxiAppConstants.FormType.UPDATE_ITEM]){
 		contents = state.entitiesReducer.contents;
 		itemAllIds = state.entitiesReducer.items.allIds;
 	}
 
-	else if(state.toggleModal.modal === OxiAppConstants.FormType.DISCARD_EDITS){
+	//else if(state.toggleModal.modal === OxiAppConstants.FormType.DISCARD_EDITS){
+	else if(state.modalsReducer.byIds[OxiAppConstants.FormType.DISCARD_EDITS]){
 		console.log('setting entities:')
 		outfits = state.addedEntitiesReducer.outfits.byIds;
 		contents = state.addedEntitiesReducer.contents.byIds;
@@ -82,16 +88,25 @@ const mapStateToProps = (state, props) => {
 	}
 
 	return {
-		formType: state.toggleModal.modal,
-		overlayModal: state.toggleModal.overlayModal,
-		outfits: outfits,
+		//formType: state.toggleModal.modal,
+		//overlayModal: state.toggleModal.overlayModal,
+		//requestUrl: state.toggleModal.prevRequestUrl,
+		//requestType: state.toggleModal.prevRequestType,
+		//itemLocation: state.toggleModal.otherData ? state.toggleModal.otherData.newItemLocation : ({}),
 
+		//formType: state.toggleModal.modal,
+		//overlayModal: state.toggleModal.overlayModal,
+		//requestUrl: state.toggleModal.prevRequestUrl,
+		//requestType: state.toggleModal.prevRequestType,
+		//itemLocation: state.toggleModal.otherData ? state.toggleModal.otherData.newItemLocation : ({}),
+		
+		modals: state.modalsReducer.byIds,
+		modalIds: state.modalsReducer.allIds,
+		
+		outfits: outfits,
 		contents: contents,
 		items: items,
 		itemAllIds: itemAllIds !== null ? itemAllIds : state.addedEntitiesReducer.items.allIds,
-		requestUrl: state.toggleModal.prevRequestUrl,
-		requestType: state.toggleModal.prevRequestType,
-		itemLocation: state.toggleModal.otherData ? state.toggleModal.otherData.newItemLocation : ({}),
 		brandIds: state.entitiesReducer.brands.allIds,
 		brands: state.entitiesReducer.brands.byIds,
 		retailerIds: state.entitiesReducer.retailers.allIds,
@@ -108,7 +123,15 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
 		closeModal: (formType, isOverlay) => {
-			isOverlay ? dispatch(setFormOverlayVisibility(null)) : dispatch(setFormVisibility(null));
+			//if(isOverlay){
+			//	dispatch(setFormOverlayVisibility(null)) 
+			//}
+			//else{
+			//	dispatch(setFormVisibility(null));
+			//}
+
+			dispatch(removeModalById(formType));
+
 			//if(formType === OxiAppConstants.FormType.DISCARD_EDITS) throw OxiAppConstants.NavigationException.USER_CANCELED
 		},
 		//confirmDiscard : () => dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS)),
@@ -134,9 +157,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			var prevSelectedOutfitId = prevSelectedOutfit ? prevSelectedOutfit.id : null;
 			var prevSelectedContentId = prevSelectedOutfit ? prevSelectedOutfit.contents[0] : null;
 			
-			isOverlay ?
-				dispatch(setFormOverlayVisibility(null)) :
-				dispatch(setFormVisibility(null));
+			//isOverlay ?
+			//	dispatch(setFormOverlayVisibility(null)) :
+			//	dispatch(setFormVisibility(null));
+
+			dispatch(removeModalById(formType));
 
 			//dispatch action to removeAndPropogate added Outfit.  This assumes that there will only ever be 1 outfit entity with id = 1 in addedEntitiesReducer tree 
 			//TODO: change this to support adding pre-existing outfits/contents/items/pictures containing UUID's
@@ -153,14 +178,18 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			}
 
 			if(formType === OxiAppConstants.FormType.ADD_ITEM){
-				dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW));
+				//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW));
+				dispatch(createModal({
+					id: OxiAppConstants.FormType.OUTFIT_PREVIEW
+				}));
 			}
 
 			// Edge case for when there's only one newly added outfit (having id of type number).  
 			// Encountered when an outfit is created then it is subsequently discarded befor posting to server.
 			if(typeof selectedOutfitId === 'number'){
 				// close modal
-				dispatch(setFormVisibility(null));
+				//dispatch(setFormVisibility(null));
+				dispatch(removeModalById(formType));
 			}
 
 			//Enable the button that adds outfits
@@ -182,9 +211,12 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			}));
 		},
 		afterLoginSuccess:  (requestUrl, requestType) => {
-			if(requestUrl !== null && requestUrl !== undefined && requestUrl !== ''){
+			if(!requestUrl){
 				OxiAppConstants.requestToBatchedDispatchMap[requestUrl.replace(OxiAppConstants.serviceURL+'/', "").split('?')[0]][requestType](dispatch);
-			}else{
+				//dispatch(setFormOverlayVisibility(null));
+				dispatch(removeModalById(formType));
+			}
+			else{
 				
 			}
 		},
@@ -271,9 +303,29 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			});
 		},
 		navToOutfitPreviewModal: (posx, posy) => {
-			dispatch(setFormVisibility("OutfitPreview", null, null, null));
+			//dispatch(setFormVisibility("OutfitPreview", null, null, null)); 
+			dispatch(modifyModalMetaData(
+				OxiAppConstants.FormType.OUTFIT_PREVIEW,
+				{},
+			));
+
 		},
 		deselectAndPropogate: (entityType) => dispatch(deselectAndPropogate(entityType)),
+		openSelectImageSourceForm: (isOverlay) => {
+			//isOverlay ? 
+			//	dispatch(setFormOverlayVisibility(OxiAppConstants.FormType.IMAGE_SOURCE)) :
+			//	dispatch(setFormVisibility(OxiAppConstants.FormType.IMAGE_SOURCE));
+
+			dispatch(createModal({
+				id: OxiAppConstants.FormType.IMAGE_SOURCE,
+			}));
+		},
+		onImageSourceSelected: (isOverlay) => {
+			//isOverlay ?
+			//	dispatch(setFormOverlayVisibility(null)) :
+			//	dispatch(setFormVisibility(null));
+			dispatch(removeModalById(OxiAppConstants.FormType.IMAGE_SOURCE));
+		}
 
 })
 

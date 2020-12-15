@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility,
 	postImage,
 	postImages,
 	uploadImages,
@@ -45,6 +44,8 @@ import {
 	addContents,
 	previewContent,
 	selectEntity,
+	createModal,
+	modifyModalMetaData,
 } from '../../Components/Actions/indexActions.js';
 import * as entityActions from '../../Components/Actions/EntityActions/Index.js'; 
 import {
@@ -55,7 +56,8 @@ import {
 	contents, 
 	items, 
 	denormalizeOutfit, 
-	buildItemContentsObject
+	buildItemContentsObject,
+	createModalEntity,
 } from '../../Util/Schema.js';
 import {normalize, denormalize} from 'normalizr';
 import PicturePreview from '../../Components/Presentations/PicturePreview.js';
@@ -102,7 +104,10 @@ const mapStateToProps = (state, props) => {
 		itemState: 		state.entitiesStateReducer.items,
 		pictureState: 	state.entitiesStateReducer.pictures,
 
-		isModalVisible:  state.toggleModal.isModalVisible,
+		//isModalVisible: state.toggleModal.isModalVisible,
+		outfitPreviewModal: state.modalsReducer.byIds[OxiAppConstants.FormType.OUTFIT_PREVIEW],
+		isImageSourceModalOpen: state.modalsReducer.byIds[OxiAppConstants.FormType.IMAGE_SOURCE],
+		//modals: state.modalsReducer.byIds,
 	};
 }
 //TODO:  consolidate all the http request functions below :(
@@ -150,14 +155,30 @@ const mapDispatchToProps = (dispatch) => ({
 		/*dispatch(fetchEntities(OxiAppConstants.EntityTypes.BRAND, '', ''))
 		dispatch(fetchEntities(OxiAppConstants.EntityTypes.RETAILER, '', ''))*/
 		//dispatch(fetchItemMenus())
-		dispatch(setFormVisibility("AddItem", null, null, {newItemLocation: {positionx: posx, positiony: posy}}));
+		//dispatch(setFormVisibility("AddItem", null, null, {newItemLocation: {positionx: posx, positiony: posy}}));
+		dispatch(modifyModalMetaData(
+			OxiAppConstants.FormType.OUTFIT_PREVIEW,
+			{
+				newItemLocation:{
+					positionx: posx,
+					positiony: posy,
+				}
+			}
+		));
+		//dispatch(createModal({
+		//	id: OxiAppConstants.FormType.ADD_ITEM,
+		//	otherData: {
+		//		newItemLocation:{
+		//			positionx: posx,
+		//			positiony: posy,
+		//		}
+		//	},
+		//}));
+
 	},
-	getGestureForm: () => dispatch(setFormVisibility("AddGesture")),
-	/*postAddedOutfit : (imageData = null, json) => {
-		if(imageData != null) dispatch(postImage(imageData, json));
-	},*/
+	//getGestureForm: () => dispatch(setFormVisibility("AddGesture")),
 	getPreviewPic : (filename, callback, picture, cancel) => dispatch(fetchImage(filename, callback, picture, cancel)),
-	confirmDiscard : () => dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS)),
+	confirmDiscard : () => dispatch(verifyIntent(OxiAppConstants.FormType.DISCARD_EDITS)),
 	clientInvalidateEntity: (entitiesStateReducer, entityIds/*addedEntities*/, entityType=null) => {
 		return () => {
 			console.log('in clientInvalidateEntities method:  entityType = ', entityType);

@@ -576,12 +576,13 @@
 :local(.variantOptionsContainer_div){
     width: var(--expanded-item-content-width);
     margin: auto;
-    padding-top: 25px;
+    margin-top: 25px;
     margin-bottom: 15px;
+    height: auto;
 
     @include desktop_rules {
         --variant-size-option-height: 27px;
-        height: 175px;
+        //height: 175px;
     }
 
     @include mobile_rules {
@@ -656,9 +657,9 @@
     line-height: var(--variant-size-option-height);
     text-align: center;
     font-family: Roboto;
-    font-size: 11px;    
-    padding-left: 2px;
-    padding-right: 2px;
+    font-size: 1.1rem;    
+    padding-left: 4px;
+    padding-right: 4px;
     margin-bottom: 5px;
 }
 

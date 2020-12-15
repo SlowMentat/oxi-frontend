@@ -70,6 +70,30 @@ $loaderContainerWidth: 100px;
 	}
 }
 
+@keyframes expandFadeIn{
+	from{
+		transform: scaleY(0%);
+		opacity: 0;
+	}
+
+	to{
+		transform: scaleY(100%);
+		opacity: 1;
+	}
+}
+
+@keyframes contractFadeOut{
+	from{
+		transform: scaleY(100%);
+		opacity: 1;
+	}
+
+	to{
+		transform: scaleY(0%);
+		opacity: 0;
+	}
+}
+
 
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 

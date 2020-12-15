@@ -1,7 +1,10 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
-	createItem, updateItem, 
+	//setFormVisibility, 
+	createModal,
+	removeModalById,
+	createItem, 
+	updateItem, 
 	selectMultipleEntity, 
 	deselectMultipleEntity,
 	clientInvalidateEntities,
@@ -133,12 +136,17 @@ const mapStateToProps = (state, props) => {
 		selectedContent: state.addedEntitiesReducer.contents.byIds[state.entitiesStateReducer.contents.selected],
 		savedItemMap: state.cache.savedItemMap,
 		sizeGroups: state.entitiesReducer.sizeGroups.byIds,
+		ownerTolerances: state.entitiesReducer.profile.byIds.owner.toleranceDto,		
 	});
 }
 
 const mapDispatchToProps = dispatch => ({
 	onClick : () => {
-		console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));
+		console.log("dispatching setFormVisibility for UpdateItme"); 
+		//dispatch(setFormVisibility("UpdateItem"));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.UPDATE_ITEM,
+		}));
 	},
 	createHandleMulSel: (id) => () => dispatch(selectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
 	createHandleMulDesel: (id) => () => dispatch(deselectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),

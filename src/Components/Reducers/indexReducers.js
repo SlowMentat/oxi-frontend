@@ -8,15 +8,6 @@ import * as types from '../Actions/Types.js';
 
 //import all reducers here
 
-const iniToggleModal = {
-	'modal':'HIDDEN',
-	'isModalVisible':true,
-	'prevRequestUrl':null,
-	'prevRequestType':null,
-	'overlayModal':null,
-	'otherData':{}
-}
-
 const iniTokenState = {
 	'sessionId':null,
 	'xCsrfToken':null
@@ -63,6 +54,7 @@ const iniSearchState = {
 		userDefinedRetailerResults:[],
 		udrNameResults:[],
 		udsLabelResults:[],
+		uDItemResults:[],
 		sizeLabelResults:[],
 		allApparelTypes:[]
 	},
@@ -74,19 +66,19 @@ const iniSearchState = {
 	}
 }
 
-export const toggleModal = (state = iniToggleModal, action) => {
-	switch(action.type){
-		case types.SET_VISIBLE_FORM:
-			action.payload.otherData === undefined ? action.payload.otherData = state.otherData : null
-			return Object.assign({}, state, action.payload);
-		case types.SHOW_MODAL:
-			return Object.assign({}, state, action.payload);
-		case types.SET_VISIBLE_FORM_OVERLAY:
-			return Object.assign({}, state, action.payload);
-		default:
-			return state;
-	}
-}
+//export const toggleModals = (state = iniModals, action) => {
+//	switch(action.type){
+//		case types.SET_VISIBLE_FORM:
+//			action.payload.otherData === undefined ? action.payload.otherData = state.otherData : null
+//			return Object.assign({}, state, action.payload);
+//		case types.SHOW_MODAL:
+//			return Object.assign({}, state, action.payload);
+//		case types.SET_VISIBLE_FORM_OVERLAY:
+//			return Object.assign({}, state, action.payload);
+//		default:
+//			return state;
+//	}
+//}
 
 const saveToken = (state = iniTokenState, action) => {
 	switch(action.type){
@@ -196,6 +188,13 @@ export function byId(state = {}, action){
 		//action type performed on "addedEntitiesReducer"
 		case `MODIFY_${action.typeSpecifier}`:
 			return Object.assign({}, state, {[action.payload.entity.id] : Object.assign({}, state[action.payload.entity.id], action.payload.entity)});//(for profile entity) have to include entity key to payload because passing the entity oobject to the action parameter instead of the object fields as individual parameters
+			//return({
+			//	...state,
+			//	[action.payload.entity.id]: {
+			//		...state[action.entity.id],
+			//		...action.payload.entity,
+			//	}
+			//});
 
 		//action typed performed on "entitiesReducer"
 		case `REPLACE_${action.typeSpecifier}`:
@@ -304,24 +303,182 @@ export function allIds(state = [], action){
 	}
 }
 
-export const entities = (maxCount) => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
+/*
+* Check if excedes max number of entities.  If so trim data to maxCount.
+*
+* @param {object} byIds An object of all entities of a particular type existing in the redux state.
+* @param {array} allIds An array of all id's of the same entity type represented in the byIds object.
+* @param {number} maxCount The max number of entities allowed in the redux state.  A negative number inducates no maximum.
+* @return {object} 
+*/
+const trimIfMaxCount = (byIds, allIds, maxCount) => {
 	let byIdsRef = {};
 	let allIdsRef = [];
-	//Check if excedes max number of entities.  If so trim data to maxCount.
-	if(state.allIds.length > maxCount){
-		////batch comment//console.log("greater than max allowed entities")
-		////batch comment//console.log(state.allIds);
-		allIdsRef =  state.allIds.slice(0,maxCount);
-		let keys = Object.keys(state.byIds).slice(0, maxCount)
+
+	if(allIds.length > maxCount && maxCount >= 0){
+		allIdsRef =  allIds.slice(0,maxCount);
+		let keys = Object.keys(byIds).slice(0, maxCount);
+
 		for(var i = 0, len = keys.length; i < len; i++){
-  			byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
+  			byIdsRef[`${keys[i]}`] = byIds[`${keys[i]}`];
 		}
-	}else{
-		////batch comment//console.log("less than max allowed entities");
-		//////batch comment//console.log(state.allIds);
-		byIdsRef = state.byIds;
-		allIdsRef = state.allIds;
 	}
+	else{
+		byIdsRef = byIds;
+		allIdsRef = allIds;
+	}
+
+	return ({
+		byIdsRef,
+		allIdsRef,
+	});
+}
+
+const defaultModal = {
+	id:null,
+	scrimOpacity: 0.6,
+	prevRequestUrl: null,
+	prevRequestType: null,
+	otherData: {},
+};
+
+export const modalEntities = (maxCount) => (
+	state = {		
+		byIds : {}, 
+		allIds : [],
+		count: 0,
+	}, 
+	action) => {
+		var {
+			byIdsRef,
+			allIdsRef,
+		} = trimIfMaxCount(state.byIds, state.allIds, maxCount);
+
+		const mergePayload = () => {
+			if(state.byIds[action.payload.id]){
+				return({
+					...state, 
+					byIds:{
+						...state.byIds,
+						[action.payload.id]: {
+							...defaultModal,
+							...action.payload,
+						}
+					}
+				});	
+			}
+			else{
+				console.error(`payload id from MODIFY_${action.typeSpecifier}_SCRIM_OPACITY does not exist.`);
+				return state;
+			}
+		}
+
+		const checkValidId = (id) => {
+			// null or undefined id string
+			if(!action.payload.entity.id) return state;
+			// Empty string id
+			if(action.payload.entity.id.length == 0) return state;
+			// Count limit
+			if(maxCount && nextCount > maxCount) return state;
+		}
+	
+		switch(action.type){
+			// Create new modal
+			case types.CREATE_MODAL:
+				var nextCount = state.count + 1;
+				checkValidId(action.payload.entity.id);
+								
+				return(
+					{
+						...state,
+						count : nextCount,
+						byIds : {
+							...byIdsRef,
+							[action.payload.entity.id] : {
+								...defaultModal,
+								...action.payload.entity,
+								// Set the scrimOpacity to 0 for all modals created after the first
+								...(allIdsRef.length ? {scrimOpacity: 0} : {}),
+							}
+						},
+						allIds : [...allIdsRef, action.payload.entity.id],
+					}
+				);
+
+			//case types.CREATE_MODALS:
+			//	var nextCount = state.count + action.payload.entities.length;
+			//	checkValidId(action.payload.entity.id);
+			//					
+			//	return(
+			//		{
+			//			...state,
+			//			count : nextCount,
+			//			byIds : {
+			//				...byIdsRef,
+			//				[action.payload.entity.id] : {
+			//					...defaultModal,
+			//					...action.payload.entity,
+			//					// Set the scrimOpacity to 0 for all modals created after the first
+			//					...(allIdsRef.length ? {scrimOpacity: 0} : {}),
+			//				}
+			//			},
+			//			allIds : [...allIdsRef, action.payload.entity.id],
+			//		}
+			//	);
+
+			case types.REMOVE_MODAL:
+				const results = Object.values(state.byIds)
+					.filter(modal => modal.id != action.payload.id)
+					.reduce((accum, modal) => ({...accum, [modal.id]:modal}), {});
+
+				return({					
+					...state,
+					byIds: {
+						...results,
+					},
+					allIds: [...state.allIds.filter(id => id != action.payload.id)],
+					count: Object.keys(results).length,				
+				});
+
+			// Modify scrim opacity
+			case types.MODIFY_MODAL_SCRIM_OPACITY:			
+				return(mergePayload());
+	
+			//// Modify hide state
+			//case `MODIFY_${action.typeSpecifier}_PREV_URL_DATA`:
+			//	return(mergePayload());
+	
+			// Modify hide state
+			case types.MODIFY_MODAL_META_DATA:
+				return(mergePayload());
+
+			default:
+				return state;
+	}
+}
+
+export const entities = (maxCount) => (state = {selected: false, controlDisabled : false, count : 0, byIds : {}, allIds : [], allEditingIds: []}, action) => {
+	var {
+		byIdsRef,
+		allIdsRef,
+	} = trimIfMaxCount(state.byIds, state.allIds, maxCount);
+	//let byIdsRef = {};
+	//let allIdsRef = [];
+	//Check if excedes max number of entities.  If so trim data to maxCount.
+	//if(state.allIds.length > maxCount){
+	//	////batch comment//console.log("greater than max allowed entities")
+	//	////batch comment//console.log(state.allIds);
+	//	allIdsRef =  state.allIds.slice(0,maxCount);
+	//	let keys = Object.keys(state.byIds).slice(0, maxCount)
+	//	for(var i = 0, len = keys.length; i < len; i++){
+  	//		byIdsRef[`${keys[i]}`] = state.byIds[`${keys[i]}`];
+	//	}
+	//}else{
+	//	////batch comment//console.log("less than max allowed entities");
+	//	//////batch comment//console.log(state.allIds);
+	//	byIdsRef = state.byIds;
+	//	allIdsRef = state.allIds;
+	//}
 	//Handle action
 	console.log('action.type = ', action.type);
 	switch(action.type){
@@ -386,6 +543,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 			console.log('pageCount = ', pageCount);
 			console.log('pageBufferSize = ', OxiAppConstants.scrollBufferSize);
 			console.log('currentPage = ', currentPage);
+			
 			if(pageCount >= OxiAppConstants.scrollBufferSize){
 				let subsetPages = {}
 				let a
@@ -396,6 +554,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 				console.log('typeof tailPageNumber = ', (typeof tailPageNumber));
 				console.log('currentPage == \'(tailPageNumber + 1)\' : ', (currentPage == `${(tailPageNumber + 1)}`))
 				//let {[headPageNumber]:a, ...subsetPages}
+				
 				switch(true){
 					//Paging up
 					case (currentPage == (headPageNumber - 1)): 
@@ -405,6 +564,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 						allIdsFiltered = state.allIds.filter(id => !removedIds_A.includes(id));
 						//To preserve previous order of objects in byIds, we need to preemptively set the keys of the expected json payload in the desired order here.
 						let expectedEntities = action.payload[0].reduce((obj, key) => ({ ...obj, [key]: {} }), {});
+
 						return Object.assign({}, state, {
 							'byIds': {
 								...expectedEntities, 
@@ -420,6 +580,7 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 					case (currentPage == (tailPageNumber + 1) ):
 						const {[`${headPageNumber}`]:removedIds_B, ...subsetPagesB} = Object.assign({}, state.pages);
 						allIdsFiltered = state.allIds.filter(id => !removedIds_B.includes(id));
+
 						return Object.assign({}, state, {
 							'byIds': allIdsFiltered.reduce((obj, key) => ({ ...obj, [key]: state.byIds[key] }), {}),
 							'allIds': allIdsFiltered,
@@ -431,11 +592,13 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 
 					default:
 						// do nada
-						console.log('doing nothing')
-						return state
+						console.log('doing nothing');
+						return state;
 				}
-			}else{
+			}
+			else{
 				console.log('mark')
+
 				//In this case the buffer isn't full and the start of the buffer is at page 0.  So we can assume that this is a page-down action
 				return Object.assign({}, state, {
 					'pages': {
@@ -865,6 +1028,14 @@ function searchState(state = iniSearchState, action){
 				...state.addItemContext,
 				...action.payload
 			}})
+		case types.RECEIVED_UD_ITEM_SEARCH:
+			return({
+				...state,
+				'addItemContext':{
+					...state.addItemContext,
+					...action.payload,
+				}
+			});
 		case types.RECEIVED_ALL_APPAREL_TYPES:
 			return Object.assign({}, state, {'addItemContext': {
 				...state.addItemContext,
@@ -942,23 +1113,32 @@ let defualtEntitiesState = {
 	multipleSelected: []
 };
 
-let iniMapCacheState = {
-
-};
+let iniMapCacheState = null;
 
 let defaultMenuVisibilityState  = {
 	isVisible: false,
 	type: null,
 }
 
+const defaultModalsStore = {
+	byIds : {}, 
+	allIds : [], 
+	count: 0,
+}
+
+//const modalsReducer = {
+//	...(entityReducerFactory(modalEntities(10), OxiAppConstants.EntityTypes.MODAL, defaultModalsStore)),
+//};
+
 const entitiesReducer = combineReducers({
 	profile : entityReducerFactory(entities(maxProfileCount), OxiAppConstants.EntityTypes.PROFILE, defualtEntitiesStore),
 	items : entityReducerFactory(entities(maxItemCount), OxiAppConstants.EntityTypes.ITEM, defualtEntitiesStore),//itemsReducer,
 	contents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesStore),
+	auxContents : entityReducerFactory(entities(maxContentCount), OxiAppConstants.EntityTypes.AUX_CONTENT, defualtEntitiesStore),
 	pictures : entityReducerFactory(entities(maxPictureCount), OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesStore),
 	itemContent : entityReducerFactory(entities(maxItemContentCount), OxiAppConstants.EntityTypes.ITEM_CONTENT, defualtEntitiesStore),
 	outfits : entityReducerFactory(entities(maxOutfitCount), OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesStore),
-	likeCount: entityReducerFactory(entities(maxLikeCount), OxiAppConstants.EntityTypes.LIKE_COUNT, defualtEntitiesStore),
+	likeCounts: entityReducerFactory(entities(maxLikeCount), OxiAppConstants.EntityTypes.LIKE_COUNT, defualtEntitiesStore),
 	apparelTypes : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.APPAREL_TYPE, defualtEntitiesStore),
 	brands : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.BRAND, defualtEntitiesStore),
 	retailers : entityReducerFactory(entities(1000), OxiAppConstants.EntityTypes.RETAILER, defualtEntitiesStore),
@@ -979,6 +1159,7 @@ const entitiesStateReducer = combineReducers({
 	items : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.ITEM, defualtEntitiesState),
 	pictures : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.PICTURE, defualtEntitiesState),
 	contents : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.CONTENT, defualtEntitiesState),
+	auxContents : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.AUX_CONTENT, defualtEntitiesStore),
 	outfits : entityReducerFactory(entitiesState, OxiAppConstants.EntityTypes.OUTFIT, defualtEntitiesState)
 })
 
@@ -1003,7 +1184,7 @@ const createRootReducer = (history) => combineReducers({
 	appView,
 	landingPage,
 	popupMenusReducer,
-	toggleModal,
+	//toggleModal,
 	saveToken,
 	cache,
 	contentViewState,
@@ -1011,7 +1192,8 @@ const createRootReducer = (history) => combineReducers({
 	entitiesStateReducer,
 	//entitiesState,
 	addedEntitiesReducer,
-	entitiesReducer
+	entitiesReducer,
+	modalsReducer: entityReducerFactory(modalEntities(10), OxiAppConstants.EntityTypes.MODAL, defaultModalsStore),
 	//editableContentView
 })
 

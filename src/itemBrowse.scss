@@ -128,3 +128,15 @@
     	background-color: #f9f9f9;
     }
 }
+
+.itemBrowseHeader_div{
+	width: 100%;
+
+	@include desktop_rules {
+		padding: 0px 0px 5px 5px;
+    }
+
+    @include mobile_rules {
+		padding: 0px 0px 5px 10px;
+    }	
+}

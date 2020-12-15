@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
 	createItem, postImage, 
 	batchRequestEntities, 
 	putItems,
@@ -294,6 +293,7 @@ class ImagePreview extends React.Component{
 			selectedContentId,
 			src,
 			contentIdsToInd,
+			orderedContentIdIndPairs
 		} = this.props;
 
 		var indLength = Object.keys(contentIdsToInd).length;
@@ -311,9 +311,10 @@ class ImagePreview extends React.Component{
 				swipeCallback={swipeCallback}
 			>
 					{
-						Object.keys(images).map(id => (
+						//Object.keys(images).map(id => (
+						orderedContentIdIndPairs.map(idIndPair => (
 							<div 
-								key={id} 
+								key={idIndPair[0]} 
 								className={FormStyles.previewImageContainer_div}
 								//style={{'background-color': '#f0f0f0'}}
 								//style={{
@@ -328,10 +329,10 @@ class ImagePreview extends React.Component{
 									//handleImageLoad={e => this._handleImgLoad(e)}
 									//onImgLoaded={onImgLoaded}
 									setupImageRef={(img) => {
-										this.props.setupImageRef(img, id)
+										this.props.setupImageRef(img, idIndPair[0])
 									}}
 									imgStyle={{'background-color':'#f9f9f9', 'object-fit':'contain'}}
-									src={images[id] ? images[id].src : null}
+									src={images[idIndPair[0]] ? images[idIndPair[0]].src : null}
 									imgLoaded={this.state.imgLoaded}
 									className={FormStyles.image_img}
 									onLoad={e => {
@@ -628,15 +629,30 @@ class ImageEdit extends React.Component{
 										if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
 											let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
 											let payloadJsonValue = payloadJsonPut[contentId] ? payloadJsonPut[contentId] : [];
+
 											payloadJsonPut = Object.assign({}, payloadJsonPut, {
 												[contentId]: [
-													...payloadJsonValue, 
-													//remove product property from non-custom items in contentJson
-													this.props.addedEntities.items.byIds[itemId].platform === null ? 
-														Object.assign( {}, this.props.addedEntities.items.byIds[itemId], {'product': undefined, 'sizeChartDto':undefined} ):
-														this.props.addedEntities.items.byIds[itemId]
+													...payloadJsonValue,
+													{
+														//product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product),														
+														// remove product property from non-custom items in contentJson
+														// TODO: I don't this block will ever be hit.  custom items currently default to platform = "wearsit"
+														...(
+															this.props.addedEntities.items.byIds[itemId].platform === null ? 
+																{
+																	...this.props.addedEntities.items.byIds[itemId], 
+																	'product': undefined, 
+																	'sizeChartDto':undefined,
+																} :
+																{
+																	...this.props.addedEntities.items.byIds[itemId],
+																	product: JSON.stringify(this.props.addedEntities.items.byIds[itemId].product),
+																}
+														)
+													}
 												]
 											});
+
 											putPayloadEmpty = false;
 										}
 									}
@@ -649,6 +665,7 @@ class ImageEdit extends React.Component{
 										if(this.props.addedEntities.itemContent.byIds[itemContentId].itemId === itemId){
 											let contentId = this.props.addedEntities.itemContent.byIds[itemContentId].contentId;
 											let payloadJsonValue = payloadJsonPost[contentId] ? payloadJsonPost[contentId] : [];
+
 											payloadJsonPost =Object.assign({}, payloadJsonPost, {
 												[contentId]: [
 													...payloadJsonValue, 
@@ -659,6 +676,7 @@ class ImageEdit extends React.Component{
 													}
 												]
 											});
+
 											postPayloadEmpty = false;
 										}
 									}
@@ -885,10 +903,11 @@ class ImageEdit extends React.Component{
 		const boundingRect =  event.target.getBoundingClientRect();
 		let xCoordPercent = ((event.pageX === 0 ? event.clientX : event.pageX) - ((event.target.getBoundingClientRect === undefined) ? event.target.x : boundingRect.left)) / event.target.width;
 		let yCoordPercent = ((event.pageY === 0 ? event.clientY : event.pageY) - ((event.target.getBoundingClientRect === undefined) ? event.target.y : boundingRect.top)) / event.target.height;
-		this.props.getItemForm(xCoordPercent, yCoordPercent);
-		//event.stopPropagation();
-		//store.dispatch(setFormVisibility("AddItem"));
-		//event.preventDefault();//maybe event.stopPropagation
+		
+		// Only allowed if picture exists
+		if(this.props.addedContents.allIds.length > 0 && this.props.addedContents.byIds[this.props.addedContents.allIds[0]].picture.length > 0){
+			this.props.getItemForm(xCoordPercent, yCoordPercent);
+		}
 	}
 
 	_handleOpenFile(event){
@@ -908,6 +927,7 @@ class ImageEdit extends React.Component{
 			updateImageState,
 			swipeCallback,
 			isCropReused,
+			onFolderSelect,
 		} = this.props;
 
 		//variables
@@ -921,7 +941,9 @@ class ImageEdit extends React.Component{
 			images,
 			src,
 			contentIdsToInd,
-
+			isImageSourceModalOpen,
+			outfitPreviewModal,
+			orderedContentIdIndPairs
 		} = this.props;
 
 		const {
@@ -1036,6 +1058,10 @@ class ImageEdit extends React.Component{
 					contentIdsToInd		={contentIdsToInd}
 
 					isCropReused={isCropReused}
+					onFolderSelect={onFolderSelect}
+					isImageSourceModalOpen={isImageSourceModalOpen}
+					outfitPreviewModal={outfitPreviewModal}
+					orderedContentIdIndPairs={orderedContentIdIndPairs}
 				/>
 			//</Swipeable>
 		)
@@ -1400,7 +1426,7 @@ class PicturePreview extends React.Component{
 		return({
 			usedContents,
 			usedOutfits,
-		})
+		});
 	}
 
 	//Reference redux state to identify existing content Ids to 
@@ -1466,6 +1492,11 @@ class PicturePreview extends React.Component{
 				}
 			}), contentIdsToInd);
 		}
+
+		// create array of sorted [id, index] arrays
+		var orderedContentIdIndPairs = usedOutfits.byIds[outfitIdSelected] ? 
+			usedOutfits.byIds[outfitIdSelected].contents.map((id, ind) => ([id, ind])).sort((a, b) => (a[1] - b[1])) :
+			[];
 		
 		console.log("contentSelected = " + this.props.contentSelected +", viewState = " + this.props.viewState);
 
@@ -1507,6 +1538,7 @@ class PicturePreview extends React.Component{
 							itemMapDimension: {width: this.props.imageWidth, height: this.props.imageHeight},
 							contentIdsToInd: contentIdsToInd,
 							isCropReused: this.isCropReused,
+							orderedContentIdIndPairs,
 							swipeCallback: (event) => {
 	
 								var prevId = contentIdsToInd[contentSelected] ? contentIdsToInd[contentSelected].prev : null;
@@ -1552,7 +1584,10 @@ class PicturePreview extends React.Component{
 							}}
 							className={FormStyles.contentListContainer_div}
 						>
-							<VisibleContentList contentViewImage={this.image}/>
+							<VisibleContentList 
+								contentViewImage={this.image}
+								orderedContentIdIndPairs={orderedContentIdIndPairs}
+							/>
 						</div>
 					</div>
     		</div>

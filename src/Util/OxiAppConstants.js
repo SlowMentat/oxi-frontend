@@ -1,12 +1,4 @@
 
-//import { 
-//	//setFormVisibility, 
-//	navigateTo, 
-//	//fetchEntities, 
-//	//replaceProfile
-//} from '../Components/Actions/indexActions.js';
-
-
 //Constant global variables
 export const OxiAppConstants = Object.freeze({	
 	debug : false,
@@ -208,6 +200,7 @@ export const OxiAppConstants = Object.freeze({
 		PROFILE : "PROFILE",
 		OUTFIT : "OUTFIT",
 		CONTENT: "CONTENT",
+		AUX_CONTENT: "AUX_CONTENT",
 		ITEM : "ITEM",
 		ITEM_CONTENT : "ITEMCONTENT",
 		PICTURE : "PICTURE",
@@ -217,6 +210,7 @@ export const OxiAppConstants = Object.freeze({
 		SIZE_CHART:'SIZE_CHART',
 		SIZE_GROUP:'SIZE_GROUP',
 		LIKE_COUNT: 'LIKE_COUNT',
+		MODAL: 'MODAL',
 		search:{
 			ta: 'AVAILABLE_ITEMS',
 		}
@@ -232,7 +226,8 @@ export const OxiAppConstants = Object.freeze({
 			b:'/searchRetailerNames',
 			c:'/searchUdr',
 			d:'/searchUds',
-			e:'/searchApparelTypes'
+			e:'/searchApparelTypes',
+			f:'/searchCustomItems',
 		},
 		retailer:'/retailer',
 	},
@@ -255,6 +250,7 @@ export const OxiAppConstants = Object.freeze({
 	MenuTypes : {
 		FILTER: "FILTER",
 		HELP: "HELP",
+		SETTING: "SETTING",
 	},
 	PageListIds:{
 		a: 'itemListBrowse',
@@ -302,6 +298,8 @@ export const OxiAppConstants = Object.freeze({
 		DELETE_OUTFITS: 'DeleteOutfits',
 		PROFILE_PIC: 'ProfilePic',
 		OUTFIT_PREVIEW: 'OutfitPreview',
+		IMAGE_SOURCE: 'ImageSource',
+		CUSTOM: 'custom',
 	},
 	MenuType : {
 		a: 'settings',
@@ -387,7 +385,17 @@ export const OxiAppConstants = Object.freeze({
 			description:null,
 			size:null,
 			retailer: null	
-		}
+		},
+		MODAL:{
+			id: null,
+			modal : 'HIDDEN',
+			isModalVisible : true,
+			scrimOpacity: .5,
+			prevRequestUrl : null,
+			prevRequestType : null,
+			overlayModal : null,
+			otherData : {},
+		},
 	},
 	ItemTypesByIconName: {
 		TypeJacket: {

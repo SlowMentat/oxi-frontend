@@ -1,7 +1,10 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
-	createItem, updateItem, 
+	//setFormVisibility, 
+	createModal,
+	removeModalById,
+	createItem, 
+	updateItem, 
 	selectMultipleEntity, 
 	deselectMultipleEntity,
 	clientInvalidateEntities,
@@ -52,7 +55,11 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = dispatch => ({
 	onClick : () => {
-		console.log("dispatching setFormVisibility for UpdateItme"); dispatch(setFormVisibility("UpdateItem"));
+		console.log("dispatching setFormVisibility for UpdateItme"); 
+		//dispatch(setFormVisibility("UpdateItem"));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.UPDATE_ITEM,
+		}));
 	},
 	createHandleMulSel: (id) => dispatch(selectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
 	createHandleMulDesel: (id) => dispatch(deselectMultipleEntity(OxiAppConstants.EntityTypes.ITEM , id)),
@@ -95,6 +102,7 @@ const mapDispatchToProps = dispatch => ({
 		});	
 	},	
 	removeContentEntities: () => dispatch(removeAllEntities(OxiAppConstants.EntityTypes.CONTENT)),
+	removeAuxContentEntities: () => dispatch(removeAllEntities(OxiAppConstants.EntityTypes.AUX_CONTENT)),
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 	clearSelectMultipleEntity: () => dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.ITEM)),
 })

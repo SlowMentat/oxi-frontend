@@ -2,6 +2,8 @@ import React from 'react';
 import ItemStyles from '../../item.scss';
 import PropTypes from 'prop-types';
 import ItemLiteStyles from '../../itemLite.scss';
+import ItemBrowseStyles from '../../itemBrowse.scss';
+import FormStyles from '../../forms.scss';
 import Styles from '../../root.scss';
 //import DeleteIcon from '../SvgAssets/Icons/DeleteIcon.js';
 //import EditIcon from '../SvgAssets/Icons/EditIcon.js';
@@ -17,6 +19,8 @@ import { Tooltip } from '@rmwc/tooltip';
 import  '@rmwc/ripple/styles';
 import { Ripple } from '@rmwc/ripple';
 import '@rmwc/tooltip/tooltip.css';
+
+import { mapImageUri } from '../../Util/Misc.js';
 
 //import { 
 //	Card, 
@@ -247,12 +251,22 @@ export class ItemLite extends React.Component{
 								}}
 							>
 								<Typography
-									use="headline6"
+									use="headline5"
+									otherStyles={{'margin-bottom': '5px'}}
 									//tag="h2"
 								>
   									{ retailerName }
 								</Typography>
 								<Typography
+									otherStyles={{
+										'padding-left': '4px',
+										'padding-right': '4px',
+										'color': 'black',
+										'--handle-color':'var(--color-03)',
+										'border': 'solid 1px var(--handle-color)',
+										'background-color': 'var(--handle-color)',
+										'border-radius': '4px',
+									}}
 									use="subtitle2"
 									//tag="h3"
 									theme="textSecondaryOnBackground"
@@ -347,7 +361,13 @@ export class ItemLite extends React.Component{
 											</div> :
 											null
 									}
-									<List style={{maxHeight: '100%', overflow:'auto'}} >
+									<List 
+										style={{
+											maxHeight: '100%', 
+											overflow:'auto',
+											'padding-top': '0px',
+										}} 
+									>
 										{ infoComponent ? infoComponent(isExpanded) : null }
 									</List>
 								</CollapsibleList>) :
@@ -360,7 +380,7 @@ export class ItemLite extends React.Component{
 						viewState === OxiAppConstants.viewState.EDIT ? 
 							<div className={ItemLiteStyles.itemDeleteBtn_div}>						
 								<IconButton
-									theme="textPrimaryOnLight"
+									//theme="textPrimaryOnLight"
 									class=""
 									label="discard"
 									labelSize="1.2rem"
@@ -368,7 +388,11 @@ export class ItemLite extends React.Component{
 		    							deleteItem([id], selectedContent);
 									}}
 									icon={{icon: 'close', basename: 'material-icons-outlined'}}
-									style={{'margin-left':'-1px', 'font-size':'1.8rem'}}
+									style={{
+										'margin-left':'-1px', 
+										'font-size':'1.8rem', 
+										'color': 'var(--color-05-tint-02)'
+									}}
 								/>
 							</div> :
 							null
@@ -456,24 +480,158 @@ export class ItemLite extends React.Component{
 }
 
 
+export class ItemSearch extends React.Component{
+	constructor(props){
+		super(props);
+		this.state = {
+			isExpanded: this.props.isExpanded,
+		}
+	}
+
+	render(){
+
+		const { 
+			handleMouseOver, 
+			handleMouseLeave,
+			collapseItem, 
+			expandItem,
+			onBookmarkClicked,
+			onSizeHover,
+			deleteItem,
+			onDeselect,
+			onClick,
+		} = this.props;
+
+		var { 
+			id,
+			isProfileView,
+			handleOnClick,
+			retailerName,
+			handle,
+			sizeLabel,
+			apparelTypeIcon,
+		} = this.props;
+
+		return(  		
+			<React.Fragment>
+
+
+  				<div 
+  					className={ItemLiteStyles.itemSearch_div}
+  					onClick={
+  						e => {
+  							e.stopPropagation()
+  							onClick(e)
+  						}
+  					}
+  					onMouseOver={(event) => onSizeHover(event)} >
+
+  					<Card 
+  						style={{
+  							height:'100%',
+  							//'background-color': 'var(--color-01-tint-02)',
+  						}}
+  					>
+						<CardPrimaryAction style={{height:'66.7px'}}>
+							<CardMedia
+								sixteenByNine
+								style={{
+									width:'50%',
+									height: '100%',
+									'margin-left':'50%',
+									'border-radius':'0px',
+								}}
+							>
+								{/*<div
+									style={{
+										position:'absolute',
+										top: '0px',
+										right: '35%',
+										width: '35%',
+										height: 'calc(100% - 2*7px)',
+										'margin-top': '7px',
+									}}
+								>									
+									<SvgIcon name={apparelTypeIcon} stroke="var(--color1)"/>
+								</div>*/}
+
+  								<div 
+  									id="selectedSizeIcon" 
+  									className={ItemLiteStyles.selectedSize_div} 
+  								>
+  									<span> { sizeLabel } </span>
+  								</div>
+								<div
+									style={{
+										position: 'absolute',
+										top: '0px',
+										right:'0px',
+										width: '35%',
+										height: 'calc(100% - 2*7px)',
+										'margin-top': '7px',
+									}}
+								>
+									<SvgIcon 
+										name={apparelTypeIcon} 
+										stroke="var(--color1)"
+									/>
+								</div>
+							</CardMedia>
+							<div
+								style={{
+									position:'absolute',
+									width:'calc(50% - 1rem)',
+									padding: '1rem 1rem 1rem 1rem',
+									'text-align':'left',
+									transition: 'transform 200ms cubic-bezier(0.42, 0.54, 0.71, 1.37)',
+								}}
+							>
+								<Typography
+									use="headline5"
+									//tag="h2"
+								>
+  									{ retailerName }
+								</Typography>
+								<Typography
+									use="subtitle2"
+									//tag="h3"
+									theme="textSecondaryOnBackground"
+									//style={{marginTop: '-1rem'}}
+								>
+									{handle}
+								</Typography>
+								{/*<Typography
+									use="body1"
+									tag="div"
+									theme="textSecondaryOnBackground"
+								>
+									{handle}
+								</Typography>*/}
+							</div>
+						</CardPrimaryAction>
+					</Card>
+				</div>
+  			</React.Fragment>
+		);
+	}
+}
+
 export class ItemInfo extends React.Component {
 	constructor(props){
 		super(props);
 		this.state={
 			isColorOptionsOpen:false,
 			selectedColor:null,
-			selectedSize:null,			
+			selectedSize:null,
+			selectedSizeGroup:{
+				...OxiAppConstants.EntityTemplates.SIZE_GROUP,
+			}		
 		};
 
 		this._handleSizeSelected = this._handleSizeSelected.bind(this);
 	}
 
 	_handleSizeSelected(sizeGroups, size, compareMetrics){
-		this.setState(prevState => ({
-			...prevState,
-			selectedSize: size,
-		}));
-
 		let sizeGroup = {};
 
 		for(let sg of Object.values(sizeGroups)){
@@ -483,14 +641,25 @@ export class ItemInfo extends React.Component {
 			}
 		}
 
-		let camelizedMetric = Object.keys(sizeGroup.metric).reduce((accum, meas) => {
-			return({
-				...accum, 
-				[camelize(meas)]: sizeGroup.metric[meas],
-			});
-		}, {});
+		if(sizeGroup.metric){
+			let camelizedMetric = Object.keys(sizeGroup.metric).reduce((accum, meas) => {
+				return({
+					...accum, 
+					[camelize(meas)]: sizeGroup.metric[meas],
+				});
+			}, {});
+	
+			compareMetrics(camelizedMetric);
+		}
 
-		compareMetrics(camelizedMetric);
+		this.setState(prevState => ({
+			...prevState,
+			selectedSize: size,
+			selectedSizeGroup: {
+				...OxiAppConstants.EntityTemplates.SIZE_GROUP,
+				...sizeGroup,
+			}
+		}));
 	}
 
 	render(){
@@ -509,6 +678,13 @@ export class ItemInfo extends React.Component {
 		} = this.props;
 
 		const isShown = isExpanded || isDevice;
+
+		const avgMetric = Object.keys(this.state.selectedSizeGroup.metric).reduce((accum, measurement, ind) => {
+			return({
+				...accum,
+				[measurement]: (parseInt(this.state.selectedSizeGroup.metric[measurement].min) + parseInt(this.state.selectedSizeGroup.metric[measurement].max)) / 2,
+			});
+		}, {})
 
 		return(
 			<CSSTransition
@@ -548,7 +724,6 @@ export class ItemInfo extends React.Component {
 										{
 											availableSizes.length > 0 ? 
 												availableSizes.map(size => (
-													<Ripple>
 														<div 
 															className={ItemStyles.sizeVariant_div}
 															style={size === this.state.selectedSize ? ({'background-color':'var(--color-01-tint-02)',color:'white'}) : ({})}
@@ -562,10 +737,55 @@ export class ItemInfo extends React.Component {
 																this._handleSizeSelected(sizeGroups, size, compareMetrics);
 															}}> 
 																{size}
-														</div>
-													</Ripple> )
+														</div> )
 												) :
 												"No sizes available"
+										}
+									</div>
+									<div className={FormStyles.ddSizeMetrics_div}>
+										{
+											Object.keys(avgMetric).map(measurement => {
+												const minToleranceKey = `min${measurement.charAt(0).toUpperCase() + measurement.slice(1)}`;
+												const maxToleranceKey = `max${measurement.charAt(0).toUpperCase() + measurement.slice(1)}`;
+			
+												return( 
+													true?//overMetric == sizeGroup.sizeLabel ?
+														<div className={FormStyles.ddSizeMetricItem_div}>
+															<div className={FormStyles.ddSizeMetricStatus_div}>
+																{ 
+																	avgMetric[measurement] >= this.props.ownerTolerances[minToleranceKey] && avgMetric[measurement] <= this.props.ownerTolerances[maxToleranceKey] ?
+																		<div className={FormStyles.ddSizeMetricStatusIcon_div}>
+																			<span 
+																				class="material-icons" 
+																				style={{
+																					color: 'var(--color-01-tint-02)',
+																					'font-size': '2.4rem',
+																					'font-weight': 'bold',
+																				}}
+																			>
+																				done
+																			</span>
+																		</div> :
+																		<div className={FormStyles.ddSizeMetricStatusIcon_div}>
+																			<span 
+																				class="material-icons" 
+																				style={{
+																					color: 'var(--color-05-tint-01)',
+																					'font-size': '2.4rem',
+																				}}
+																			>
+																				not_interested
+																			</span>
+																		</div>
+																}
+															</div>
+															<div className={FormStyles.ddSizeMetric_div}>
+																{ measurement }
+															</div>
+														</div> :
+														null
+												);
+											})
 										}
 									</div>
 								</div>
@@ -699,16 +919,18 @@ export class ItemBrowse extends React.Component{
 			expandItem,
 			onBookmarkClicked,
 			onSizeHover,
-			removeContentEntities,
+			//removeContentEntities,
+			removeAuxContentEntities,
 			getContentsByItemId,
 			onDeselect,
 			onSelect,
-			clearSelectMultipleEntity
+			clearSelectMultipleEntity,
 		} = this.props;
 
 		var { 
 			id,
 			item,
+			picture,
 			isProfileView,
 			handleOnClick,
 			isSaved,
@@ -732,6 +954,7 @@ export class ItemBrowse extends React.Component{
 			onlineStoreUrl, //platform = wearsit
 			uds, 			//platform = wearsit
 			handle,			//platform = wearsit
+			pictureId,		//platform = wearsit
 			description,	//platform = wearsit || anything
 			featuredImage,	//platform != wearsit 
 			//size,			//platform != wearsit
@@ -745,6 +968,18 @@ export class ItemBrowse extends React.Component{
 
 		return(		
 			<div>
+				<div className={ItemBrowseStyles.itemBrowseHeader_div}>					
+					<Typography use="headline4" >
+  						{ vendor || udr }
+					</Typography>
+					<Typography
+						use="subtitle4"
+						//tag="div"
+						theme="textSecondaryOnBackground"
+					>
+						{handle}
+					</Typography>
+				</div>
 				<Card 
 					style={{
 						width:'100%',
@@ -778,14 +1013,15 @@ export class ItemBrowse extends React.Component{
 								'border-radius':'0px',
 								backgroundImage: `url(${
   									featuredImage !== undefined ? 
-  										featuredImage.originalSrc :   										
-										this.state.base64Image === null ? 
-											(OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : 
-											(this.state.base64Image)									
+  										featuredImage.originalSrc :
+  										mapImageUri(picture.mediumuri)									
+										//this.state.base64Image === null ? 
+										//	(OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : 
+										//	(this.state.base64Image)									
 								})`
 							}}
 						/>
-						<div
+						{/*<div
 							style={{
 								position:'absolute',
 								width:'calc(50% - 1rem)',
@@ -819,7 +1055,7 @@ export class ItemBrowse extends React.Component{
 							>
 								{handle}
 							</Typography>
-						</div>
+						</div>*/}
 					</CardPrimaryAction>
 					<CardActions>
 						<Rating value={3} />
@@ -853,7 +1089,8 @@ export class ItemBrowse extends React.Component{
 						}
 						//defaultOpen={ isSelected }
 						onOpen={() => {
-							removeContentEntities();
+							//removeContentEntities();
+							removeAuxContentEntities();
 							getContentsByItemId();
 							clearSelectMultipleEntity(); 
 							onSelect(item.id);
@@ -1102,6 +1339,7 @@ export class Item extends React.Component{
 			apparelTypeByIds,
 			viewState,
 			selectedContent,
+			ownerTolerances,
 		} = this.props;
 
 		const { isSaved } = this.state;
@@ -1178,11 +1416,12 @@ export class Item extends React.Component{
 			case 
 				this.props.browseSelection === OxiAppConstants.browseSelection.b &&
 				this.props.webAppView === OxiAppConstants.navRequestMap.a.toLowerCase():
-				itemContainerStyles = !isSelected ? 
-					ItemStyles.itemContainer_div :
-					this.props.browseSelection === 'apparel' ?
-						ItemStyles['itemContainerBrowse_div--selected'] :
-						null;
+				//itemContainerStyles = !isSelected ? 
+				//	ItemStyles.itemContainer_div :
+				//	this.props.browseSelection === 'apparel' ?
+				//		ItemStyles['itemContainerBrowse_div--selected'] :
+				//		null;
+				itemContainerStyles = ItemStyles.itemContainer_div;
 				break;
 
 			default:
@@ -1244,7 +1483,7 @@ export class Item extends React.Component{
 						height:'auto',
 						...(isDevice ? 
 								{
-									height: '100vh',
+									...(isActive ? {height: '100vh'} : {}),
 									top:'0px',
 									transition: 'transform 150ms cubic-bezier(0.45, 0.05, 0.55, 0.95)',
 									//transform: 'translateX(100vw)',
@@ -1337,6 +1576,7 @@ export class Item extends React.Component{
 						isExpanded={isExpanded}
 						collapseItem={collapseItem}
 						expandItem={expandItem}
+						sizeGroups={sizeGroups}
 						apparelTypeIcon={
 							apparelTypeByIds === undefined || platform !== OxiAppConstants.PLATFORM ? 
 								null :
@@ -1372,7 +1612,9 @@ export class Item extends React.Component{
 									height={imageHeight}
 									compareMetrics={compareMetrics}
 									sizeGroups={sizeGroups[sizeGroupId] ? sizeGroups : {}} 
-									toggleMetricPanel={toggleMetricPanel} />
+									toggleMetricPanel={toggleMetricPanel} 
+									ownerTolerances={ownerTolerances}
+								/>
 							) : 
 							() => (null)
 						} 

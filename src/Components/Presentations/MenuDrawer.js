@@ -162,7 +162,14 @@ export class MenuDrawer extends React.Component{
 						}
 					}}
 					delta={30}
-					innerRef={(div) => { div ? div.style.height = '100%' : null; }}
+					innerRef={
+						(div) => {
+							if(div){ 
+								div.style.height = '100%';
+								div.style['overflow-y'] = 'scroll';
+							}
+						}
+					}
 				>
 					<div 
 						className={Styles.expandMetricBtn_div}

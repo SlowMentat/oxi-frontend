@@ -48,6 +48,7 @@ export const Button = styled(({labelSize = '1.2rem', ...otherProps}) => {
 })`
 	${
 		props => `
+			opacity: ${props.disabled ? 0.3 : 1};
 			& .mdc-button .mdc-button__icon {
 				font-size: ${props.iconSize || is};
 				margin-right: calc(${props.iconSize || is} * 2/3); 

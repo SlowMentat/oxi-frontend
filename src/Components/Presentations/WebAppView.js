@@ -31,7 +31,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 //CSS Styles
-import OutfitNavStyles from '../../outfitnav.scss'; 
+import OutfitNavStyles from '../../outfitNav.scss'; 
 import Styles from '../../root.scss';
 import NavStyles from '../../nav.scss';
 import MetricStyles from '../../metric.scss';
@@ -39,19 +39,42 @@ import OutfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 
 //Third pary
 import isEqual from 'lodash.isequal';
-import { Route, Switch, Redirect, Link } from 'react-router-dom';
 
+import { 
+	Route, 
+	Switch, 
+	Redirect, 
+	Link 
+} from 'react-router-dom';
 import '@rmwc/fab/styles';
+
 import { Fab } from '@rmwc/fab';
 import '@rmwc/tabs/styles';
-import { Tab, TabBar } from '../../Components/Presentations/FitseeUI/Tabs.js';//@rmwc/tabs';
-import { IconButton, Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
+
+import { 
+	Tab, 
+	TabBar 
+} from '../../Components/Presentations/FitseeUI/Tabs.js';//@rmwc/tabs';
+
+import { 
+	IconButton, 
+	Button 
+} from '../../Components/Presentations/FitseeUI/Buttons/index.js';
+
 import { Tooltip } from '../../Components/Presentations/FitseeUI/Tooltip.js';
 import '@rmwc/tooltip/styles';
-import { MenuSurfaceAnchor, Menu, MenuItem } from '../../Components/Presentations/FitseeUI/Menu.js';
+
+import { 
+	MenuSurfaceAnchor,
+	Menu, 
+	MenuItem 
+} from '../../Components/Presentations/FitseeUI/Menu.js';
 import '@rmwc/menu/styles';
 
-import { logout } from '../../Components/Actions/indexActions.js';
+import { 
+	logout,
+	createModal,
+} from '../../Components/Actions/indexActions.js';
 
 const bannerTitleImg = {
 	'position': 'fixed',
@@ -356,7 +379,25 @@ export function SiteNav(props){
 													>
 														{
 															["Account", "Logout"].map(option => {
-																return(<MenuItem onClick={e => logout()}>{option}</MenuItem>);
+																var onClickHandler = null;
+																
+																switch(option){
+																	case "Account":
+																		onClickHandler = (e) => logout();
+																		break;
+
+																	case "Logout":
+																		onClickHandler = (e) => {
+																			hideMenu('');
+																			logout();
+																		};
+																		break;
+
+																	default:
+																		break;
+																}
+
+																return(<MenuItem onClick={onClickHandler}>{option}</MenuItem>);
 															})
 														}
 													</Menu>
@@ -527,6 +568,7 @@ class Nav extends React.Component{
 				
 									return(
 										<Link
+											key={block}
 											style={{
 												width:'33%',
 												height:'100%',
@@ -626,6 +668,8 @@ class OutfitNav extends React.Component{
 			webAppViewContext,
 			updatedCoverpicTrigger,
 			toggleMenuDrawer,
+			modals,
+			modalIds,
 		} = this.props;
 
 		var URI = pathname ? pathname.split('/') : '';
@@ -724,15 +768,15 @@ class OutfitNav extends React.Component{
     								{browseContent !== null ? browseContent(controls) : null}
     							</div>
     							{
-    								isDevice && this.props.formType == OxiAppConstants.FormType.ADD_ITEM ?
+    								isDevice && this.props.modals[OxiAppConstants.FormType.ADD_ITEM] ?
     									null :
     									<div 
     										className={Styles.browseControls}
     										style={
     											(!isDevice && this.props.webAppView !== OxiAppConstants.navRequestMap.a.toLowerCase()) || 
-    											(isDevice && this.props.formType === OxiAppConstants.FormType.OUTFIT_PREVIEW) ? 
-    												({display:'none'}) : 
-    												({}) 
+    											(isDevice && this.props.modals[OxiAppConstants.FormType.OUTFIT_PREVIEW]) ? 
+    												{display:'none'} : 
+    												{top: `calc(${initialInnerHeight}px - 48px)`, bottom: 'unset'} 
     										}
     									>
     										{
@@ -1089,6 +1133,7 @@ export default class webAppView extends React.Component {
 			positionMenu,
 			setAppViewContext,
 			confirmOutfitDelete,
+			openSelectImageSourceForm,
 		} = this.props;
 
 		var { 
@@ -1097,7 +1142,9 @@ export default class webAppView extends React.Component {
 			match,
 			owner,
 			viewState,
-			formType,
+			//formType,
+			modals,
+			modalIds,
 			isFocusedPreview,
 			isMenu,
 			popupMenuType,
@@ -1109,11 +1156,12 @@ export default class webAppView extends React.Component {
 		} =  this.props;
 
 		const isModal = !!(location.state && location.state.modal && this.previousLocation !== location)// not initial render
-		console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
-		let modalContent = null;
+		//console.log('isModal = ', isModal, ', this.props.formType = ', this.props.formType);
+		//let modalContents = null;
+		//let modalContents = [];
 		var URI = pathname ? pathname.split('/') : '';
 
-		const createModalFragment = (pathname, iniOutfitPreview) => (
+		const createModalFragment = (pathname, iniOutfitPreview, formType, imageSourceCallback) => (
 			<React.Fragment>
 				{/*
 					<Redirect push={true} to={{
@@ -1122,7 +1170,7 @@ export default class webAppView extends React.Component {
 					}}/>
 					<Route path={pathname} component={ModalContentSelection} />
 				*/}
-				<ModalContentSelection owner={owner} iniOutfitPreview={iniOutfitPreview}/>
+				<ModalContentSelection owner={owner} iniOutfitPreview={iniOutfitPreview} formType={formType} imageSourceCallback={imageSourceCallback}/>
 			</React.Fragment>
 		);
 
@@ -1161,6 +1209,9 @@ export default class webAppView extends React.Component {
 				isCommentsShown,
 				ownerpicuri,
 				hostpicuri,
+				modals,
+				modalIds,
+				onFolderSelect,
 			} = props;
 
 			return(
@@ -1185,6 +1236,11 @@ export default class webAppView extends React.Component {
 						changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
 						unsetPreviewFocus={unsetPreviewFocus}
 						isCommentsShown={isCommentsShown}
+						onFolderSelect={(e, callback) => {
+							openSelectImageSourceForm();
+							this.imageSourceCallback = callback;
+						}}
+						//showSourceDialogue={true}
 					/>
 	
 					<VisibleItemList 
@@ -1203,7 +1259,8 @@ export default class webAppView extends React.Component {
 							(isHidden) => this.setState(prevState => ({
 								isControlsHidden: isHidden,
 							}))
-						} />
+						} 
+					/>
 	
 					<ProfileViewControlsContainer 
 						unsetPreviewFocus={unsetPreviewFocus}
@@ -1221,46 +1278,77 @@ export default class webAppView extends React.Component {
 		}
 
 		//Get the users saved items if not already exists
-		Object.keys(this.props.savedItemMap).length === 0 ? this.props.getSavedItems() : null;
+		//Object.keys(this.props.savedItemMap).length === 0 ? this.props.getSavedItems() : null;
+		this.props.savedItemMap === null ? this.props.getSavedItems() : null;
 
-		switch(true){
-			case this.props.formType === OxiAppConstants.FormType.LOGIN:
-				modalContent = createModalFragment(`${this.props.match.url}/login`);
-				break;
-			case this.props.formType === OxiAppConstants.FormType.ADD_ITEM:
-				modalContent = createModalFragment(`${this.props.match.url}/add-item`);
-				break;
-			case this.props.formType === OxiAppConstants.FormType.UPDATE_ITEM:
-				modalContent = createModalFragment(`${this.props.match.url}/edit-item`);
-				break;
-			case this.props.formType === OxiAppConstants.FormType.DISCARD_EDITS:
-				modalContent = createModalFragment(`${this.props.match.url}/discard-edits`);
-				break;
-			case this.props.formType === OxiAppConstants.FormType.DELETE_OUTFITS:
-				modalContent = createModalFragment(`${this.props.match.url}/delete-outfits`);
-				break;
-			case this.props.formType === OxiAppConstants.FormType.PROFILE_PIC:
-				modalContent = createModalFragment(`${this.props.match.url}/edit-profile-pic`);
-				break;
-			case this.props.formType === OxiAppConstants.FormType.OUTFIT_PREVIEW:
-				modalContent = createModalFragment(
-					`${this.props.match.url}/outfit_preview`, 
-					(compoundStyles, overrideOnExit, showComments, isCommentsShown) => {
-						return getOutfitPreviewModal(
-							{
-								compoundStyles, 
-								overrideOnExit, 
-								showComments, 
-								isCommentsShown,
-								//refreshOnCoverpicUpdate: (id, val) => this.refreshOnCoverpicUpdate(id, val),
+		var modalContents = modalIds.reduce((accum, modalId) => {
+			switch(true){
+				case modalId === OxiAppConstants.FormType.LOGIN:
+					return({
+						...accum,
+						[modalId]: createModalFragment(`${this.props.match.url}/login`, null, modalId),
+					});
+	
+				case modalId === OxiAppConstants.FormType.ADD_ITEM:
+					return({
+						...accum, 
+						[modalId]: createModalFragment(`${this.props.match.url}/add-item`, null, modalId),
+					});
+	
+				case modalId === OxiAppConstants.FormType.UPDATE_ITEM:
+					return({
+						...accum,
+						[modalId]: createModalFragment(`${this.props.match.url}/edit-item`, null, modalId),
+					});
+	
+				case modalId === OxiAppConstants.FormType.DISCARD_EDITS:
+					return({
+						...accum,
+						[modalId]: createModalFragment(`${this.props.match.url}/discard-edits`, null, modalId),
+					});
+	
+				case modalId === OxiAppConstants.FormType.DELETE_OUTFITS:
+					return({
+						...accum,
+						[modalId]: createModalFragment(`${this.props.match.url}/delete-outfits`, null, modalId),
+					});
+	
+				case modalId === OxiAppConstants.FormType.PROFILE_PIC:
+					return({
+						...accum,
+						[modalId]: createModalFragment(`${this.props.match.url}/edit-profile-pic`, null, modalId),
+					});
+	
+				case modalId === OxiAppConstants.FormType.OUTFIT_PREVIEW:
+					return({
+						...accum,
+						[modalId]: createModalFragment(
+							`${this.props.match.url}/outfit_preview`, 
+							(compoundStyles, overrideOnExit, showComments, isCommentsShown) => {
+								return getOutfitPreviewModal(
+									{
+										compoundStyles, 
+										overrideOnExit, 
+										showComments, 
+										isCommentsShown,
+										//refreshOnCoverpicUpdate: (id, val) => this.refreshOnCoverpicUpdate(id, val),
+									},
+								);
 							},
-						);
-					}
-				);
-				break;
-			default:
-				break;
-		}
+							modalId
+						),
+					});
+
+				case modalId === OxiAppConstants.FormType.IMAGE_SOURCE:
+					return({
+						...accum,
+						[modalId]: createModalFragment(`${this.props.match.url}/image-source`, null, modalId, this.imageSourceCallback),
+					})
+	
+				default:
+					return null;
+			}
+		}, {})
 
 		console.log('this.previousLocation = ', this.previousLocation);
 		console.log('location = ', location);
@@ -1335,7 +1423,7 @@ export default class webAppView extends React.Component {
 											pathname={pathname}
 											match={match}
 											owner={owner}
-											formType={formType}
+											//formType={formType}
 											ownerUsernamePath={ownerUsernamePath}
 											//setPreviewedOutfit={this.setPreviewedOutfit}
 											previewedOutfitId={this.state.previewedOutfitId}
@@ -1343,6 +1431,8 @@ export default class webAppView extends React.Component {
 											webAppViewContext={webAppViewContext}
 											confirmOutfitDelete={confirmOutfitDelete}
 											toggleMenuDrawer={this.toggleMenuDrawer}
+											modals={modals}
+											modalIds={modalIds}
 										/>
 										<Admin/>
 									</div>
@@ -1416,7 +1506,13 @@ export default class webAppView extends React.Component {
 															populateItemsMap={(visibleItemsByIds) => this._handleItemsListUpdated(visibleItemsByIds)}
 															itemIdHovered={this.state.itemIdHovered}
 															changeItemHovered={(itemId) => this._handleItemHovered(itemId)}
-															unsetPreviewFocus={unsetPreviewFocus} />
+															unsetPreviewFocus={unsetPreviewFocus}
+															onFolderSelect={(e, callback) => {
+																openSelectImageSourceForm();
+																this.imageSourceCallback = callback;
+															}}
+															//showSourceDialogue={false} 
+														/>
 
 														<VisibleItemList 
 															visibleItemsMap={this.state.visibleItems !== undefined ? this.state.visibleItems : {}}
@@ -1455,7 +1551,7 @@ export default class webAppView extends React.Component {
 															pathname={pathname}
 															match={match}
 															owner={owner}
-															formType={formType}
+															//formType={formType}
 															ownerUsernamePath={ownerUsernamePath}
 															//setPreviewedOutfit={this.setPreviewedOutfit}
 															previewedOutfitId={this.state.previewedOutfitId}
@@ -1463,6 +1559,8 @@ export default class webAppView extends React.Component {
 															webAppViewContext={webAppViewContext}
 															confirmOutfitDelete={confirmOutfitDelete}
 															toggleMenuDrawer={this.toggleMenuDrawer}
+															modals={modals}
+															modalIds={modalIds}
 															//updatedCoverpicTrigger={this.state.updatedCoverpicTrigger}
 														/>
 
@@ -1517,7 +1615,7 @@ export default class webAppView extends React.Component {
 									pathname={pathname}
 									match={match}
 									owner={owner}
-									formType={formType}
+									//formType={formType}
 									ownerUsernamePath={ownerUsernamePath}
 									//setPreviewedOutfit={this.setPreviewedOutfit}
 									previewedOutfitId={this.state.previewedOutfitId}
@@ -1525,6 +1623,8 @@ export default class webAppView extends React.Component {
 									webAppViewContext={webAppViewContext}
 									confirmOutfitDelete={confirmOutfitDelete}
 									toggleMenuDrawer={this.toggleMenuDrawer}
+									modals={modals}
+									modalIds={modalIds}
 								/>
 								{/*									
     								isDevice ? 
@@ -1538,7 +1638,10 @@ export default class webAppView extends React.Component {
 						push
 						render={props => <div>This URI does not exist</div>} />
 				</Switch>
-				{this.props.formType !== 'HIDDEN' ? modalContent : null}
+				{
+					//this.props.formType !== 'HIDDEN' ? modalContents : null
+					modalIds.map(id => modalContents[id])
+				}
 			</React.Fragment>
 		)
 	}

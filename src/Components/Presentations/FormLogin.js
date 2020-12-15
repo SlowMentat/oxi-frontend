@@ -149,6 +149,8 @@ export default class FormLogin extends React.Component{
 
 				if(this.props.afterLoginSuccess !== undefined){
 					this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
+					this.props.closeModal(OxiAppConstants.FormType.LOGIN);
+					
 					this.setState(prevState => ({
 						isAuthenticated: true,
 					}));

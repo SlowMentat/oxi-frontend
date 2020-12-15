@@ -1,6 +1,9 @@
 import { connect } from 'react-redux';
 import { 
-	setFormVisibility, 
+	//setFormVisibility, 
+	createModal,
+	removeModalById,
+	setFormOverlayVisibility,
 	setWebAppView, 
 	fetchEntities, 
 	replaceProfile, 
@@ -40,10 +43,14 @@ const mapStateToProps = (state, props ) => {
 		/*hostProfile: state.entitiesReducer.profile.byIds.host,*/
 		owner: state.entitiesReducer.profile.byIds.owner,
 		ownerpicuri: (state.entitiesReducer.profile.byIds.owner ? state.entitiesReducer.profile.byIds.owner.pictureDto.smalluri : ''),
-		hostpicuri: (state.entitiesReducer.profile.byIds.host ? state.entitiesReducer.profile.byIds.host.pictureDto.smalluri : ''),
-		formType: state.toggleModal.modal,
-		requestUrl: state.toggleModal.prevRequestUrl,
-		requestType: state.toggleModal.prevRequestType,
+		hostpicuri: (state.entitiesReducer.profile.byIds.host && state.entitiesReducer.profile.byIds.host.pictureDto ? state.entitiesReducer.profile.byIds.host.pictureDto.smalluri : ''),
+		
+		//formType: state.toggleModal.modal,
+		modals: state.modalsReducer.byIds,
+		modalIds: state.modalsReducer.allIds,
+
+		//requestUrl: state.toggleModal.prevRequestUrl,
+		//requestType: state.toggleModal.prevRequestType,
 		savedItemMap: state.cache.savedItemMap,
 		buttonDisabled: state.buttonState.addOutfit.disabled,
 
@@ -59,7 +66,7 @@ const mapStateToProps = (state, props ) => {
 	};
 }
 
-const mapDispatchToProps = (dispatch, props) => ({
+const mapDispatchToProps = (dispatch) => ({
 	getSavedItems : () => dispatch(getSavedItems()),
 	navEventCallbacks : {
 		//Browse
@@ -103,18 +110,42 @@ const mapDispatchToProps = (dispatch, props) => ({
 		dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitIds[0], 1, entitiesStateReducer));
 
 		dispatch(disableAddOutfit(true));
+		
+		//dispatch(setFormOverlayVisibility(OxiAppConstants.FormType.IMAGE_SOURCE))
 		dispatch(editContentView(OxiAppConstants.viewState.ADD));
 
 		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitIds));
 		dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.CONTENT, [1]));
 
-		dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+		//if(isDevice){
+		//	dispatch(createModal({
+		//		id: OxiAppConstants.FormType.IMAGE_SOURCE,
+		//	}));
+		//}
+
+		//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.OUTFIT_PREVIEW,
+			otherData:{
+				isNewOutfit: true,
+			}
+		}));
 	},
 	getCoverPic : (filename, callback) => dispatch(fetchImage(filename, callback)),
 	positionMenu: (positionx, positiony) => dispatch(placeMenu(OxiAppConstants.MenuTypes.FILTER, positionx, positiony)),
 	showMenu: (menuType) => dispatch(showMenu(menuType, true)),
 	hideMenu: (menuType) => dispatch(showMenu(menuType, false)),
 	confirmOutfitDelete: () => dispatch(verifyIntent(OxiAppConstants.Intent.DELETE_OUTFITS)),
+	openSelectImageSourceForm: () => {
+		//dispatch(setFormVisibility(OxiAppConstants.FormType.IMAGE_SOURCE));
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.IMAGE_SOURCE,
+		}));
+	},
+	onImageSourceSelected: () => {
+		//dispatch(setFormVisibility(null));
+		dispatch(removeModalById(OxiAppConstants.FormType.IMAGE_SOURCE));
+	},
 })
 
 const AppView = connect(mapStateToProps, mapDispatchToProps)(WebAppView);

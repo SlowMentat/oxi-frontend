@@ -31,6 +31,9 @@ export const Menu = styled(({horizontal, ...otherProps}) => (
 			& .mdc-menu-surface--open{
 				display: ${props.horizontal ? 'flex' : 'block'};
 			}
+
+			& .mdc-dialog__surface{
+			}
 		`)
 	}
 `;

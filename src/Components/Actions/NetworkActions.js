@@ -21,10 +21,16 @@ import * as entityActions from './EntityActions/Index.js';
 import * as types from './Types.js';
 import * as genericActions from './GenericActions.js';
 import * as scaffolding from './Scaffolding.js';
-import { setFormVisibility , navigateTo} from './indexActions.js';
+
+import { 
+	navigateTo,
+	createModal,
+	removeModalById,
+} from './indexActions.js';
+
 import { RequestFailedException } from '../../Util/CustomExceptions.js';
-import { isDataUrl } from '../../Util/Misc.js';
-import { history } from '../../App.js';
+import { isDataUrl, createModalEntity } from '../../Util/Misc.js';
+//import { history } from '../../App.js';
 
 
 //Sets the navigation location in application state.  This is refered back to in the event of a dipatched confirmation or login modal during site navigation
@@ -93,7 +99,11 @@ export function handleUnauthorizedRequest(response){
 			//cookies.set('authorization', response.headers['www-authenticate'] + ' ', defaultCookieOptions);
 			//axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
 
-			dispatch(setFormVisibility("Login", response.request.responseURL, response.config.method));
+			//dispatch(setFormVisibility(OxiAppConstants.FormType.LOGIN, response.request.responseURL, response.config.method));
+			dispatch(createModal({
+				id: OxiAppConstants.FormType.LOGIN,
+			}));
+
 			return response;
 		}
 		
@@ -108,7 +118,7 @@ export function logout(){
 	axios.defaults.headers.common['authorization'] = null;
 	
 	// Route to splash page.
-	history.push('/');
+	history.push('/'); 
 }
 
 //Thunks dispatched by anonymous callback functions passed to Axios response interceptor
@@ -127,6 +137,7 @@ export const receivedSearchExistingItem = scaffolding.makeActionCreator(types.RE
 export const receivedSearchRetailers = scaffolding.makeActionCreator(types.RECEIVED_RETAILER_NAMES_SEARCH, null, 'retailerNameResults');
 export const receivedSearchUserDefinedRetailers = scaffolding.makeActionCreator(types.RECEIVED_UDR_NAMES_SEARCH, null, 'udrNameResults');
 export const receivedSearchUserDefinedSizes = scaffolding.makeActionCreator(types.RECEIVED_UDS_LABELS_SEARCH, null, 'udsLabelResults');
+export const receivedSearchCustomItem = scaffolding.makeActionCreator(types.RECEIVED_UD_ITEM_SEARCH, null, 'uDItemResults');
 export const receivedAllApparelTypes = scaffolding.makeActionCreator(types.RECEIVED_ALL_APPAREL_TYPES, null, 'allApparelTypes');
 export const receivedSizeGroupsByItemId = scaffolding.makeActionCreator(types.RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
 
@@ -341,6 +352,9 @@ export function fetchSuggestion(uri){
 					case uri.includes(OxiAppConstants.appUris.a):
 						dispatch(receivedAllApparelTypes(response.data));
 						break;
+					case uri.includes(OxiAppConstants.routeURIs.search.f):
+						dispatch(receivedSearchCustomItem(response.data));
+						break;
 					default:
 						break;
 				}
@@ -353,7 +367,8 @@ export function getSizeChartByItemId(itemId){
 	return function(dispatch){
 		return axios.get(`${OxiAppConstants.serviceURL}/sizeChart?itemId=${itemId}`).then(response => {
 			if(response.status === OxiAppConstants.HttpStatus.OK){
-				dispatch(receivedSizeGroupsByItemId(response.data.sizeGroupDtos))
+				//dispatch(receivedSizeGroupsByItemId(response.data.sizeGroupDtos))
+				dispatch(receivedSizeGroupsByItemId(response.data.sizeGroups));
 			}			
 		})
 	}	

@@ -16,8 +16,9 @@ $sliderWidth: 15px;
         position: relative;
         /*margin-top: var(--page-header-height);
         height: calc(100vh - var(--page-header-height) - var(--mobile-footer-height));*/
-        height: calc(100vh - var(--mobile-page-header-height) - var(--mobile-footer-height));
+        height: calc(100vh - var(--mobile-page-header-height));
         margin-top: var(--mobile-page-header-height);
+        padding-bottom: var(--mobile-footer-height);
     }
 }
 
@@ -51,7 +52,7 @@ $sliderWidth: 15px;
     @include mobile_rules {
         display: block;
         width: 200vw;
-        position: absolute;
+        position: absolute; 
         left: -100vw;
         height: 100%;
         /*z-index: 1000;*/

@@ -175,3 +175,13 @@ export function isDataURL(s) {
   return !!s.match(regex);
 }
 
+//export function createModalEntity(id, scrimOpacity, isModalVisible=true                                          , prevRequestUrl, prevRequestType, otherData){
+//  return ({
+//    ...OxiAppConstants.EntityTypes.MODAL,
+//    id,
+//    scrimOpacity,
+//    prevRequestUrl,
+//    prevRequestType,
+//    otherData,
+//  });
+//}

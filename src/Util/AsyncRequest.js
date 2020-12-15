@@ -67,7 +67,10 @@ export default function sendAsyncRequest(headers,
 					//store.dispatch(setXcsrfToken(xhr.getResponseHeader('X-CSRF-TOKEN')));
 					cookies.set('csrf_token', xhr.getResponseHeader('X-CSRF-TOKEN'));
 					//Present Login form
-					store.dispatch(setFormVisibility("Login"));
+					//store.dispatch(setFormVisibility("Login"));
+					store.dispatch(createModal({
+						id: OxiAppConstants.FormType.LOGIN,
+					}))
 					resolve(this.status);
 					break;
 				default:

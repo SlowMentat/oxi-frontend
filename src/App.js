@@ -92,7 +92,13 @@ import {OxiAppConstants} from './Util/OxiAppConstants.js';
 
 
 //export const history = createBrowserHistory();
-export const history = isDevice ? createHashHistory() : createBrowserHistory();
+//export const history = isDevice ? createHashHistory() : createBrowserHistory();
+Object.defineProperty(window, 'history', { 
+	value: isDevice ? createHashHistory() : createBrowserHistory(),
+	configurable:true,
+	enumerable:true,
+	writable:true 
+});
 
 const loggerMiddleware = createLogger();
 
@@ -222,9 +228,9 @@ export const WrapMuiProviders = (children) => (
 					{ children }
 				</span>
 			),
-			headline6: ({ children, ...rest }) => (
+			headline4: ({ children, ...rest }) => (
 				<div 
-					id="headline6" 
+					id="headline4" 
 					style={{
 						'font-family': 'Roboto',
    						color: 'var(--color1)',
@@ -236,12 +242,66 @@ export const WrapMuiProviders = (children) => (
 					{children}
 				</div>
 			),
-			subtitle2: ({ children, ...rest }) => (
+			headline5: ({ children, otherStyles, ...rest }) => (
+				<div 
+					id="headline5" 
+					style={{
+						'font-family': 'Roboto',
+   						color: 'var(--color1)',
+   						'font-size': '1.6rem',
+   						'font-weight': 'bold',
+   						'letter-spacing': '.1rem',
+   						...otherStyles,
+					}}
+				>
+					{children}
+				</div>
+			),
+			headline6: ({ children, ...rest }) => (
+				<div 
+					id="headline6" 
+					style={{
+						'font-family': 'Roboto',
+   						color: 'var(--color1)',
+   						'font-size': '1.4rem',
+   						'font-weight': 'bold',
+   						'letter-spacing': '.1rem',
+					}}
+				>
+					{children}
+				</div>
+			),
+			subtitle2: ({ children, otherStyles, ...rest }) => (
 				<span 
 					id="subtitle2" 
 					style={{
 						'font-family':'Roboto',
    						'font-size': '1.2rem',
+   						color:'gray',
+   						...otherStyles,
+					}}
+				>
+					{children}
+				</span>
+			),
+			subtitle3: ({ children, ...rest }) => (
+				<span 
+					id="subtitle3" 
+					style={{
+						'font-family':'Roboto',
+   						'font-size': '1.4rem',
+   						color:'gray',
+					}}
+				>
+					{children}
+				</span>
+			),
+			subtitle4: ({ children, ...rest }) => (
+				<span 
+					id="subtitle4" 
+					style={{
+						'font-family':'Roboto',
+   						'font-size': '1.6rem',
    						color:'gray',
 					}}
 				>

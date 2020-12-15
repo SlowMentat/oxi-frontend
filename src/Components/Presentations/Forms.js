@@ -15,14 +15,14 @@ import {
 
 import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
 import { denormalizeOutfit } from '../../Util/Schema.js';
-import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js'
-import FormLoginContainer from '../../Components/Containers/FormLoginContainer.js'
+import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js';
+import { DropDownOption } from '../../Components/Presentations/FieldDropDownList.js';
+import FormLoginContainer from '../../Components/Containers/FormLoginContainer.js';
 import { 
 	//InputTextField, 
 	InputTextFieldAccount 
 } from '../../Components/Presentations/CommonElements.js';
 
-import { ItemTextField, TextField } from '../../Components/Presentations/FitseeUI/InputsAndControls/TextField.js'
 
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
 import CreateAccountStyles from '../../createAccount.scss';
@@ -51,19 +51,42 @@ import { Tab, TabBar } from '@rmwc/tabs';
 import { Theme } from '@rmwc/theme';
 /*import { Button } from '@rmwc/button';
 import '@rmwc/button/styles';*/
-import { Button, IconButton } from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
+
+import { 
+	Button, 
+	IconButton,
+} from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
+
+import { 
+	ItemTextField, 
+	TextField,
+} from '../../Components/Presentations/FitseeUI/InputsAndControls/TextField.js'
+
+import { 
+	MenuSurfaceAnchor,
+	Menu, 
+	MenuItem,
+} from '../../Components/Presentations/FitseeUI/Menu.js';
+
+import { SimpleListItem } from '@rmwc/list';
+import '@rmwc/list/styles';
+
 //import { MenuSurfaceAnchor, MenuSurface } from '@rmwc/menu';
 import { Elevation } from '@rmwc/elevation';
 import '@rmwc/elevation/styles';
+
+import { Typography } from '@rmwc/typography';
+import '@rmwc/typography/styles';
+
 //import '@rmwc/button/styles'; 
 
 
 //=========Form selection switch block//=========
 
 const testComments = [
-	"This is a bangarang outfit. So bangarang, in fact, that I became pan the womaaaan and defeated captian hook... He said my form was goooood.",
+	"SUPAH.",
 	"Just came here to say SWAG!",
-	"O..M..G... love EEEEEHT"
+	"like"
 ]
 
 function FormDeck(props){
@@ -79,222 +102,269 @@ function FormDeck(props){
 	const {
 		formType,
 		content,
-		overlayModal,
+		//overlayModal,
 		entitiesStateReducer,
+		message,
+		modals,
+		modalIds,
 	} = props;
 
-	console.log('props.formType = ', formType);
+	const isOutfitNew = () => {
+		return(
+			props.addedEntitiesReducer.contents.allIds.length === 1 &&
+			typeof props.addedEntitiesReducer.contents.allIds[0] === 'number'
+		);
+	}
+
+	//console.log('props.formType = ', formType);
 
 	const [iniOP, setIniOP] = useState(() => iniOutfitPreview);
 	var overlayForm = null;
-	var form = null;
+	var forms = [];
+	var skrimExitEnabled = true;
 
-	switch(true){
-		case overlayModal === OxiAppConstants.FormType.DISCARD_EDITS:
-			overlayForm = (
-				<DiscardForm 
-					requestedNav={props.requestedNav}
-					cancelAction={props.cancelAction}
-					submitAction={props.confirmDiscardSubmitAction}
-					outfits={props.outfits}
-					contents={props.contents}
-					items={props.items}
-					clearUpdates={props.clearUpdates}
-					clearInvalidations={props.clearInvalidations}
-					match={props.match}
-					history={props.history}
-					isOverlay={true}
-					customStyles={{
-						'background-color':'unset'
-					}}
-				/>		
-			);
-			break;
-
-		default:
-			break;
-	}
-
-	switch(true){
-		case formType === OxiAppConstants.FormType.LOGIN:
-			console.log('login hit')
-			form = (
-				<FormLoginContainer isModal={true}/>
-			)
-			break;
-
-		/*case formType === OxiAppConstants.FormType.ADD_ITEM:
-			return (
-				<ItemForm 
-					{
-						...{
-							...props,
-							submitContext: "Add",
-						}
-					}			
-				/>
-			)*/
-
-		case formType === OxiAppConstants.FormType.UPDATE_ITEM:
-			form = (
-				<ItemForm 
-					cancelAction={props.cancelAction} 
-					submitAction={props.submitAction} 
-					submitContext="Update"
-
-					match={props.match}
-					history={props.history}
-
-					getSuggestion={props.getSuggestion}
-					getApparelTypes={props.getApparelTypes}
-
-					allApparelTypes={props.allApparelTypes}
-				/>
-			)
-			break;
-
-		case formType === OxiAppConstants.FormType.DISCARD_EDITS:
-			form = (
-				<DiscardForm 
-					requestedNav={props.requestedNav}
-					cancelAction={props.cancelAction}
-					submitAction={props.confirmDiscardSubmitAction}
-					outfits={props.outfits}
-					contents={props.contents}
-					items={props.items}
-					clearUpdates={props.clearUpdates}
-					clearInvalidations={props.clearInvalidations}
-					match={props.match}
-					history={props.history}
-					isOverlay={false}
-					message="You are leaving edit mode.  Any changes made will be lost!"
-				/>
-			)
-			break;
-
-		case formType === OxiAppConstants.FormType.DELETE_OUTFITS:
-			form = (
-				<DiscardForm
-					requestedNav={props.requestedNav}
-					cancelAction={props.cancelAction}
-					submitAction={
-						() => props.confirmDeleteOutfits(entitiesStateReducer.outfits.multipleSelected)
-					}
-					outfits={props.outfits}
-					contents={props.contents}
-					items={props.items}
-					clearUpdates={props.clearUpdates}
-					clearInvalidations={props.clearInvalidations}
-					match={props.match}
-					history={props.history}
-					isOverlay={false}
-					message="You are about to delete the selected outfits."				
-				/>
-			)
-			break;
-
-		case formType === OxiAppConstants.FormType.PROFILE_PIC:
-			form = (
-				<ProfilePicForm
-					cancelAction={props.cancelAction} 
-					submitAction={props.submitAction} 
-					//profile={props.profile}
-					owner={props.owner}
-					getCoverPic={props.getCoverPic}
-					addProfilePic={props.addProfilePic}
-					cropProfilePic={props.cropProfilePic}
-					//username={props.profile.username}}
-				/>
-			)
-			break;
-
-		case (
-			formType === OxiAppConstants.FormType.OUTFIT_PREVIEW || 
-			formType === OxiAppConstants.FormType.ADD_ITEM ||
-			formType !== OxiAppConstants.FormType.OUTFIT_PREVIEW
-		):
-			console.log('formType = ', formType);
-
-			const compoundOPStyles = formType !== OxiAppConstants.FormType.OUTFIT_PREVIEW ? 
-				({
-					opacity: 1,
-				}) : 
-				({
-					opacity: 1,
-				});
-
-			const compoundAIStyles = formType !== OxiAppConstants.FormType.ADD_ITEM ? 
-				({
-					left:'-100vw', 
-					'z-index': -1,
-					opacity: 0,
-				}) : 
-				({
-					opacity: 1,
-					'z-index': 100,
-					left:'0px',
-				});
-
-			form = (
-				<div 
-					className={Styles.modal}
-					style={ initialInnerHeight > 0 ? ({height: `${initialInnerHeight}px`}) : ({}) }
-				>
-					<div 
-						className={FormStyles.outfitPreview_div}
-						style={{ 
-							...(keyboardShown && initialInnerHeight > 0 ? 
-								({
-									height: `100%`,
-									'overflow-y':'scroll',
-								}) : 
-								({})),
-							...(isCommentsShown ? ({transform: 'translateX(-85vw)'}) : ({})),
-						}}
-					>
-						{ isDevice ? null : <Comments comments={testComments}/> }
-						{ 
-							iniOP ? 
-								iniOP(
-									compoundOPStyles, 
-									() => {
-										closeModal();
-										deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT);
-									},
-									setIsCommentsShown,
-									isCommentsShown,
-								) : 
-								null 
-						}
+	//for(let id of modalIds){
+		//switch(true){
+		//	case overlayModal === OxiAppConstants.FormType.DISCARD_EDITS:
+		//		overlayForm = (
+		//			<DiscardForm 
+		//				requestedNav={props.requestedNav}
+		//				cancelAction={props.cancelAction}
+		//				submitAction={props.confirmDiscardSubmitAction}
+		//				outfits={props.outfits}
+		//				contents={props.contents}
+		//				items={props.items}
+		//				clearUpdates={props.clearUpdates}
+		//				clearInvalidations={props.clearInvalidations}
+		//				match={props.match}
+		//				history={props.history}
+		//				isOverlay={true}
+		//				customStyles={{
+		//					'background-color':'unset'
+		//				}}
+		//				message="You are leaving edit mode.  Any changes made will be lost!"
+		//			/>		
+		//		);
+		//		break;
+	
+		//	default:
+		//		break;
+		//}
+	
+		switch(true){
+			case formType === OxiAppConstants.FormType.LOGIN:
+				console.log('login hit')
+				return(
+					<FormLoginContainer 
+						// FomLogin has its own modal features (including scrim).  
+						// This is reduntant since FormDeck is child of Dialog, so disabling it here.
+						isModal={false}
+						closeModal={props.closeModal}
+					/>
+				);
+	
+			/*case formType === OxiAppConstants.FormType.ADD_ITEM:
+				return (
+					<ItemForm 
 						{
-							/*isDevice*/false ? 
-								<Comments comments={testComments}/> :
-								<ItemForm
-									{
-										...{
-											...props,
-											compoundAIStyles: compoundAIStyles,
-											submitContext: "Add",
-											setKeyboardShown: val => setKeyboardShown(val),										
-										}
-									}	 
-								/>
+							...{
+								...props,
+								submitContext: "Add",
+							}
+						}			
+					/>
+				)*/
+	
+			case formType === OxiAppConstants.FormType.UPDATE_ITEM:
+				return(
+					<ItemForm 
+						cancelAction={props.cancelAction} 
+						submitAction={props.submitAction} 
+						submitContext="Update"
+	
+						match={props.match}
+						history={props.history}
+	
+						getSuggestion={props.getSuggestion}
+						getApparelTypes={props.getApparelTypes}
+	
+						allApparelTypes={props.allApparelTypes}
+					/>
+				);
+	
+			case formType === OxiAppConstants.FormType.DISCARD_EDITS:
+				return(
+					<DiscardForm 
+						requestedNav={props.requestedNav}
+						cancelAction={props.cancelAction}
+						//submitAction={props.confirmDiscardSubmitAction}
+						submitAction={() => {
+							props.confirmDiscardSubmitAction(props.requestedNav, props.isOverlay);
+							props.clearUpdates();
+							props.clearInvalidations();
+							if(isOutfitNew()) props.closeModal(OxiAppConstants.FormType.OUTFIT_PREVIEW);
+						}}
+						outfits={props.outfits}
+						contents={props.contents}
+						items={props.items}
+						clearUpdates={props.clearUpdates}
+						clearInvalidations={props.clearInvalidations}
+						match={props.match}
+						history={props.history}
+						isOverlay={false}
+						message="You are leaving edit mode.  Any changes made will be lost!"
+					/>
+				);
+	
+			case formType === OxiAppConstants.FormType.IMAGE_SOURCE:
+				skrimExitEnabled = false;
+				return(
+					<SourceSelectForm 
+						submitAction={props.onImageSourceSelected}
+						imageSourceCallback={props.imageSourceCallback}
+						cancelAction={() => {
+
+							if(isOutfitNew()){
+								props.clearUpdates();
+								props.clearInvalidations();
+								props.confirmDiscardSubmitAction(props.requestedNav, props.isOverlay);
+								props.closeModal(OxiAppConstants.FormType.OUTFIT_PREVIEW);						
+							}
+							else{
+								props.closeModal(OxiAppConstants.FormType.IMAGE_SOURCE);			
+							}
+						}}
+					/>
+				);
+	
+			case formType === OxiAppConstants.FormType.DELETE_OUTFITS:
+				return(
+					<DiscardForm
+						requestedNav={props.requestedNav}
+						cancelAction={props.cancelAction}
+						submitAction={
+							() => props.confirmDeleteOutfits(entitiesStateReducer.outfits.multipleSelected)
 						}
+						outfits={props.outfits}
+						contents={props.contents}
+						items={props.items}
+						clearUpdates={props.clearUpdates}
+						clearInvalidations={props.clearInvalidations}
+						match={props.match}
+						history={props.history}
+						isOverlay={false}
+						message="You are about to delete the selected outfits."				
+					/>
+				);
+	
+			case formType === OxiAppConstants.FormType.PROFILE_PIC:
+				return(
+					<ProfilePicForm
+						cancelAction={props.cancelAction} 
+						submitAction={props.submitAction} 
+						//profile={props.profile}
+						owner={props.owner}
+						getCoverPic={props.getCoverPic}
+						addProfilePic={props.addProfilePic}
+						cropProfilePic={props.cropProfilePic}
+						//username={props.profile.username}}
+					/>
+				);
+	
+			case (
+				formType === OxiAppConstants.FormType.OUTFIT_PREVIEW || 
+				formType === OxiAppConstants.FormType.ADD_ITEM ||
+				formType !== OxiAppConstants.FormType.OUTFIT_PREVIEW
+			):
+				//console.log('formType = ', formType);
+	
+				const compoundOPStyles = modals[OxiAppConstants.FormType.OUTFIT_PREVIEW] ? 
+					({
+						opacity: 1,
+					}) : 
+					({
+						opacity: 1,
+					});
+	
+				const compoundAIStyles = 
+					modals[OxiAppConstants.FormType.OUTFIT_PREVIEW] &&
+					modals[OxiAppConstants.FormType.OUTFIT_PREVIEW].otherData &&
+					modals[OxiAppConstants.FormType.OUTFIT_PREVIEW].otherData.newItemLocation ?  
+					({
+						opacity: 1,
+						'z-index': 100,
+						left:'0px',
+					}) :
+					({
+						left:'-100vw', 
+						'z-index': -1,
+						opacity: 0,
+					});
+	
+				return(
+					<div 
+						className={Styles.modal}
+						style={ initialInnerHeight > 0 ? ({height: `${initialInnerHeight}px`}) : ({}) }
+						onClick={ e => skrimExitEnabled ? null : e.stopPropagation() }
+					>
+						<div 
+							className={FormStyles.outfitPreview_div}
+							style={{ 
+								...(keyboardShown && initialInnerHeight > 0 ? 
+									({
+										height: `100%`,
+										'overflow-y':'scroll',
+									}) : 
+									({})),
+								...(isCommentsShown ? ({transform: 'translateX(-85vw)'}) : ({})),
+							}}
+						>
+							{ isDevice ? null : <Comments comments={testComments}/> }
+							{ 
+								iniOP ? 
+									iniOP(
+										compoundOPStyles, 
+										() => {
+											closeModal(formType);
+											deselectAndPropogate(OxiAppConstants.EntityTypes.OUTFIT);
+										},
+										setIsCommentsShown,
+										isCommentsShown,
+									) : 
+									null 
+							}
+							{
+								/*isDevice*/false ? 
+									<Comments comments={testComments}/> :
+									<ItemForm
+										{
+											...{
+												...props,
+												compoundAIStyles: compoundAIStyles,
+												submitContext: "Add",
+												setKeyboardShown: val => setKeyboardShown(val),										
+											}
+										}	 
+									/>
+							}
+						</div>
 					</div>
-				</div>
-			)
-			break;
+				);
+	
+			case OxiAppConstants.FormType.CUSTOM:
+				return (window.customForm);
+	
+			default:
+				null;
+		}
+	//}
 
-		default:
-			break;
-	} 
-
-	return (
-		<React.Fragment>
-			{form}
-			{overlayForm}
-		</React.Fragment>
-	);
+	//return (
+	//	<React.Fragment>
+	//		{form}
+	//		{/*overlayForm*/}
+	//	</React.Fragment>
+	//);
 }
 
 
@@ -374,6 +444,7 @@ class DropDownField extends React.Component{
 		super(props);
 		this.state = {
 			isImplicitDown: false,
+			isNewHover: false,
 		}
 		this._handleOnInputFocus = this._handleOnInputFocus.bind(this);
 		this._handleOnInputBlur = this._handleOnInputBlur.bind(this);
@@ -383,7 +454,7 @@ class DropDownField extends React.Component{
 		//set global
 		this.props.setKeyboardShown(true);
 		this.setState(prevState => ({
-				isImplicitDown: !prevState.isImplicitDown
+				isImplicitDown: true
 			})
 		);
 		//Delete what any text existing in the text input
@@ -394,7 +465,7 @@ class DropDownField extends React.Component{
 	_handleOnInputBlur(event){
 		this.props.setKeyboardShown(false);
 		this.setState(prevState => ({
-				isImplicitDown: !prevState.isImplicitDown
+				isImplicitDown: false,
 			})
 		);
 	}
@@ -407,14 +478,33 @@ class DropDownField extends React.Component{
 		return(
 			<div
 				className={FormStyles.nameFieldContainer_div}
+				style={
+					isDevice && (this.state.isImplicitDown || this.props.isExplicitDown) ? 
+						{
+							'position': 'absolute',
+   							'z-index': '1',
+   							'margin-top': 'unset',
+   							'margin-left': '5vw',
+   							top:'0px',
+						}:
+						{
+
+						}
+				}
 			>
 				{/*<InputTextField */}
 				<ItemTextField
+					disabled={this.props.disabled}
 					context={this.props.context}
 					textValue={this.props.inputValue}
 					fieldType={this.props.fieldType} 
 					label={this.props.fieldType.toLowerCase()}
 					onChange={(e) => {this.props.onInputChange(e)}} 
+                    onClick={e => {
+                        e.preventDefault(); 
+                        this._handleOnInputFocus(e);
+                        this.props.onExplicitDown(e);                        
+                    }}
 					toggleFocus={(e) => {
 						e.preventDefault(); 
 						this._handleOnInputFocus(e);
@@ -431,6 +521,7 @@ class DropDownField extends React.Component{
 				/>
 				<div id='itemDropDownButton_div'>
 					<IconButton
+						disabled={this.props.disabled}
 						icon={this.props.isExplicitDown || this.state.isImplicitDown ? 'expand_less' : 'expand_more'}
 						onClick={e => {
 							e.preventDefault();
@@ -441,19 +532,72 @@ class DropDownField extends React.Component{
 				</div>
 				<div
 					className={this.state.isImplicitDown || this.props.isExplicitDown ? FormStyles.dropDownContainer : FormStyles['dropDownContainer--hidden']}
-					style={(this.state.isImplicitDown && initialInnerHeight > 0) ? ({height: `calc(${initialInnerHeight}px/2 - 80px)`}) : ({})}
-					//style={borderColor}
+					//style={(this.state.isImplicitDown && initialInnerHeight > 0) ? ({height: `calc(${initialInnerHeight}px/2 - 80px)`}) : ({})}
+					style={((this.state.isImplicitDown || this.props.isExplicitDown) && initialInnerHeight > 0) ? {height: '65vh'} : {}}
 				>
-					<div style={{'margin-left':'10px','margin-right':'10px','margin-top':'10px'}}>
+					{/*<div style={{
+						'margin-left':'10px',
+						'margin-right':'10px',
+						'margin-top':'10px',
+						'width':'70%',
+						'text-align': 'left',
+					}}>*/}
 						{
 							<VisibleFieldDropdownList 
+								isExistingTag={this.props.isExistingTag}
 								fieldType={this.props.fieldType} 
 								context={this.props.context} 
 								filteredApparelTypes={this.props.filteredApparelTypes}
-								dropdownOptionSelected={this.props.dropdownOptionSelected} 
+								dropdownOptionSelected={this.props.dropdownOptionSelected}
+								doesSearchExist={this.state.doesSearchExist}
+
+								inputValue={this.props.inputValue}
+								isImplicitDown={this.state.isImplicitDown}
 							/>
 						}
-					</div>
+					{/*</div>
+					<div
+						style={{
+							display: (!!this.props.inputValue && (this.state.isImplicitDown || this.props.isExplicitDown) && this.props.doesSearchExist ? "block" : "none")
+						}}
+					>
+						<div
+							style={{
+								'margin-left': '10px',
+    							'margin-right': '10px',
+    							'margin-top': '10px',
+    							'height': 'auto',
+							}}
+						>
+							<DropDownOption
+								onMouseOver={e => this.setState({isNewHover: true})}
+								onMouseOut={e => this.setState({isNewHover: false})}
+								otherProps={{
+									...this.props,    				
+									style: {
+										'position': 'absolute',
+    									'right': '20px',
+    									'border': 'solid 2px var(--color-01-tint-02)',
+    								},
+									className: FormStyles.ddUdrNameContainerNew_div,
+									name: this.props.inputValue,
+									dropdownOptionSelected: e => this.props.dropdownOptionSelected(e, {name: this.props.inputValue}),
+								}}
+							>
+								<Badge
+									style={{
+										'background-color': 'var(--color-05-tint-01)',
+										'border': 'solid .2rem #f1f1f1',
+										'height': 'calc(1.5rem + .4rem)',
+									}}
+									label="NEW"
+									inset="-0.8rem"
+									align="start"
+									exited={!this.state.isNewHover}
+								/>
+							</DropDownOption>
+						</div>
+					</div>*/}
 				</div>
 			</div>
 		);
@@ -1058,37 +1202,146 @@ export class ProfilePicForm extends React.Component{
 	}
 }
 
+export class SourceSelectForm extends React.Component{
+	constructor(props){
+		super(props);
+	}
+
+	render(){
+		// Methods
+		const {
+			submitAction,
+			cancelAction,
+			imageSourceCallback,		
+		} = this.props;
+
+		// Variables
+		const {
+			isShown,
+			sourceMobilePhoto,
+		} = this.props;
+
+		const listItemStyle = {
+			'border-bottom': 'solid 1px var(--color-02-shade-01)',
+			'font-size':'14px',
+			color:'var(--color-01)',
+		}
+		const listIconStyle = {
+			color: "var(--color-02-shade-01)",
+		}
+		
+		return(
+			<div style={{
+				//height: '33vh',
+				display: 'flex',
+   				'flex-direction': 'column',
+   				'justify-content': 'center',
+			}}>
+					{/*<MenuItem fontSize="1.8rem">Camera</MenuItem>
+					<MenuItem fontSize="1.8rem">File</MenuItem>*/}
+							<SimpleListItem 
+								role="menuitem" 
+								tabindex="0" 
+								selected={false}
+								text="Camera"
+								graphic="add_a_photo" 
+								listIconStyle={{
+									...listIconStyle
+								}}
+								onClick={e => {
+									imageSourceCallback(e, Camera.PictureSourceType.CAMERA);
+									submitAction();
+								}}
+								style={{
+									...listItemStyle,
+								}}
+							/>
+							<SimpleListItem 
+								role="menuitem" 
+								tabindex="0" 
+								selected={false}
+								text="Storage"
+								graphic="folder_open" 
+								listIconStyle={{
+									...listIconStyle
+								}}
+								onClick={e => {
+									imageSourceCallback(e, Camera.PictureSourceType.PHOTOLIBRARY);
+									submitAction();
+								}}
+								style={{
+									...listItemStyle,
+								}}
+							/>
+							<SimpleListItem 
+								role="menuitem" 
+								tabindex="0" 
+								selected={false}
+								text="Cancel"
+								graphic="cancel" 
+								listIconStyle={{
+									...listIconStyle
+								}}
+								style={{
+									...listItemStyle,
+									'border-bottom':'none',
+								}}
+								onClick={e => {
+									// Close modal and do nothing
+									cancelAction();
+								}}
+							/>
+			</div>
+		);
+	}
+}
 
 export class ItemForm extends React.Component{
 	constructor(props){
 		super(props);
+
 		this.formType = {
 			type1:'RETAILER TAGS',
 			type2:'USER TAGS'
 		}
+
+		var type1Entry = {
+			retailer:'',
+			item:'',
+			size:'',
+		};
+
+		var type2Entry = {
+			retailer:'',
+			apparelType:'',
+			size:'',
+			uDItem:'',
+		};
+
+		const customDisabledFields = Object.keys(type2Entry).reduce((accum, key, ind) => ({...accum, [key]: (ind == 0 ? false : true)}), {});
+		const existingDisabledFields = Object.keys(type1Entry).reduce((accum, key, ind) => ({...accum, [key]: (ind == 0 ? false : true)}), {});
+
+		this.type1SearchSelection = 'type1SearchSelection';
+		this.type2SearchSelection = 'type2SearchSelection';
+
 		this.state = {
 			selectedFormType:this.formType.type1,
-
-			type1Entry:{
-				retailer:'',
-				item:'',
-				size:'',
-			},
+            isAddBtnEnabledForExisting: false,
+            isAddBtnEnabledForCustom: false,
+            customDisabledFields,
+            existingDisabledFields,
+			type1Entry,
 			type1SearchSelection:{
 				retailer:{},
 				item:{},
 				size:{},			
 			},
-
-			type2Entry:{
-				retailer:'',
-				apparelType:'',
-				size:'',
-			},
+			type2Entry,
 			type2SearchSelection:{
 				retailer:{},
 				apparelType:{},
 				size:{},			
+				uDItem:{},
 			},
 
 			'types':[],
@@ -1096,7 +1349,9 @@ export class ItemForm extends React.Component{
 			'retailer':'',
 			'brand':'',
 			'iconName':'',
+			'doesSearchExist' : false,
 		};
+
 		this.type1EntryKeys = Object.keys(this.state.type1Entry);
 		this.type2EntryKeys = Object.keys(this.state.type2Entry);
 		this.prevAddedItemIds = [];
@@ -1106,16 +1361,21 @@ export class ItemForm extends React.Component{
 			[this.type1EntryKeys[1]]: () => ('item dropdown'),
 			[this.type1EntryKeys[2]]: () => ('size dropdown'),
 		};
+
 		this.hydrateType2Tasks = {
 			[this.type2EntryKeys[0]]: () => ('retailer dropdown'),
 			[this.type2EntryKeys[1]]: () => ('apparelType dropdown'),
-			[this.type2EntryKeys[2]]: () => ('size dropdown'),
+			[this.type2EntryKeys[2]]: () => ('item dropdown'),
+			[this.type2EntryKeys[3]]: () => ('size dropdown'),
 		};
 
 		this._handleInputFieldChange = this._handleInputFieldChange.bind(this);
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
 		this._handleDropdownSelected = this._handleDropdownSelected.bind(this);
 		this._handleDropDownOptionSelected = this._handleDropDownOptionSelected.bind(this);
+        this.enableAddButton = this.enableAddButton.bind(this);
+        this.enableField = this.enableField.bind(this);
+        this.disableFields = this.disableFields.bind(this);
 	}
 
 	componentDidUpdate(prevProps){
@@ -1180,22 +1440,25 @@ export class ItemForm extends React.Component{
 		
 		let itemEntity = null;
 
-		if(this.state.selectedFormType === "USER TAGS"){
+		if(this.state.selectedFormType === this.formType.type2/*"USER TAGS"*/){
 			//Build custome user defined tag
 			itemEntity = Object.assign(
 				{}, 
 				OxiAppConstants.EntityTemplates.ITEM, 
 				{
-					positionx: this.props.itemLocation.positionx,
-					positiony: this.props.itemLocation.positiony,
+					id: this.state.type2SearchSelection.uDItem.id || null,
+					//positionx: this.props.itemLocation.positionx,
+					//positiony: this.props.itemLocation.positiony,
+					positionx: this.props.modals[OxiAppConstants.FormType.OUTFIT_PREVIEW].otherData.newItemLocation.positionx,
+					positiony: this.props.modals[OxiAppConstants.FormType.OUTFIT_PREVIEW].otherData.newItemLocation.positiony,
 					product: {
 						...OxiAppConstants.EntityTemplates.CUSTOM_PRODUCT_TEMPLATE,
-						handle: 'Custom Tag',
+						handle: this.state.type2SearchSelection.uDItem.handle,
 						udr: this.state.type2SearchSelection.retailer.name,
-						uds: this.state.type2SearchSelection.size.size,
+						uds: this.state.type2SearchSelection.size.name,
 						onlineStoreUrl: 'tbd',
 					},
-					apparelType: this.state.type2SearchSelection.apparelType.id,
+					apparelType: this.state.type2SearchSelection.apparelType.id, 
 					platform:OxiAppConstants.PLATFORM,
 				}
 			)
@@ -1210,8 +1473,10 @@ export class ItemForm extends React.Component{
 				OxiAppConstants.EntityTemplates.ITEM, 
 				{
 					id: item.id,
-					positionx: this.props.itemLocation.positionx,
-					positiony: this.props.itemLocation.positiony,
+					//positionx: this.props.itemLocation.positionx,
+					//positiony: this.props.itemLocation.positiony,
+					positionx: this.props.modals[OxiAppConstants.FormType.OUTFIT_PREVIEW].otherData.newItemLocation.positionx,
+					positiony: this.props.modals[OxiAppConstants.FormType.OUTFIT_PREVIEW].otherData.newItemLocation.positiony,
 					product: {
 						...OxiAppConstants.EntityTemplates.STANDARD_PRODUCT_TEMPLATE,
 						...item.itemSnippet.product,
@@ -1260,8 +1525,7 @@ export class ItemForm extends React.Component{
 	}
 
 	//_handleDropdownSelected(event, selectionType, valueSelected){	
-	_handleDropdownSelected(event, entryType, entryObj){
-		
+	_handleDropdownSelected(event, entryType, entryObj){		
 		event.stopPropagation();
 		//let {size} = entryObj;
 		//size !== undefined && this.state.type1SearchSelection.item.id !== undefined ? 
@@ -1269,17 +1533,32 @@ export class ItemForm extends React.Component{
 		//	null;
 	}
 
-	_handleDropDownOptionSelected(event, selectionType='', valueObj){
-		
+	_handleDropDownOptionSelected(event, selectionType='', entryType, valueObj){
 		event.stopPropagation();		
 		let {item} = valueObj;
-		item !== undefined ? this.props.getSizeChartByItemId(item.id) : null
+		let objData = Object.values(valueObj)[0];
+		// Different text field value sources produced from custom and existing items
+		let value = 
+			objData.name || 						// Case for name value from user defined item.
+			objData.size ||							// Case for size value from user defined item.
+            objData.handle ||                       // Case for handle from user defined item.
+            objData.sizeLabel ||                    // Case for sizeLabel return from previous retailer item selection.
+			objData.itemSnippet.product.handle      // Case for retailer value from exisitng item.
+			//objData.id 		
+
+		if(item){
+			this.props.getSizeChartByItemId(item.id);
+		}
 
 		this.setState(prevState => ({
 			...prevState,
 			[selectionType]:{
 				...this.state[selectionType],
 				...valueObj
+			},
+			[entryType]:{
+				...this.state[entryType],
+				[Object.keys(valueObj)[0]]: value,
 			}
 		}));
 	}
@@ -1288,6 +1567,41 @@ export class ItemForm extends React.Component{
 		this.setState(prevState => ({
 			...prevState,
 			types: data
+		}))
+	}
+
+    enableAddButton(forExistingTab, isEnabled){
+        this.setState(prevState => ({
+            ...prevState,
+            [forExistingTab ? "isAddBtnEnabledForExisting" : "isAddBtnEnabledForCustom"] : isEnabled,
+        }));
+    }	
+
+    disableFields(fieldSetType, fields){
+    	// Disable button for the calling Tab
+    	if(fieldSetType == 'existingDisabledFields'){
+    		this.enableAddButton(true, false);
+    	}
+    	else{
+    		this.enableAddButton(false, false);
+    	}
+
+		this.setState(prevState => ({
+			...prevState,
+			[fieldSetType]: {
+				...prevState[fieldSetType],
+				...fields.reduce((accum, key) => ({...accum, [key]:true}), {})
+			}
+		}))
+	}
+
+	enableField(fieldSetType, field){
+		this.setState(prevState => ({
+			...prevState,
+			[fieldSetType]: {
+				...prevState[fieldSetType],
+				[field]: false,
+			}
 		}))
 	}
 
@@ -1315,6 +1629,13 @@ export class ItemForm extends React.Component{
 				return (retailer.name)
 			});
 		}
+
+        const checkButtonIsEnabled = () => {
+            let result = false;
+            if(this.state.selectedFormType === this.formType.type1) return this.state.isAddBtnEnabledForExisting;
+            else if(this.state.selectedFormType === this.formType.type2) return this.state.isAddBtnEnabledForCustom;
+        }
+
 		return(
 				<CSSTransition 
 					timeout={300}
@@ -1354,7 +1675,8 @@ export class ItemForm extends React.Component{
 						    timeout={200}
 						    classNames="retailerItemFormContainer"
 						    in={this.state.selectedFormType === this.formType.type1}
-						    unmountOnExit>	
+						    unmountOnExit
+                        >	
 							<ExistingItems 
 								allApparelTypes={this.props.allApparelTypes}
 								getSuggestion={(uri) => this.props.getSuggestion(uri)}
@@ -1362,17 +1684,25 @@ export class ItemForm extends React.Component{
 								hydrateTasks={this.hydrateType1Tasks}
 								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
 								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type1Entry', entryObj, 'type1SearchPromise', searchResultObj)}
-								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type1SearchSelection', valueObj) } 
+								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type1SearchSelection', 'type1Entry', valueObj) } 
 								setKeyboardShown={this.props.setKeyboardShown}
+								doesSearchExist={this.state.doesSearchExist}
+                                enableAddButton={isEnabled => this.enableAddButton(true, isEnabled)}
+                                isButtonEnabled={this.state.isAddBtnEnabledForExisting}
+                                enableField={field => this.enableField("existingDisabledFields", field)}
+                                disableFields={fields => this.disableFields("existingDisabledFields", fields)}
+                                disabledFields={this.state.existingDisabledFields}
 							/>
 						</CSSTransition>
 						<CSSTransition
 						    timeout={200}
 						    classNames="userItemFormContainer"
 						    in={this.state.selectedFormType === this.formType.type2}
-						    unmountOnExit>	
+						    unmountOnExit
+                        >	
 							<CustomItems 
 								allApparelTypes={this.props.allApparelTypes}
+								slectedApparelTypeId={this.state.type2SearchSelection.apparelType.id}
 								updateApparelTypes ={(data) => this._updateApparelTypes(data)}
 								getApparelTypes={(uri) => this.props.getApparelTypes(uri)}
 								getSuggestion={(uri) => this.props.getSuggestion(uri)}
@@ -1380,8 +1710,14 @@ export class ItemForm extends React.Component{
 								hydrateTasks={this.hydrateType2Tasks}
 								handleInputFieldChange={(event, entryObj, searchResultObj) => this._handleInputFieldChange(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
 								handleDropdownSelected={(event, entryObj, searchResultObj) => this._handleDropdownSelected(event, 'type2Entry', entryObj, 'type2SearchPromise', searchResultObj)}
-								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', valueObj) }
+								handleDropdownOptionSelected={(event, valueObj) => this._handleDropDownOptionSelected(event, 'type2SearchSelection', 'type2Entry', valueObj) }
 								setKeyboardShown={this.props.setKeyboardShown}
+								doesSearchExist={this.state.doesSearchExist}
+                                enableAddButton={isEnabled => this.enableAddButton(false, isEnabled)}
+                                isButtonEnabled={this.state.isAddBtnEnabledForCustom}
+                                enableField={field => this.enableField("customDisabledFields", field)}
+                                disableFields={fields => this.disableFields("customDisabledFields", fields)}
+                                disabledFields={this.state.customDisabledFields}                                
 							/>
 						</CSSTransition>
 						<div className={FormStyles.addItemCtrlContainer_div}>
@@ -1395,14 +1731,15 @@ export class ItemForm extends React.Component{
 								theme="primary"
 	 							icon="arrow_back"
 								label="back"
-								onClick={(event) => this.props.navToOutfitPreviewModal()}
+								onClick={e => this.props.navToOutfitPreviewModal()}
 							/>
 							<Button
+                                disabled={!(checkButtonIsEnabled())}
 								theme={["textPrimaryOnDark", "primaryBg"]}
 								unelevated
 								trailingIcon="arrow_forward"
 								label="add"
-								onClick={(event) => this._handleOnSubmit(event)}								
+								onClick={e => this._handleOnSubmit(e)}								
 							/>
 
 							{/*<div style={{width:'100%'}}>
@@ -1434,22 +1771,35 @@ class ExistingItems extends React.Component{
 		super(props);
 
 		const isExplicitDown = Object.keys(props.fieldsObj).reduce((accum, key) => ({...accum, [key]: false}), {});
+		//const fieldDisableState = Object.keys(props.fieldsObj).reduce((accum, key, ind) => ({...accum, [key]: (ind == 1 ? false : !!ind)}), {})
 
 		this.state = {
-			isExplicitDown
+			isExplicitDown,
+			//fieldDisableState,
 		};
 
 		this.onInputChange = this.onInputChange.bind(this);
 		this.setExplicitDown = this.setExplicitDown.bind(this);
+		//this.disableFields = this.disableFields.bind(this);
+		//this.enableField = this.enableField.bind(this);
 	}
 
 
-	onInputChange(event, key){
+	onInputChange(event, key, fields, ind){
 		this.props.handleInputFieldChange(event, {[key]: event.target.value}, null);
 	
 		if(key === 'item'){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.a}?retailer=${this.props.fieldsObj['retailer']}&term=${event.target.value}`)); }
 		else if(key === "retailer"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.b}?term=${event.target.value}`)); }
-		else if(key === "size"){  }							
+		else if(key === "size"){  }		
+
+		const nextFields = fields.slice(ind+1);
+		// Disable all fields below this field
+		this.props.disableFields(nextFields)
+		
+        // Clear the value of each subsequent fields
+		for(let field of nextFields){
+			this.props.handleInputFieldChange(null, {[field]: ''}, null);
+		}			
 	}
 
 	setExplicitDown(fieldType){
@@ -1477,32 +1827,69 @@ class ExistingItems extends React.Component{
 		}
 	}
 
+	//disableFields(fields){
+	//	this.setState(prevState => ({
+	//		...prevState,
+	//		fieldDisableState: {
+	//			...prevState.fieldDisableState,
+	//			...fields.reduce((accum, key) => ({...accum, [key]:true}), {})
+	//		}
+	//	}))
+	//}
+//
+	//enableField(field){
+	//	this.setState(prevState => ({
+	//		...prevState,
+	//		fieldDisableState: {
+	//			...prevState.fieldDisableState,
+	//			[field]: false,
+	//		}
+	//	}))
+	//}
+
 	render(){
 
 		return(
 				<form className={FormStyles.addItemForm} action="" method="POST" autocomplete="off">
 					{
-						Object.keys(this.props.fieldsObj).map((key, ind) => {
+						Object.keys(this.props.fieldsObj).map((key, ind, fields) => {
 							console.log('key = ', key, ', fieldsObj = ', this.props.fieldsObj);
 							return(
 								<DropDownField 
+									disabled={this.props.disabledFields[key]}
 									key={key}
+									isExistingTag={true}
 									isExplicitDown={this.state.isExplicitDown[key]}
 									onExplicitDown={(e) => this.setExplicitDown(key)}
 									onExplicitUp={(e) => this.setExplicitUp(key)}
 									context={0}
 									fieldType={key} 
 									onInputChange={(e) => {
-										this.onInputChange(e, key);
+										this.onInputChange(e, key, fields, ind);
 									}} 
 									inputValue={this.props.fieldsObj[key]}
 									dropdownItemIds={null}
 									allApparelTypes={this.props.allApparelTypes}
 									dropdownSelected={(e, value) => this.props.handleDropdownSelected(e, {[key]: value})}
-									dropdownOptionSelected = {(e, value) => this.props.handleDropdownOptionSelected(e, {[key]: value})}
+									dropdownOptionSelected = {(e, value) => {
+										this.props.handleDropdownOptionSelected(e, {[key]: value});
+										this.setExplicitUp(key);
+
+										if(ind+1 < fields.length){
+                                            // Enable the following field
+                                            this.props.enableField(fields[ind+1]);
+                                            // Disable the Add Button
+                                            this.props.enableAddButton(false)
+                                        }
+                                        else{
+                                            // Enable the Add Button
+                                            this.props.enableAddButton(true)
+                                        }
+									}}
 									hydrateTask={this.props.hydrateTasks[key]}
 									style={{height:'50px'}}
-									setKeyboardShown={this.props.setKeyboardShown}				
+									setKeyboardShown={this.props.setKeyboardShown}
+									doesSearchExist={this.props.doesSearchExist}	
 								/>
 							);
 						})
@@ -1516,9 +1903,18 @@ class CustomItems extends React.Component{
 	constructor(props){
 		super(props);
 		this._getSuggestion = this._getSuggestion.bind(this);
+		const isExplicitDown = Object.keys(props.fieldsObj).reduce((accum, key) => ({...accum, [key]: false}), {});
+
 		this.state = {
-			filteredApparelTypes: null
+			filteredApparelTypes: null,
+			//fieldDisableState: Object.keys(this.props.fieldsObj).reduce((accum, key, ind) => ({...accum, [key]: !!ind}), {}),
+			isExplicitDown,
 		}
+
+		//this.disableFields = this.disableFields.bind(this);
+		//this.enableField = this.enableField.bind(this);
+		this.setExplicitDown = this.setExplicitDown.bind(this);
+		this.setExplicitUp = this.setExplicitUp.bind(this);
 	}
 
 	_getSuggestion(event, term){
@@ -1532,22 +1928,80 @@ class CustomItems extends React.Component{
 		}))
 	}
 
+	setExplicitDown(fieldType){
+		if(fieldType){
+			this.setState(prevState => ({
+				...prevState,
+				isExplicitDown:{
+					//...prevState.isExplicitDown,
+					...(Object.keys(prevState.isExplicitDown).reduce((accum, key) => ({...accum, [key]:false}), {})),
+					[fieldType]: true,
+				},
+			}));
+		}
+	}
+
+	setExplicitUp(fieldType){
+		if(fieldType){
+			this.setState(prevState => ({
+				...prevState,
+				isExplicitDown:{
+					...prevState.isExplicitDown,
+					[fieldType]: false,
+				},
+			}));
+		}
+	}
+
+	//disableFields(fields){
+	//	this.setState(prevState => ({
+	//		...prevState,
+	//		fieldDisableState: {
+	//			...prevState.fieldDisableState,
+	//			...fields.reduce((accum, key) => ({...accum, [key]:true}), {})
+	//		}
+	//	}))
+	//}
+//
+	//enableField(field){
+	//	this.setState(prevState => ({
+	//		...prevState,
+	//		fieldDisableState: {
+	//			...prevState.fieldDisableState,
+	//			[field]: false,
+	//		}
+	//	}))
+	//}
+
 	render(){
 		return(
 				<form className={FormStyles.addItemForm} action="" method="POST" autocomplete="off">
 
 					{
-						Object.keys(this.props.fieldsObj).map((key, ind) => (
+						Object.keys(this.props.fieldsObj).map((key, ind, fields) => (
 							<DropDownField 
+								disabled={this.props.disabledFields[key]}
+								isExistingTag={false}
 								key={ind}
 								context={1}
 								fieldType={key} 
 								filteredApparelTypes={this.state.filteredApparelTypes === null ? (this.props.allApparelTypes) : (this.state.filteredApparelTypes)}
 								onInputChange={(event) => {
 									if(key === 'retailer'){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.c}?retailer=${event.target.value}`)); }
-									else if(key === "apparelType"){/*this.props.apparelTypes.values/* this._getSuggestion(event, event.target.value);*/ }
+									// Get all apparel types
+									else if(key === "apparelType"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.e}`)); }
+									else if(key === "uDItem"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.f}?term=${event.target.value}&retailer=${this.props.fieldsObj.retailer}&apparelTypeId=${this.props.slectedApparelTypeId}&sizeLabel=${this.props.fieldsObj.size}`)); }
 									else if(key === "size"){ this.props.getSuggestion(encodeURI(`${OxiAppConstants.routeURIs.search.d}?size=${event.target.value}`)); }
+									
 									this.props.handleInputFieldChange(event, {[key]: event.target.value}, null);
+
+									const nextFields = fields.slice(ind+1);
+									// Disable all fields below this field
+									this.props.disableFields(nextFields)
+									// Clear the value of each subsequent fields
+									for(let field of nextFields){
+										this.props.handleInputFieldChange(null, {[field]: ''}, null);  
+									}
 								}} 
 								inputValue={this.props.fieldsObj[key]}
 								dropdownItemIds={null}
@@ -1556,12 +2010,31 @@ class CustomItems extends React.Component{
 									if(key === 'apparelType' && this.props.allApparelTypes.length === 0){
 										this.props.getApparelTypes(encodeURI(`${OxiAppConstants.appUris.a}`));
 									}
-									this.props.handleDropdownSelected(event, {[key]: value})
-								}}								
-								dropdownOptionSelected = {(event, value) => this.props.handleDropdownOptionSelected(event, {[key]: value})}
+
+									this.props.handleDropdownSelected(event, {[key]: value});
+								}}
+								dropdownOptionSelected = {(event, value) => {
+									this.props.handleDropdownOptionSelected(event, {[key]: value})
+									this.setExplicitUp(key);
+
+                                    if(ind+1 < fields.length){
+                                        // Enable the following field
+                                        this.props.enableField(fields[ind+1]);
+                                        // Disable the Add Button
+                                        this.props.enableAddButton(false)
+                                    }
+                                    else{
+                                        // Enable the Add Button
+                                        this.props.enableAddButton(true)
+                                    }
+								}}
+								isExplicitDown={this.state.isExplicitDown[key]}
+								onExplicitDown={(e) => this.setExplicitDown(key)}
+								onExplicitUp={(e) => this.setExplicitUp(key)}
 								hydrateTask={this.props.hydrateTasks[key]}
 								style={{height:'50px'}}
-								setKeyboardShown={this.props.setKeyboardShown}					
+								setKeyboardShown={this.props.setKeyboardShown}
+								doesSearchExist={this.props.doesSearchExist}
 							/>
 						))
 					}
@@ -1613,10 +2086,12 @@ export class DiscardForm extends React.Component{
 									style={{position:'absolute', left:'0px', top:'0px'}} 
 									label="continue"
 									unelevated
-									onClick={() => {
-										this.props.submitAction(this.props.requestedNav, this.props.isOverlay);
-										this.props.clearUpdates();
-										this.props.clearInvalidations();
+									onClick={(e) => {
+										//this.props.submitAction(this.props.requestedNav, this.props.isOverlay);
+										//this.props.clearUpdates();
+										//this.props.clearInvalidations();
+										e.stopPropagation();
+										this.props.submitAction();
 									}}
 								/>
 								<Button 
@@ -1624,8 +2099,8 @@ export class DiscardForm extends React.Component{
 									style={{position:'absolute', right:'0px', top:'0px'}} 
 									label="cancel"
 									outlined
-									onClick={(event) => {
-										event.stopPropagation();
+									onClick={(e) => {
+										e.stopPropagation();
 										this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS, this.props.isOverlay);
 									}}
 								/>
@@ -1691,7 +2166,7 @@ const InvalidPasswordPrompt = ({props}) => (
 //TODO:  Make sure to perfom server side validation as well.
 const validateEmail = (email) => {
 	// TODO: this regex used as a value for rmwc TextField's pattern prop throws an error: Invalid expression... Lone quantifier brackets
-    //regular expression that accepts unicode
+    // regular expression that accepts unicode
     var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     return re.test(String(email).toLowerCase());
 }

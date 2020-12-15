@@ -1,5 +1,5 @@
 @use "sass:map";
-@import "root";
+@import "root.scss";
 
 $loginFormPadding: 17px;
 $loginFormFieldSpacing: 17px;
@@ -488,6 +488,7 @@ input::placeholder {
 
     @include mobile_rules {
         padding: 0px;
+        position: relative;
     }
 }
 
@@ -508,6 +509,8 @@ input::placeholder {
     position: absolute;
     top: 10px;
     right: 0px;
+    margin-top: 4px;
+    margin-right: 5px;
     /*width: 56px;
     height: 56px;
     background-color: gray;
@@ -585,6 +588,11 @@ input::placeholder {
     border-bottom-right-radius: 4px;
     background-color: #f1f1f1;
 
+    display: flex;
+    justify-content: space-between;
+
+    padding-top: 10px;
+
     @include desktop_rules {
         height: calc(100vh - 50px - (4*(10px + 57px)) - 7px - 20px - 64px);
     }
@@ -659,7 +667,8 @@ input::placeholder {
     width: 100%;
     /*text-align: center;*/
     /*background-color: var(--color-mobile-icon-bg);*/
-    background-color: var(--color-01-shade-02);
+    /*background-color: var(--color-01-shade-02);*/
+    background-color: #292929;
     /*background-color: #b2b2b2;*/
     
     @include desktop_rules {
@@ -1038,19 +1047,27 @@ input::placeholder {
 
 :local(.ddUdrNameContainer_div){
     --udrName-border-width: 2px;
-    --udrName-height: 30px;
+    --udrName-height: 28px;
     display: inline-block;
     height: var(--udrName-height);
     padding-left: 5px;
     padding-right: 5px;
     line-height: calc(var(--udrName-height) - 2*var(--udrName-border-width));
-    border: solid var(--udrName-border-width) var(--color-05-tint-01);
+    border: solid var(--udrName-border-width) var(--color-01-tint-01);
     border-radius: 6px;
     margin-right: 5px;
     margin-bottom: 5px;
     cursor: pointer;
     background-color: unset;
     transition: background-color 200ms ease-in-out;
+}
+
+:local(.ddUdrNameContainerNew_div){
+    composes: ddUdrNameContainer_div;
+    position: absolute;
+    right: 20px;
+    border-color: var(--color-05-tint-01);
+    height: unset;
 }
 
 :local(.ddUdrName_div){
@@ -1064,24 +1081,80 @@ input::placeholder {
 }
 
 .ddUdrNameContainer_div:hover{
-    background-color: var(--color-05-tint-02);
+    background-color: var(--color-01-tint-02);
+    transition: background-color 200ms ease-in-out;
+}
+
+.ddUdrNameContainerNew_div:hover{
+    background-color: var(--color-01-tint-02);
+    color: white;
     transition: background-color 200ms ease-in-out;
 }
 
 :local(.ddRetailerSlot_div){
+    composes:ddUdrNameContainer_div;    
+}
+
+:local(.ddUdrSlot_div){
     composes:ddUdrNameContainer_div;
-    width: unset;
-   /*width: 100%;
-    height: 35px;*/
+    /*width: unset;
+    border: unset;
+    display: flex;
+    justify-content: space-between;
+    height: auto;
+    border-bottom: solid 1px gray;
+    border-radius: 0px;*/
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+    }
+}
+
+:local(.ddSizeSlot_div){
+    composes:ddUdrNameContainer_div;
 }
 
 :local(.ddRetailerName_div){
     composes:ddUdrName_div;
-    display: inline-block;;
+    display: inline-block;
     width:calc(100% - var(--logo-div-width));
+    height: 24px;
+    line-height: 24px;
     /*display: inline-block;
     vertical-align: top;
     height: 100%;*/
+}
+
+:local(.ddSizeMetrics_div){
+    /*animation: expandFadeIn 100ms;*/
+    transition: height 100ms linear;
+    margin-top: 5px;
+    margin-right: 5px;
+}
+
+:local(.ddSizeMetricItem_div){
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+:local(.ddSizeMetric_div){
+    height: 2.4rem;
+    line-height: 2.4rem;
+    font-size: 1.4rem;
+    color: gray;
+    margin-left: 5px;
+    text-transform: capitalize;
+}
+
+:local(.ddSizeMetricStatus_div){
+
+}
+
+:local(.ddSizeMetricStatusIcon_div){
+    display: flex;
 }
 
 :local(.ddApparelTypeSlot_div){
@@ -1115,6 +1188,10 @@ input::placeholder {
 
 :local(.ddApparelTypeIcon_svg){
 
+}
+
+:local(.searchUDItem_div){
+    display: flex;
 }
 
 :local(.ddApparelTypeNameContainer_div){

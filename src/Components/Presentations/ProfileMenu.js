@@ -859,6 +859,7 @@ class ToleranceSettings extends React.Component{
 							theme={["textPrimaryOnDark", "primaryBg"]}
 							elevated
 							label="submit"
+							onClick={(event) => this.props.handleOnSubmit()}
 						/>
 						{/*<div className={ProfileMenuStyles.btns_div}>
 							<div 

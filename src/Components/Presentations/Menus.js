@@ -131,6 +131,7 @@ const SettingsMenu = (props) => {
 		},
 		logout: (event)=>{
 			console.log('logging out');
+			closeMenu();
 			logout();
 		},
 	};
@@ -140,7 +141,6 @@ const SettingsMenu = (props) => {
 			style={{cursor:'pointer'}}
 			onClick={(event) => {
 				settingOptions[option](event);
-				closeMenu();
 			}}
 		>
 			<div className={menuStyles.settingsItemContainer_div}>

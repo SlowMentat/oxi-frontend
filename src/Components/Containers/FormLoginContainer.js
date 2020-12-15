@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { 
-	/*setFormVisibility, 
+	/*
 	addItem, 
 	selectAddedEntity, 
 	modifyContent, */
@@ -40,8 +40,10 @@ const mapStateToProps = (state, ownProps) => {
 		login: 'username',
 		credentials: 'password',
 		serviceURL: OxiAppConstants.serviceURL,
-		requestUrl: state.toggleModal.prevRequestUrl || ownProps.requestUrl,
-		requestType: state.toggleModal.prevRequestType || ownProps.requestType,
+		//requestUrl: state.toggleModal.prevRequestUrl || ownProps.requestUrl,
+		//requestType: state.toggleModal.prevRequestType || ownProps.requestType,
+		requestUrl: state.modalsReducer.byIds[OxiAppConstants.FormType.LOGIN].prevRequestUrl || ownProps.requestUrl,
+		requestType: state.modalsReducer.byIds[OxiAppConstants.FormType.LOGIN].prevRequestType || ownProps.requestType,
 		requestedNav : state.requestedNavigation.location,
 	};
 }
