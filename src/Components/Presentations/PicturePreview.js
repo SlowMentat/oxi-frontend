@@ -1132,7 +1132,9 @@ class PicturePreview extends React.Component{
 		);
 
 		const {
-			contentState
+			contentState,
+			pictures,
+			contents,
 		} = this.props;
 
 		if(img && id && shouldUpdateClickHandlers()){
@@ -1151,7 +1153,8 @@ class PicturePreview extends React.Component{
 						imageRef: img,
 						crop:{
 							...this.imageDataTemplate.crop,
-							...(prevState.images[id] ? prevState.images[id].crop : ({}) ),
+							...(prevState.images[id] ? prevState.images[id].crop : {}),
+							...(contents.byIds[id] && pictures.byIds[contents.byIds[id].picture] ? pictures.byIds[contents.byIds[id].picture].crop : {}),
 						}
 					}
 				}	

@@ -316,7 +316,8 @@ class ContentList extends React.Component {
 		    										height: 'calc(100% - 10px)',
 		    										cursor: 'pointer',
 		    									}}
-		    									src={uriByContentId[idIndPair[0]] ? getImageURL(uriByContentId[idIndPair[0]].smalluri) : ""}
+		    									src={
+		    										uriByContentId[idIndPair[0]] ? getImageURL(uriByContentId[idIndPair[0]].smalluri) : (addedContents[idIndPair[0]].coverpicuri || "")}
 		    									//src={`${OxiAppConstants.webAppBaseURL}/images/thumbnail/${viewState === OxiAppConstants.viewState.EDIT ? addedContents[idIndPair[0]].coverpicuri : contents[idIndPair[0]].coverpicuri}.jpg`}
 		    									onClick={e => selectContentView(idIndPair[0])}
 		    								/>

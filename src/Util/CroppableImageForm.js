@@ -953,7 +953,7 @@ class CroppableImageForm extends React.Component{
 					existingCrop.x != updatedCrop.x || 
 					existingCrop.y != updatedCrop.y || 
 					existingCrop.width != updatedCrop.width || 
-					existingCrop.height != updatedCrop.height; 
+					existingCrop.height != updatedCrop.height && updatedCrop.height !== 'unset'; 
 
 				if(hasChanged) result = [...accum, pictureId]; 
 			}
