@@ -78,7 +78,11 @@ const mapDispatchToProps = (dispatch, state) => ({
 		dispatch(addToEdittingIds(OxiAppConstants.EntityTypes.OUTFIT, outfit.id));
 		//copy outfit entity to the addedEntitiesReducer tree
 		//TODO: change this and other ADD_* actions to just take an entity object as its parameter
-		dispatch(addOutfit(Object.assign({}, OxiAppConstants.EntityTemplates.OUTFIT, outfit)));
+		var testOutfit = {
+			...OxiAppConstants.EntityTemplates.OUTFIT, 
+			...outfit,
+		};
+		dispatch(addOutfit(testOutfit));
 		//dispatch(clientInvalidateEntities(OxiAppConstants.EntityTypes.OUTFIT, outfit.id));
 
 		//copy content entities that are children of outfit to the addedEntitiesReducer tree

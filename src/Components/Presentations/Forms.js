@@ -649,6 +649,7 @@ export class ProfilePicForm extends React.Component{
 		this._handleImageReceived = this._handleImageReceived.bind(this);
 		this._handleImageLoad = this._handleImageLoad.bind(this);
 		this.iniDimensions = this.iniDimensions.bind(this);
+		this.setupFormRefs = this.setupFormRefs.bind(this);
 	}
 
 	componentDidMount(){
@@ -806,7 +807,7 @@ export class ProfilePicForm extends React.Component{
 
 	setupCropImgRoot(div){
 		//div ? div.className = FormStyles.imgEditContainer_div : null;  //Don't do this
-		div ? div.style.cssText =  'display: flex; justify-content: center; align-items: center; background-color: var(--color-02)' : null;
+		div ? div.style.cssText =  'display: flex; justify-content: center; align-items: center;' : null;
 		this.cropImgRoot = div;
 
 		//if(div && this.state.crop.width == 0 && this.state.crop.height == 0 && div.naturalHeight && div.naturalWidth){
@@ -855,6 +856,36 @@ export class ProfilePicForm extends React.Component{
 		}))
 	}
 
+	setupFormRefs(parent){
+		const setRef = (refType, element) => {
+			//this[refType] ? null : this.setState(this.state);
+			this[refType] = element ? element : this[refType];
+		}
+
+		if(parent){
+			for(let i = 0; i < parent.children.length; i++){
+				var element = parent.children[i];
+
+				switch(parent.children[i].id){
+					case 'fileInput':
+						setRef(element.id, element);
+						break;
+	
+					case 'submitButton':
+						setRef(element.id, element);
+						break;
+	
+					default:
+						break;
+				}
+			}
+		}
+		else{
+			//this.setState(this.state);
+		}
+	}
+
+
 	render(){
 		const {
 			cancelAction,
@@ -879,11 +910,6 @@ export class ProfilePicForm extends React.Component{
 				width: '33%',
 			}) :
 			({});
-
-		const setupRef = (element, reference) => {
-			this[reference] ? null : this.setState(this.state);
-			this[reference] = element ? element : this[reference];
-		}
 
 		const deviceImageSizing = {
     		width: '100%',
@@ -1021,14 +1047,19 @@ export class ProfilePicForm extends React.Component{
 					//cancelAction();
 				}}
 			>
-				<form enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}>
+				<form 
+					enctype="multipart/form-data" style={{positon:'absolute','text-align':'center',display:'inline'}}
+					ref={div => {
+						this.setupFormRefs(div)
+					}}
+				>
 					<input 
 						id="fileInput" 
-						ref={input => {
-							setupRef(input, 'fileInput');
-							//this.fileInput ? null : this.setState(this.state);
-							//this.fileInput = input ? input : this.fileInput;
-						}}
+						//ref={input => {
+						//	this.setupFormRefs(input, 'fileInput');
+						//	//this.fileInput ? null : this.setState(this.state);
+						//	//this.fileInput = input ? input : this.fileInput;
+						//}}
 						type="file" 
 						//multiple name="imageFile" 
 						//onChange={this._onSelectMultipleFiles/*this._onSelectFile*/} 
@@ -1038,12 +1069,12 @@ export class ProfilePicForm extends React.Component{
 					<Button 
 						id="submitButton" 
 						style={{
-
+	
 						}}
 						label="submit" 
-						ref={button => {
-							setupRef(button, 'button');
-						}}
+						//ref={button => {
+						//	this.setupFormRefs(button, 'button');
+						//}}
 						onClick={e => this._handleSubmit(e)} style={{display:'none'}}
 					/>
 				</form>
@@ -1132,7 +1163,9 @@ export class ProfilePicForm extends React.Component{
 									<IconButton
 										//onClick={this._addNewPicture}
 										icon="add_a_photo"
-										onClick={this.fileInput ? (e) => this.fileInput.click(e) : null}
+										onClick={(e) => {
+											if(this.fileInput) this.fileInput.click(e);
+										}}
 										//style={{...eppCtrl_div, ...page1ButtonStyles}}
 									/>
 								</label>
@@ -1189,7 +1222,7 @@ export class ProfilePicForm extends React.Component{
 										label='save'
 										labelSize='12px'
 										raised
-										onClick={this.button ? e => this.button.click(e) : null}
+										onClick={this.submitButton ? e => this.submitButton.click(e) : null}
 										//style={eppCtrl_div} 
 									/>
 								</label>

@@ -3,13 +3,13 @@ import {OxiAppConstants} from './OxiAppConstants.js';
 
 
 
-/*export const maskEdits = (entities, idsEditting) => {
+/*export const maskEdits = (entities, idsEditing) => {
 	let filteredEntities = Object.assign({}, entities, {byIds: {...entities.byIds}});
 	console.log('maskEdits:  entities = ', entities);
-	if(idsEditting.length > 0){
+	if(idsEditing.length > 0){
 		let keptObjs = {};
 		const result = filteredEntities.allIds.filter(entityKey => {
-			for(let id of idsEditting){
+			for(let id of idsEditing){
 				if(entityKey == id){
 					//delete filteredEntities.byIds[id];
 					const {[id]:removedObj, ...keptObjs} = Object.assign({}, filteredEntities.byIds);
@@ -28,6 +28,31 @@ import {OxiAppConstants} from './OxiAppConstants.js';
 	console.log('filteredEntities = ', filteredEntities);
 	return filteredEntities;
 }*/
+
+//export const maskEdits = (entities, idsEditing) => {
+//	const filteredEntities = entities.allIds.reduce((accum, id, ind) => {			
+//		if(idsEditing.includes(id)){
+//			return({
+//				...accum,
+//				allIds: accum.allIds.splice(ind, 1),
+//
+//			});
+//		}
+//
+//		return({
+//			...accum,
+//			byIds: {
+//				...accum.byIds, 
+//				[id]: entities.byIds[id],
+//			},
+//		}); 
+//	}, {
+//		...entities,
+//		byIds:{},
+//	});
+//
+//	return filteredEntities;
+//}
 
 export const maskEdits = (entities, idsEditting) => {
 	let filteredEntities = Object.assign({}, entities, {byIds: {...entities.byIds}});

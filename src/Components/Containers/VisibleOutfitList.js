@@ -185,9 +185,9 @@ const mapDispatchToProps = (dispatch, props) => ({
 			
 			// TODO:  assign all outfits' coverpicuri to their corresponding picture uuid
 			var contentArrays = Object.keys(contents);
-			const contentId = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
+			const contentIds = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
 
-			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentId));
+			dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentIds[0]));
 			//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));
 			dispatch(createModal({
 				id: OxiAppConstants.FormType.OUTFIT_PREVIEW,

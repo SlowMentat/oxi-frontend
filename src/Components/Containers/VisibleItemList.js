@@ -25,20 +25,23 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 
 
 const getVisibleItems = (items, filter, contents, selectedContentIds=[]) => {
-	//console.log('getVisibleItems: passed items = ', items);
-	let itemsById = items.byIds;
 	let result = {byIds:{}, allIds:[]};
+	let itemsById = items.byIds;
+
 	//Only perform filter on non-empty items object
 	if(!(Object.keys(items).length === 0 && items.constructor === Object)){
 		switch(filter){
 			case 'SHOW_ALL':
 				return items;
+
 			case 'BY_TYPE':
 				return items.filter(item => item.type = data);
+
 			case 'BY_SIZE':
 				return items.filter(item => item.size = data);
 			/*case 'BY_SOURCE':
 				return items.filter(items => item. = data);*/
+
 			case 'BY_CONTENT_ID':
 				if(contents != undefined && selectedContentIds.length > 0){
 					//console.log("contents =");
@@ -83,6 +86,30 @@ const getVisibleItems = (items, filter, contents, selectedContentIds=[]) => {
 				}else{
 					//console.log("contents is undefined or no content selected");
 				}
+
+				//if(contents != undefined && selectedContentIds.length > 0){
+				//	result.allIds = selectedContentIds.reduce((accum, id) => (contents.byIds[id] ? [...accum, ...contents.byIds[id].items] : accum), result.allIds);
+				//	result.allIds.sort();
+				//	
+				//	result.byIds = result.allIds.reduce((accum, itemId) => ({
+				//		...accum, 
+				//		[itemId]: items.byIds[itemId],
+				//	}), result.byIds);
+//
+//
+				//	//for(let itemId of result.allIds){
+				//	//	result.byIds[itemId] = items.byIds[itemId];
+				//	//}
+//
+				//	return({
+				//		...items, 
+				//		...result
+				//	});					
+				//}
+				//else{
+				//	//console.log("contents is undefined or no content selected");
+				//}
+
 			default:
 				return Object.assign({}, items, result);
 		}

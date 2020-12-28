@@ -39,9 +39,11 @@ function Modal(props){
 							confirmDiscardSubmitAction: (location, isOverlay) => props.confirmDiscardSubmitAction(
 								location, 
 								props.addedEntitiesReducer, 
-								(props.viewState === OxiAppConstants.viewState.ADD ? 
-									props.addedEntitiesReducer.outfits.byIds[prevSelectedOutfitId] :
-									props.outfitByIds[prevSelectedOutfitId]),
+								(
+									props.viewState === OxiAppConstants.viewState.ADD ? 
+										props.addedEntitiesReducer.outfits.byIds[prevSelectedOutfitId] :
+										props.outfitByIds[prevSelectedOutfitId]
+								),
 								props.entitiesStateReducer.outfits.selected,
 								isOverlay,
 								props.formType

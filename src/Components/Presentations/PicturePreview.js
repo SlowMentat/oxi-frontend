@@ -1580,7 +1580,7 @@ class PicturePreview extends React.Component{
 										width:'auto',
 										//display: (this.image === undefined || this.image === null) ? 'none' : 'block', //this.image.clientWidth > 0 ? 'block' : 'none',
 										//'margin-right': '-400px',
-										'background-color': '#a9a9a9',
+										//'background-color': '#a9a9a9',
 										display: 'flex',
 										'justify-content': 'center',
 									})),

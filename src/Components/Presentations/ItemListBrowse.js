@@ -63,6 +63,7 @@ const PagedItemListBrowse = ({className, ...props}) => (
 			   								(state) => (state === 'unmounted' ? null : (<ItemBrowse
 			   									key={itemId}
 			   									item={props.items[itemId]} 
+			   									picture={props.pictures[props.items[itemId].pictureId]}
 			   									selectedAllIds={props.multipleSelectedAllIds}
 			   									onSelect={props.createHandleMulSel} 
 			   									onDeselect={props.createHandleMulDesel}

@@ -79,6 +79,7 @@ export function denormalizeOutfit(outfitsOrig, contentsOrig, itemsOrig){
 export function buildItemContentsObject(rootEntityType, jsonEntity, currentCount=0){ 
 	//Manually build itemContents join table
 	let itemContents = {};
+	
 	const joinItemContent = (itemsJson, contentId) => {
 		let result = {};
 		//If joinItemContent is called to replace all itemContents currently in entitiesReducer, then currentCount should equal 0.
@@ -97,6 +98,7 @@ export function buildItemContentsObject(rootEntityType, jsonEntity, currentCount
 		}
 		return result;	
 	};
+
 	switch(rootEntityType){
 		case OxiAppConstants.JsonPropertyNames.OUTFIT:
 			//returned a single outfit entitiy 

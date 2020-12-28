@@ -34,6 +34,8 @@ const mapStateToProps = (state, props) => {
 	return ({
 		items : state.entitiesReducer.items.byIds,
 		itemIds : state.entitiesReducer.items.allIds,//state.entitiesReducer.items.allIds 
+		pictures : state.entitiesReducer.pictures.byIds,
+		pictureIds : state.entitiesReducer.pictures.allIds,
 		brands : brands,
 		retailers :  retailers,
 		webAppView: state.appView.webAppView,

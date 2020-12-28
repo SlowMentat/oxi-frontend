@@ -1012,12 +1012,13 @@ export class ItemBrowse extends React.Component{
 									})),
 								'border-radius':'0px',
 								backgroundImage: `url(${
-  									featuredImage !== undefined ? 
+  									featuredImage ? 
   										featuredImage.originalSrc :
-  										mapImageUri(picture.mediumuri)									
-										//this.state.base64Image === null ? 
-										//	(OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : 
-										//	(this.state.base64Image)									
+  										`${OxiAppConstants.webAppBaseURL}${mapImageUri(coverpicuri)}.jpg`
+  										//picture ? 
+  										//	// TODO: look into handling png as well
+  										//	`${mapImageUri(picture.mediumuri)}.jpg` :
+  										//	''								
 								})`
 							}}
 						/>

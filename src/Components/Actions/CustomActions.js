@@ -4,6 +4,7 @@ import fetch from 'cross-fetch'
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 import qs from 'qs';
+import { batch } from 'react-redux';
 
 import {normalize, denormalize} from 'normalizr';
 import { outfitsSchema, profileSchema, contents, items, likeCountSchema, contentWithOutfitSchema, contentWithOutfits, outfit } from '../../Util/Schema.js';
@@ -552,6 +553,7 @@ export function fetchEntities(entityType, username, filter, linkURL=null, pageSt
 									'brand': currentObject.brand,
 									'product':currentObject.product,
 									'coverpicuri':currentObject.coverpicuri,
+									'pictureId': currentObject.pictureId,
 									'outfitId':currentObject.outfitId,
 								}
 							}));
@@ -730,51 +732,65 @@ export const patchEntity = (entityType, payload) => {
 export function mergeResponseEntities(dispatch, normalizedJson){
 	let containsContents = false;
 	let containsOutfits = false;
-	let keys = Object.keys(normalizedJson.entities);
-	//let containsItems = false;
-	for(let entity of keys){
-		switch(entity){
-			case OxiAppConstants.JsonPropertyNames.OUTFIT:
-	
-				containsOutfits = true;
-				dispatch(entityActions.replaceOutfits(normalizedJson.entities[entity]));	
-				break;
+	let entityNames = Object.keys(normalizedJson.entities).reduce((accum, key) => ({...accum, [key]:true}), {});
 
-			case OxiAppConstants.JsonPropertyNames.LIKE_COUNT:
-
-				dispatch(entityActions.replaceLikeCount(normalizedJson.entities[entity]));
-				break;
-	
-			case OxiAppConstants.JsonPropertyNames.CONTENT:
-	
-				containsContents = true;
-				dispatch(entityActions.replaceContents(normalizedJson.entities[entity]));	
-				break;	
-	
-			case OxiAppConstants.JsonPropertyNames.ITEM:
-	
-				dispatch(entityActions.replaceItems(normalizedJson.entities[entity]));
-				break;
-	
-			case OxiAppConstants.JsonPropertyNames.PICTURE:
-	
-				dispatch(entityActions.replacePictures(normalizedJson.entities[entity]));
-				break;
-	
-			case OxiAppConstants.JsonPropertyNames.SIZE_CHART:
-	
-				dispatch(entityActions.replaceSizeCharts(normalizedJson.entities[entity]));
-				break;
-	
-			case OxiAppConstants.JsonPropertyNames.SIZE_GROUP:
-	
-				dispatch(entityActions.replaceSizeGroups(normalizedJson.entities[entity]));
-				break;
-	
-			default:
-				break;
+	const replaceEntity = (name, functionName) => {
+		if(entityNames[name]){
+			if(name === OxiAppConstants.JsonPropertyNames.OUTFIT) containsOutfits = true;
+			if(name === OxiAppConstants.JsonPropertyNames.CONTENT) containsContents = true;
+			dispatch(entityActions[functionName](normalizedJson.entities[name]));
 		}
 	}
+
+	// Make all redux update in a single render pass.
+	batch(() => {
+		replaceEntity(OxiAppConstants.JsonPropertyNames.OUTFIT, 'replaceOutfits');
+		replaceEntity(OxiAppConstants.JsonPropertyNames.LIKE_COUNT, 'replaceLikeCount');
+		replaceEntity(OxiAppConstants.JsonPropertyNames.CONTENT, 'replaceContents');
+		replaceEntity(OxiAppConstants.JsonPropertyNames.ITEM, 'replaceItems');
+		replaceEntity(OxiAppConstants.JsonPropertyNames.PICTURE, 'replacePictures');
+		replaceEntity(OxiAppConstants.JsonPropertyNames.SIZE_CHART, 'replaceSizeCharts');
+		replaceEntity(OxiAppConstants.JsonPropertyNames.SIZE_GROUP, 'replaceSizeGroups');
+	});
+
+	//let containsItems = false;
+	//for(let name of entityNames){
+	//	switch(name){
+	//		case OxiAppConstants.JsonPropertyNames.OUTFIT:	
+	//			containsOutfits = true;
+	//			dispatch(entityActions.replaceOutfits(normalizedJson.entities[name]));	
+	//			break;
+
+	//		case OxiAppConstants.JsonPropertyNames.LIKE_COUNT:
+	//			dispatch(entityActions.replaceLikeCount(normalizedJson.entities[name]));
+	//			break;
+	//		
+	//		case OxiAppConstants.JsonPropertyNames.ITEM:	
+	//			dispatch(entityActions.replaceItems(normalizedJson.entities[name]));
+	//			break;
+	//
+	//		case OxiAppConstants.JsonPropertyNames.CONTENT:	
+	//			containsContents = true;
+	//			dispatch(entityActions.replaceContents(normalizedJson.entities[name]));	
+	//			break;	
+	//
+	//		case OxiAppConstants.JsonPropertyNames.PICTURE:	
+	//			dispatch(entityActions.replacePictures(normalizedJson.entities[name]));
+	//			break;
+	//
+	//		case OxiAppConstants.JsonPropertyNames.SIZE_CHART:	
+	//			dispatch(entityActions.replaceSizeCharts(normalizedJson.entities[name]));
+	//			break;
+	//
+	//		case OxiAppConstants.JsonPropertyNames.SIZE_GROUP:	
+	//			dispatch(entityActions.replaceSizeGroups(normalizedJson.entities[name]));
+	//			break;
+	//
+	//		default:
+	//			break;
+	//	}
+	//}
+
 	//select the first outfit if it exists
 	if(containsOutfits){
 		let outfitKeys = Object.keys(normalizedJson.entities["outfits"]);		

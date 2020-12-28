@@ -354,6 +354,7 @@ export const OxiAppConstants = Object.freeze({
 			sizeGroupId:null,
 			brand: '',
 			platform:null,
+			pictureId:null,
 		},
 		SIZE_GROUP:{
 			id:null,
