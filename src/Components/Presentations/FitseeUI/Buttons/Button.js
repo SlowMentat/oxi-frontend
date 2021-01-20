@@ -29,6 +29,9 @@ export const IconButton = styled(({labelSize = '1.2rem', iconSize = '2.4rem', ..
 				font-size: ${props.labelSize || ls};
 				line-height: ${props.labelSize || ls};
 			}
+			& .mdc-icon-button::before, .mdc-icon-button::after{
+				background-color: unset;
+			}			
 		`)
 	}
 `;

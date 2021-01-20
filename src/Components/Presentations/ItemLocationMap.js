@@ -132,11 +132,11 @@ export default class ItemLocationMap extends React.Component{
 
 	getCircleRadius(itemId){
 		var size = isDevice ? 4 : 2;
-		return(this.props.itemIdHovered == itemId ? `${size*1.5}%` : `${size}%`);
+		return(this.props.itemIdHovered == itemId || this.props.selectedItemId == itemId ? `${size*1.5}%` : `${size}%`);
 	}
 
 	getCircleColor(itemId){
-		return(this.props.itemIdHovered === itemId ? 'var(--color-05-tint-01)' : '#ececec');
+		return(this.props.itemIdHovered === itemId || this.props.selectedItemId == itemId ? 'var(--color-05-tint-01)' : '#ececec');
 	}
 
 	render(){
@@ -256,7 +256,7 @@ export default class ItemLocationMap extends React.Component{
 														cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
 														className={ItemStyles.itemPin}
 														transform={this.state.draggedItemId === itemId ? `translate(${this.state.deltaPosition.x}, ${this.state.deltaPosition.y})` : 'translate(0,0)'}
-														>
+													>
 													</circle>
 												</DraggableCore>
 											) : (
@@ -275,7 +275,7 @@ export default class ItemLocationMap extends React.Component{
 													r={this.getCircleRadius(itemId)}
 													cy={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positiony']}%`} 
 													cx={`${100*this.props.visibleItemsMap.visibleItemsByIds[itemId]['positionx']}%`}
-													>
+												>
 												</circle>
 											)
 										);

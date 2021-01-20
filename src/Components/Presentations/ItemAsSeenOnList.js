@@ -16,6 +16,147 @@ import { Ripple } from '@rmwc/ripple';
 import styled from 'styled-components';
 import { Image } from '../../Components/Presentations/Image.js';
 
+import { 
+	Button, 
+	IconButton 
+} from '../../Components/Presentations/FitseeUI/Buttons/index.js'; 
+
+import {SvgIcon} from '../SvgAssets/SvgIcon.js';
+
+
+
+
+class ItemAsSeenOnControls extends React.Component{
+	constructor(props){
+		super(props);
+
+		this.state = {
+			areControlsShown: false,
+		}
+
+		this.timer = null;
+	}
+
+	showControls(){
+		this.setState(prevState => ({
+			...prevState,
+			areControlsShown: true,
+		}));
+	}
+
+	hideControls(){
+		this.setState(prevState => ({
+			...prevState,
+			areControlsShown: false,
+		}));
+	}
+
+	render(){
+		// Methods
+		const {
+			handleViewOutfit,
+			handleViewMeasurements,
+		} = this.props;
+
+		// Variables
+		const {
+			children,
+		} = this.props;
+
+		return(
+			<div 
+				style={{
+					width: 'inherit',
+					height: 'inherit',
+					position: 'relative',
+				}}
+				onClick={e => {
+					// Do nothing if desktop
+					if(isDevice){
+						this.showControls();
+
+						// Clear hide ctrls timer if exists
+						if(this.timer) clearTimeout(this.timer);
+
+						// Set timer to hide controls
+						this.timer = setTimeout(() => {this.hideControls()}, 2000);
+					}
+					e.stopPropagation();
+				}}
+				onMouseOver={e => {
+					// Do nothing if mobile
+					if(!isDevice){
+						this.showControls();
+					}
+				}}
+				onMouseOut={e => {
+					// Do nothing if mobile
+					if(!isDevice){
+						this.hideControls();
+					}
+				}}
+			>
+				{children}
+				<CSSTransition
+					tiemout={600}
+					classNames="itemAsSeenOnControls"
+					in={this.state.areControlsShown} 
+					//className={
+					//	this.state.isControlShown ? 
+					//		AsSeenOnStyles['itemAsSeenOnControls_div'] : 
+					//		AsSeenOnStyles['itemAsSeenOnControlsShown_div']
+					//}
+					//style={{
+					//	...(
+					//		this.state.areControlsShown ? 
+					//		{
+					//			display: 'flex'
+					//		} : 
+					//		{
+					//			display: 'none'
+					//		}
+					//	)
+					//}}
+				>
+					<div 
+						className={AsSeenOnStyles.itemAsSeenOnControls}
+					>
+						<div
+							onClick={e => {
+								if(this.state.areControlsShown) handleViewMeasurements();
+							}}
+						>
+							<IconButton
+								style={{color:'black'}}
+								icon={
+									<SvgIcon
+										name="MeasureIcon"
+										stroke="#000"
+										strokeWidth="2"
+										//style={{color:'black'}}
+									/>
+								}
+								ripple={false}
+							/>
+						</div>
+						<div
+							onClick={e => {
+								if(this.state.areControlsShown) handleViewOutfit();
+							}}
+						>
+							<IconButton
+								icon="visibility"
+								class="material-icons-outlined"
+								style={{color:'black'}}
+								ripple={false}
+							/>
+						</div>
+					</div>
+				</CSSTransition>
+			</div>
+		);
+	}
+}
 
 class ItemAsSeenOn extends React.Component{
 	constructor(props){
@@ -62,19 +203,25 @@ class ItemAsSeenOn extends React.Component{
 				<div
 					className={AsSeenOnStyles.itemAsSeenOn_div} 
 				>
-					<Ripple>
+					<ItemAsSeenOnControls
+						handleViewOutfit={
+							(event) => {
+								this.props.previewOutfitFromBrowse(this.props.outfitId ? this.props.outfitId.toLowerCase() : this.props.outfitId);
+								event.stopPropagation();
+							}
+						}
+						handleViewMeasurements={
+							(event) => {
+								this.props.getHostMeasurements(this.props.outfitId);
+								this.props.toggleMetricPanel(event, true);
+								event.stopPropagation();
+							}
+						}
+					>
 						<div 
 							className={AsSeenOnStyles.imageContainer_div}
 							style={{'background-color': '#f0f0f0'}}
 						>
-							{/*<img 
-								className={AsSeenOnStyles.imageApparel_img} 
-								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
-								onClick={(event) => {
-									this.props.previewOutfitFromBrowse(this.props.outfitId ? this.props.outfitId.toLowerCase() : this.props.outfitId);
-									event.stopPropagation();
-								}}
-							/>*/}
 							<Image
 								src={this.state.base64Image === null ? (OxiAppConstants.ContentDirectories.IMAGES + "/no_image.svg") : (this.state.base64Image)} 
 								className={AsSeenOnStyles.imageApparel_img}
@@ -82,33 +229,10 @@ class ItemAsSeenOn extends React.Component{
 								onLoad={e => {
 									this.setState(prevState => ({...prevState, imgLoaded: true,}));								
 								}}
-								onClick={(event) => {
-									this.props.previewOutfitFromBrowse(this.props.outfitId ? this.props.outfitId.toLowerCase() : this.props.outfitId);
-									event.stopPropagation();
-								}}
 							/>
 						</div>
-					</Ripple>
+					</ItemAsSeenOnControls>
 				</div>
-				{/*<div className={AsSeenOnStyles.infoContainer_div}>
-					<div className={AsSeenOnStyles.infoName_div}>
-						{ username }
-					</div>
-					<div className={AsSeenOnStyles.infoSocial_div}>
-						<div className={AsSeenOnStyles.infoLikes_div}>
-							likes
-							<span className={AsSeenOnStyles.infoLikes_span}>
-								{ this.props.contentWithOutfit[OxiAppConstants.JsonPropertyNames.LIKE_COUNT].count }
-							</span>
-						</div>
-						<div className={AsSeenOnStyles.infoFollowing_div}>
-							Following
-							<span className={AsSeenOnStyles.infoFollowing_span}>
-								235235
-							</span>
-						</div>
-					</div>
-				</div>*/}
 			</div>
 		);
 	}
@@ -145,8 +269,10 @@ const AsSeenOnPagedList = ({className, ...props}) => (
    								props.contents[contentId].coverpicuri !== undefined ?
    									props.contents[contentId].coverpicuri :
    									null
-   						}
+   					}
    					getCoverPic={props.getCoverPic}
+   					toggleMetricPanel={props.toggleMetricPanel}
+   					getHostMeasurements={props.getHostMeasurements}
 				/>
 			);
 		}))} 
@@ -183,41 +309,6 @@ class ItemAsSeenOnList extends React.Component{
 						}
 					}
 				/>
-    			{/*<PagedList
-    				id="itemAsSeenOnList"
-    				scrollContainerStyle={AsSeenOnStyles.contentContainer_div}
-    				currentPage={this.props.currentPage}
-    				lastPage={this.props.lastPage}
-    				isFetching={this.props.isFetching}
-    				prevPageURL={this.props.prevPageURL}
-    				nextPageURL={this.props.nextPageURL}
-    				setScrollPageHeight={this.props.setScrollPageHeight}
-    				scrollPageHeight={this.props.scrollPageHeight}
-    				setCurrentEntityPage={this.props.setCurrentEntityPage}
-    				pages={this.props.pages}
-    				setNextPageURL={this.props.setNextPageURL}
-					setPrevPageURL={this.props.setPrevPageURL}
-    				list={this.props.contentIds.map((contentId => {
-						return(
-							<ItemAsSeenOn 
-								previewOutfitFromBrowse={this.props.previewOutfitFromBrowse}
-								contentId={contentId}
-								outfitId={ this.props.contents[contentId].outfitId }
-								contentWithOutfit = {this.props.contents[contentId]}
-    							prevPageURL={this.props.prevPageURL}
-    							nextPageURL={this.props.nextPageURL}
-    							coverpicuri={
-    								(this.props.pictures[ this.props.contents[contentId].picture ] !== undefined) ? 
-    									this.props.pictures[ this.props.contents[contentId].picture ].smalluri :
-    										this.props.contents[contentId].coverpicuri !== undefined ?
-    											this.props.contents[contentId].coverpicuri :
-    											null
-    								}
-    							getCoverPic={this.props.getCoverPic}
-							/>
-						);
-					}))} 
-    			/>*/}
     		</CSSTransition>
 		);
 	}

@@ -925,6 +925,7 @@ export class ItemBrowse extends React.Component{
 			onDeselect,
 			onSelect,
 			clearSelectMultipleEntity,
+			toggleMetricPanel,
 		} = this.props;
 
 		var { 
@@ -1108,7 +1109,12 @@ export class ItemBrowse extends React.Component{
 						>
 							{
 								isSelected ?
-									( <VisibleItemAsSeenOnList selectedItemId={ item.id } /> ) :
+									( 
+										<VisibleItemAsSeenOnList 
+											selectedItemId={ item.id } 
+											toggleMetricPanel={ toggleMetricPanel }
+										/> 
+									) :
 									null
 							}
 						</List>
@@ -1485,11 +1491,22 @@ export class Item extends React.Component{
 						...(isDevice ? 
 								{
 									...(isActive ? {height: '100vh'} : {}),
-									top:'0px',
+									//display: 'unset',
+									top: '0px',
 									transition: 'transform 150ms cubic-bezier(0.45, 0.05, 0.55, 0.95)',
 									//transform: 'translateX(100vw)',
 									//transform: (isSelected ? 'translateX(0vw)' : 'translateX(100vw)'),
-									animation: (isSelected ? 'slideInRTL 200ms' : 'slideOutLTR 200ms'),
+									...(
+										isSelected ? 
+											{
+												display: 'unset',
+												animation: 'slideInRTL 200ms',
+											} : 
+											{
+												display: 'none',
+												animation: 'slideOutLTR 200ms',
+											}
+									),
 								} :
 								{}
 							),

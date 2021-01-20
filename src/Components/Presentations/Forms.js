@@ -253,7 +253,8 @@ function FormDeck(props){
 						match={props.match}
 						history={props.history}
 						isOverlay={false}
-						message="You are about to delete the selected outfits."				
+						message="You are about to delete the selected outfits."
+						formType={props.formType}	
 					/>
 				);
 	
@@ -268,6 +269,7 @@ function FormDeck(props){
 						addProfilePic={props.addProfilePic}
 						cropProfilePic={props.cropProfilePic}
 						//username={props.profile.username}}
+						formType={props.formType}	
 					/>
 				);
 	
@@ -1101,7 +1103,7 @@ export class ProfilePicForm extends React.Component{
 							Profile Picture
 						</div>
 						<IconButton
-							onClick={(event) => cancelAction(event)}
+							onClick={(event) => cancelAction(this.props.formType)}
 							icon="cancel"
 							style={{
 								...(
@@ -2134,7 +2136,8 @@ export class DiscardForm extends React.Component{
 									outlined
 									onClick={(e) => {
 										e.stopPropagation();
-										this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS, this.props.isOverlay);
+										//this.props.cancelAction(OxiAppConstants.FormType.DISCARD_EDITS, this.props.isOverlay);
+										this.props.cancelAction(this.props.formType, this.props.isOverlay);
 									}}
 								/>
 							</div>

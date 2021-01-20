@@ -200,7 +200,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 		confirmDeleteOutfits: (outfitIds) => {
 			dispatch(deleteOutfits(outfitIds, (response) => null));
 			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.OUTFIT));
-			dispatch(setFormVisibility(null));
+			dispatch(removeModalById(OxiAppConstants.FormType.DELETE_OUTFITS));
 			// exit the Profile view from the edit context	
 			dispatch(setWebAppViewContext(null));
 		},

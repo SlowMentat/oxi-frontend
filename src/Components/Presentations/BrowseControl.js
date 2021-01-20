@@ -202,23 +202,45 @@ class BrowseControl extends React.Component{
 										this.props.selectBrowserType('outfits');
 										//this.props.getOutfits('all')
 									}}
-									style={!isOutfitBrowse ? ({color:'var(--color-02-shade-01)'}) : ({color:'var(--color-02)'})}
+									selectedStyle={{}}
+									style={
+										isOutfitBrowse ? 
+											{
+												color:'var(--color-02)',
+												'border-bottom': 'solid .3rem var(--color-02-shade-01)',
+											} : 
+											{
+												color:'var(--color-02)',
+											}
+									}
 								/>
 								<IconButton
 									label="Apparel"
 									icon="local_offer"
 									ripple={false}
+									dissableRipple={true}
 									onClick={() => {
 										this.props.selectBrowserType('apparel');
 										this.props.getItems('all');
 									}}
-									style={isOutfitBrowse ? ({color:'var(--color-02-shade-01)'}) : ({color:'var(--color-02)'})}
+									selectedStyle={{}}
+									style={
+										isOutfitBrowse ? 
+											{
+												color:'var(--color-02)',
+											} : 
+											{
+												color:'var(--color-02)',
+												'border-bottom': 'solid .3rem var(--color-02-shade-01)',
+											}
+									}
 								/>
 								<div>
 									<IconButton
 										label="Menu"
 										icon="more_horiz"
 										ripple={false}
+										dissableRipple={true}
 										onClick={(e) => {
 											this.props.toggleMenuDrawer(e, true)
 										}}
@@ -233,7 +255,7 @@ class BrowseControl extends React.Component{
 									//theme="primary"
 									style={{
 										//...buttonStyle,
-										'border-bottom-left-radius': '0px',
+										'border-radius': '0px',
 									}}
 									onClick={() => {
 										this.props.selectBrowserType('outfits');
@@ -249,7 +271,7 @@ class BrowseControl extends React.Component{
 									//theme="primary"
 									style={{
 										//...buttonStyle,
-										'border-top-left-radius': '0px',
+										'border-radius': '0px',
 									}}
 									onClick={() => {
 										this.props.selectBrowserType('apparel');

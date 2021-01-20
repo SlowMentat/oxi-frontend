@@ -9,8 +9,8 @@ import {
 	deselectMultipleEntity,
 	setCurrentEntityPage,
 	setEntityScrollPageHeight,
-	fetchImage,
-
+	fetchImage,	
+	fetchMetrics,
 	fetchEntities,
 	selectAndPropagate,	
 } from '../../Components/Actions/indexActions.js';
@@ -73,11 +73,14 @@ const mapDispatchToProps = dispatch => ({
 				const contentIds = contentArrays.filter(contentId => picture[contents[contentId].picture].mediumuri === outfits[outfitId].coverpicuri);
 				dispatch(selectAndPropagate(OxiAppConstants.EntityTypes.OUTFIT, outfitId, contentIds[0]));
 				//dispatch(setFormVisibility(OxiAppConstants.FormType.OUTFIT_PREVIEW, null, null));				
-				dispatch(removeModalById(OxiAppConstants.FormType.OUTFIT_PREVIEW));
+				dispatch(createModal({id: OxiAppConstants.FormType.OUTFIT_PREVIEW}));
 			}
 
 			//props.setPreviewedOutfit(outfitId);
 		});
+	},
+	getHostMeasurements : (outfitId) => {
+		dispatch(fetchMetrics(outfitId));				
 	},
 })
 

@@ -60,25 +60,28 @@ const PagedItemListBrowse = ({className, ...props}) => (
 			   							unmountOnExit 
 			   						>
 			   							{
-			   								(state) => (state === 'unmounted' ? null : (<ItemBrowse
-			   									key={itemId}
-			   									item={props.items[itemId]} 
-			   									picture={props.pictures[props.items[itemId].pictureId]}
-			   									selectedAllIds={props.multipleSelectedAllIds}
-			   									onSelect={props.createHandleMulSel} 
-			   									onDeselect={props.createHandleMulDesel}
-			   									clearSelectMultipleEntity={props.clearSelectMultipleEntity}
-			   									brands={props.brands} 
-			   									retailers={props.retailers}
-			   									itemIdHovered={props.itemIdHovered}
-			   									webAppView={props.webAppView}
-			   									browseSelection={props.browseSelection}
-			   									_handleMouseOver={(event) => props.changeItemHovered(itemId, event)}
-			   									_handleMouseLeave={(event) => props.changeItemHovered(null, event)}
-			   									getContentsByItemId={() => props.getContentsByItemId(itemId)}
-			   									removeContentEntities={props.removeContentEntities}
-			   									removeAuxContentEntities={props.removeAuxContentEntities}
-			   									getCoverPic={props.getCoverPic} />
+			   								(state) => (state === 'unmounted' ? null : (
+			   									<ItemBrowse
+			   										key={itemId}
+			   										item={props.items[itemId]} 
+			   										picture={props.pictures[props.items[itemId].pictureId]}
+			   										selectedAllIds={props.multipleSelectedAllIds}
+			   										onSelect={props.createHandleMulSel} 
+			   										onDeselect={props.createHandleMulDesel}
+			   										clearSelectMultipleEntity={props.clearSelectMultipleEntity}
+			   										brands={props.brands} 
+			   										retailers={props.retailers}
+			   										itemIdHovered={props.itemIdHovered}
+			   										webAppView={props.webAppView}
+			   										browseSelection={props.browseSelection}
+			   										_handleMouseOver={(event) => props.changeItemHovered(itemId, event)}
+			   										_handleMouseLeave={(event) => props.changeItemHovered(null, event)}
+			   										getContentsByItemId={() => props.getContentsByItemId(itemId)}
+			   										removeContentEntities={props.removeContentEntities}
+			   										removeAuxContentEntities={props.removeAuxContentEntities}
+			   										getCoverPic={props.getCoverPic}
+			   										toggleMetricPanel={props.toggleMetricPanel}
+			   									/>
 			   								))
 			   							}
 			   						</CSSTransition>

@@ -316,8 +316,8 @@ export const OxiAppConstants = Object.freeze({
 	//	}
 	//},
 	Intent:{
-		DISCARD_EDITS: 'discardEdits',
-		DELETE_OUTFITS: 'deleteOutfits',
+		DISCARD_EDITS: 'DiscardEdits',
+		DELETE_OUTFITS: 'DeleteOutfits',
 	},/*
 	NavigationException:{
 		USER_CANCELED: "User Canceled",
@@ -391,7 +391,7 @@ export const OxiAppConstants = Object.freeze({
 			id: null,
 			modal : 'HIDDEN',
 			isModalVisible : true,
-			scrimOpacity: .5,
+			scrimOpacity: .75,
 			prevRequestUrl : null,
 			prevRequestType : null,
 			overlayModal : null,

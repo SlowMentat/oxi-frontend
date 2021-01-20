@@ -323,7 +323,7 @@
     @include mobile_rules {
         width: 100vw;
         margin: unset;
-        display: block;
+        display: unset;
         //bottom: calc(-100vh + 80px + 20px + calc(100vw / 3.2360679775));
         /*bottom: calc(-100vh + var(--cc-mobile-height) + var(--clc-mobile-height) + var(--item-height));*/
         top: 50vh;

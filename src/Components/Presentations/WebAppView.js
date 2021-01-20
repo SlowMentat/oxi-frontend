@@ -668,6 +668,7 @@ class OutfitNav extends React.Component{
 			webAppViewContext,
 			updatedCoverpicTrigger,
 			toggleMenuDrawer,
+			toggleMetricPanel,
 			modals,
 			modalIds,
 		} = this.props;
@@ -734,6 +735,7 @@ class OutfitNav extends React.Component{
 							scrollContainerStyle={OutfitNavStyles.previewContainer} 
 							//setPreviewedOutfit={setPreviewedOutfit}
 							previewedOutfitId={previewedOutfitId}
+							toggleMetricPanel={toggleMetricPanel}
 						/>
 				);
 				break

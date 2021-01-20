@@ -88,7 +88,7 @@
 }
 
 :local(.imageContainer_div){
-    position: absolute;
+    /*position: absolute;*/
     /*height: 100%;*/
     height: var(--aso-img-width);
     width: inherit;
@@ -184,4 +184,47 @@
 
 :local(.infoFollowing_span){
     composes:infoLikes_span;
+}
+
+.itemAsSeenOnControls{
+    display: flex;
+    background-color: white;
+    opacity: 0;
+    /*animation: imgFadeIn 400ms;*/
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    /*top: 1px;*/
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 200ms linear;
+}
+
+.itemAsSeenOnControls-enter{
+    height: inherit;
+    opacity: 0;
+    /*display: flex;*/
+}
+
+.itemAsSeenOnControls-enter-active{
+    transition: opacity 200ms linear;
+    opacity: .7;
+}
+
+.itemAsSeenOnControls-enter-done{
+    opacity: .7;
+}
+
+.itemAsSeenOnControls-exit{
+    opacity: .7;
+}
+
+.itemAsSeenOnControls-exit-active{
+    transition: opacity 300ms linear;
+    opacity: 0;
+}
+
+.itemAsSeenOnControls-exit-done{
+    opacity: 0;
 }
