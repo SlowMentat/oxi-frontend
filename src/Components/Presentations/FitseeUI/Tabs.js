@@ -33,6 +33,13 @@ export const Tab = styled(({underline, ...otherProps}) => (
 ))`
 	${
 		props => (`
+			& .mdc-tab__text-label{
+				/*font-weight: bold;*/
+    			/*letter-spacing: .14rem;*/
+    			font-size: 1.4rem;
+    			padding-top: .3rem;
+			}
+
 			${
 				props.underline ? 
 					null : 

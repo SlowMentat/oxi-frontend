@@ -157,6 +157,13 @@ $sliderWidth: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    @include desktop_rules {
+    }
+
+    @include mobile_rules {
+        display: none;   
+    }
 }
 
 :local(.toleranceSettingsContianer_div){
@@ -172,6 +179,7 @@ $sliderWidth: 15px;
     @include mobile_rules {
         padding-top: 0px;
         --main-height: 25px;
+        touch-action:none;
     }
 }
 
@@ -324,7 +332,7 @@ $sliderWidth: 15px;
 
     @include mobile_rules {
         /*left: calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding));*/
-        top: 170px;
+        top: 24px;
         right: 5px;
         justify-content: flex-end;
         /*width: 120px;*/
@@ -479,7 +487,7 @@ $sliderWidth: 15px;
     position: absolute;
     height: calc(100% - 47px);
     border-left: solid var(--minMaxMarker-border-width) var(--color-01);
-    top: -($sliderWidth);
+    top: -(#{$sliderWidth * 2});
     left: 64px;
     transform: translateX(calc(#{$sliderWidth} / 2 - var(--minMaxMarker-border-width) / 2));
 }
@@ -493,26 +501,29 @@ $sliderWidth: 15px;
     --diameter: 30px;
     --border-width: 3px;
     --indicator-width: calc(var(--diameter) + 25px);
+    --collision-adjust: 0px;
     /*width: var(--diameter);*/
     width: var(--indicator-width);
     height: var(--diameter);
     border-radius: var(--diameter);
     border: solid var(--border-width) var(--color-01);
     /*left: calc(-1*(var(--diameter)/2 + var(--border-width)/2));*/
-    left: calc(-1*(var(--indicator-width)/2 + var(--border-width)/2));
-    top: calc(-1*var(--diameter));
+    left: calc(-1*(var(--indicator-width)/2 + var(--border-width)/2) + var(--collision-adjust));
+    top: calc(-1*var(--diameter)/2);
     line-height: calc(var(--diameter) - 2*var(--border-width));
     text-align: center;
     padding-top: 1px;
     font-size: 14px;
     font-weight: bold;
+    background-color: white;
+    cursor: grab;
+    transition: left 100ms linear;
 }
-
 
 :local(.toleranceControllersContainer_div){
     position: absolute;
-    /*top: 0px;*/
-    top: -2px;
+    top: 0px;
+    /*top: -2px;*/
     width: 100%;
 }
 
@@ -526,7 +537,7 @@ $sliderWidth: 15px;
     user-select: none;
     width: 100%;
     height: var(--main-height);
-    margin-top: 2px;
+    /*margin-top: 2px;*/
     margin-bottom: 2px;
 }
 
@@ -630,12 +641,23 @@ $sliderWidth: 15px;
 
 
 :local(.slideValueRange_div){
-    --value-spacing: 20px;
-    --value-range-width: 95px;
-    position: absolute;
-    right: calc(var(--value-spacing) - 2*var(--profile-ctrl-container-padding) - var(--value-range-width));
-    width: var(--value-range-width);
-    line-height: var( --main-height);
+
+    @include desktop_rules {
+        --value-spacing: 20px;
+        --value-range-width: 95px;
+        position: absolute;
+        /*right: calc(var(--value-spacing) - 2*var(--profile-ctrl-container-padding) - var(--value-range-width));
+        width: var(--value-range-width);*/
+        line-height: var( --main-height);   
+        width: auto;
+        display: flex; 
+        justify-content: space-between;
+        left: 340px;
+    }
+
+    @include mobile_rules {
+        display: none;
+    }
 }
 
 .slidValue{
@@ -658,6 +680,7 @@ $sliderWidth: 15px;
     composes:slidValue;
     width: 5px;
     display: inline-block;
+    margin: 0px 5px;
 }
 
 :local(.slideValueMax_div){

@@ -31,6 +31,7 @@ import {
 } from 'react-swipeable';
 
 import { Swipeable } from '../../Components/Presentations/FitseeUI/Swipeable.js';
+import { Switch as RmwcSwitch } from '@rmwc/switch';
 
 //CSS Styles
 import Styles from '../../root.scss';
@@ -45,7 +46,6 @@ import {roundTo, ongoingTouchIndexById, copyTouch } from '../../Util/Misc.js';
 
 //SVG
 import {SvgIcon} from '../SvgAssets/SvgIcon.js';
-
 import { Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
 
 
@@ -217,17 +217,9 @@ const TolerancePresets = ({props}) => {
 	);
 }
 
-export const SlideSwitch = ({props}) => (
+export const UnitSwitch = ({props}) => (
 	<div 
-		//className={ProfileMenuStyles.inputNumberContainer_div}
 		className={ProfileMenuStyles.unitSwitch_div}
-		//style={{
-		//	position: 'absolute',
-   		//	left: 'calc(var(--profile-ctrl-container-padding)/2 - var(--input-number-container-padding))',
-   		//	top: '45px',
-   		//	'margin-top':'0px',
-		//	width: '120px',
-		//}}
 	>
 		<div className={ProfileMenuStyles.slideSwitchLabelContainer_div}>
 			<div className={ProfileMenuStyles.slideSwitchLabel_div}>
@@ -239,7 +231,7 @@ export const SlideSwitch = ({props}) => (
 				<div 
 					className={ProfileMenuStyles.slide_div} 
 					style={props.units === 'in' ? ({left: 'calc(100% - 65%)'}) : null}
-					onClick={(event) => props.toggleSlidSwitch(event)}>
+					onClick={(event) => props.onChange(event)}>
 				</div>
 			</div>
 		</div>
@@ -250,6 +242,36 @@ export const SlideSwitch = ({props}) => (
 		</div>
 	</div>
 );
+
+//export const UnitSwitch = ({props}) => {
+//	return(
+//		<div
+//			className={ProfileMenuStyles.unitSwitch_div}
+//		>
+//			<div className={ProfileMenuStyles.slideSwitchLabelContainer_div}>
+//				<div className={ProfileMenuStyles.slideSwitchLabel_div}>
+//					cm.
+//				</div>
+//			</div>
+//
+//			<RmwcSwitch
+//				theme="textPrimaryOnLight"							
+//				label="Crop / Tag"
+//				labelSize="1.2rem"
+//				checked={false}
+//				onChange={(e) => {
+//					props.onChange(e.currentTarget.checked);
+//				}}
+//			/>
+//
+//			<div className={ProfileMenuStyles.slideSwitchLabelContainer_div}>
+//				<div className={ProfileMenuStyles.slideSwitchLabel_div}>
+//					in.
+//				</div>
+//			</div>
+//		</div>
+//	);
+//}
 
 
 
@@ -275,7 +297,7 @@ class ToleranceSettings extends React.Component{
 			preset2: 'Fit',
 			preset3: 'Loose',
 		}
-
+		this.isPointDown = false;
 		/*if(Object.keys(this.props.minTolerances).length === 0 && Object.keys(this.props.maxTolerances).length === 0){
 			for(let field of this.filteredFieldNames){
 				//values int ticks indecese 
@@ -307,6 +329,7 @@ class ToleranceSettings extends React.Component{
 		this._sliderReleasedd = this._sliderReleased.bind(this);
 		this.getDeltaTick = this.getDeltaTick.bind(this);
 		this.getToleranceControllerRef = this.getToleranceControllerRef.bind(this);
+		this.getToleranceIndicatorRef = this.getToleranceIndicatorRef.bind(this);
 
 		//this.getToleranceValues = this.getToleranceValues.bind(this);
 		//this.getUpdatedToleranceTick = this.getUpdatedToleranceTick.bind(this);
@@ -357,22 +380,28 @@ class ToleranceSettings extends React.Component{
 	}*/
 
 	_handleMinSliderMove(e, field){
+		e.preventDefault();
 		console.log('x = ', e.clientX);
+
 		this.setState(prevState => {
 			const pixelDelta = e.clientX - prevState.startX;
+
 			return({
-				deltaX: pixelDelta,
+				deltaX: (e.clientX - prevState.startX),
 				deltaTick: this.getDeltaTick(field, true),
 			});
 		});
 	}
 
 	_handleMaxSliderMove(e, field){
+		e.preventDefault();
 		console.log('x = ', e.clientX);
+
 		this.setState(prevState => {
 			const pixelDelta = e.clientX - prevState.startX;
+
 			return({
-				deltaX: pixelDelta,
+				deltaX: (e.clientX - prevState.startX),
 				deltaTick: this.getDeltaTick(field, false),
 			});
 		});
@@ -380,6 +409,8 @@ class ToleranceSettings extends React.Component{
 
 	_sliderGrabbed(e, field, isMinSlider, outerRef){
 		e.stopPropagation();
+		//isDevice ? e.preventDefault() : null;
+		e.preventDefault();
 		console.log('e.clientX = ', e.clientX)
 		const xCoord = e.clientX;
 		//const adjTick = isMinSlider ? this.state.minTolerances[field] : this.state.maxTolerances[field] + 1;
@@ -391,30 +422,20 @@ class ToleranceSettings extends React.Component{
 		});
 
 		//create event handlers
-		if(outerRef){
+		if(outerRef && !this.isPointDown){
 			//outerRef.style['touch-action'] = 'none';
 			this.handleMinSliderMoveWrapper = (e) => this._handleMinSliderMove(e, field);
 			this.handleMaxSliderMoveWrapper = (e) => this._handleMaxSliderMove(e, field);
 			this.handleMinSliderReleasedWrapper = (e) => this._sliderReleased(e, true, outerRef);
 			this.handleMaxSliderReleasedWrapper = (e) => this._sliderReleased(e, false, outerRef);
 	
-			//add handlers to event listeners
-	
-			/*if(isMinSlider){
-				window.addEventListener('mousemove', this.handleMinSliderMoveWrapper);
-				window.addEventListener('mouseup', this.handleMinSliderReleasedWrapper);
-			}else{
-				window.addEventListener('mousemove', this.handleMaxSliderMoveWrapper);	
-				window.addEventListener('mouseup', this.handleMaxSliderReleasedWrapper);
-			}*/
-	
-	
+			//add handlers to event listeners	
 			if(isMinSlider){
-				/*window*/outerRef.addEventListener('pointermove', this.handleMinSliderMoveWrapper);
-				/*window*/outerRef.addEventListener('pointerup', this.handleMinSliderReleasedWrapper);
+				outerRef.addEventListener('pointermove', this.handleMinSliderMoveWrapper);
+				outerRef.addEventListener('pointerup', this.handleMinSliderReleasedWrapper);
 			}else{
-				/*window*/outerRef.addEventListener('pointermove', this.handleMaxSliderMoveWrapper);	
-				/*window*/outerRef.addEventListener('pointerup', this.handleMaxSliderReleasedWrapper);
+				outerRef.addEventListener('pointermove', this.handleMaxSliderMoveWrapper);	
+				outerRef.addEventListener('pointerup', this.handleMaxSliderReleasedWrapper);
 			}
 		}else{
 			console.log('outerRef is null or not defined');
@@ -443,65 +464,50 @@ class ToleranceSettings extends React.Component{
 			sliderTransition:true
 		}));
 
-		switch(true){/*
-			case isMinSlider:
-				console.log('removing minSlider event handlers from window\'s mousemove and mouseup');
-				if(this.handleMinSliderMoveWrapper){
-					window.removeEventListener('mousemove', this.handleMinSliderMoveWrapper);
-					if(this.handleMinSliderReleasedWrapper){
-						window.removeEventListener('mouseup', this.handleMinSliderReleasedWrapper);
-					}else{
-						console.log('this.handleMinSliderReleasedWrapper is undefined')
-					}
-				} else {
-					console.log('this.handleMinSliderMoveWrapper is undefined');
-				}
-				break;
-			case !isMinSlider:
-				console.log('removing maxSlider event handlers from window\'s mousemove and mouseup');
-				if(this.handleMaxSliderMoveWrapper){
-					window.removeEventListener('mousemove', this.handleMaxSliderMoveWrapper);
-					if(this.handleMaxSliderReleasedWrapper){
-						window.removeEventListener('mouseup', this.handleMaxSliderReleasedWrapper);
-					}else{
-						console.log('this.handleMaxSliderReleasedWrapper is undefined')
-					}
-				}else{
-					console.log('this.handleMaxSliderMoveWrapper undefined');
-				}
-				break;
-			default:
-				break;
-		}*/
+		switch(true){
 			case isMinSlider:
 				console.log('removing minSlider event handlers from outerRef\'s pointermove and pointerup');
+
 				if(this.handleMinSliderMoveWrapper){
 					outerRef.removeEventListener('pointermove', this.handleMinSliderMoveWrapper);
+
 					if(this.handleMinSliderReleasedWrapper){
 						outerRef.removeEventListener('pointerup', this.handleMinSliderReleasedWrapper);
-					}else{
+					}
+					else{
 						console.log('this.handleMinSliderReleasedWrapper is undefined')
 					}
-				} else {
+				} 
+				else {
 					console.log('this.handleMinSliderMoveWrapper is undefined');
 				}
+
 				break;
+
 			case !isMinSlider:
 				console.log('removing maxSlider event handlers from outerRef\'s pointermove and pointerup');
+
 				if(this.handleMaxSliderMoveWrapper){
 					outerRef.removeEventListener('pointermove', this.handleMaxSliderMoveWrapper);
+
 					if(this.handleMaxSliderReleasedWrapper){
 						outerRef.removeEventListener('pointerup', this.handleMaxSliderReleasedWrapper);
-					}else{
+					}
+					else{
 						console.log('this.handleMaxSliderReleasedWrapper is undefined')
 					}
-				}else{
+				}
+				else{
 					console.log('this.handleMaxSliderMoveWrapper undefined');
 				}
+
 				break;
+
 			default:
 				break;
 		}
+
+		this.isPointDown = false;
 	}
 
 	/*_handlePresetClicked(e, label){
@@ -553,9 +559,12 @@ class ToleranceSettings extends React.Component{
 	}*/
 
 	getToleranceControllerRef(div){
-		this.toleranceControllerRef = div;
+		if(!this.toleranceControllerRef) this.toleranceControllerRef = div;
 	}
 
+	getToleranceIndicatorRef(div){
+		this.toleranceIndicatorRef = div;
+	}
 
 	render(){
 		//container width = 
@@ -577,6 +586,7 @@ class ToleranceSettings extends React.Component{
 		return(
 			<div 
 				className={ProfileMenuStyles.toleranceSettingsContianer_div}
+				ref={this.getToleranceControllerRef}
 				//style={{
 				//	height:'calc(100% - 110px)',
 				//	'--main-height':'25px',
@@ -636,7 +646,8 @@ class ToleranceSettings extends React.Component{
 				</div>
 				<div 
 					style={{
-						position: 'absolute',
+						//position: 'absolute',
+						position:'relative',
 						width: '100%',
 						...(isDevice ? 
 							{
@@ -645,6 +656,7 @@ class ToleranceSettings extends React.Component{
 								'margin-top': '6.4rem',
 							} : 
 							{
+								'margin-top': '30px',
 								bottom: '0px'
 							}
 						),
@@ -691,42 +703,75 @@ class ToleranceSettings extends React.Component{
 
 
 					{/*TOLERANCE MIN & MAX TICKS*/
-						(({minTolVal, maxTolVal}) => (
-							<React.Fragment>
-								<div
-									className={ProfileMenuStyles.minMaxMarker_div} 
-									style={{
-										height: `calc(${indexByFieldNames[this.props.selectedField]} * (var(--main-height) + 4px) + 15px)`,
-										...(this.state.minGrabbedSlider === this.props.selectedField ? 
-											({left: `${this.props.minTolerances[this.props.selectedField]*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) : 
-											({left: `${this.props.tickPixelDelta * (this.props.minTolerances[this.props.selectedField]) - this.slideWidth}px`, transition: 'left 150ms ease-in-out, height 150ms ease-in-out'}))
-									}}
-								>
-									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
-										<div className={ProfileMenuStyles.minMaxIndicator_div} >
-											{minTolVal ? minTolVal.toFixed(2) : minTolVal}
+						(({minTolVal, maxTolVal}) => {
+							var minLocationUpdating = this.props.minTolerances[this.props.selectedField]*this.props.tickPixelDelta + this.state.deltaX;
+							var minLocationSet = this.props.tickPixelDelta * (this.props.minTolerances[this.props.selectedField]) - this.slideWidth;
+
+							var maxLocationUpdating = (this.props.maxTolerances[this.props.selectedField])*this.props.tickPixelDelta + this.state.deltaX;
+							var maxLocationSet = this.props.tickPixelDelta * (this.props.maxTolerances[this.props.selectedField]) - this.slideWidth;
+
+							var indicatorSeperationSet = Math.abs(maxLocationSet - minLocationSet);
+							var indicatorSeperationUpdating = Math.abs(maxLocationUpdating - minLocationUpdating);
+							var adjustFromCollisionSet = indicatorSeperationSet < 55 ? (55 - indicatorSeperationSet) / 2 : 0;
+							var adjustFromCollisionUpdating = indicatorSeperationSet < 55 ? (55 - indicatorSeperationUpdating) / 2 : 0;
+							
+							var adjustFromCollision = this.state.maxGrabbedSlider === this.props.selectedField || this.state.minGrabbedSlider === this.props.selectedField ? 
+								(adjustFromCollisionUpdating) : 
+								(adjustFromCollisionSet);
+
+							return(
+								<React.Fragment>
+									<div
+										className={ProfileMenuStyles.minMaxMarker_div} 
+										style={{
+											height: `calc(${indexByFieldNames[this.props.selectedField]} * (var(--main-height) + 4px) + 30px)`,
+											
+											
+											// position to either the position the user is moving the slider or the saved slider location. 
+											...(this.state.minGrabbedSlider === this.props.selectedField ? 
+												({left: `${minLocationUpdating}px`, transition: 'none'}) : 
+												({left: `${minLocationSet}px`, transition: 'left 150ms ease-in-out, height 150ms ease-in-out'}))
+										}}
+									>
+										<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
+											<div 
+												//ref={this.getToleranceIndicatorRef}
+												className={ProfileMenuStyles.minMaxIndicator_div} 
+												style={{
+													'--collision-adjust': `-${adjustFromCollisionSet}px`
+												}}
+												onPointerDown={(e) => this._sliderGrabbed(e, this.props.selectedField, true, this.toleranceControllerRef)}
+											>
+												{minTolVal ? minTolVal.toFixed(2) : minTolVal}
+											</div>
 										</div>
 									</div>
-								</div>
-								<div
-									className={ProfileMenuStyles.minMaxMarker_div} 
-									style={{
-										height: `calc(${indexByFieldNames[this.props.selectedField]} * (var(--main-height) + 4px) + 15px)`,
-										...(this.state.maxGrabbedSlider === this.props.selectedField ? 
-											({left: `${(this.props.maxTolerances[this.props.selectedField])*this.props.tickPixelDelta + this.state.deltaX}px`, transition: 'none'}) :
-											({left: `${this.props.tickPixelDelta * (this.props.maxTolerances[this.props.selectedField]) - this.slideWidth}px` , transition: 'left 150ms ease-in-out, height 150ms ease-in-out'}))
-									}}
-								>
-									<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
-										<div 
-											className={ProfileMenuStyles.minMaxIndicator_div} 
-										>
-											{maxTolVal ? maxTolVal.toFixed(2) : maxTolVal}
+									<div
+										className={ProfileMenuStyles.minMaxMarker_div} 
+										style={{
+											height: `calc(${indexByFieldNames[this.props.selectedField]} * (var(--main-height) + 4px) + 30px)`,
+											// position to either the position the user is moving the slider or the saved slider location. 
+											...(this.state.maxGrabbedSlider === this.props.selectedField ? 
+												({left: `${maxLocationUpdating}px`, transition: 'none'}) :
+												({left: `${maxLocationSet}px` , transition: 'left 150ms ease-in-out, height 150ms ease-in-out'}))
+										}}
+									>
+										<div className={ProfileMenuStyles.minMaxIndicatorContainer_div} >
+											<div 
+												//ref={this.getToleranceIndicatorRef}
+												className={ProfileMenuStyles.minMaxIndicator_div} 
+												style={{
+													'--collision-adjust': `${adjustFromCollision}px`
+												}}
+												onPointerDown={(e) => this._sliderGrabbed(e, this.props.selectedField, false, this.toleranceControllerRef)}
+											>
+												{maxTolVal ? maxTolVal.toFixed(2) : maxTolVal}
+											</div>
 										</div>
 									</div>
-								</div>
-							</React.Fragment>
-						))(this.props.getToleranceValues(this.props.selectedField, this.props.units))
+								</React.Fragment>
+							);
+						}) (this.props.getToleranceValues(this.props.selectedField, this.props.units))
 					}
 
 
@@ -734,7 +779,7 @@ class ToleranceSettings extends React.Component{
 						<div 
 							style={{'touch-action': 'pan-y'}}
 							className={ProfileMenuStyles.toleranceController_div}
-							ref={this.getToleranceControllerRef}
+							//ref={this.getToleranceControllerRef}
 						>
 							{
 								Object.keys(this.props.minTolerances).map(field => {
@@ -884,57 +929,6 @@ export function camelize(str){
 	})
 }
 
-
-/*
-* Returns the min and max tolerances in ticks
-*/
-//
-//function getMinAndMaxToleranceTicks(minPrefix, maxPrefix, toleranceKeys, scale, ticks, toleranceObj, userMetricObj, decimals){
-//	let minToleranceFields = {};
-//	let maxToleranceFields = {};
-//	let minPrefixLength = minPrefix.length;
-//	let maxPrefixLength = maxPrefix.length;
-//
-//	const calcTicks = (deltaTick, originTick) => {
-//		var result;
-//
-//		if(){
-//			delta <= 0 ? (delta + origin / 2 - 1) : (delta + origin / 2);
-//		}else{
-//			delta >= 0 ? (delta + origin / 2 - 1) : (delta + origin / 2);			
-//		}
-//	}
-//
-//	toleranceKeys.map(key => {
-//		//Ignore height
-//		if(key !== 'height'){
-//
-//			if(key.startsWith(minPrefix)){
-//				var keyWithoutPrefix = camelize(key.slice(minPrefixLength));
-//				//var valDiff = roundTo(userMetricObj[keyWithoutPrefix], scale, decimals) - toleranceObj[key]
-//				var valDiff = toleranceObj[key] - roundTo(userMetricObj[keyWithoutPrefix], scale, decimals)
-//				var tickDelta = valDiff / scale;
-//
-//				minToleranceFields[keyWithoutPrefix] = tickDelta <= 0 ? 
-//					(tickDelta + ticks.length / 2 - 1) : 
-//					(tickDelta + ticks.length / 2);
-//			}
-//			else if(key.startsWith(maxPrefix)){
-//				var keyWithoutPrefix = camelize(key.slice(maxPrefixLength));
-//				var valDiff = toleranceObj[key] - roundTo(userMetricObj[keyWithoutPrefix], scale, decimals)
-//				var tickDelta = valDiff / scale;
-//
-//				maxToleranceFields[keyWithoutPrefix] = tickDelta >= 0 ? 
-//					(tickDelta + ticks.length / 2) : 
-//					(tickDelta + ticks.length / 2 - 1) ;
-//			}
-//		}
-//	});
-//
-//	return { minToleranceFields, maxToleranceFields };
-//}
-//
-
 function getAccurateAndDisplayMeasurements(isTest, filteredUserMetrics, decimals, scale, units){
 	let iniMeasurements ={};
 	let displayedProfileData ={};
@@ -959,22 +953,12 @@ const convertInToCm = (inches) => (inches*2.54);
 
 const convertCmToIn = (cm) => (cm/2.54);
 
-
-/* 
-*	Rounds value to the nearest specified step and trims result to the specified decimals
-*/
-//const roundTo = (value, step, decimals=1) => {
-//    step || (step = 1.0);
-//    var inv = 1.0 / step;
-//    return (Math.round(value * inv) / inv).toFixed(decimals);
-//}
-
 export default class ProfileMenu extends React.Component{
 	constructor(props){
 		super(props);
 
-		this.menuPage1 = 'Measurements';
-		this.menuPage2 = 'Tolerance';
+		//this.menuPage1 = 'Measurements';
+		//this.menuPage2 = 'Tolerance';
 		this.decimals = 1;
 		this.scaleIn = 0.25;
 		this.scaleCm = 0.5;//convertInToCm(this.scaleIn);
@@ -1050,8 +1034,8 @@ export default class ProfileMenu extends React.Component{
 		this._handleOnSubmit = this._handleOnSubmit.bind(this);
 		this._handleFieldFocus = this._handleFieldFocus.bind(this);
 		this._handleFieldBlur = this._handleFieldBlur.bind(this);
-		this._goToMeasurments = this._goToMeasurments.bind(this);
-		this._goToTolerance = this._goToTolerance.bind(this);
+		//this._goToMeasurments = this._goToMeasurments.bind(this);
+		//this._goToTolerance = this._goToTolerance.bind(this);
 		this._toggleSlidSwitch = this._toggleSlidSwitch.bind(this);
 		this.saveTickState = this.saveTickState.bind(this);
 		this.getToleranceValues = this.getToleranceValues.bind(this);
@@ -1086,7 +1070,7 @@ export default class ProfileMenu extends React.Component{
 			maxTolerances: maxToleranceFields,
 			prevSelectedField: '',
 			selectedField: '',
-			fieldListTitle: this.menuPage1,
+			fieldListTitle: OxiAppConstants.FieldListTitles.a,
 			units: 'cm',
 			gridWidth: 360,
 			hasFieldChanged: false,
@@ -1562,14 +1546,6 @@ export default class ProfileMenu extends React.Component{
 		let maxPrefixLength = maxPrefix.length;
 		var { userMetricsDto, toleranceDto } = this.profile !== undefined ? this.profile : ({ userMetricsDto: {}, toleranceDto: {} });
 
-		//var {
-		//	currentToleranceData,
-		//} = currentToleranceData ? 
-		//	{currentToleranceData: currentToleranceData} : 
-		//	this.state ? 
-		//		this.state : 
-		//		({currentToleranceData:{}});
-
 		if(!currentToleranceData){
 			currentToleranceData = this.state ? 
 				{
@@ -1605,24 +1581,18 @@ export default class ProfileMenu extends React.Component{
 
 					//if unitConverter is defined userMetricDto[key] must be converted from cm to in.
 					var metric = unitConverter ? unitConverter(userMetricsDto[key]) : userMetricsDto[key];
-					//var metric = unitConverter ? unitConverter(this.state ? this.state.profileData.userMetricsDtos[key]) : us;
 					var tolerance = unitConverter ? unitConverter(currentToleranceData[selector][key]) : currentToleranceData[selector][key];
-					//const allowedMinTolerance = calcAllowedMin(metric);
-					//const allowedMaxTolerance = calcAllowedMax(metric);
 					
 					//MIN
 					if(selector.startsWith(minPrefix)){
 						var keyWithoutPrefix = camelize(key.slice(minPrefixLength));
-
 						var valueDiff = tolerance - metric;	
 						var tickDiff = parseInt(roundTo((valueDiff / unitScale), 1, 0));
 						
 						//	Ticks immediately left or right of the corresponding userMetricDto value, represent equal values. 
 						//	Typically the left center tick is considered the origin reference for determining minTolerance 
 						//	values, unless the minToleranceValue lands on the right center tick. In that case the tick origin 
-						//	reference (centerTick) needs to be set to the right center tick. 
-						
-						//var centerTick = nextLeftCenterTick;
+						//	reference (centerTick) needs to be set to the right center tick. 						
 						var centerTick = ((valueDiff / unitScale) + nextLeftCenterTick) >= nextRightCenterTick ? nextRightCenterTick : nextLeftCenterTick;
 						var minTick = calcTicks(tickDiff, centerTick)
 						minToleranceFields[key] = minTick >= 0 ? minTick : 0;
@@ -1631,18 +1601,15 @@ export default class ProfileMenu extends React.Component{
 					//MAX
 					else if(selector.startsWith(maxPrefix)){
 						var keyWithoutPrefix = camelize(key.slice(maxPrefixLength));
-
-						//var valueDiff = tolerance - roundTo(metric, unitScale, this.decimals);
 						var valueDiff = tolerance - metric;
 						var tickDiff = parseInt(roundTo((valueDiff / unitScale), 1, 0));
-
 						var centerTick = ((valueDiff / unitScale) + nextLeftCenterTick) <= nextLeftCenterTick ? nextLeftCenterTick : nextRightCenterTick;
 						var maxTick = calcTicks(tickDiff, centerTick);
 
-						maxToleranceFields[key] = maxTick >= 2*nextLeftCenterTick ? 
-							(2*nextLeftCenterTick + 1) :
-							maxTick <= minTick ?
-								(minTick + 1) :
+						maxToleranceFields[key] = maxTick >= 2 * nextLeftCenterTick ? 
+							(2 * nextLeftCenterTick + 1) :
+							maxTick <= minToleranceFields[key] ?
+								(minToleranceFields[key] + 1) :
 								(maxTick);
 					}
 				}
@@ -1663,7 +1630,7 @@ export default class ProfileMenu extends React.Component{
 	_handleInputFieldChange(e, field){
 
 		//console.table(Object.keys(this.inputRefs).map(field => {
-//
+
 		//	//var key = Object.keys(refObj)[0];
 		//	//return({[key]: `selectionStart: ${refObj[key].selectionStart}, selectionEnd: ${refObj[key].selectionEnd}, selectionDirection: ${refObj[key].selectionDirection}` });
 		//	return({ [field]: `selectionStart: ${this.inputRefs[field].selectionStart}, selectionEnd: ${this.inputRefs[field].selectionEnd}, selectionDirection: ${this.inputRefs[field].selectionDirection}` });
@@ -1860,17 +1827,17 @@ export default class ProfileMenu extends React.Component{
 		this.props.postProfile(scrubbedProfileState/*this.state.profileData*/);
 	}
 
-	_goToMeasurments(){
-		this.setState(prevState => ({
-			fieldListTitle: this.menuPage1
-		}))
-	}
-
-	_goToTolerance(){
-		this.setState(prevState => ({
-			fieldListTitle: this.menuPage2
-		}))
-	}
+	//_goToMeasurments(){
+	//	this.setState(prevState => ({
+	//		fieldListTitle: this.menuPage1
+	//	}))
+	//}
+//
+	//_goToTolerance(){
+	//	this.setState(prevState => ({
+	//		fieldListTitle: this.menuPage2
+	//	}))
+	//}
 
 	_toggleSlidSwitch(event){
 		this.setState(prevState => {
@@ -1892,72 +1859,6 @@ export default class ProfileMenu extends React.Component{
 					nextRightCenterTick,
 					(nextUnits === 'in' ? this.scaleIn : this.scaleCm)
 				);
-
-				/*
-				var {minTolVal, maxTolVal} = this.getToleranceValues(field, prevState.units);
-
-				var prevMinMaxRange = unitConverter( prevScale * prevTickRange );
-				var tickRange = Math.round(prevMinMaxRange / nextScale);				
-				tickRange = tickRange === 0 ? 1 : tickRange;
-				var convertedMinTolVal;
-				var convertedMaxTolVal;
-				var measuredVal;
-
-				if(prevState.units === 'cm'){
-					//from the converted tickRange, compute the new min and maxTolerance tick value
-					convertedMinTolVal = unitConverter(minTolVal);
-					convertedMaxTolVal = unitConverter(maxTolVal);
-					measuredVal = unitConverter(prevState.profileData.userMetricsDto[field]);
-				}else{
-					convertedMinTolVal = unitConverter(minTolVal);
-					convertedMaxTolVal = unitConverter(maxTolVal);
-					measuredVal = prevState.profileData.userMetricsDto[field];
-				}
-
-				//var measuredVal = prevState.units === 'cm' ?
-				//	unitConverter(prevState.profileData.userMetricsDto[field]) :
-				//	prevState.profileData.userMetricsDto[field];
-
-				//calculate the tick value of the minTolerance on the new unit scale
-				var minTickDelta = parseInt((measuredVal - convertedMinTolVal) / nextScale);
-				var maxTickDelta = parseInt((measuredVal - convertedMaxTolVal) / nextScale);
-
-				var minTick = parseInt((nextTicks[nextTicks.length / 2 - 1] - minTickDelta).toFixed());
-				//var maxTick = parseInt((minTick + tickRange).toFixed());
-				var maxTick = parseInt((nextTicks[nextTicks.length / 2 - 1] - maxTickDelta).toFixed());
-
-				//Check if minTick is leftCenter tick while max tick is gt. right center tick.  If so, increment minTick and maxTick by 1.
-				//This is done to accomodate for the fact that leftCenterTick and rightCenterTick are the same value.  min/maxTicks need to be
-				//incremented or decremented depending on whether they appear above or below the measured value
-				var minTickAdjust = minTick >= nextTicks.length - 2 ? 0 : 1;
-				var maxTickAdjust = maxTick >= nextTicks.length - 1 ? 0 : 1;
-
-				switch(true){
-					case (minTick === nextLeftCenterTick && maxTick > nextRightCenterTick):
-						
-						minTick += minTickAdjust;
-						maxTick += maxTickAdjust;
-						break;
-
-					case (minTick > nextRightCenterTick):
-						minTick += minTickAdjust;
-						
-					case (maxTick > nextRightCenterTick):
-						maxTick += maxTickAdjust;
-
-					default:
-						break;
-				}*/
-
-				//set the new min and max tick values
-				//convertedMaxTol = {
-				//	...convertedMaxTol,
-				//	[field]: maxTick,
-				//};					
-				//convertedMinTol = {
-				//	...convertedMinTol,
-				//	[field]: minTick,
-				//}
 
 				convertedMaxTol = {
 					...convertedMaxTol,
@@ -2106,6 +2007,7 @@ export default class ProfileMenu extends React.Component{
 			...prevState,
 			isMeasurement: !prevState.isMeasurement,
 		}));
+		this.props.updateFieldListTitle();
 	}
 
 	render(){
@@ -2269,22 +2171,39 @@ export default class ProfileMenu extends React.Component{
 						}}>
 						<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
 							<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
-								<div className={ProfileMenuStyles.fieldListTitle_div} >
+								<div 
+									className={ProfileMenuStyles.fieldListTitle_div} 
+									style={{
+										... (isDevice ? {display:'none'} : {})
+									}}
+								>
 									{ this.state.fieldListTitle }
 								</div>
 							</div>
 						</div>
 			
 						{ 
-							this.state.fieldListTitle === this.menuPage1 ? (
+							this.state.fieldListTitle === OxiAppConstants.FieldListTitles.a ? (
 								<React.Fragment>
 
-									<SlideSwitch 
-										props={{
-											toggleSlidSwitch: this._toggleSlidSwitch,
-											units: this.state.units
-										}}
-									/>									
+									{
+										<UnitSwitch
+											props={{
+												onChange: e => {
+													this._toggleSlidSwitch();
+													//this.props.updateFieldListTitle();
+												},
+												units: this.state.units,
+											}}
+										/> 
+										//<UnitSwitch 
+										//	props={{
+										//		onChange: this._toggleSlidSwitch,
+										//		units: this.state.units
+										//	}}
+										///> : 
+										//null
+									}
 
 									<div 
 										style={{
@@ -2475,7 +2394,7 @@ export default class ProfileMenu extends React.Component{
 						<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
 							<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
 								<div className={ProfileMenuStyles.fieldListTitle_div} >
-									{ this.menuPage2 }
+									{ OxiAppConstants.FieldListTitles.b }
 								</div>
 							</div>
 						</div>
@@ -2571,6 +2490,7 @@ export default class ProfileMenu extends React.Component{
 				<Swipeable 
 					onSwiped={
 						(event) => {
+							console.log("SWIPED!")
 							//var dist = Math.sqrt(Math.pow(event.absX, 2) + Math.pow(event.absY, 2));
 							//var velocityX = event.velocity * Math.sqrt(Math.pow(dist, 2) - Math.pow(event.absY, 2)) / dist;
 							if(

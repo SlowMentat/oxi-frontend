@@ -39,7 +39,16 @@ export const cookies = new Cookies();
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 
-axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
+axios.defaults.headers.common['authorization'] = cookies.get('authorization');
+
+// Configure axios for progress updates during upload
+axios.onUploadProgress = function(progressEvent){
+	setProgressStatus({
+		lengthComputable: progressEvent.lengthComputable,
+		loaded: progressEvent.loaded,
+		total: progressEvent.total,
+	});
+};
 
 //axios.defaults.headers.common['authorization'] = cookies.get('authorization'); 
 export const defaultCookieOptions = !isDevice  ? {
@@ -140,6 +149,8 @@ export const receivedSearchUserDefinedSizes = scaffolding.makeActionCreator(type
 export const receivedSearchCustomItem = scaffolding.makeActionCreator(types.RECEIVED_UD_ITEM_SEARCH, null, 'uDItemResults');
 export const receivedAllApparelTypes = scaffolding.makeActionCreator(types.RECEIVED_ALL_APPAREL_TYPES, null, 'allApparelTypes');
 export const receivedSizeGroupsByItemId = scaffolding.makeActionCreator(types.RECEIVED_SIZE_GROUPS_BY_ITEM_ID, null, 'sizeResults');
+//export const setRequestBlocking = scaffolding.makeActionCreator(types.SET_REQUEST_BLOCKING, null 'isRequestBlocking');
+export const setProgressStatus = scaffolding.makeActionCreator(types.SET_PROGRESS_STATUS, null, 'progressStatus');
 
 /*
 *  Modifies content.picture json with the json data returned from Posting image data to server, and updates each content's coverPictureId if picture object has been updated.
@@ -560,10 +571,16 @@ export function putImage(imageFile, contentId, onSuccess, fileId, crop){
 *  @callback {generateOnSuccessHandler} generateOnSuccessHandler - callback invoked when promise resolved.  The result will be passed to this function*
 *  @param [{Object}]	crops 	each imageFiles' crop data.  crops must be in the same order as imageFiles.
 */
-export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crops){
+export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crops, dispatch){ 
 	var pictures = {};
+
 	
 	try{
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.BLOCKING_PROGRESS, 
+			msg: "Uploading Images",
+		}));
+
 		var batchRequest = [];
 		var ind = 0;
 
@@ -595,8 +612,8 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 			//];
 		}
 
-		await Promise.all(batchRequest)
-		.then(results => {
+		Promise.all(batchRequest)
+		.then(async results => {
 			// results is of the form [{ [picture name]: {} }]
 			console.log("#uploadImages:  pictures = ", results);
 			
@@ -618,24 +635,29 @@ export async function uploadImages(imageFiles={}, generateOnSuccessHandler, crop
 				})
 			}, pictures);
 
-			generateOnSuccessHandler()(picturesByContentId);
+			await generateOnSuccessHandler()(picturesByContentId);
+			dispatch(removeModalById(OxiAppConstants.FormType.BLOCKING_PROGRESS));
 		});	
+		
 	}
 	catch(e){
 		console.error(e);
+
+		dispatch(removeModalById(OxiAppConstants.FormType.BLOCKING_PROGRESS));
+
 		throw e;
 	}
 }
 
 
 export function postOutfit(outfitJson, onSuccess){
-	return (picturesByContentId) => {
+	return async (picturesByContentId) => {
 		const {
 			id,
 			mediumuri,
 		} = picturesByContentId[Object.keys(picturesByContentId)[0]];
 
-		axios.post(
+		await axios.post(
 			OxiAppConstants.serviceURL + '/outfit',
 			{
 				...outfitJson, 

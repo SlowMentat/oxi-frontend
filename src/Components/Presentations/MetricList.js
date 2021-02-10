@@ -287,7 +287,8 @@ class MetricGraph extends React.Component{
 	}
 
 	render(){
-		const range = 10;
+		var centerWidthPcnt = 9;
+		const range = 10 * (1 + centerWidthPcnt/100);
 		let width = 50;
 		let height = width;
 		var nextOverallFitResults = OxiAppConstants.fitResultValues.a; //Set to Fit
@@ -398,10 +399,9 @@ class MetricGraph extends React.Component{
 			var fitZoneWidth = 100*(Math.abs(tolerances[toleranceMinId] - tolerances[toleranceMaxId]))/10;
 			var fitZonePosition = 100*((userMetricsDto ? tolerances[toleranceMinId] - roundedUserMetric + (range/2) : (range/2) )) / range;
 			*/
-
-			var fitZoneWidth = 100*(Math.abs(parseFloat(roundTo(tolerances[toleranceMinId])) - parseFloat(roundTo(tolerances[toleranceMaxId])) )) / range; 
+			var fitZoneWidth = 100*(Math.abs(parseFloat(roundTo(tolerances[toleranceMinId])) - parseFloat(roundTo(tolerances[toleranceMaxId])))) / range + centerWidthPcnt; 
 			fitZonePosition = fitZoneWidth === 0 ? 1 : fitZoneWidth;
-			var fitZonePosition = 100*((userMetricsDto ? parseFloat(roundTo(tolerances[toleranceMinId])) - parseFloat(roundTo(userMetricsDto[metricList[ind]])) + (range/2) : (range/2) )) / range;
+			var fitZonePosition = 100*((userMetricsDto ? parseFloat(roundTo(tolerances[toleranceMinId])) - parseFloat(roundTo(userMetricsDto[metricList[ind]])) + (range/2) : (range/2) )) / range - centerWidthPcnt / 2;
 
 			//var fitZonePosition = 100*((userMetricsDto ? roundTo(tolerances[toleranceMinId] - roundedUserMetric) + (range/2) : (range/2) )) / range;
 			var fzLeftCrust = '0px';

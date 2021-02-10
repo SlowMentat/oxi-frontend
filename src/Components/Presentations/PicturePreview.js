@@ -1002,6 +1002,8 @@ class ImageEdit extends React.Component{
 			//	innerRef={(div) => { div ? div.style.height = '100%' : null; }}
 			//>
 				<CroppableImageForm 
+					showBlockingLoad={this.props.showBlockingLoad}
+					hideBlockingLoad={this.props.hideBlockingLoad}
 					itemLocationMap={
 						(itemMapDimension) => (
 							<ItemLocationMapContainer 

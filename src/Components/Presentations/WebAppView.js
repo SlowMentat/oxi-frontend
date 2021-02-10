@@ -21,6 +21,7 @@ import { MetricPanel } from '../../Components/Presentations/MetricPanel.js';
 import { MenuDrawer } from '../../Components/Presentations/MenuDrawer.js';
 import ProfileViewControlsContainer from '../../Components/Containers/ProfileViewControlsContainer.js';
 import MenusContainer from '../../Components/Containers/MenusContainer.js';
+import ProfileMenuStyles from '../../profileMenu.scss';
 
 import {SvgIcon} from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
@@ -141,11 +142,13 @@ const ProfileControls = props => {
 						/>
 					</React.Fragment>: 
 					<React.Fragment>
-						<IconButton
-							icon="search"
-							style={{color: 'var(--color-01-tint-02)'}}
-							onClick={e => console.log(e)}
-						/>
+						{
+							//<IconButton
+							//	icon="search"
+							//	style={{color: 'var(--color-01-tint-02)'}}
+							//	onClick={e => console.log(e)}
+							///>
+						}
 						<IconButton
 							icon="edit"
 							style={{color: 'var(--color-02)'}}
@@ -200,6 +203,7 @@ export function SiteNav(props){
 		webAppViewContext,
 		selectedOutfitIds,
 		ownerpicuri,
+		fieldListTitle,
 	} = props;
 
 	const [ isSettingsOpen, setIsSettingsOpen ] = useState(false);
@@ -285,9 +289,9 @@ export function SiteNav(props){
 			</div>
 			break;
 
-		case isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
-			viewControls = null;
-			break;
+		//case isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
+		//	viewControls = null;
+		//	break;
 
 		case !isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
 			viewControls = 
@@ -298,6 +302,19 @@ export function SiteNav(props){
 						style={{top:'0px'}}
 					/>
 				</React.Fragment>
+			break;
+
+		case isDevice && webAppView == OxiAppConstants.navRequestMap.c.toLowerCase():
+			viewControls =
+				<div 
+					className={ProfileMenuStyles.fieldListTitle_div} 
+					style={{
+						'padding-right': '10px',
+						color: 'var(--color-01-tint-02)',
+					}}
+				>
+					{ fieldListTitle }
+				</div>	
 			break;
 
 		case !isDevice:
@@ -324,7 +341,18 @@ export function SiteNav(props){
     							/>
     						</div>
     						
-    						<div className={NavStyles.navBanner_div}>
+    						<div 
+    							className={NavStyles.navBanner_div}
+    							style={{
+    								...(isDevice && props.webAppView === OxiAppConstants.navRequestMap.c.toLowerCase() ?
+    										{
+    											display:'flex',
+    											'justify-content': 'flex-end',
+    											'align-items': 'center',
+    										} : 
+    										{})
+    							}}
+    						>
     							{ viewControls }
     						</div>
     						{
@@ -820,6 +848,7 @@ export default class webAppView extends React.Component {
 			base64HostImage: null,
 			base64OwnerImage: null,
 			previewedOutfitId: null,
+			fieldListTitle: OxiAppConstants.FieldListTitles.a,
 			//updatedCoverpicTrigger: null,
 		}
 
@@ -1172,7 +1201,18 @@ export default class webAppView extends React.Component {
 					}}/>
 					<Route path={pathname} component={ModalContentSelection} />
 				*/}
-				<ModalContentSelection owner={owner} iniOutfitPreview={iniOutfitPreview} formType={formType} imageSourceCallback={imageSourceCallback}/>
+				<ModalContentSelection 
+					owner={owner} 
+					iniOutfitPreview={iniOutfitPreview} 
+					formType={formType} 
+					imageSourceCallback={imageSourceCallback}
+					onFolderSelect={
+						(e, callback) => {
+							openSelectImageSourceForm();
+							this.imageSourceCallback = callback;
+						}
+					}
+				/>
 			</React.Fragment>
 		);
 
@@ -1196,6 +1236,7 @@ export default class webAppView extends React.Component {
 				confirmOutfitDelete={confirmOutfitDelete}
 				ownerpicuri={ownerpicuri}
 				toggleMenuDrawer={this.toggleMenuDrawer}
+				fieldListTitle={this.state.fieldListTitle}
 			/>
 		);
 
@@ -1319,6 +1360,12 @@ export default class webAppView extends React.Component {
 					return({
 						...accum,
 						[modalId]: createModalFragment(`${this.props.match.url}/edit-profile-pic`, null, modalId),
+					});
+
+				case modalId === OxiAppConstants.FormType.BLOCKING_PROGRESS:
+					return({
+						...accum,
+						[modalId]: createModalFragment(null, null, modalId),
 					});
 	
 				case modalId === OxiAppConstants.FormType.OUTFIT_PREVIEW:
@@ -1597,12 +1644,24 @@ export default class webAppView extends React.Component {
 										ownerUsernamePath: ownerUsernamePath,
 										URI:URI,
 										toggleMenuDrawer: this.toggleMenuDrawer,
+										fieldListTitle: this.state.fieldListTitle,
 									}
 								}/>
 								{/*this.props.webAppView !== 'measurements' ? this.props.navEventCallbacks.c(this.props.match.params.username) : null*/}
 								<ProfileMenuContainer
 									//profile={this.props.addedProfile !== undefined ? this.props.addedProfile : this.props.profile} 
 									test={false}
+									updateFieldListTitle={
+										fieldListTitle => {
+											this.setState(prevState => ({
+												...prevState,
+												fieldListTitle: (prevState.fieldListTitle == OxiAppConstants.FieldListTitles.a ? 
+													OxiAppConstants.FieldListTitles.b :
+													OxiAppConstants.FieldListTitles.a),
+											}));
+										}
+									}
+									//fieldListTitle={this.state.fieldListTitle}
 									//toggleRadio={this.props.toggleRadio} 
 									//postProfile={this.props.postProfile} 
 									//modifyProfile={this.props.modifyProfile}

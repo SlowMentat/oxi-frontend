@@ -46,6 +46,7 @@ import {
 	selectEntity,
 	createModal,
 	modifyModalMetaData,
+	removeModalById
 } from '../../Components/Actions/indexActions.js';
 import * as entityActions from '../../Components/Actions/EntityActions/Index.js'; 
 import {
@@ -116,6 +117,17 @@ const mapDispatchToProps = (dispatch) => ({
 	selectContentView : (contentId) => {
 		dispatch(selectEntity(OxiAppConstants.EntityTypes.CONTENT, contentId));
 		dispatch(previewContent(contentId)); 
+	},
+	showBlockingLoad : (msg) => {
+		dispatch(createModal({
+			id: OxiAppConstants.FormType.BLOCKING_PROGRESS, 
+			otherData:{
+				msg,
+			},
+		}));
+	},
+	hideBlockingLoad : () => {
+		dispatch(removeModalById(OxiAppConstants.FormType.BLOCKING_PROGRESS));
 	},
 	addContentFromImages: (fileReferences, viewState, addedContents) => {
 		var contentEntities = [];
@@ -237,7 +249,8 @@ const mapDispatchToProps = (dispatch) => ({
 			uploadImages(
 				imageFiles, 
 				() => postOutfit(outfitJson, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, outfit, false, itemContentCount, initializeImages)), 
-				crops);			
+				crops,
+				dispatch);			
 		}
 	},
 	putModifiedOutfit : (outfitJson) => {
@@ -252,7 +265,8 @@ const mapDispatchToProps = (dispatch) => ({
 			uploadImages(
 				imageFiles, 
 				() => uploadContents(contentJson, outfitId, createResponseHandler(dispatch, addedEntities, entitiesStateReducer, contents, false, itemContentCount, initializeImages)),
-				crops);
+				crops,
+				dispatch);
 		}
 	},
 

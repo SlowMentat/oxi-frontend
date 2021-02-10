@@ -18,6 +18,7 @@ import { denormalizeOutfit } from '../../Util/Schema.js';
 import VisibleFieldDropdownList from '../../Components/Containers/VisibleFieldDropdownList.js';
 import { DropDownOption } from '../../Components/Presentations/FieldDropDownList.js';
 import FormLoginContainer from '../../Components/Containers/FormLoginContainer.js';
+import { LinearProgress } from '../../Components/Presentations/FitseeUI/Progress/Progress.js';
 import { 
 	//InputTextField, 
 	InputTextFieldAccount 
@@ -34,7 +35,7 @@ import {logout} from '../../Components/Actions/indexActions.js';
 import CroppableImageForm from '../../Util/CroppableImageForm.js';
 import ReactCrop, { makeAspectCrop } from 'react-image-crop';
 import {ReactCropStyles} from '../../reactCrop.scss';
-import { usePrevious } from '../../Util/Misc.js';
+import { usePrevious, arrayBufferToDataURL, getImageURL } from '../../Util/Misc.js';
 import Comments from '../../Components/Presentations/Comments.js';
 
 import { 
@@ -152,6 +153,14 @@ function FormDeck(props){
 		//}
 	
 		switch(true){
+			case formType === OxiAppConstants.FormType.BLOCKING_PROGRESS :
+				return(
+					<BlockingWait
+						cancelAction={props.cancelAction}
+						progressStatus={props.progressStatus}
+					/>
+				);
+
 			case formType === OxiAppConstants.FormType.LOGIN:
 				console.log('login hit')
 				return(
@@ -270,6 +279,9 @@ function FormDeck(props){
 						cropProfilePic={props.cropProfilePic}
 						//username={props.profile.username}}
 						formType={props.formType}	
+
+						onFolderSelect = {props.onFolderSelect}
+						isImageSourceModalOpen = {props.isImageSourceModalOpen}
 					/>
 				);
 	
@@ -606,6 +618,38 @@ class DropDownField extends React.Component{
 	}
 }
 
+export class BlockingWait extends React.Component{
+	constructor(props){
+		super(props)
+	}
+
+	render(){
+		return(
+			<div
+				style={{
+    				'align-items': 'flex-end',
+					'display': 'flex',
+    				'height': '80px',
+    				'padding': '10px',
+				}}
+			>
+				<div
+					style={{
+						'position': 'absolute',
+    					'top': '20px',
+    					'font-size': '1.8rem',
+    					'color': 'var(--color-01-tint-01)',
+					}}
+				>
+					{this.props.msg}
+				</div>
+				<LinearProgress
+					progressStatus={this.props.progressStatus}
+				/>
+			</div>
+		);
+	}
+}
 
 export class ProfilePicForm extends React.Component{
 	constructor(props){
@@ -614,6 +658,34 @@ export class ProfilePicForm extends React.Component{
 		const {
 			crop,			
 		} = props.owner ? props.owner.pictureDto : ({});
+
+
+		this.imageDataTemplate = {
+			cropping:true,
+			src: null,
+			srcFileRef: null,
+			maxHeight: 600,
+			maxWidth: 600 * OxiAppConstants.aspectRatio,
+
+			maxHeight: 'unset',
+			minYPercent: 0,
+			minYPixel: 0,
+
+			imageX: 0,
+			imageY: 0,
+			imageWidth: 0,
+			imageHeight: 0,
+			rotation: 0,
+			crop: {
+				unit: '%',
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0,
+				aspect: OxiAppConstants.aspectRatio,
+				savedMaxHeight: 0,
+			}
+		};
 
 		this.state = {
 			isEditing: false,
@@ -635,6 +707,7 @@ export class ProfilePicForm extends React.Component{
 					})
 			),
 			ctrlsTransition:0,
+			showSourceDialog:false,
 		};
 
 		this.ctrlsPageLeft = 50;
@@ -652,6 +725,10 @@ export class ProfilePicForm extends React.Component{
 		this._handleImageLoad = this._handleImageLoad.bind(this);
 		this.iniDimensions = this.iniDimensions.bind(this);
 		this.setupFormRefs = this.setupFormRefs.bind(this);
+
+		this.getOnloadHandler = this.getOnloadHandler.bind(this);
+		this.orientImage = this.orientImage.bind(this);
+		this.rotateImage = this.rotateImage.bind(this);
 	}
 
 	componentDidMount(){
@@ -826,21 +903,35 @@ export class ProfilePicForm extends React.Component{
 		//}
 	}
 
-	_onSelectFile(event){
-		if (event.target.files && event.target.files.length > 0) {
+	_onSelectFile(event, sourceFiles){
+		const files = sourceFiles || event.target.files;
+
+		if (files && files.length > 0) {
 			const reader = new FileReader();
+
 			
-			reader.onloadend = () => {
-				this.setState(prevState => ({
-					...prevState,
-					base64Image: reader.result,
-					isEditing: true,
-					ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
-					isNewImage: true,
-				}));
+			reader.onloadend = (event) => {
+				new Promise((resolve, reject) => {
+					resolve(this.getOnloadHandler(0, this, null, 0, [reader])(event));
+				})
+				.then(values => {
+					this.setState(prevState => ({
+						...prevState,
+						base64Image: values[0].src,//reader.result,
+						rotation: values[0].rotation,
+						crop:{
+							...prevState.crop,
+							rotation: values[0].rotation,
+						},
+						isEditing: true,
+						ctrlsTransition: prevState.ctrlsTransition + this.ctrlsPageRight,
+						isNewImage: true,
+					}));
+				});
 			}
 			// reader.addEventListener('load',(this) => this.setState({src: reader.result}), false);
-			reader.readAsDataURL(event.target.files[0]);
+			//reader.readAsDataURL(files[0]);
+			reader.readAsArrayBuffer(files[0]);
 		}
 	}
 
@@ -888,13 +979,413 @@ export class ProfilePicForm extends React.Component{
 	}
 
 
+	getOnloadHandler(contentId, this3, images, ti, readers){
+
+		return( async (event) => {
+
+			const headerOffsets ={
+				APP1_MARKER: 2,
+				APP1_DATA_SIZE: 2,
+				EXIF_HEADER: 6,
+				TIFF_HEADER: 8,
+			}
+
+			const totalHeaderoffset = Object.keys(headerOffsets).reduce((accum, key) => (accum + headerOffsets[key]), 0);
+
+			let exifData = {};
+			let subIFDData = {};
+			let view = new DataView(readers[ti].result); // ?
+			
+			if(view.getUint16(0, false) !== 0xFFD8){
+				console.log('error -2: Not a JPEG format')
+			}
+
+			var length = view.byteLength;
+			// Skip SOI Marker and set offset on APP1 Marker
+			let offset = 2;
+			// Stores the value of the exifOffset directory.
+			let subIFDOffset = null;
+			// Stores the adx of the exifOffset directory value.
+			var exifOffsetAdx = null;
+
+			// Extracts the IFD value given the entry number.  This is invoked while looping through tags below.
+			// Each tag entry is 12 bytes.
+			// [ Tag Number ] [ data format ] [ # of components ] [ data value or offset to data value]
+			//     2 bytes        2 bytes          4 bytes                     4 bytes 
+			const getIFDValueFromEntry = (entry, tagLUT, ifdOffset) => {
+
+				// Note: entry initially 0
+				let tagNumber = view.getUint16(ifdOffset + (entry * 12), little);
+				let dataFormat = view.getUint16(ifdOffset + (entry * 12) + 2, little);
+				let componentCount = view.getUint32(ifdOffset + (entry * 12) + 4, little);
+				let bytesPerComponent = OxiAppConstants.exifDataFormats[dataFormat];
+
+				let tagName = tagLUT[tagNumber] ? tagLUT[tagNumber].name : tagLUT[tagNumber];
+				tagName ? console.log('tagNumber = ', tagNumber, ', tagName = ', tagName, ', dataFormat = ', dataFormat, ', bytesPerComponent = ', bytesPerComponent, ', componentCount = ', componentCount) : null;
+				//Determine if the data value is gt. 4 bytes and is instead referenced by an ifdOffset value.
+				let sizeOfValue = bytesPerComponent * componentCount;
+				let isValueOffset = sizeOfValue > 4;
+
+				if(tagName){												
+					var value = null;
+					//if entry value is too large, store its ifdOffset
+					var offsetToValue = null;
+					var entryOffset = ifdOffset + (entry * 12) + 8;
+
+					//Don't know why 12 is added.  It just works.
+					offsetToValue = isValueOffset ? (view.getUint32(entryOffset, little) + 12) : entryOffset;
+
+					//const getNextAdx = (cc) => (offsetToValue + 12 + (bytesPerComponent * cc));
+					const getNextAdx = (cc) => (offsetToValue + (bytesPerComponent * cc));
+
+					var prevC = 0;  // TODO: There is a bug here where c does not increment.  This is a work around until properly fixed
+
+					for(var c = 0; c < componentCount; c++){
+						if(prevC > 0 && prevC === c){
+							throw("infinit loop in IDF parsing!");
+							//console.error("infinit loop in IDF parsing!")
+							break;
+						}
+
+						prevC = c
+						//unsigned formats
+						if(dataFormat < 6){
+							switch(dataFormat){
+
+								//unsigned byte
+								case 1:
+
+								//ascii strings
+								case 2:
+									value = (value || '') + String.fromCharCode( view.getUint8( getNextAdx(c), little ));
+									break;	
+								
+								//unsigned short
+								case 3:
+									value = (value << (bytesPerComponent * 8)) | view.getUint16( getNextAdx(c), little);
+									//value = view.getUint16( getNextAdx(c), little);
+									break;
+								
+								//unsigned long
+								case 4:
+									value = (value << (bytesPerComponent * 8)) | view.getUint32( getNextAdx(c), little);
+									//value = view.getUint32( getNextAdx(c), little);
+									break;
+								
+								// Unsigned rational
+								// Special case where value is 8 bytes; first 4bytes represent numerator, and last 4 bytes represent denominator
+								case 5:
+									var numerator = view.getUint32( getNextAdx(c), little);
+									var denominator = view.getUint32( getNextAdx(c+0.5), little);
+									value = `${numerator}/${denominator}`;
+									break;
+	
+								default:
+									value = (value << (bytesPerComponent * 8)) | view.getUint16( getNextAdx(c), little);
+									break;
+							}
+						}
+
+						//signed formats
+						else{
+							switch(dataFormat){	
+
+								//signed Byte
+								case 6:
+								
+								//undefined
+								case 7:
+									break;
+
+								//signed short
+								case 8:
+									value = (value << (bytesPerComponent * 8)) | view.getInt16( getNextAdx(c), little);
+									break;
+								
+								//signed long
+								case 9:
+									value = (value << (bytesPerComponent * 8)) | view.getInt32( getNextAdx(c), little);
+									break;
+		
+								// Signed rational
+								// Special case where value is 8 bytes; first 4bytes represent numerator, and last 4 bytes represent denominator
+								case 10:
+									var numerator = view.getInt32( getNextAdx(c), little);
+									var denominator = view.getInt32( getNextAdx(c+0.5), little);
+									value = `${numerator}/${denominator}`;
+									break;
+		
+								//single float
+								case 11:
+									value = (value << (bytesPerComponent * 8)) | view.getFloat32( getNextAdx(c), little);
+									break;
+								
+								//double float
+								case 12:
+									value = (value << (bytesPerComponent * 8)) | view.getFloat64( getNextAdx(c), little);
+									break;
+		
+								default:
+									value = (value << (bytesPerComponent * 8)) | view.getInt16( getNextAdx(c), little);
+									break;
+							}
+						}
+					}
+
+					//get the address to the Exif SubIFD (exifOffset will be <= 4 bytes)
+					if(tagName === 'exifOffset'){
+						//exifOffsetAdx = ifdOffset + (entry * 12) + 8;
+						subIFDOffset = value + 12;//totalHeaderoffset + 2 + 4;
+					}
+
+					return ({[tagName] : value});
+				}
+
+				return ({});
+			}
+
+			while(offset < length){
+				if(view.getUint16(offset + 2, false) <= 8){
+					console.log('undefined');// ?
+					break;//return;
+				}
+
+				var marker = view.getUint16(offset, false);
+				offset += 2; 
+
+				if(marker == 0xFFE1){
+					// Look ahead up to the first 2 bytes of Exif Header to check if Exif or Ascii data type
+					if(view.getUint32(offset += 2, false) != 0x45786966){
+						console.log('Exif header not defined');
+						break;//return;
+					}
+
+					// Determine Intel or Motorola byte alignment 
+					// Note:  Exif Header end with 2 bytes 0x00
+					var little = view.getUint16(offset += 6, false) == 0x4949;
+
+					// Set offset to the start of IFD (Image File directory).
+					offset += view.getUint32(offset + 4, little);
+					var ifdStart = offset;
+					var tagCount = view.getUint16(offset, little);
+
+					// Skip first 2 bytes in IFD (inidcating number of entries in the IFD).
+					offset += 2; 
+
+
+					// Loop through tags in IFD.
+					for(var i = 0; i < tagCount; i++){
+
+						var entry = getIFDValueFromEntry(i, OxiAppConstants.exifTags, offset);
+
+						exifData = {
+							...exifData, 
+							...{
+								//[tagName]: (view.getUint16(offset + (i * 12) + 8, little)) 
+								...entry
+							}
+						}											
+					}
+
+					// Build subIFD (digitizer data) object
+					// Note: this block will update subIFDOffset to jump to sub IDF, so all directory entries should be processed.
+					if(subIFDOffset){
+						//subIFDOffset = subIFDOffset == 238 ? 226 : subIFDOffset; 
+						// Position subIFDOffset to the beginning of subIFD.
+						//subIFDOffset += (12 * exifOffsetAdx) + subIFDOffset;
+						//offset = subIFDOffset;
+						// Get the directory entry count of the subIFD
+						var ifdTagCount = view.getUint16(subIFDOffset, little);
+						// Skip first 2 bytes in subIFD (inidcating number of entries in the IFD).
+						subIFDOffset += 2;
+
+						for(var i = 0; i < ifdTagCount; i++){
+
+							var entry = getIFDValueFromEntry(i, OxiAppConstants.subIFDTags, subIFDOffset);
+							
+							subIFDData = {
+								...subIFDData, 
+								...{
+									//[tagName]: (view.getUint16(subIFDOffset + (i * 12) + 8, little))														
+									...entry 
+								}
+							}	
+						}
+
+						subIFDOffset = null;
+					}
+				}
+
+				else if((marker & 0xFF00) != 0xFF00){
+					//
+					break;
+				}
+
+				else{
+					offset += view.getUint16(offset, false);
+				}
+			}
+
+			exifData = {
+				...exifData,
+				subIFDData,
+			}
+
+			console.log('exifData = ', exifData);
+			var rotation = 0;
+			var image = new Image();
+			image.crossOrigin = "Anonymous";
+			var imgData = arrayBufferToDataURL(readers[ti].result, 'image/jpeg');
+
+			var isPortrait = exifData.subIFDData.exifImageHeight > exifData.subIFDData.exifImageWidth ? 
+				(true) : 
+				exifData.subIFDData.exifImageHeight = exifData.subIFDData.exifImageWidth ? 
+					(undefined) : 
+					(false) ;
+
+
+			// Rotate image based on EXIF orientation.
+			// Camera Orientation	correction (degrees clockwise rotation).
+			// 1 : ┴ 				0
+			// 8 : ├				270
+			// 3 : ┬				180
+			// 6 : ┤				90
+
+			//Portrait is the default orientation
+			if(isPortrait){
+				switch(true){
+					case exifData.orientation === 1:
+						rotation = 0; //for testing
+						break;
+
+					case exifData.orientation === 8:
+						rotation = 270;
+						break;
+
+					case exifData.orientation === 3:
+						rotation = 180;
+						break;
+
+					case exifData.orientation === 6:
+						rotation = 90;
+						break;
+
+					default:
+						break;
+				}
+			}
+
+			//Landscape is the default orientation
+			else if(!isPortrait || isPortrait === undefined){
+				switch(true){
+					case exifData.orientation === 1:
+						rotation = 0; //for testing
+						break;
+
+					case exifData.orientation === 8:
+						rotation = 270;
+						break;
+
+					case exifData.orientation === 3:
+						rotation = 180;
+						break;
+
+					case exifData.orientation === 6:
+						rotation = 90;
+						break;
+
+					default:
+						break;
+				}								
+			}
+
+			// Rotate image
+			//if(rotation !== 0){
+			imgData = await new Promise((resolve, reject) => {		
+				var rotImgData = imgData;								
+
+				image.onload = async function(){											
+					if(rotation !== 0){
+						var rotImgData = await this3.orientImage(image, rotation);
+						resolve(rotImgData);
+					}
+				}
+
+				image.src = rotImgData;
+				resolve(rotImgData);
+			});
+			//}
+
+			console.log(`image object {contentId:${contentId}} = `, image)
+			return({
+				[`${contentId}`]:{
+					...this3.imageDataTemplate,
+					//srcFileRef: this3.props.addedContents.byIds[contentId].picture,
+					src: imgData,
+					cropping: true,
+					rotation: rotation,
+					crop:{
+						...this3.imageDataTemplate.crop,
+						rotation: rotation,
+					},
+					exifData:{
+						...exifData
+					}							
+				}
+			});
+		});
+	};
+
+
+	rotateImage(img, rotation){
+		return new Promise((resolve, reject) => {
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+			var imageWidth = img.naturalWidth;
+			var imageHeight = img.naturalHeight;
+			var aspectRatio = imageWidth/imageHeight;
+
+			canvas.width = rotation === 90 || rotation === 270 ? imageHeight : imageWidth;
+			canvas.height = rotation === 90 || rotation === 270 ? imageWidth : imageHeight;
+			var tx = 0.5 * canvas.width;// imageWidth;
+			var ty = 0.5 * canvas.height;// imageHeight;
+			var canvasAspectRatio = canvas.width / canvas.height;
+			
+			ctx.translate(tx, ty);
+			ctx.rotate(rotation * Math.PI/180);
+
+			//horizontal img
+			//if(aspectRatio >= 1){		 
+			if(canvasAspectRatio >= 1){
+			 //ctx.translate(-ty, -tx);
+			 ctx.translate(-tx, -ty);
+			}
+			//vertical img
+			else{	
+				ctx.translate(-ty, -tx) 
+			}
+
+			ctx.drawImage(img, 0, 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight);
+			resolve(canvas);
+		});
+	}
+
+	async orientImage (img, rotation){	
+		var canvas = await this.rotateImage(img, rotation);
+		return canvas.toDataURL('image/jpeg', 1);
+	}
+
+
+
 	render(){
 		const {
 			cancelAction,
+			onFolderSelect,
 		} = this.props;
 
 		const {
 			currentImage,
+			isImageSourceModalOpen,
 		} = this.props;
 
 		const eppCtrl_div = {
@@ -921,6 +1412,42 @@ export class ProfilePicForm extends React.Component{
 		const desktopImageSizing = {
 			width: 'auto',
 			height: '100%',
+		}
+
+		// Async method invoked when adding photos on mobile device.
+		// Either sources photos from device files or camera depending on user selection.
+		const sourceMobilePhoto = (e, sourceType) => {
+			console.log('event detail index = ', e.detail.index);
+		
+			//navigator.camera.sourceType = sourceType;
+
+			if(sourceType != null && sourceType != undefined){			
+				const onCameraSuccess = (imgURL) => {
+					// resolveLocalFileSystemURL from cordova-plugin-file
+					window.resolveLocalFileSystemURL(imgURL, (entry) => {
+						const onFileSuccess = (file) => this._onSelectFile(e, [file]);
+						const onFileFail = (error) => console.error(error);
+						entry.file(onFileSuccess, onFileFail);
+					});
+				
+					console.log("picture retreived successfully");
+				};
+				
+				const onCameraFail = () => {
+					console.log("picture retreival failed");
+				};
+				
+				navigator.camera.getPicture(onCameraSuccess, onCameraFail, {
+					quality: 100, 
+					destinationType: navigator.camera.DestinationType.FILE_URI,
+					sourceType: sourceType, 
+				});
+			}
+
+			this.setState(prevState => ({
+				...prevState, 
+				showSourceDialog: false
+			}));
 		}
 
 		var content = null;
@@ -1029,6 +1556,14 @@ export class ProfilePicForm extends React.Component{
 					loading="lazy" 
 				/>	
 			)
+		}
+
+		// Invoke folder selection callback to force open the IMAGE_SOURCE modal
+		if(
+			isDevice && 
+			this.state.showSourceDialog && 
+			!isImageSourceModalOpen ){
+			onFolderSelect(null, (e, source) => sourceMobilePhoto(e, source));
 		}
 
 		return(
@@ -1166,7 +1701,12 @@ export class ProfilePicForm extends React.Component{
 										//onClick={this._addNewPicture}
 										icon="add_a_photo"
 										onClick={(e) => {
-											if(this.fileInput) this.fileInput.click(e);
+											if(isDevice){ 
+												onFolderSelect(null, (e, source) => sourceMobilePhoto(e, source))
+											}
+											else if (this.fileInput){
+												this.fileInput.click(e);
+											}
 										}}
 										//style={{...eppCtrl_div, ...page1ButtonStyles}}
 									/>

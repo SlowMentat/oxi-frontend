@@ -260,7 +260,8 @@ export class MenuDrawer extends React.Component{
 									return(
 										<CollapsibleList
 											innerStyle={{
-												'background-color': 'var(--color-01-tint-01)',
+												//'background-color': 'var(--color-01-tint-01)',
+												'background-color': '#f3f3f3',
 											}}
 											handle = {
 												<ListItem

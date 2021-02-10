@@ -189,11 +189,13 @@ class BrowseControl extends React.Component{
 						isDevice ?
 							<React.Fragment>
 
-								<IconButton
-									icon="search"
-									style={{color:'var(--color-01-tint-02)'}}
-									onClick={e => console.log(e)}
-								/>
+								{
+									//<IconButton
+									//	icon="search"
+									//	style={{color:'var(--color-01-tint-02)'}}
+									//	onClick={e => console.log(e)}
+									///>
+								}
 								<IconButton
 									label="Outfits"
 									icon="face"
@@ -238,11 +240,15 @@ class BrowseControl extends React.Component{
 								<div>
 									<IconButton
 										label="Menu"
-										icon="more_horiz"
+										//icon="more_horiz"
+										icon="settings"
 										ripple={false}
 										dissableRipple={true}
 										onClick={(e) => {
 											this.props.toggleMenuDrawer(e, true)
+										}}
+										style={{
+											color: 'var(--color-01-tint-02)',
 										}}
 									/>
 								</div>

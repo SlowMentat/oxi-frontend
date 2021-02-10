@@ -215,6 +215,10 @@ export const OxiAppConstants = Object.freeze({
 			ta: 'AVAILABLE_ITEMS',
 		}
 	},
+	FieldListTitles:{
+		a: 'Measurements',
+		b: 'Tolerances',
+	},
 	routeURIs:{
 		login:'/user/account/login',
 		browse: '/shop/browse',
@@ -299,6 +303,7 @@ export const OxiAppConstants = Object.freeze({
 		PROFILE_PIC: 'ProfilePic',
 		OUTFIT_PREVIEW: 'OutfitPreview',
 		IMAGE_SOURCE: 'ImageSource',
+		BLOCKING_PROGRESS: 'BlockingWait',
 		CUSTOM: 'custom',
 	},
 	MenuType : {

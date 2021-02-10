@@ -670,6 +670,7 @@ input::placeholder {
     /*background-color: var(--color-01-shade-02);*/
     background-color: #f9f9f9;
     /*background-color: #b2b2b2;*/
+    overflow: hidden;
     
     @include desktop_rules {
         position: relative;

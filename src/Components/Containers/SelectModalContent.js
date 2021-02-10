@@ -37,6 +37,7 @@ import {
 	deleteOutfits,
 	replaceProfile,
 	modifyModalMetaData,
+	deleteOutfitEntities
 } from '../../Components/Actions/indexActions.js';
 import Modal from '../../Components/Presentations/Modal.js';
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -118,6 +119,9 @@ const mapStateToProps = (state, props) => {
 		allApparelTypes: Object.values(state.entitiesReducer.apparelTypes.byIds),
 		viewState: state.contentViewState.viewState,
 		profile: state.entitiesReducer.profile.byIds,
+		//isRequestBlocking: state.networkState.isRequestBlocking,
+		progressStatus: state.networkState.progressStatus,
+		isImageSourceModalOpen: state.modalsReducer.byIds[OxiAppConstants.FormType.IMAGE_SOURCE],
 	};
 }
 
@@ -198,7 +202,11 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
 			//dispatch action to select previously selected Outfit id (before adding discarded outfit)
 		},
 		confirmDeleteOutfits: (outfitIds) => {
-			dispatch(deleteOutfits(outfitIds, (response) => null));
+			dispatch(deleteOutfits(outfitIds, (response) => {
+				// This does not delete the child content entities.  Ignoring these for simplicity as a page refresh will update all entities accordingly
+				dispatch(deleteOutfitEntities(OxiAppConstants.EntityTypes.OUTFIT, outfitIds));
+			}));
+
 			dispatch(clearSelectMultipleEntity(OxiAppConstants.EntityTypes.OUTFIT));
 			dispatch(removeModalById(OxiAppConstants.FormType.DELETE_OUTFITS));
 			// exit the Profile view from the edit context	

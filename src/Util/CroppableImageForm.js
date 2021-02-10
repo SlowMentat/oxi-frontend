@@ -206,7 +206,7 @@ class CroppableImageForm extends React.Component{
 					if(typeof id === 'number'){
 						readers[taskInd] = new FileReader();
 	
-						let getOnloadHandler = (contentId, this3, images, ti) => {
+						let getOnloadHandler = (contentId, this3, images, ti, readers) => {
 
 							return( async (event) => {
 
@@ -265,8 +265,16 @@ class CroppableImageForm extends React.Component{
 										//const getNextAdx = (cc) => (offsetToValue + 12 + (bytesPerComponent * cc));
 										const getNextAdx = (cc) => (offsetToValue + (bytesPerComponent * cc));
 	
+										var prevC = 0;  // TODO: There is a bug here where c does not increment.  This is a work around until properly fixed
+
 										for(var c = 0; c < componentCount; c++){
-											
+											if(prevC > 0 && prevC === c){
+												throw("infinit loop in IDF parsing!");
+												//console.error("infinit loop in IDF parsing!")
+												break;
+											}
+
+											prevC = c
 											//unsigned formats
 											if(dataFormat < 6){
 												switch(dataFormat){
@@ -535,7 +543,8 @@ class CroppableImageForm extends React.Component{
 								});
 								//}
 
-								console.log(`image object {contentId:${contentId}} = `, image)
+								console.log(`image object {contentId:${contentId}} = `, image);
+
 								return({
 									[`${contentId}`]:{
 										...this3.imageDataTemplate,
@@ -570,7 +579,7 @@ class CroppableImageForm extends React.Component{
 
 							// Pass a copy of taskInd as ti so that the proper value is used when invoking getOnloadHandler
 							readers[taskInd].onload = ((ti) => (event) => {
-								resolve(getOnloadHandler(id, this1, images, ti)(event));
+								resolve(getOnloadHandler(id, this1, images, ti, readers)(event));
 							})(taskInd);
 
 							readers[taskInd].onerror = ((ti) => (event) => {
@@ -578,7 +587,7 @@ class CroppableImageForm extends React.Component{
 							})(taskInd)
 
 							// Note that coverpicuri is being used here as a temporary place holder for newly added image filenames.
-							// This is needed because filename is used instead of picture id to reference file data elsewhere.
+							// This is needed because filename is used elsewhere instead of picture id to reference file data.
 							var tempCoverpic = addedContents.byIds[`${id}`].coverpicuri;
 							readers[taskInd].readAsArrayBuffer(this1.fileRefs[tempCoverpic]);
 						});
@@ -772,14 +781,14 @@ class CroppableImageForm extends React.Component{
 		//const filterOutInvalidEntities = (sample: any[], test: any[]) => {			
 		//	var validContentIds = addedContents.allIds.filter(id => {
 		//		var keepId = true;
-//
+
 		//		for(let invContentId of entitiesStateReducer.content.clientInvalidated){
 		//			if(invContentId === id){
 		//				keepId = false;
 		//				break;
 		//			};
 		//		}
-//
+
 		//		return keepId;
 		//	});
 		//}
@@ -802,14 +811,14 @@ class CroppableImageForm extends React.Component{
 			
 			//// Build a list of content ids that represent content entities that are invalidated, or that reference invalidated picture entities
 			//var targetContentIds = [...clientInvalidateEntity]
-//
+
 			//// Filter out content ids referencing invalid content entites.
 			//var validContentIds = filterOutInvalidEntities(addedContents.allIds, entitiesStateReducer.content.clientInvalidated);
 			//// Filter out content ids referencing content entites that contain a picture propery referencing an invalidated picture entity.
 			//var validContentIdsWithValidPicture = filterOutInvalidEntities(validContentIds, entitiesStateReducer.pictures.clientInvalidated);
 			//// Filter valid content entities with valid picture from editting contents
 			//var targetContentIds = addedContents.allIds.filter(id => {
-//
+
 			//})
 
 			//var targetContentIds = addedContents.allIds.filter(id => {
@@ -818,7 +827,7 @@ class CroppableImageForm extends React.Component{
 			//			return true	;
 			//		}
 			//	}
-//
+
 			//	return false;
 			//});
 
@@ -849,7 +858,7 @@ class CroppableImageForm extends React.Component{
 					//  this.props._handleSubmit(this.state.images[this.selectedContentId].src) :
 					//	this.props._handleSubmit(null);
 				//}else{
-//
+
 				//}
 			}
 			new Promise((resolve, reject) => resolve(this.props._handleSubmit(files, crops)))
@@ -981,6 +990,13 @@ class CroppableImageForm extends React.Component{
 	* Then adds content entites to addedEntitiesReducer with contet.coverpicuri set to a corresponding image file reference
 	*/
 	_onSelectMultipleFiles(event, cameraFile){
+		// Methods
+		const {
+			showBlockingLoad,
+			hideBlockingLoad,
+		} = this.props;
+
+		showBlockingLoad("Loading Files");
 
 		let newFileRefs = {}		
 		let currentCount = Object.keys(this.fileRefs).length;
@@ -1010,13 +1026,16 @@ class CroppableImageForm extends React.Component{
 						//	...newFileRefs, 
 						//	...{[event.target.files[i].name]: event.target.files[i]} 
 						//};				
-					}else{
+					}
+					else{
 						console.log('Image is already being editted.  Remove image from editor before adding again')
 					}
+				
 				}else{
 					console.log("image count limit reached")
 					break;
 				}
+
 				addCount++;
 			}
 		}
@@ -1026,13 +1045,21 @@ class CroppableImageForm extends React.Component{
 			...newFileRefs 
 		};
 
-		if(Object.keys(newFileRefs).length > 0){
-			this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents, this.props.pictures);
+		try{
+			if(Object.keys(newFileRefs).length > 0){
+				this.props.addContentFromImages(newFileRefs, this.props.viewState, this.props.addedContents, this.props.pictures);
+			}
+		}
+		catch(e){
+			console.error(e);
+
 		}
 
 		if(this.props.entitiesStateReducer.outfits.clientInvalidated.length === 0){
 			//this.props.clientInvalidateEntity([this.props.entitiesStateReducer.outfits.selected], OxiAppConstants.EntityTypes.OUTFIT)();
 		}
+
+		hideBlockingLoad();
 	}
 
 	_onSelectFile(event){
@@ -1493,8 +1520,7 @@ class CroppableImageForm extends React.Component{
 			this.setState(prevState => ({
 				...prevState, 
 				showSourceDialog: false
-			}))
-
+			}));
 		}
 
 		contentState.selected = entitiesStateReducer.contents ?  entitiesStateReducer.contents.selected : undefined;

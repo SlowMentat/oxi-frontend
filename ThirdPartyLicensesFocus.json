@@ -1,0 +1,134 @@
+{
+  "aws-sign2@0.7.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mikeal/aws-sign",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "url": "http://www.futurealoof.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\aws-sign2",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\aws-sign2\\LICENSE"
+  },
+  "caseless@0.12.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mikeal/caseless",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\caseless",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\caseless\\LICENSE"
+  },
+  "forever-agent@0.6.1": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mikeal/forever-agent",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "url": "http://www.futurealoof.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\forever-agent",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\forever-agent\\LICENSE"
+  },
+  "oauth-sign@0.8.2": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mikeal/oauth-sign",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "url": "http://www.futurealoof.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\oauth-sign",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\oauth-sign\\LICENSE"
+  },
+  "oauth-sign@0.9.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mikeal/oauth-sign",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "url": "http://www.futurealoof.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\node-sass\\node_modules\\oauth-sign",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\node-sass\\node_modules\\oauth-sign\\LICENSE"
+  },
+  "request@2.87.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/request/request",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\request",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\request\\LICENSE"
+  },
+  "request@2.88.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/request/request",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\node-sass\\node_modules\\request",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\node-sass\\node_modules\\request\\LICENSE"
+  },
+  "spdx-correct@1.0.2": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/kemitchell/spdx-correct.js",
+    "publisher": "Kyle E. Mitchell",
+    "email": "kyle@kemitchell.com",
+    "url": "https://kemitchell.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\spdx-correct",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\spdx-correct\\LICENSE"
+  },
+  "spdx-expression-parse@1.0.4": {
+    "licenses": "(MIT AND CC-BY-3.0)",
+    "repository": "https://github.com/kemitchell/spdx-expression-parse.js",
+    "publisher": "Kyle E. Mitchell",
+    "email": "kyle@kemitchell.com",
+    "url": "http://kemitchell.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\spdx-expression-parse",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\spdx-expression-parse\\LICENSE"
+  },
+  "spdx-license-ids@1.2.2": {
+    "licenses": "Unlicense",
+    "repository": "https://github.com/shinnn/spdx-license-ids",
+    "publisher": "Shinnosuke Watanabe",
+    "url": "https://github.com/shinnn",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\spdx-license-ids",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\spdx-license-ids\\LICENSE"
+  },
+  "true-case-path@1.0.3": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/barsh/true-case-path",
+    "publisher": "barsh",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\true-case-path",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\true-case-path\\LICENSE"
+  },
+  "tslib@1.11.1": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/Microsoft/tslib",
+    "publisher": "Microsoft Corp.",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\@rmwc\\base\\node_modules\\tslib",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\@rmwc\\base\\node_modules\\tslib\\LICENSE.txt"
+  },
+  "tslib@1.9.3": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/Microsoft/tslib",
+    "publisher": "Microsoft Corp.",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\tslib",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\tslib\\LICENSE.txt"
+  },
+  "tunnel-agent@0.6.0": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/mikeal/tunnel-agent",
+    "publisher": "Mikeal Rogers",
+    "email": "mikeal.rogers@gmail.com",
+    "url": "http://www.futurealoof.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\tunnel-agent",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\tunnel-agent\\LICENSE"
+  },
+  "tweetnacl@0.14.5": {
+    "licenses": "Unlicense",
+    "repository": "https://github.com/dchest/tweetnacl-js",
+    "publisher": "TweetNaCl-js contributors",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\tweetnacl",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\tweetnacl\\LICENSE"
+  },
+  "validate-npm-package-license@3.0.1": {
+    "licenses": "Apache-2.0",
+    "repository": "https://github.com/kemitchell/validate-npm-package-license.js",
+    "publisher": "Kyle E. Mitchell",
+    "email": "kyle@kemitchell.com",
+    "url": "https://kemitchell.com",
+    "path": "C:\\Oxi Frontend\\Oxi\\node_modules\\validate-npm-package-license",
+    "licenseFile": "C:\\Oxi Frontend\\Oxi\\node_modules\\validate-npm-package-license\\LICENSE"
+  }
+}

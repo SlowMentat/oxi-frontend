@@ -224,7 +224,7 @@ export default class ProfileHeader extends React.Component{
 						</div>
 						<div className={OutfitStyles.statCommonVal_span} style={{'margin-left':'4px'}}>
 							{
-								Object.keys(stats).map(key => (
+								Object.keys(stats).filter(key => key === 'likes').map(key => (
 									key === 'lastUpdated' || key === 'id' ? 
 									(null) :
 									(<div className={OutfitStyles.statCommon_div}>
@@ -237,6 +237,14 @@ export default class ProfileHeader extends React.Component{
 									</div>)
 								))
 							}
+							<div className={OutfitStyles.badges_div}>
+								<div className={OutfitStyles.badge_div}>
+								</div>
+								<div className={OutfitStyles.badge_div}>
+								</div>
+								<div className={OutfitStyles.badge_div}>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

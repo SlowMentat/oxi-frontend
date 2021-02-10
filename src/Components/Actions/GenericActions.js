@@ -49,6 +49,14 @@ export const removeFromMap = (mapType, itemId) => {
 	}
 }
 
+// Delete a single outfits by ids.  Any child entities will remain in the redux state.
+export const deleteOutfitEntities = (entityType, entityIds) => {
+	return function(dispatch){
+		dispatch(makeActionCreator(`DELETE_${entityType.toUpperCase()}S`, entityType.toUpperCase(), 'ids')(entityIds));
+	}
+}
+
+
 
 //========================================
 

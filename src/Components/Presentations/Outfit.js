@@ -197,7 +197,6 @@ export class Outfit extends React.Component{
 			pictures,
 			coverpicuri,
 			contentIds,
-			webAppView,
 			webAppViewContext,
 			owner,
 			outfit,
@@ -459,7 +458,9 @@ export class Outfit extends React.Component{
 											position:'absolute', 
 											top:'0px', 
 											left:'0px',
-											'background-color':'#ffffff75',
+											//'background-color':'#ffffff75',
+											'background-color': 'rgb(255 255 255 / 83%)',
+											'border-bottom-right-radius': '3px',
 										}}
 										checked={isSelected}
 										//onChange={e => selectOutfit(e)}
@@ -468,7 +469,7 @@ export class Outfit extends React.Component{
 							}
 						</div>
 					</Ripple>
-					<OutfitTileFooter likeCount={count}/>
+					{isBrowse ? <OutfitTileFooter likeCount={count}/> : null}
 				</div>
 			</Elevation>
 		);

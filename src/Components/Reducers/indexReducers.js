@@ -197,6 +197,19 @@ export function byId(state = {}, action){
 			//});
 
 		//action typed performed on "entitiesReducer"
+		case `DELETE_${action.typeSpecifier}S`:
+			return ({
+				...Object.values(state).filter(outfit => {
+					return !action.payload.ids.includes(outfit.id);
+				})
+				.reduce((accum, outfit) => {
+					return({
+						...accum,
+						[outfit.id]: outfit,
+					});
+				}, {})
+			});
+
 		case `REPLACE_${action.typeSpecifier}`:
 			return Object.assign({}, state, action.payload.entities);
 
@@ -263,7 +276,7 @@ export function allIds(state = [], action){
 			return [...state, ...ids] //since keys are 
 
 		//action typed performed on "entitiesReducer"
-		case `DELETE_${action.typeSpecifier}`:
+		case `DELETE_${action.typeSpecifier}S`:
 			return state.splice(action.ids);
 
 		//action typed performed on "entitiesReducer"
@@ -517,6 +530,15 @@ export const entities = (maxCount) => (state = {selected: false, controlDisabled
 					'allEditingIds':[]
 				});
 			}
+		case `DELETE_${action.typeSpecifier}S`:
+			return ({
+				...state, 
+				...{
+					byIds: byId(byIdsRef, action), 
+					allIds: allIds(allIdsRef, action)
+				},
+			});
+
 		case `ADD_TO_${action.typeSpecifier}_EDITTING_IDS`:
 			return Object.assign({}, state, {allEditingIds: [...state.allEditingIds, action.payload.id]});
 
@@ -664,6 +686,8 @@ function removeDeletion(state, action){
 		}
 		return false;
 	});
+
+	return clientDelData;
 }
 
 //return ids that aren't already present in the invalidation state
@@ -986,6 +1010,37 @@ function buttonState(state = iniButtonState, action){
 	}
 }
 
+const iniNetworkState = {
+	//isRequestBlocking: false,
+	progressStatus:{
+		lengthComputable: false,
+		loaded: 0,
+		total: 0,
+	},
+}
+
+function networkState(state = iniNetworkState, action){
+	switch(action.type){
+		//case types.SET_BLOCKING_FETCH:
+		//	return({
+		//		...state, 
+		//		...action.payload
+		//	});
+
+		case types.SET_PROGRESS_STATUS:
+			return({
+				...state,
+				status: {
+					...state.status,
+					...action.payload,
+				}
+			});
+
+		default:
+			return state;
+	}
+}
+
 function mapCache(state = {}, action){
 	switch(action.type){
 		case `PUT_TO_${action.typeSpecifier}`:
@@ -1189,6 +1244,7 @@ const createRootReducer = (history) => combineReducers({
 	cache,
 	contentViewState,
 	requestedNavigation,
+	networkState,
 	entitiesStateReducer,
 	//entitiesState,
 	addedEntitiesReducer,

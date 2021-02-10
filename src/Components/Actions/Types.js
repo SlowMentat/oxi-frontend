@@ -29,6 +29,7 @@ export const UPDATE_ITEMCONTENT					= 'UPDATE_'				+ OxiAppConstants.EntityTypes
 export const UPDATE_OUTFIT 						= "UPDATE_" 			+ OxiAppConstants.EntityTypes.OUTFIT;
 export const REPLACE_OUTFIT 					= "REPLACE_" 			+ OxiAppConstants.EntityTypes.OUTFIT;
 export const DELETE_OUTFIT						= "DELETE_" 			+ OxiAppConstants.EntityTypes.OUTFIT;
+export const DELETE_OUTFITS						= "DELETE_" 			+ OxiAppConstants.EntityTypes.OUTFIT + "S";
 export const SELECT_PAGE 						= "SELECT_PAGE";
 export const CREATE_PICTURE						= "CREATE_"				+ OxiAppConstants.EntityTypes.PICTURE;
 export const CREATE_APPAREL_TYPE				= "CREATE_"				+ OxiAppConstants.EntityTypes.APPAREL_TYPE;
@@ -129,3 +130,6 @@ export const SET_PREVIEW_FOCUS 					= 'SET_PREVIEW_FOCUS';
 export const UNSET_PREVIEW_FOCUS 				= 'UNSET_PREVIEW_FOCUS';
 
 export const TOGGLE_OUTFIT_IS_LIKED 			= 'TOGGLE_OUTFIT_IS_LIKED';
+
+//export const SET_REQUEST_BLOCKING				= 'SET_REQUEST_BLOCKING';
+export const SET_PROGRESS_STATUS				= 'SET_PROGRESS_STATUS';
