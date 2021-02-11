@@ -381,6 +381,7 @@ class ToleranceSettings extends React.Component{
 
 	_handleMinSliderMove(e, field){
 		e.preventDefault();
+		e.stopPropagation();
 		console.log('x = ', e.clientX);
 
 		this.setState(prevState => {
@@ -395,6 +396,7 @@ class ToleranceSettings extends React.Component{
 
 	_handleMaxSliderMove(e, field){
 		e.preventDefault();
+		e.stopPropagation();
 		console.log('x = ', e.clientX);
 
 		this.setState(prevState => {
