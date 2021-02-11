@@ -24,7 +24,7 @@ import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
 import {denormalizeOutfit} from '../../Util/Schema.js';
 import {InputTextField} from '../../Components/Presentations/CommonElements.js';
 import { SvgIcon } from '../SvgAssets/SvgIcon.js';
-import { Button } from '../../Components/Presentations/Controls.js';
+import { Button } from '../../Components/Presentations/FitseeUI/Buttons/index.js';
 
 import { 
 	Route, 
@@ -202,7 +202,7 @@ export default class FormLogin extends React.Component{
 		//const isBearerSet = cookies.get('authorization') ? 
 		//	cookies.get('authorization').slice("Bearer ".length).length > 0 :
 		//	false;
-//
+
 		//isBearerSet ? 
 		//	(null) :
 		//	cookies.set('authorization', cookies.get('authorization') + response.headers['authorization'], defaultCookieOptions);
@@ -218,7 +218,6 @@ export default class FormLogin extends React.Component{
 		axios.defaults.headers.common['authorization'] = cookies.get('authorization');
 		this.props.cancelAction !== undefined ? this.props.cancelAction() : null;
 		//this.props.history !== undefined ? this.props.history.goBack() : null;
-
 	}
 
 	render(){
@@ -384,6 +383,9 @@ export default class FormLogin extends React.Component{
 										primary: 'var(--color-01-tint-02)',
 										secondary: 'var(--color-05-tint-01)',
 									}}
+									style={{
+										'margin-bottom': '24px',
+									}}
 								>
 								<Theme use="secondary">
 								<TextField
@@ -403,22 +405,48 @@ export default class FormLogin extends React.Component{
 								</Theme>
 								</ThemeProvider>
 								{/*</Typography>*/}
-								<div 
-									className={FormStyles.l3Button} 
+								{
+								//	<div 
+								//		className={FormStyles.l3Button} 
+								//		style={{
+								//			'margin-top': '17px', 
+								//			'font-size':'1.3rem'
+								//		}}
+								//		onClick={(event) => {
+								//			if(isIntentToRegister){
+								//				this._onSubmitResend(event, this.state.payload);
+								//			}
+								//			else{
+								//				this._onSubmitLogin(event, this.state.payload);
+								//			}
+								//		}} 
+								//	>
+								
+								//			{ isIntentToRegister ? 'RESEND' : 'SUBMIT' }
+								//	<div>
+								}
+								<div
 									style={{
-										'margin-top': '17px', 
-										'font-size':'1.3rem'
+										display:'flex',
+										'justify-content':'center',
 									}}
-									onClick={(event) => {
-										if(isIntentToRegister){
-											this._onSubmitResend(event, this.state.payload);
-										}
-										else{
-											this._onSubmitLogin(event, this.state.payload);
-										}
-									}} 
 								>
-									{ isIntentToRegister ? 'RESEND' : 'SUBMIT' }
+									<Button
+										//icon="cloud_upload"
+										theme={["textPrimaryOnDark", "primaryBg"]}
+										label={ isIntentToRegister ? 'RESEND' : 'SUBMIT' }
+										labelSize='12px'
+										raised
+										onClick={(event) => {
+											if(isIntentToRegister){
+												this._onSubmitResend(event, this.state.payload);
+											}
+											else{
+												this._onSubmitLogin(event, this.state.payload);
+											}
+										}}
+										//style={eppCtrl_div} 
+									/>
 								</div>
 							</form>
 						</div>

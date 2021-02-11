@@ -55,7 +55,7 @@ const mapDispatchToProps = (dispatch) => ({
 			}
 			else{
 				//redirected to login from verification email.  Navigate to Measurmeents to complete profile.
-				dispatch(navigateTo(OxiAppConstants.navRequestMap.c.toLowerCase()));
+				dispatch(navigateTo(OxiAppConstants.navRequestMap.a.toLowerCase()));
 			}
 		},
 })

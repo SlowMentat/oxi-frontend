@@ -399,7 +399,17 @@ export const modalEntities = (maxCount) => (
 			// Create new modal
 			case types.CREATE_MODAL:
 				var nextCount = state.count + 1;
-				checkValidId(action.payload.entity.id);
+				//checkValidId(action.payload.entity.id);
+
+				// Conditions for not changing redux state
+				// null or undefined id string
+				if(!action.payload.entity.id) return state;
+				// Empty string id
+				if(action.payload.entity.id.length == 0) return state;
+				// Modal is already open
+				if(byIdsRef[action.payload.entity.id]) return state;
+				// Count limit
+				if(maxCount && nextCount > maxCount) return state;
 								
 				return(
 					{
