@@ -108,7 +108,8 @@ export class OutfitTileBrowseCtrls extends React.Component{
 							name="MeasureIcon" 
 							//fill={fill}
 							//stroke={stroke} 
-							strokeWidth={2} />
+							//strokeWidth={2} 
+						/>
 					</div>
 				</div>
 				<div className={OutfitStyles.previewMeasureBtnContainer_div}>

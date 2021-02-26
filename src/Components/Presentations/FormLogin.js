@@ -17,7 +17,7 @@ import {
 	handleUnauthorizedRequest, 
 	requestInterceptor, 
 	loginConfig, 
-	cookies,
+	//cookies,
 } from '../../Components/Actions/indexActions.js';
 
 import {OxiAppConstants} from '../../Util/OxiAppConstants.js';
@@ -39,8 +39,8 @@ import { Theme } from '@rmwc/theme';
 import '@rmwc/theme/styles';
 import { ThemeProvider } from '@rmwc/theme';
 import { defaultCookieOptions } from '../../Components/Actions/NetworkActions.js';
-//import Cookies from 'universal-cookie';
-//var cookies = new Cookies();
+import Cookies from 'universal-cookie';
+var cookies = new Cookies();
 
 
 export default class FormLogin extends React.Component{
@@ -134,42 +134,54 @@ export default class FormLogin extends React.Component{
 		})
 	}
 
-	_onSubmitLogin(e, payload){
+	_onSubmitLogin(e, payload, cookies){
 		//e.stopPropagation();
 		/*var formData = new FormData();
 		formData.append('username', username);
 		formData.append('password', password);
 		console.log(formData);*/
 		console.log('calling axio post request from Login Form');
-		axios(loginConfig(payload, this.props.serviceURL))
-		.then(response => {
+		const response = null;
 
-			if(response.status == OxiAppConstants.HttpStatus.OK){
-				this.setAuthorization(response);
+		try{
+			axios(loginConfig(payload, this.props.serviceURL))
+			.then(response => {
+				//return response;
+				if(response.status == OxiAppConstants.HttpStatus.OK){
+					this.setAuthorization(response, cookies);
 
-				if(this.props.afterLoginSuccess !== undefined){
-					this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
-					this.props.closeModal(OxiAppConstants.FormType.LOGIN);
-					
-					this.setState(prevState => ({
-						isAuthenticated: true,
-					}));
+					if(this.props.afterLoginSuccess !== undefined){
+						this.props.afterLoginSuccess(this.props.requestUrl, this.props.requestType);
+						this.props.closeModal(OxiAppConstants.FormType.LOGIN);
+						
+						this.setState(prevState => ({
+							isAuthenticated: true,
+						}));
+					}
+					else{
+						console.log('afterLoginSuccess not defined');
+					}
 				}
 				else{
-					console.log('afterLoginSuccess not defined');
+					//handleUnauthorizedRequest(response);
 				}
-			}
-			else{
-				//handleUnauthorizedRequest(response);
-			}
-		}).catch((error) => {
-			console.log('error caught from login form: ',error);
-		});
+			})
+
+			.catch((error) => {
+				console.log('error caught from login form: ',error);
+				return error;
+			});
+		}
+		catch(error){
+			console.log(error);
+		}
+
+
 		e.preventDefault();
 	}
 
-	setAuthorization(response){
-		var cookieAuth = cookies.get('authorization');
+	setAuthorization(response, cookies){
+		var cookieAuth = cookies.cookies['authorization'];
 		
 		//cookieAuth = cookieAuth ? //cookieAuth === undefined || cookieAuth === null ? 
 		//	cookies.set('authorization', response.headers['www-authenticate'] + ' ' + response.headers['authorization'], defaultCookieOptions) :
@@ -182,8 +194,6 @@ export default class FormLogin extends React.Component{
 				response.headers['www-authenticate'] + ' ' + response.headers['authorization'], 
 				defaultCookieOptions
 			);
-
-			console.log('After set: cookie authorization = ' + cookies.get('authorization'));
 		}
 		else{
 			// Add token to authorization cookie referencing the authorization respone header.
@@ -198,26 +208,9 @@ export default class FormLogin extends React.Component{
 				);
 			}			
 		}
-		
-		//const isBearerSet = cookies.get('authorization') ? 
-		//	cookies.get('authorization').slice("Bearer ".length).length > 0 :
-		//	false;
 
-		//isBearerSet ? 
-		//	(null) :
-		//	cookies.set('authorization', cookies.get('authorization') + response.headers['authorization'], defaultCookieOptions);
-
-		//if(cookies.get('authorization')){
-		//}
-		//else{
-		//	// Authorization cookie not defined
-		//}
-
-		//cookies.set('authorization', cookies.get('authorization') + response.headers['authorization']);
-		console.log('cookie authorization = ' + cookies.get('authorization'));
-		axios.defaults.headers.common['authorization'] = cookies.get('authorization');
+		axios.defaults.headers.common['authorization'] = cookies.cookies['authorization'];
 		this.props.cancelAction !== undefined ? this.props.cancelAction() : null;
-		//this.props.history !== undefined ? this.props.history.goBack() : null;
 	}
 
 	render(){
@@ -442,7 +435,7 @@ export default class FormLogin extends React.Component{
 												this._onSubmitResend(event, this.state.payload);
 											}
 											else{
-												this._onSubmitLogin(event, this.state.payload);
+												this._onSubmitLogin(event, this.state.payload, cookies);
 											}
 										}}
 										//style={eppCtrl_div} 

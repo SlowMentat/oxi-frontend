@@ -30,6 +30,11 @@ import {
 	DOWN,
 } from 'react-swipeable';
 
+
+import {
+	Typography
+} from '@rmwc/typography';
+
 import { Swipeable } from '../../Components/Presentations/FitseeUI/Swipeable.js';
 import { Switch as RmwcSwitch } from '@rmwc/switch';
 
@@ -2179,7 +2184,9 @@ export default class ProfileMenu extends React.Component{
 										... (isDevice ? {display:'none'} : {})
 									}}
 								>
-									{ this.state.fieldListTitle }
+									<Typography use="headline4" >
+										{ this.state.fieldListTitle }
+									</Typography>
 								</div>
 							</div>
 						</div>
@@ -2396,7 +2403,9 @@ export default class ProfileMenu extends React.Component{
 						<div className={ProfileMenuStyles.fieldListTitleContainer1_div} >
 							<div className={ProfileMenuStyles.fieldListTitleContainer2_div} >
 								<div className={ProfileMenuStyles.fieldListTitle_div} >
-									{ OxiAppConstants.FieldListTitles.b }
+									<Typography use="headline4" >
+										{ OxiAppConstants.FieldListTitles.b }
+									</Typography>
 								</div>
 							</div>
 						</div>

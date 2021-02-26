@@ -148,6 +148,17 @@
 	}
 }
 
+:local(.legalLink_a){
+	color: var(--color-01-tint-02);
+	display: block;
+	margin-left: 10px;
+}
+
+.legalLink_a:hover{
+	font-weight: bold;
+    color: var(--color-01-tint-01);
+}
+
 :local(.createAccountFormContainer_div){
 
     margin: auto;
@@ -365,7 +376,8 @@
     line-height: var(--line-height);
     display: inline-block;
     /*background-color: var(--color-05-tint-01);*/
-    background-color: var(--color-02-shade-01);
+    /*background-color: var(--color-02-shade-01);*/
+    background-color: var(--color-generic-icon);
     border-radius: 3px;
     padding: var(--padding);
     border-top-left-radius: 0px;

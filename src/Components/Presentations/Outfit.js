@@ -330,12 +330,16 @@ export class Outfit extends React.Component{
 												'line-height': '18px',
 				
 											}}
-											onClick={(e) => {
+											onClick={async (e) => {
 												console.log('onchange event e = ', e);
 												//e.stopPropagation();
 												this._handleTileClicked();
-												getHostMeasurements(id);
 												toggleMetricPanel(e, true);
+
+												new Promise((resolve, reject) => {
+													setTimeout(() => resolve(), 400);
+												})
+												.then(result => getHostMeasurements(id))
 											}}
 											icon={
 												<div
@@ -350,7 +354,8 @@ export class Outfit extends React.Component{
 														name="MeasureIcon" 
 														//fill={fill}
 														//stroke={stroke} 
-														strokeWidth="2"
+														
+														//strokeWidth="2"
 													/>
 												</div>
 											}

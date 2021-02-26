@@ -282,7 +282,9 @@ class ContentList extends React.Component {
 		    					//'margin-left': /*'-200px'*/'0px',
 		    					left:'calc(50vw - 400px)',
 		    				} : 
-		    				{}),
+		    				{
+		    					left: 'calc(50% - var(--ic-width))',
+		    				}),
 		    				bottom:'20px',
 		    			}}
 		    		>

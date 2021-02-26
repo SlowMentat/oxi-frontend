@@ -1,0 +1,72 @@
+html {
+	--color-01: #304244;
+		--color-01-tint-01: #506a6d; --color-01-tint-02: #90a7a9; 
+		--color-01-shade-01: #152628; --color-01-shade-02: #071719;
+	--color-02: #d1c6c3;
+		--color-02-tint-01: #fffaf9; --color-02-tint-02: #ffffff; 
+		--color-02-shade-01: #9A8B88; --color-02-shade-02: #534845;
+	--color-03: #ece0dc; 
+		--color-03-tint-01: #fffcfc; --color-03-tint-02: #ffffff; 
+		--color-03-shade-01: #B4A19B; --color-03-shade-02: #76635C;
+	--color-04: #bb8558; 
+		--color-04-tint-01: #ffcfa6; --color-04-tint-02: #ffddc0; 
+		--color-04-shade-01: #86552c; --color-04-shade-02: #48280D;
+	--color-05: #e24441; 
+		--color-05-tint-01: #fd6e6a; --color-05-tint-02: #ff9795; 
+		--color-05-shade-01: #c6211d; --color-05-shade-02: #9d0e0a;
+
+	--color-desktop-01: #f9f9f9;
+
+	font-family: Roboto;
+	width: 45vw;
+	margin:  auto;
+}
+
+h1 {
+	color: var(--color-03-shade-01);
+}
+
+h2 {
+	color: var(--color-01-tint-01);
+}
+
+p, li{
+	color: var(--color-01-tint-01);
+    word-spacing: 0.2rem;
+}
+
+span {
+	color: var(--color-01-tint-01);
+    font-size: 1.1rem;
+}
+
+#title {
+	font-weight: bold;
+}
+
+.companyAddress, .companyEmail, .companyPhone{	
+	margin: 24px 0px;
+}
+
+.companyAddress span{
+	display:block;
+}
+
+#policy-content {
+	margin-bottom: 50px;
+	padding-top:  50px;
+}
+
+.logo {
+	width: 36px; 
+    height: 36px;
+}
+
+.logo_div{
+	display:flex;
+	align-items: center;
+	margin-bottom: 25px;
+	width: 36px; 
+    height: 36px;
+}
+

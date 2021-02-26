@@ -153,15 +153,16 @@ function selectDestination(location, dispatch, isOwnerProfileEntityPresent, host
 
 export function navigateTo(location, isOwnerProfileEntityPresent, hostUsername, owner={}){
 	return function(dispatch, getState){
-		console.log('in navigateTo()')
-		dispatch(networkActions.requestingNavigation(location))
+		console.log('in navigateTo()');
+		dispatch(networkActions.requestingNavigation(location));
+
 		//Check if user is in EditView mode and, if so, validate nav action
 		//TDOO:  below seems hacky sacky...	
 		if(
 			getState().appView.webAppView === OxiAppConstants.navRequestMap.b.toLowerCase() && 
 			getState().contentViewState.viewState !== OxiAppConstants.viewState.PREVIEW
 		){
-			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS))
+			dispatch(verifyIntent(OxiAppConstants.Intent.DISCARD_EDITS));
 		}
 		else{
 			dispatch(genericActions.selectEntity(OxiAppConstants.EntityTypes.ITEM, false));

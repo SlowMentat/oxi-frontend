@@ -33,6 +33,7 @@ const DrawerWrapper = (props) => {
 		<Drawer 
 			modal 
 			open={props.isOpen}
+			onClose={(e) => props.toggleMetricPanel(e, false)}
 			style={{
 				'z-index': '20',
     			width: 'calc(100vw - 48px)',
@@ -163,7 +164,7 @@ export class MetricPanel extends React.Component{
 						/>
 					</div>
 					<CSSTransition
-					    tiemout={600}
+					    tiemout={300}
 					    classNames="metricContainer_div"
 					    in={true}
 					    unmountOnExit >

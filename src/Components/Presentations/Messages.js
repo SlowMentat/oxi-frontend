@@ -6,6 +6,10 @@ import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
 import { SvgIcon } from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
+import {
+	Typography
+} from '@rmwc/typography';
+
 import styled from 'styled-components';
 
 

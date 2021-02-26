@@ -14,25 +14,26 @@ export default class MeasureIcon extends React.Component{
 	render(){
 		let stroke = this.props.stroke || "var(--mdc-theme-primary)";
 		let fill = this.props.fill || "none";	
-		let strokeWidth = "8"//this.props.strokeWidth || "8";
+		let strokeWidth = this.props.strokeWidth || (isSafari ? "2" : "4");
 		let style = this.props.style || {};
 		let className = this.props.className || null;
 		//#70ccf4 old blue
 		//#fdd835 yellow
-		return(
+		return( 
+
 			<svg 
 				version="1.1" 
-				viewBox="0 0 192 192" 
+				viewBox="0 0 50 50" 
 				//xml:space="preserve" 
 				xmlns="http://www.w3.org/2000/svg"
 				shape-rendering="crispEdges"
 			>
-				<g>
+				{/*<g>
 					<g 
 						fill-rule="evenodd" 
 						stroke={stroke}
-						stroke-dashoffset="85.709" 
-						stroke-linecap="round" 
+						stroke-dashoffset="85.709"
+						stroke-linecap="square" 
 						stroke-miterlimit="4"
 					>
 						<path 
@@ -58,6 +59,24 @@ export default class MeasureIcon extends React.Component{
 							y="124.22" 
 							width="7.5645" 
 							height="27.564" 
+							stroke-width={strokeWidth}
+						/>
+					</g>
+				</g>*/}
+
+				<g>
+					<g fill={fill} stroke={stroke} stroke-linecap="square">
+						<g stroke-width="4">
+							<path d="m14 38.5v-13.5"/>
+							<path d="m25 38.5v-5.5"/>
+							<path d="m36 38.5v-13.5"/>
+						</g>
+						<rect 
+							x="2.5" 
+							y="10.679" 
+							width="44.99" 
+							height="28.641" 
+							stroke-dashoffset="85.709" 
 							stroke-width={strokeWidth}
 						/>
 					</g>

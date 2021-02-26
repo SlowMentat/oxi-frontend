@@ -41,6 +41,10 @@ import OutfitCoverBtnStyle from '../../makeOutfitCoverBtn.css';
 //Third pary
 import isEqual from 'lodash.isequal';
 
+import {
+	Typography
+} from '@rmwc/typography';
+
 import { 
 	Route, 
 	Switch, 
@@ -313,7 +317,9 @@ export function SiteNav(props){
 						color: 'var(--color-01-tint-02)',
 					}}
 				>
-					{ fieldListTitle }
+					<Typography use="headline4">
+						{ fieldListTitle }
+					</Typography>
 				</div>	
 			break;
 
@@ -425,7 +431,13 @@ export function SiteNav(props){
 																		break;
 																}
 
-																return(<MenuItem onClick={onClickHandler}>{option}</MenuItem>);
+																return(
+																	<MenuItem onClick={onClickHandler}>
+																		<Typography use="header5">
+																			{option}
+																		</Typography>
+																	</MenuItem>
+																);
 															})
 														}
 													</Menu>
@@ -1411,6 +1423,30 @@ export default class webAppView extends React.Component {
 
 		return(
 			<React.Fragment>
+				<div className={Styles.footerInfo_div}>
+					<div>
+						<a href="https://www.oxisalechannel.com/legal/privacy-policy.html">Privacy</a><span className={Styles.spacer}>·</span>
+					</div>
+					<div>
+						<a href="https://www.oxisalechannel.com/legal/terms-and-conditions.html">Terms</a><span className={Styles.spacer}>·</span>
+					</div>
+					<div>
+						<a href="https://www.oxisalechannel.com/legal/terms-and-conditions.html">Info</a>
+					</div>
+					<div style={{display:'block'}}>
+						Fitscene © 2021 - All Rights Reserved
+					</div>
+					{/*
+					<div className={Styles.footerInfoContact_div}>
+						<div>
+							<span>phone:</span><span>425-470-3176</span>
+						</div>
+						<div>
+							<span>email:</span><span>support@fitscene.app</span>
+						</div>
+					</div>
+					*/}
+				</div>
 				<Switch pathname >{/*location={isModal ? this.previousLocation : location}>*/}
 					{/*<Route 
 						path="/"

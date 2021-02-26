@@ -17,12 +17,19 @@ import  '@rmwc/drawer/styles';
 export const Drawer = styled(({...otherProps}) => (
 	<RmwcDrawer
 		{...otherProps}
+		overlayStyle={{'background-color': '#00000020'}}
 	/>
 ))`
 	${
 		props => (`
+			& .mdc-drawer-scrim{
+				background-color: #00000045;
+				z-index:10;				
+			}
+
 			& .mdc-drawer--modal + .mdc-drawer-scrim {
-				background-color: #00000087;
+				background-color: #00000045;
+				z-index:10;
 			}
 		`)
 	}

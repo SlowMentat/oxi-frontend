@@ -55,7 +55,7 @@ export const defaultCookieOptions = !isDevice  ? {
 	secure: true,
 	sameSite: 'lax',
 	//httpOnly: true,
-	path:'/shop',
+	path:'/',
 	maxAge: 86400, // 24hrs
 } : {};
 

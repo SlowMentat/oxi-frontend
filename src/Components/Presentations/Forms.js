@@ -3052,7 +3052,25 @@ export class CreateAccountForm extends React.Component{
 											</div>*/}
 											<div className={CreateAccountStyles.textAcceptTermsContainer_div}>
 												<div className={CreateAccountStyles.textAcceptTerms_div}>
-													<p>By clicking submit, you are agreeing to the <a style={{color:'var(--color6)'}}>Fitsee Terms of Service</a></p>
+													<p>By clicking submit, you acknowledge to have read and agree to our terms and conditions and privacy policy:
+														<a 
+															className={CreateAccountStyles.legalLink_a}
+															style={{
+																'margin-top':'5px',
+															}}
+															href="https://www.oxisalechannel.com/legal/privacy-policy.html"
+															target="_blank"
+														>
+															Privacy Policy 
+														</a>
+														<a 
+															className={CreateAccountStyles.legalLink_a}
+															href="https://www.oxisalechannel.com/legal/terms-and-conditions.html"
+															target="_blank"
+														>
+															Terms and Conditions
+														</a>
+													</p>
 												</div>
 											</div>
 										</div>

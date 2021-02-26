@@ -232,10 +232,14 @@ export const WrapMuiProviders = (children) => (
 				<div 
 					id="headline4" 
 					style={{
-						'font-family': 'Roboto',
-   						color: 'var(--color1)',
+						//'font-family': 'Roboto',
+						'font-family': 'Archivo Black',
+						color: 'var(--color-01)',
+   						//color: 'var(--color1)',
+   						//color: 'var(--color-01)',
+   						transform: 'scaleY(1.2)',
    						'font-size': '1.8rem',
-   						'font-weight': 'bold',
+   						//'font-weight': 'bold',
    						'letter-spacing': '.1rem',
 					}}
 				>
@@ -246,10 +250,13 @@ export const WrapMuiProviders = (children) => (
 				<div 
 					id="headline5" 
 					style={{
-						'font-family': 'Roboto',
-   						color: 'var(--color1)',
+						//'font-family': 'Roboto',
+						'font-family': 'Archivo Black',
+						color: 'var(--color-01)',
+   						//color: 'var(--color1)',
    						'font-size': '1.6rem',
-   						'font-weight': 'bold',
+   						transform: 'scaleY(1.2)',
+   						//'font-weight': 'bold',
    						'letter-spacing': '.1rem',
    						...otherStyles,
 					}}
@@ -262,7 +269,8 @@ export const WrapMuiProviders = (children) => (
 					id="headline6" 
 					style={{
 						'font-family': 'Roboto',
-   						color: 'var(--color1)',
+						color: 'var(--color-01',
+   						//color: 'var(--color1)',
    						'font-size': '1.4rem',
    						'font-weight': 'bold',
    						'letter-spacing': '.1rem',
@@ -302,7 +310,22 @@ export const WrapMuiProviders = (children) => (
 					style={{
 						'font-family':'Roboto',
    						'font-size': '1.6rem',
-   						color:'gray',
+   						//color:'gray',
+   						color:'#828282',
+					}}
+				>
+					{children}
+				</span>
+			),
+			subtitle5: ({ children, ...rest }) => (
+				<span 
+					id="subtitle5" 
+					style={{
+						'font-family':'Roboto',
+   						'font-size': '1.8rem',
+   						//color:'gray',
+   						//color:'#828282',
+   						color: '#505050',
 					}}
 				>
 					{children}

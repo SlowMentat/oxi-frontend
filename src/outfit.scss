@@ -695,8 +695,9 @@
 :local(.outfitUsername_div){
     font-size: 1.5rem;
     font-family: 'Archivo Black', sans-serif;
-    color: black;
+    color: var(--color-01);
     margin-left: 5px;
+    transform: scaleY(1.2);
 
     @include desktop_rules {
         height: calc(58px - 21px - 12px);

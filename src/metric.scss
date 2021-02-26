@@ -592,6 +592,8 @@ $isDebug: false;
     font-size: 1.8rem;
     color: var(--color-01);
     /*font-weight: bold;*/
+    font-family: 'Archivo Black';
+    transform: scaleY(1.2);
 }
 
 :local(.metricMatchType_div){

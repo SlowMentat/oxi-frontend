@@ -12,7 +12,7 @@ import Styles from '../../root.scss';
 import { OxiAppConstants } from '../../Util/OxiAppConstants.js';
 import { SvgIcon } from '../../Components/SvgAssets/SvgIcon.js';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Button } from '../../Components/Presentations/FitseeUI/Buttons/Button.js';
+import { Button, IconButton } from '../../Components/Presentations/FitseeUI/Buttons/Button.js';
 import { logout } from '../Actions/indexActions.js';
 
 import '@rmwc/elevation/styles';
@@ -26,6 +26,11 @@ import {
 	UP,
 	DOWN,
 } from '../../Components/Presentations/FitseeUI/Swipeable.js';
+
+import {
+	Typography
+} from '@rmwc/typography';
+
 
 import {
 	CollapsibleList,
@@ -46,10 +51,11 @@ import {
 	ComingSoonMessage
 } from './Messages.js';
 
-const basicOptions = [
-	'Cart', 
-	'Notifications'
-];
+const basicOptions = {
+	'Cart': props => <CartList {...props}/>, 
+	'Notifications': props => <NotificationsList {...props}/>,
+	'Settings': props => <SettingsList {...props}/>,
+};
 
 const settingsOptions = [
 	'Notifications', 
@@ -57,27 +63,31 @@ const settingsOptions = [
 ];
 
 const menuListStyles = {
-	'flex-direction':'row-reverse',
+	//'flex-direction':'row-reverse',
 	margin:'unset',
 	'border-radius':'0px',
-	'border-bottom':'solid 1px var(--color-01-tint-02)',
+	//'border-bottom':'solid 1px var(--color-01-tint-02)',
+	'border-bottom': 'solid 1px #d6d6d6',
 	height:'60px',   						
 };
 
+const listItemTypography = "subtitle5";
+
 const getBasicOptionIcon = (currentOption) => {
 	var icon = '';
+	const optionKeys = Object.keys(basicOptions);
 
 	switch(currentOption){
-		case basicOptions[0]:
-			icon = 'shopping_cart';
+		case optionKeys[0]:
+			icon = 'shopping_cart_outline';
 			break;
 
-		case basicOptions[1]:
-			icon = 'notifications';
+		case optionKeys[1]:
+			icon = 'notifications_outline';
 			break;
 
-		case basicOptions[2]:
-			icon = '';
+		case optionKeys[2]:
+			icon = 'settings_outline';
 			break;
 
 		default:
@@ -93,6 +103,7 @@ const DrawerWrapper = (props) => {
 			modal
 			dir="rtl"
 			open={props.isOpen}
+			onClose={(e) => props.toggleMenuDrawer(e, false)}
 			style={{
 				'z-index': '20',
 				width: 'calc(100vw - 48px)',
@@ -107,12 +118,82 @@ const DrawerWrapper = (props) => {
 	);
 }
 
+const CartList = (props) => {
+	return(
+		<List>
+			<ComingSoonMessage type={props.option}>
+			</ComingSoonMessage>
+		</List>
+	);
+}
+
+const NotificationsList = (props) => {
+	return(
+		<List>
+			<ComingSoonMessage type={props.option}>
+			</ComingSoonMessage>
+		</List>
+	);
+}
+
+const SettingsList = (props) => {
+	return(
+		<List 
+			style={{
+				direction: 'ltr',
+			}}
+		>
+			<ListItem disabled={props.disabled}>
+				<Typography use={listItemTypography}>
+					<a href="https://www.oxisalechannel.com/legal/terms-and-conditions.html">Terms of Use</a>
+				</Typography>
+			</ListItem>
+			<ListItem disabled={props.disabled}>
+				<Typography use={listItemTypography}>
+					<a href="https://www.oxisalechannel.com/legal/privacy-policy.html">Privacy Policy</a>
+				</Typography>
+			</ListItem>
+			<ListItem disabled={props.disabled}>
+				<Typography use={listItemTypography}>
+					<a href="https://www.oxisalechannel.com/legal/terms-and-conditions.html">Info</a>
+				</Typography>
+			</ListItem>
+		</List>
+	);
+}
+
 export class MenuDrawer extends React.Component{
 	constructor(props){
 		super(props);
 
 		this.state = {
+			openedLists:{
+				Account: false,
+				...(Object.keys(basicOptions).reduce((accum, option) => ({
+					...accum,
+					[option]: false,
+				}), {})),
+			}
 		}
+
+		this.listExpanded = this.listExpanded.bind(this);
+	}
+
+	listExpanded(name){
+		console.log("setting state on " + name);
+		this.setState(prevState => ({
+			...prevState,
+			openedLists:{
+				...prevState.openedLists,
+				...{
+					Account: (name == 'Account'),
+					...(Object.keys(basicOptions).reduce((accum, option) => ({
+						...accum,
+						[option]: (name == option),
+					}), {})),
+				}
+			}
+		}))
 	}
 
 	render(){
@@ -129,6 +210,8 @@ export class MenuDrawer extends React.Component{
 			userPicUri,
 			username
 		} = this.props;
+
+		console.log(this.state);
 
 		const DrawerContent = 
 			<div
@@ -190,7 +273,7 @@ export class MenuDrawer extends React.Component{
 						/>
 					</div>
 					<CSSTransition
-						tiemout={600}
+						timeout={600}
 						classNames="metricContainer_div"
 						in={true}
 						unmountOnExit 
@@ -198,10 +281,19 @@ export class MenuDrawer extends React.Component{
 						<div>
 							<CollapsibleList
 								innerStyle={{
-									height:'72px',
+									'min-height':'72px',
+									height: 'auto',
 								}}
 								style={{
 									'margin-top': '9px',
+								}}
+								open={this.state.openedLists["Account"]}
+								//onOpen={() => this.listExpanded("Account")}
+								onClick={(e) => {
+									if(!this.state.openedLists['Account']){
+										e.stopPropagation(); 
+										this.listExpanded('Account');
+									}
 								}}
 								handle={
 									<div 
@@ -211,7 +303,8 @@ export class MenuDrawer extends React.Component{
 											'display': 'flex',
 											'flex-direction': 'row-reverse',
 											'align-items': 'center',
-											'border-bottom': 'solid 1px var(--color-01-tint-02)',
+											//'border-bottom': 'solid 1px var(--color-01-tint-02)',
+											'border-bottom': 'solid 1px #d6d6d6',
 											'padding-left': '12px',
 										}}
 									>
@@ -244,24 +337,76 @@ export class MenuDrawer extends React.Component{
 												} 
 											/>
 											<div className={Styles.menuListItemText_div}>
-												Account
+												<Typography use="headline5">
+													Account
+												</Typography>
 											</div>
 										</ListItem>
 									</div>
 								}
 							>
-								<List>
-									
-								</List>
+								<div 
+									style={{
+										'background-color':'#f3f3f3',
+   										'padding-top': '24px',
+   										'padding-bottom': '24px',
+   										'direction': 'ltr',
+									}}
+								>
+									<ListItem
+										disabled
+										style={{
+											'justify-content':'space-between',
+											height:'48px',
+										}}
+									>
+										<Typography use={listItemTypography} style={{'font-weight': 'bold'}}>
+											{username}
+										</Typography>
+
+										<IconButton
+											//outlined
+											icon="edit"
+											theme="textPrimaryOnLight"
+											label={"Edit"}
+											onClick={(e) => e.stopPropagation()}
+											style={{direction: 'rtl',}}						
+										/>
+									</ListItem>
+									<ListItem disabled><Typography use={listItemTypography}>Style</Typography></ListItem>
+									<ListItem disabled><Typography use={listItemTypography}>Likes</Typography></ListItem>
+									<ListItem disabled><Typography use={listItemTypography}>Views</Typography></ListItem>
+									<ListItem disabled><Typography use={listItemTypography}>Preferences</Typography></ListItem>
+									<ListItem
+										disabled
+										style={{
+											'justify-content':'flex-end',
+										}}
+									>
+										<Button
+											outlined
+											theme="textPrimaryOnLight"
+											label={"deactivate account"}
+											onClick={(e) => e.stopPropagation()}								
+										/>
+									</ListItem>
+								</div>
 							</CollapsibleList>
 
 							{
-								basicOptions.map((option, ind) => {
+								Object.keys(basicOptions).map((option, ind) => {
 									return(
 										<CollapsibleList
 											innerStyle={{
 												//'background-color': 'var(--color-01-tint-01)',
 												'background-color': '#f3f3f3',
+											}}
+											open={this.state.openedLists[option]}
+											onClick={(e) => {
+												if(!this.state.openedLists[option]){
+													e.stopPropagation(); 
+													this.listExpanded(option);
+												}
 											}}
 											handle = {
 												<ListItem
@@ -271,23 +416,28 @@ export class MenuDrawer extends React.Component{
 													<ListItemGraphic
 														style={{
 															'margin':'unset',
-															'margin-right': '32px',
+															'margin-left': '18px',
 															'align-items': 'center',
+															color: 'var(--color-01)',
 														}} 
 														icon={getBasicOptionIcon(option)}
 													/>
 													<div
 														className={Styles.menuListItemText_div}
 													>
-														{option}
+														<Typography use="headline5">
+															{option}
+														</Typography>
 													</div>
 												</ListItem>
 											}
 										>
-											<List>
-												<ComingSoonMessage type={option}>
-												</ComingSoonMessage>
-											</List>
+											{
+												basicOptions[option]({
+													option, 
+													disabled: true,
+												})
+											}
 										</CollapsibleList>
 									);
 								})

@@ -132,7 +132,7 @@ class ItemAsSeenOnControls extends React.Component{
 									<SvgIcon
 										name="MeasureIcon"
 										stroke="#000"
-										strokeWidth="2"
+										//strokeWidth="2"
 										//style={{color:'black'}}
 									/>
 								}

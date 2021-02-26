@@ -312,6 +312,60 @@ a{
 	text-decoration: none;
 }
 
+.footerInfo_div{
+	position: absolute;
+    right: 30px;
+    bottom: 10px;
+    /*display: flex;
+    width: 200px;
+    flex-flow: wrap;
+    justify-content: center;*/  
+    font-size: 1.2rem;
+    color: var(--color-01-tint-01);
+    text-align: right;
+    width: auto;    
+    z-index: 10000;
+
+	@include desktop_rules {
+    }
+
+    @include mobile_rules {
+    	display: none;
+    }
+}
+
+.footerInfoContact_div{
+	text-align: right;
+}
+
+.footerInfoContact_div span{
+}
+
+.footerInfoContact_div div{
+
+}
+
+.footerInfoContact_div div{
+	display: block;
+}
+
+.footerInfoContact_div > div span:first-child {
+	font-weight: bold;
+	margin-right: 5px;
+}
+
+.footerInfo_div > div:not(.footerInfoContact_div){
+	display: inline-block;
+}
+
+.spacer {
+	margin: 0px 2px;
+}
+
+.footerInfo_div > div > a:hover{	
+	font-weight: bold;
+}
+
 :local(.logoContainer_div){
     transition: width 175ms linear;
     top: 0px;
@@ -1655,16 +1709,27 @@ a{
 }
 
 .comingSoon_h1{
-	color: var(--color-01-tint-02);
+	/*color: var(--color-01-tint-02);
 	display: flex;
 	align-items: center;
 	font-size: 2.4rem;
-	text-align: revert;
+	text-align: revert;*/
+
+	font-size: 1.8rem;
+    transform: scaleY(1.2);
+    letter-spacing: 0.1rem;
+    font-family: roboto;
+    color: var(--color-01-tint-02);
 }
 
 .msg_div{
-	font-size: 1.8rem;
+	/*font-size: 1.8rem;
 	margin-bottom: 2rem;
 	line-height: 2rem;
-	color: black;
+	color: black;*/
+
+	font-size: 1.6rem;
+    margin-bottom: 2rem;
+    line-height: 1.8r;
+    color: #545454;
 }
